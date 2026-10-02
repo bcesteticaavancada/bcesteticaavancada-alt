@@ -66,5 +66,27 @@
 
   <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
   <script src="script.js"></script>
+<script>
+(function(){
+  if(window.BCMenuReady)return;
+  var t=document.getElementById("menuToggle"),d=document.getElementById("siteDrawer"),o=document.getElementById("menuOverlay"),c=document.getElementById("drawerClose");
+  if(!t||!d||!o)return;
+  function m(open){
+    t.classList.toggle("is-open",open);
+    d.classList.toggle("is-open",open);
+    o.classList.toggle("is-open",open);
+    t.setAttribute("aria-expanded",open?"true":"false");
+    t.setAttribute("aria-label",open?"Fechar menu":"Abrir menu");
+    d.setAttribute("aria-hidden",open?"false":"true");
+    o.setAttribute("aria-hidden",open?"false":"true");
+    document.body.classList.toggle("menu-open",open);
+  }
+  t.addEventListener("click",function(){m(!d.classList.contains("is-open"));});
+  if(c)c.addEventListener("click",function(){m(false);});
+  o.addEventListener("click",function(){m(false);});
+  d.querySelectorAll("a").forEach(function(a){a.addEventListener("click",function(){m(false);});});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")m(false);});
+})();
+</script>
 </body>
 </html>
