@@ -14,14 +14,32 @@ function setMenu(open){
   overlay.setAttribute("aria-hidden",String(!open));
   document.body.classList.toggle("menu-open",open);
 }
+function closeMenu(){setMenu(false)}
 
 toggle?.addEventListener("click",()=>setMenu(!drawer.classList.contains("is-open")));
-closeButton?.addEventListener("click",()=>setMenu(false));
-overlay?.addEventListener("click",()=>setMenu(false));
-drawer?.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setMenu(false)));
-document.addEventListener("keydown",(event)=>{
-  if(event.key==="Escape")setMenu(false);
+closeButton?.addEventListener("click",closeMenu);
+overlay?.addEventListener("click",closeMenu);
+drawer?.querySelectorAll("a").forEach(link=>link.addEventListener("click",closeMenu));
+document.addEventListener("keydown",(event)=>{if(event.key==="Escape")closeMenu();});
+
+const currentPath=window.location.pathname.replace(/index\.html$/,"");
+drawer?.querySelectorAll("a").forEach(link=>{
+  const href=link.getAttribute("href");
+  if(!href||href.startsWith("http"))return;
+  const absolute=new URL(href,window.location.href).pathname.replace(/index\.html$/,"");
+  if(absolute===currentPath)link.classList.add("active");
 });
-document.addEventListener("click",(event)=>{
-  if(event.target.closest(".drawer-nav a"))setMenu(false);
-});
+
+let startX=0,startY=0;
+document.addEventListener("touchstart",(event)=>{
+  if(!event.touches[0])return;
+  startX=event.touches[0].clientX;
+  startY=event.touches[0].clientY;
+},{passive:true});
+document.addEventListener("touchend",(event)=>{
+  if(!event.changedTouches[0]||drawer?.classList.contains("is-open"))return;
+  const endX=event.changedTouches[0].clientX;
+  const endY=event.changedTouches[0].clientY;
+  const dx=endX-startX,dy=endY-startY;
+  if(startX<24&&dx>70&&Math.abs(dy)<50)setMenu(true);
+},{passive:true});
