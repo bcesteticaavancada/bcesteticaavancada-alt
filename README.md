@@ -8,6 +8,12 @@ Projeto em produção no GitHub Pages, com identidade visual premium, apresenta�
 
 Site: https://bcesteticaavancada.github.io/bcesteticaavancada-alt/
 
+## Identidade visual
+
+A logo padrão do projeto é:
+
+- `assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp`
+
 ## Estrutura principal
 
 - `index.html` — conteúdo e estrutura do site
