@@ -105,3 +105,25 @@ button{font:inherit}
 
 .wrap{width:min(1180px,92%);margin-left:auto;margin-right:auto}
 .section-heading{max-width:760px;margin:0 auto 38px;text-align:center}.section-heading h2{font:600 clamp(40px,5vw,66px)/.96 var(--serif);margin:8px 0 14px}.section-heading p{color:var(--muted);font-size:14px}
+
+/* HOME — Mel como fundo principal; logo apenas como referência no cabeçalho */
+.home-hero{
+  position:relative;
+  min-height:calc(100vh - 78px);
+  display:flex;
+  align-items:flex-end;
+  overflow:hidden;
+  background-color:#171310;
+  background-image:linear-gradient(90deg,rgba(15,11,9,.82) 0%,rgba(15,11,9,.58) 42%,rgba(15,11,9,.28) 78%,rgba(15,11,9,.18) 100%),url("assets/01-mel-perfil.jpg");
+  background-size:cover;
+  background-position:center 28%;
+  background-repeat:no-repeat;
+}
+.home-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(15,11,9,.76) 0%,rgba(15,11,9,.18) 48%,rgba(15,11,9,.08) 100%);pointer-events:none}
+.home-hero .hero-copy{position:relative;z-index:2;margin:0 auto;width:min(1180px,92%);padding:clamp(90px,16vh,150px) 0 72px}
+.home-hero .hero-copy p{max-width:650px}
+@media(max-width:700px){
+  .home-hero{min-height:calc(100vh - 68px);background-position:center top;background-image:linear-gradient(90deg,rgba(15,11,9,.72) 0%,rgba(15,11,9,.48) 100%),url("assets/01-mel-perfil.jpg")}
+  .home-hero .hero-copy{width:90%;padding:80px 0 52px}
+}
+@media(max-width:420px){.home-hero .hero-copy{padding-bottom:48px}}
