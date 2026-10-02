@@ -18,15 +18,15 @@ img{display:block;max-width:100%}
 a{text-decoration:none;color:inherit}
 button{font:inherit}
 .site-header{position:sticky;top:0;z-index:100;background:rgba(252,250,248,.97);border-bottom:1px solid var(--line);box-shadow:0 8px 24px rgba(33,27,24,.07)}
-.header-inner{width:min(1180px,92%);height:78px;margin:auto;display:grid;grid-template-columns:56px 1fr 110px;align-items:center;gap:16px}
+.header-inner{width:min(1180px,92%);height:78px;margin:auto;display:grid;grid-template-columns:110px 1fr 56px;align-items:center;gap:16px}
 .brand{justify-self:center;display:block;width:190px;height:68px;overflow:hidden}
 .brand img{width:100%;height:100%;object-fit:contain}
-.menu-toggle{width:46px;height:46px;border:1px solid var(--line);border-radius:50%;background:var(--paper);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;cursor:pointer}
+.menu-toggle{justify-self:end;width:46px;height:46px;border:1px solid var(--line);border-radius:50%;background:var(--paper);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;cursor:pointer}
 .menu-toggle span{display:block;width:19px;height:2px;background:var(--ink);border-radius:2px;transition:transform .2s ease,opacity .2s ease}
 .menu-toggle.is-open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .menu-toggle.is-open span:nth-child(2){opacity:0}
 .menu-toggle.is-open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-.header-cta{justify-self:end;background:var(--gold);color:#fff;padding:11px 17px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.header-cta{justify-self:start;background:var(--gold);color:#fff;padding:11px 17px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .menu-overlay{position:fixed;inset:0;background:rgba(12,9,8,.48);opacity:0;visibility:hidden;z-index:109;transition:opacity .22s ease,visibility .22s ease}
 .menu-overlay.is-open{opacity:1;visibility:visible}
 .site-drawer{position:fixed;left:0;top:0;bottom:0;width:min(370px,88vw);background:#1a1512;color:#fff;z-index:110;padding:24px;transform:translateX(-105%);visibility:hidden;transition:transform .28s ease,visibility .28s ease;box-shadow:20px 0 50px rgba(0,0,0,.24);display:flex;flex-direction:column}
@@ -59,10 +59,10 @@ button{font:inherit}
 .footer{background:#100d0b;color:#fff;padding:24px 4%;display:flex;justify-content:space-between;gap:15px;font-size:11px;color:rgba(255,255,255,.6)}
 .whatsapp-float{position:fixed;right:14px;bottom:14px;background:#1f8f4d;color:#fff;padding:11px 15px;border-radius:999px;font-size:12px;font-weight:700;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 @media(max-width:700px){
-  .header-inner{height:68px;width:92%;grid-template-columns:48px 1fr 86px}
+  .header-inner{height:68px;width:92%;grid-template-columns:86px 1fr 48px}
   .brand{width:150px;height:58px}
   .menu-toggle{width:42px;height:42px}
-  .header-cta{padding:10px 12px;font-size:9px}
+  .header-cta{justify-self:start;padding:10px 12px;font-size:9px}
   .home-logo{padding:8px 10px 5px}
   .home-logo img{width:min(420px,94vw);max-height:160px}
   .hero-photo{height:62vh;min-height:420px}
