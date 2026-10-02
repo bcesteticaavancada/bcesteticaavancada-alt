@@ -2,8 +2,16 @@
 
 Site institucional da **BC Estética Avançada — Beautiful Center**.
 
-Projeto inicial do novo site institucional, preparado para receber identidade visual, serviços, galeria, contato e integração com WhatsApp.
+Projeto em produção no GitHub Pages, com identidade visual premium, apresentação dos tratamentos, agendamento via WhatsApp, promoções/valores, portfólio de resultados e galeria da clínica.
 
-## Status
+## Publicação
 
-🚧 Em construção.
+Site: https://bcesteticaavancada.github.io/bcesteticaavancada-alt/
+
+## Estrutura principal
+
+- `index.html` — conteúdo e estrutura do site
+- `styles.css` — identidade visual e responsividade
+- `script.js` — menu, calendário de agendamento e WhatsApp
+- `assets/dados/procedimentos.json` — base de valores promocionais informados pela clínica
+- `assets/portfolio/` — imagens otimizadas do portfólio
