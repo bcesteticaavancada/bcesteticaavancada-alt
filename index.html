@@ -1,50 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="BC Estética Avançada — Beauty Center. Menos achismo. Mais ciência.">
-<title>BC Estética Avançada | Beauty Center</title>
-<link rel="icon" href="assets/logo-bc-estetica-avancada.jpg">
-<link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BC Estética Avançada</title>
+<meta name="description" content="BC Estética Avançada — Beauty Center.">
+<style>
+*{box-sizing:border-box}html{font-family:Arial,sans-serif;background:#171310;color:#fff}body{margin:0;background:#171310}
+header{height:74px;background:#fcfaf8;color:#211b18;display:flex;align-items:center;border-bottom:1px solid #ddd}
+.wrap{width:min(1120px,90%);margin:auto}
+nav{display:flex;align-items:center;justify-content:space-between;gap:20px}nav strong{font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+nav a{color:#211b18;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.hero{min-height:calc(100vh - 74px);display:flex;align-items:center;padding:60px 0;background:linear-gradient(135deg,#171310,#241c17)}
+.eyebrow{color:#d7b676;letter-spacing:.22em;font-size:12px;font-weight:700}
+h1{font-family:Georgia,serif;font-size:clamp(56px,10vw,112px);line-height:.86;margin:18px 0}
+h1 em{color:#d7b676}
+p{color:#d7d0ca;max-width:700px;font-size:18px;line-height:1.7}
+.buttons{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:999px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.gold{background:#b88a45;color:#fff}.outline{border:1px solid #9d9289;color:#fff}
+.card{margin-top:34px;padding:18px 20px;border:1px solid rgba(255,255,255,.14);display:inline-block;color:#cfc6bf;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+footer{padding:28px 0;border-top:1px solid rgba(255,255,255,.1);color:#9b928c;font-size:11px}
+@media(max-width:700px){header{height:64px}.wrap{width:88%}nav a{display:none}h1{font-size:60px}p{font-size:16px}.hero{min-height:calc(100vh - 64px)}}
+</style>
 </head>
 <body>
-<header class="site-header">
-<div class="container nav-wrap">
-<a class="brand" href="#inicio"><img class="brand-logo" src="assets/logo-bc-estetica-avancada.jpg" alt="BC Estética Avançada"></a>
-<button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
-<nav class="nav" id="siteNav"><a href="#inicio">Início</a><a href="#clinica">A Clínica</a><a href="#mel">Mel</a><a href="#tratamentos">Tratamentos</a><a href="#agendamento">Agendamento</a><a href="#valores">Promoções</a><a href="#portfolio">Portfólio</a><a href="#protocolos">Protocolos</a><a href="#ambiente">Ambiente</a><a href="#contato">Contato</a></nav>
-</div>
-</header>
-<main>
-<section class="hero" id="inicio">
-      <div class="hero-media">
-        <img src="assets/01-mel-perfil.jpg" alt="Retrato profissional da Mel" loading="lazy" fetchpriority="low" decoding="async">
-      </div>
-      <div class="hero-shade"></div>
-      <div class="container hero-content">
-        <span class="eyebrow light">BEAUTY CENTER • ESTÉTICA AVANÇADA</span>
-        <p class="hero-kicker">MENOS ACHISMO. MAIS CIÊNCIA.</p>
-        <h1>Beleza com <em>propósito.</em></h1>
-        <p class="hero-copy">Avaliação individualizada, planejamento e protocolos personalizados para valorizar sua beleza com naturalidade, técnica e atenção aos detalhes.</p>
-        <div class="hero-actions">
-          <a class="btn btn-gold" href="#agendamento">Agende sua avaliação</a>
-          <a class="btn btn-outline-light" href="#tratamentos">Conheça os tratamentos</a>
-        </div>
-        <div class="hero-note"><span>●</span> Belo Horizonte • Nova Suissa • Terça a sábado, 09h às 18h</div>
-      </div>
-    </section>
-<section class="section dark" id="clinica"><div class="container two-col"><div><p class="eyebrow">A CLÍNICA</p><h2>Ciência e estética em <em>equilíbrio.</em></h2><p>Conhecimento técnico, avaliação individualizada e uma experiência de atendimento acolhedora.</p></div><figure class="photo"><img src="assets/03-recepcao-bc-estetica.jpg" alt="Recepção da BC Estética" loading="lazy"></figure></div></section>
-<section class="section paper" id="mel"><div class="container two-col"><figure class="photo"><img src="assets/01-mel-perfil.jpg" alt="Mel" loading="lazy"></figure><div><p class="eyebrow">CONHEÇA A MEL</p><h2>Maria Luisa Franco de Assis <em>— Mel</em></h2><p class="lead">Experiência, estética e visão individualizada de cuidado.</p><p>Atuação na área da estética e em Estética Avançada, com foco em protocolos personalizados.</p></div></div></section>
-<section class="section warm" id="tratamentos"><div class="container"><div class="section-heading"><p class="eyebrow">TRATAMENTOS</p><h2>Cuidados organizados por <em>objetivo.</em></h2></div><div class="cards"><article><span>01</span><h3>Harmonização Facial</h3><p>Estratégias de equilíbrio do contorno facial.</p></article><article><span>02</span><h3>Rejuvenescimento</h3><p>Protocolos para viço e qualidade da pele.</p></article><article><span>03</span><h3>Melasma & Acne</h3><p>Protocolos personalizados após avaliação.</p></article><article><span>04</span><h3>Tecnologias Avançadas</h3><p>Ultrassom, radiofrequência e outras tecnologias.</p></article></div></div></section>
-<section class="section" id="agendamento"><div class="container narrow"><div class="section-heading"><p class="eyebrow">AGENDAMENTO</p><h2>Solicite seu <em>horário.</em></h2><p>Escolha procedimento, data e horário e envie pelo WhatsApp.</p></div><div class="booking-card"><label>Procedimento</label><select id="serviceSelect"><option value="">Selecione</option><option>Consulta / Avaliação estética</option><option>Botox / Toxina botulínica</option><option>Preenchimento facial</option><option>Bioestimulador de colágeno</option><option>Skinbooster</option><option>Microagulhamento</option><option>Peeling</option><option>Tratamento para melasma e manchas</option><option>Tratamento para acne e sequelas</option><option>Limpeza de pele</option><option>Tecnologias avançadas</option></select><div class="booking-row"><div><label>Data</label><input id="bookingDate" type="date"></div><div><label>Horário</label><select id="bookingTime"><option value="">Selecione</option><option>09:00</option><option>10:00</option><option>11:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div><div class="booking-row"><div><label>Nome</label><input id="clientName" type="text"></div><div><label>WhatsApp</label><input id="clientPhone" type="tel"></div></div><button class="btn btn-gold" id="bookingSubmit" type="button">Solicitar pelo WhatsApp</button><p class="booking-status" id="bookingStatus"></p></div></div></section>
-<section class="section warm" id="valores"><div class="container"><div class="section-heading"><p class="eyebrow">PROMOÇÕES & VALORES</p><h2>Valores para seu <em>planejamento.</em></h2></div><div class="price-grid"><article class="price-card"><span>OFERTA</span><h3>Limpeza + Peeling</h3><s>R$ 250,00</s><strong>R$ 149,90</strong><small>por sessão</small></article><article class="price-card"><span>OFERTA</span><h3>Massagem Relaxante</h3><s>R$ 390,00</s><strong>R$ 99,00</strong><small>por sessão</small></article><article class="price-card featured"><span>OFERTA</span><h3>Skinbooster Facial</h3><strong>R$ 149,90</strong><small>por sessão</small></article><article class="price-card"><span>OFERTA</span><h3>Microagulhamento</h3><s>R$ 590,00</s><strong>R$ 199,00</strong><small>por sessão</small></article><article class="price-card"><span>OFERTA</span><h3>Microvasos</h3><s>R$ 799,00</s><strong>R$ 499,00</strong><small>5 sessões</small></article><article class="price-card"><span>OFERTA</span><h3>Peeling Coreano</h3><s>R$ 390,00</s><strong>R$ 99,00</strong><small>por sessão</small></article></div></div></section>
-<section class="section" id="portfolio"><div class="container"><div class="section-heading"><p class="eyebrow">PORTFÓLIO</p><h2>Veja o cuidado da BC em <em>detalhes.</em></h2></div><div class="portfolio-grid"><img src="assets/portfolio/bc-sculpt-cryo-cintura-feminina.webp" alt="Sculpt Cryo" loading="lazy"><img src="assets/portfolio/bc-sculpt-cryo-abdomen-masculino.webp" alt="Sculpt Cryo" loading="lazy"><img src="assets/portfolio/bc-cellular-code-1-sessao.webp" alt="Cellular Code" loading="lazy"><img src="assets/portfolio/bc-harmonizacao-labial.webp" alt="Harmonização labial" loading="lazy"><img src="assets/portfolio/bc-cryo-lift-pescoco.webp" alt="Cryo Lift" loading="lazy"></div></div></section>
-<section class="section dark" id="protocolos"><div class="container"><div class="section-heading"><p class="eyebrow light">PROTOCOLOS</p><h2>Estratégias para diferentes <em>objetivos.</em></h2></div><div class="cards protocol-grid"><article><span>01</span><h3>Refine 3D</h3><p>Estratégia facial personalizada.</p></article><article><span>02</span><h3>Reset Glow</h3><p>Foco em viço.</p></article><article><span>03</span><h3>Melasma OFF</h3><p>Protocolo direcionado.</p></article><article><span>04</span><h3>ACNE OFF</h3><p>Protocolo direcionado.</p></article></div></div></section>
-<section class="section warm" id="ambiente"><div class="container"><div class="section-heading"><p class="eyebrow">AMBIENTE</p><h2>Um espaço pensado para <em>acolher.</em></h2></div><div class="gallery-grid"><img src="assets/03-recepcao-bc-estetica.jpg" alt="Recepção" loading="lazy"><img src="assets/04-sala-massagem.jpg" alt="Sala de massagem" loading="lazy"><img src="assets/05-sala-procedimentos.jpg" alt="Sala de procedimentos" loading="lazy"><img src="assets/06-sala-atendimento.jpg" alt="Sala de atendimento" loading="lazy"></div></div></section>
-<section class="section paper" id="contato"><div class="container contact"><div><p class="eyebrow">CONTATO</p><h2>Vamos conversar sobre sua <em>avaliação.</em></h2><p>Rua Gávea, 358 • Loja 02 • 2º andar • Nova Suissa • Belo Horizonte/MG</p><a class="btn btn-gold" href="https://wa.me/5531995184110?text=Olá%20BC%20Estética!%20Quero%20agendar%20uma%20avaliação." target="_blank" rel="noopener">WhatsApp • (31) 99518-4110</a></div><div class="contact-info"><strong>Instagram: @bc.esteticaavancada</strong><strong>E-mail: bcesteticaav@gmail.com</strong><strong>Terça a sábado, 09h às 18h</strong></div></div></section>
-</main>
-<footer class="footer"><div class="container footer-wrap"><span>BC Estética Avançada</span><span>Menos achismo. Mais ciência.</span></div></footer>
-<a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener">WhatsApp</a>
-<script src="script.js"></script>
-</body></html>
+<header><div class="wrap"><nav><strong>BC Estética Avançada</strong><a href="https://wa.me/5531995184110" target="_blank" rel="noopener">Agendar avaliação</a></nav></div></header>
+<main class="hero"><div class="wrap">
+<div class="eyebrow">BEAUTY CENTER • ESTÉTICA AVANÇADA</div>
+<div class="eyebrow" style="margin-top:24px">MENOS ACHISMO. MAIS CIÊNCIA.</div>
+<h1>Beleza com <em>propósito.</em></h1>
+<p>Bem-vinda à BC Estética Avançada. Avaliação individualizada, planejamento e protocolos personalizados para valorizar sua beleza com naturalidade, técnica e atenção aos detalhes.</p>
+<div class="buttons"><a class="btn gold" href="https://wa.me/5531995184110?text=Ol%C3%A1%20BC%20Est%C3%A9tica!%20Quero%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener">Agende sua avaliação</a><a class="btn outline" href="#informacoes">Conheça a clínica</a></div>
+<div class="card" id="informacoes">Belo Horizonte • Nova Suissa • Terça a sábado, 09h às 18h</div>
+</div></main>
+<footer><div class="wrap">BC Estética Avançada • Rua Gávea, 358 • Loja 02 • 2º andar • Nova Suissa • Belo Horizonte/MG</div></footer>
+</body>
+</html>
