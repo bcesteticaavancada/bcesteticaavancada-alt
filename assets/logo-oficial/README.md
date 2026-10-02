@@ -1,11 +1,7 @@
 # Logo da BC Estética Avançada
 
-O arquivo mestre/original da logo permanece arquivado nesta pasta:
+A versão padrão utilizada pelo site é:
 
-- `Logo-bc-estetica-avancada.png` — arquivo oficial em alta qualidade.
+- `bc-logo-estetica-avancada-flutuante.webp`
 
-Para o carregamento do site, a página utiliza a versão leve:
-
-- `assets/logo-bc-estetica-avancada.jpg`
-
-A versão leve é a que aparece no cabeçalho e no rodapé para favorecer o carregamento em dispositivos móveis.
+Formato WebP otimizado e destinado ao uso da logo flutuante na página inicial.
