@@ -24,7 +24,7 @@ footer{padding:28px 0;border-top:1px solid rgba(255,255,255,.1);color:#9b928c;fo
 @media(max-width:700px){header{height:64px}.wrap{width:88%}nav a{display:none}h1{font-size:60px}p{font-size:16px}.hero{min-height:calc(100vh - 64px)}}
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Arial,sans-serif;color:#211b18;background:#171310}a{text-decoration:none;color:inherit}.wrap{width:min(1120px,90%);margin:auto}
-header{height:74px;background:#fcfaf8;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:30}.site-header{height:74px}.site-header nav{height:74px;display:flex;align-items:center;gap:18px}.brand-link{display:flex;align-items:center;margin-right:auto}.brand-logo{width:120px;height:58px;object-fit:contain}.nav-links{display:flex;align-items:center;gap:16px}.nav-links a,.nav-cta{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}.nav-links a{color:#756c66}.nav-cta{background:#171310;color:#fff;padding:11px 17px;border-radius:999px}.menu-toggle{display:none;width:42px;height:42px;border:1px solid #d8cec4;background:#fcfaf8;border-radius:50%;font-size:21px;cursor:pointer}
+header{height:74px;background:#fcfaf8;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:30}.site-header{height:74px}.site-header nav{height:74px;display:flex;align-items:center;gap:18px}.brand-link{display:flex;align-items:center;margin-right:auto}.brand-logo{width:150px;height:66px;object-fit:contain}.nav-links{display:flex;align-items:center;gap:16px}.nav-links a,.nav-cta{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}.nav-links a{color:#756c66}.nav-cta{background:#171310;color:#fff;padding:11px 17px;border-radius:999px}.menu-toggle{display:none;width:42px;height:42px;border:1px solid #d8cec4;background:#fcfaf8;border-radius:50%;font-size:21px;cursor:pointer}
 .hero{position:relative;min-height:calc(100vh - 74px);display:flex;align-items:center;overflow:hidden;background:#171310}.hero-media{position:absolute;inset:0}.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center 25%}.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,12,10,.82),rgba(15,12,10,.50) 48%,rgba(15,12,10,.22) 100%)}.hero .wrap{position:relative;z-index:2}.eyebrow{color:#d7b676;letter-spacing:.22em;font-size:12px;font-weight:700}.hero-kicker{color:#eee0ca!important;letter-spacing:.24em!important;font-size:12px!important;font-weight:700}.hero h1{font-family:Georgia,serif;font-size:clamp(58px,9vw,112px);line-height:.86;margin:18px 0;color:#fff}.hero h1 em{color:#d7b676}.hero p{max-width:700px;color:#d7d0ca;font-size:18px;line-height:1.65}.buttons{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 22px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.gold{background:#b88a45;color:#fff}.outline{border:1px solid rgba(255,255,255,.55);color:#fff}.card{margin-top:28px;padding:15px 18px;border:1px solid rgba(255,255,255,.16);display:inline-block;color:#d4cbc4;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
 @media(max-width:900px){.nav-links{display:none}.menu-toggle{display:block}.nav-cta{display:none}.nav-links.open{display:flex;position:absolute;top:74px;left:5%;right:5%;padding:18px;flex-direction:column;align-items:stretch;background:#fcfaf8;border:1px solid #ddd;box-shadow:0 18px 45px rgba(0,0,0,.14)}.nav-links.open a{padding:12px;border-bottom:1px solid #eee}.nav-links.open a:last-child{border-bottom:0}}
 @media(max-width:600px){header,.site-header,.site-header nav{height:64px}.nav-links.open{top:64px}.hero{min-height:calc(100vh - 64px)}.hero-media img{object-position:62% top}.hero-shade{background:linear-gradient(90deg,rgba(15,12,10,.80),rgba(15,12,10,.48))}.hero h1{font-size:60px}.hero p{font-size:16px}}
@@ -35,7 +35,19 @@ header{height:74px;background:#fcfaf8;border-bottom:1px solid #ddd;position:stic
 .nav-links.open a{padding:13px 0;border-bottom:1px solid #eee}
 @media(max-width:900px){.site-header nav{position:relative}.nav-links{display:none}}
 @media(max-width:600px){.nav-links.open{top:64px}.whatsapp-float{right:14px;bottom:14px}}
-</style></style></style>
+<style>
+@media(max-width:900px){
+.site-header nav{position:relative}
+.nav-links.open{
+display:flex;position:fixed;top:0;right:0;left:auto;width:min(340px,88vw);height:100dvh;
+padding:92px 26px 28px;flex-direction:column;align-items:stretch;gap:0;
+background:#fcfaf8;border:0;border-left:1px solid #ddd;box-shadow:-18px 0 45px rgba(0,0,0,.16);
+z-index:55;
+}
+.nav-links.open a{padding:15px 0;border-bottom:1px solid #eee;color:#211b18}
+.menu-toggle{position:relative;z-index:60}
+}
+</style></style></style></style>
 </head>
 <body>
 <header><div class="wrap"><nav><a class="brand-link" href="#inicio" aria-label="BC Estética Avançada"><img class="brand-logo" src="assets/logo-bc-estetica-avancada.jpg" alt="BC Estética Avançada"></a><button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button><div class="nav-links" id="navLinks" aria-label="Menu principal"><a href="#inicio">Início</a><a href="#clinica">A Clínica</a><a href="#mel">Mel</a><a href="#tratamentos">Tratamentos</a><a href="#agendamento">Agendamento</a><a href="#valores">Valores</a><a href="#portfolio">Portfólio</a><a href="#protocolos">Protocolos</a><a href="#ambiente">Ambiente</a><a href="#contato">Contato</a></div><a class="nav-cta" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Agendar</a></nav></div></header>
@@ -46,7 +58,32 @@ header{height:74px;background:#fcfaf8;border-bottom:1px solid #ddd;position:stic
 <p>Bem-vinda à BC Estética Avançada. Avaliação individualizada, planejamento e protocolos personalizados para valorizar sua beleza com naturalidade, técnica e atenção aos detalhes.</p>
 <div class="buttons"><a class="btn gold" href="https://wa.me/5531995184110?text=Ol%C3%A1%20BC%20Est%C3%A9tica!%20Quero%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener">Agende sua avaliação</a><a class="btn outline" href="#informacoes">Conheça a clínica</a></div>
 <div class="card" id="informacoes">Belo Horizonte • Nova Suissa • Terça a sábado, 09h às 18h</div>
-</div></section></main><a class="whatsapp-float" href="https://wa.me/5531995184110?text=Ol%C3%A1%20BC%20Est%C3%A9tica!%20Quero%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
+</div></section>
+<section class="section" id="mel">
+  <div class="wrap two-col">
+    <figure class="photo"><img src="assets/01-mel-perfil.jpg" alt="Mel — BC Estética Avançada" loading="lazy"></figure>
+    <div><div class="eyebrow">CONHEÇA A MEL</div><h2>Maria Luisa Franco de Assis <em>— Mel</em></h2>
+    <p>Experiência, estética e uma visão individualizada de cuidado. A proposta da BC une conhecimento técnico, planejamento e atendimento personalizado.</p>
+    <a class="btn gold" href="https://wa.me/5531995184110?text=Ol%C3%A1%20BC%20Est%C3%A9tica!%20Quero%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener">Falar com a BC</a></div>
+  </div>
+</section>
+<section class="section warm" id="tratamentos">
+  <div class="wrap"><div class="section-heading"><div class="eyebrow">TRATAMENTOS</div><h2>Cuidados pensados para cada <em>objetivo.</em></h2><p>Conheça algumas das principais áreas de atendimento da BC Estética Avançada.</p></div>
+  <div class="cards"><article><span>01</span><h3>Harmonização Facial</h3><p>Equilíbrio de proporções e contornos.</p></article><article><span>02</span><h3>Qualidade da Pele</h3><p>Protocolos para viço, textura e rejuvenescimento.</p></article><article><span>03</span><h3>Melasma & Acne</h3><p>Estratégias personalizadas após avaliação.</p></article><article><span>04</span><h3>Tecnologias Avançadas</h3><p>Equipamentos e protocolos conforme indicação.</p></article></div></div>
+</section>
+<section class="section dark" id="portfolio">
+  <div class="wrap"><div class="section-heading"><div class="eyebrow light">PORTFÓLIO</div><h2>Detalhes que mostram o cuidado da <em>BC.</em></h2></div>
+  <div class="portfolio-grid">
+    <img src="assets/portfolio/bc-sculpt-cryo-cintura-feminina.webp" alt="Sculpt Cryo — cintura feminina" loading="lazy">
+    <img src="assets/portfolio/bc-sculpt-cryo-abdomen-masculino.webp" alt="Sculpt Cryo — abdômen masculino" loading="lazy">
+    <img src="assets/portfolio/bc-cellular-code-1-sessao.webp" alt="Cellular Code — 1 sessão" loading="lazy">
+    <img src="assets/portfolio/bc-harmonizacao-labial.webp" alt="Harmonização labial" loading="lazy">
+    <img src="assets/portfolio/bc-cryo-lift-pescoco.webp" alt="Cryo Lift — pescoço" loading="lazy">
+  </div></div>
+</section>
+<section class="section" id="contato">
+  <div class="wrap contact"><div><div class="eyebrow">CONTATO</div><h2>Vamos conversar sobre sua <em>avaliação.</em></h2><p>Rua Gávea, 358 • Loja 02 • 2º andar • Nova Suissa • Belo Horizonte/MG</p><a class="btn gold" href="https://wa.me/5531995184110?text=Ol%C3%A1%20BC%20Est%C3%A9tica!%20Quero%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener">WhatsApp • (31) 99518-4110</a></div><div class="contact-info"><strong>Instagram: @bc.esteticaavancada</strong><strong>E-mail: bcesteticaav@gmail.com</strong><strong>Terça a sábado • 09h às 18h</strong></div></div>
+</section></main><a class="whatsapp-float" href="https://wa.me/5531995184110?text=Ol%C3%A1%20BC%20Est%C3%A9tica!%20Quero%20agendar%20uma%20avalia%C3%A7%C3%A3o." target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
 <footer><div class="wrap">BC Estética Avançada • Rua Gávea, 358 • Loja 02 • 2º andar • Nova Suissa • Belo Horizonte/MG</div></footer>
 </body>
 </html>
