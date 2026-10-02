@@ -71,6 +71,16 @@
   </footer>
 
   <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
-  <script src="script.js"></script>
+  <script src="script.js"></script><script>
+(function(){
+  var t=document.getElementById("menuToggle"),d=document.getElementById("siteDrawer"),o=document.getElementById("menuOverlay"),c=document.getElementById("drawerClose");
+  function m(open){if(!t||!d||!o)return; t.classList.toggle("is-open",open); d.classList.toggle("is-open",open); o.classList.toggle("is-open",open); t.setAttribute("aria-expanded",open?"true":"false"); d.setAttribute("aria-hidden",open?"false":"true"); o.setAttribute("aria-hidden",open?"false":"true"); document.body.classList.toggle("menu-open",open);}
+  if(t)t.onclick=function(){m(!d.classList.contains("is-open"));};
+  if(c)c.onclick=function(){m(false);};
+  if(o)o.onclick=function(){m(false);};
+  if(d)d.querySelectorAll("a").forEach(function(a){a.onclick=function(){m(false);};});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")m(false);});
+})();
+</script>
 </body>
 </html>
