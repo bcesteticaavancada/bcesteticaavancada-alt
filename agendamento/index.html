@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Agende uma conversa com a BC Estética Avançada."><meta name="theme-color" content="#171310"><title>Agendamento | BC Estética Avançada</title><link rel="stylesheet" href="../styles.css"></head>
+<body>
+<header class="site-header"><div class="header-inner">
+<button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="siteDrawer"><span></span><span></span><span></span></button>
+<a class="brand" href="../" aria-label="BC Estética Avançada — início"><img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada"></a>
+<a class="header-cta" href="../agendamento/">Agendar</a></div></header>
+<div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
+<aside class="site-drawer" id="siteDrawer" aria-hidden="true"><div class="drawer-head"><span>BC</span><button class="drawer-close" id="drawerClose" type="button" aria-label="Fechar menu">×</button></div><nav class="drawer-nav" aria-label="Navegação principal"><a href="../">Início</a><a href="../clinica/">A Clínica</a><a href="../equipe/">Nossa Equipe</a><a href="../mel/">Mel</a><a href="../procedimentos/">Procedimentos</a><a href="../resultados/">Resultados</a><a href="../protocolos/">Protocolos</a><a href="../ambiente/">Ambiente</a><a href="../valores/">Valores</a><a href="../agendamento/">Agendamento</a><a href="../contato/">Contato</a></nav><a class="drawer-whatsapp" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Falar com a BC pelo WhatsApp</a></aside>
+<main class="page-main">
+<section class="page-hero"><div class="page-hero-media"><img src="../assets/06-sala-atendimento.jpg" alt=""></div><div class="page-hero-shade"></div><div class="page-hero-content"><div class="eyebrow">BC ESTÉTICA AVANÇADA • AGENDAMENTO</div><h1>Seu próximo passo começa com uma <em>conversa.</em></h1><p>Escolha uma forma de contato e envie seus dados para iniciar o agendamento.</p></div></section>
+
+<section class="page-section"><div class="wrap booking-layout">
+<div class="booking-panel"><div class="eyebrow">Pedido de agendamento</div><h3>Vamos conversar.</h3><p>Preencha os dados abaixo. O botão envia as informações para o WhatsApp da BC.</p>
+<form id="bookingForm"><div class="field"><label for="name">Nome</label><input id="name" required></div><div class="field"><label for="service">Interesse</label><select id="service"><option>Quero conhecer os procedimentos</option><option>Quero agendar uma avaliação</option><option>Quero falar sobre resultados</option><option>Outro assunto</option></select></div><div class="field"><label for="message">Mensagem</label><textarea id="message" placeholder="Conte brevemente o que você procura."></textarea></div><button class="btn gold" type="submit">Enviar pelo WhatsApp</button></form></div>
+<div class="booking-panel"><div class="eyebrow">Horários</div><h3>Atendimento BC</h3><div class="meta-list"><div class="meta-row"><strong>Local</strong><span>Belo Horizonte • Nova Suissa</span></div><div class="meta-row"><strong>Quando</strong><span>Terça a sábado, 09h às 18h</span></div><div class="meta-row"><strong>Contato</strong><span>WhatsApp da BC Estética Avançada</span></div></div><div style="margin-top:28px"><a class="btn light" style="background:var(--dark);color:#fff;border-color:var(--dark)" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Abrir WhatsApp</a></div></div>
+</div></section>
+<script>
+document.getElementById("bookingForm")?.addEventListener("submit",function(e){e.preventDefault();const name=document.getElementById("name").value.trim();const service=document.getElementById("service").value;const msg=document.getElementById("message").value.trim();const text=`Olá! Meu nome é ${name}. Tenho interesse em: ${service}. ${msg}`;window.open("https://wa.me/5531995184110?text="+encodeURIComponent(text),"_blank","noopener,noreferrer");});
+</script>
+</main>
+<footer class="footer"><span>BC Estética Avançada</span><span>Menos achismo. Mais ciência.</span></footer>
+<a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
+<script src="../script.js"></script></body></html>
