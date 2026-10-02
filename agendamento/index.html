@@ -10,14 +10,28 @@
 <main class="page-main">
 <section class="page-hero"><div class="page-hero-media"><img src="../assets/06-sala-atendimento.jpg" alt=""></div><div class="page-hero-shade"></div><div class="page-hero-content"><div class="eyebrow">BC ESTÉTICA AVANÇADA • AGENDAMENTO</div><h1>Seu próximo passo começa com uma <em>conversa.</em></h1><p>Escolha uma forma de contato e envie seus dados para iniciar o agendamento.</p></div></section>
 
-<section class="page-section"><div class="wrap booking-layout">
-<div class="booking-panel"><div class="eyebrow">Pedido de agendamento</div><h3>Vamos conversar.</h3><p>Preencha os dados abaixo. O botão envia as informações para o WhatsApp da BC.</p>
-<form id="bookingForm"><div class="field"><label for="name">Nome</label><input id="name" required></div><div class="field"><label for="service">Interesse</label><select id="service"><option>Quero conhecer os procedimentos</option><option>Quero agendar uma avaliação</option><option>Quero falar sobre resultados</option><option>Outro assunto</option></select></div><div class="field"><label for="message">Mensagem</label><textarea id="message" placeholder="Conte brevemente o que você procura."></textarea></div><button class="btn gold" type="submit">Enviar pelo WhatsApp</button></form></div>
-<div class="booking-panel"><div class="eyebrow">Horários</div><h3>Atendimento BC</h3><div class="meta-list"><div class="meta-row"><strong>Local</strong><span>Belo Horizonte • Nova Suissa</span></div><div class="meta-row"><strong>Quando</strong><span>Terça a sábado, 09h às 18h</span></div><div class="meta-row"><strong>Contato</strong><span>WhatsApp da BC Estética Avançada</span></div></div><div style="margin-top:28px"><a class="btn light" style="background:var(--dark);color:#fff;border-color:var(--dark)" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Abrir WhatsApp</a></div></div>
+<section class="page-section"><div class="wrap">
+<div class="booking-panel" style="padding:0;overflow:hidden">
+<div style="padding:34px 34px 22px">
+<div class="eyebrow">Pré-anamnese BC</div>
+<h3>Antes de agendar, queremos conhecer você.</h3>
+<p>Responda algumas perguntas rápidas. Suas respostas serão organizadas para a equipe da BC analisar antes do atendimento.</p>
+</div>
+<div style="width:100%;background:#f7f3ee;border-top:1px solid rgba(23,19,16,.12)">
+<iframe src="https://anamnese-pro-copy-b46c6f93.base44.app/" title="Pré-anamnese BC Estética Avançada" style="display:block;width:100%;height:1180px;border:0" loading="eager" allow="clipboard-write"></iframe>
+</div>
+<div style="padding:20px 34px 28px;text-align:center;border-top:1px solid rgba(23,19,16,.12)">
+<p style="margin:0 0 14px;font-size:.92rem">Se a pré-anamnese não carregar neste espaço, você pode abri-la diretamente.</p>
+<a class="btn gold" href="https://anamnese-pro-copy-b46c6f93.base44.app/" target="_blank" rel="noopener">Abrir pré-anamnese</a>
+</div>
+</div>
+<div class="booking-panel" style="margin-top:22px">
+<div class="eyebrow">Atendimento BC</div><h3>Depois da pré-anamnese</h3>
+<p>A equipe recebe as informações para analisar seu perfil e dar continuidade ao contato. A pré-anamnese não substitui a avaliação profissional.</p>
+<div class="meta-list"><div class="meta-row"><strong>Local</strong><span>Belo Horizonte • Nova Suissa</span></div><div class="meta-row"><strong>Quando</strong><span>Terça a sábado, 09h às 18h</span></div><div class="meta-row"><strong>Contato</strong><span>WhatsApp da BC Estética Avançada</span></div></div>
+<div style="margin-top:28px"><a class="btn light" style="background:var(--dark);color:#fff;border-color:var(--dark)" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Falar com a BC pelo WhatsApp</a></div>
+</div>
 </div></section>
-<script>
-document.getElementById("bookingForm")?.addEventListener("submit",function(e){e.preventDefault();const name=document.getElementById("name").value.trim();const service=document.getElementById("service").value;const msg=document.getElementById("message").value.trim();const text=`Olá! Meu nome é ${name}. Tenho interesse em: ${service}. ${msg}`;window.open("https://wa.me/5531995184110?text="+encodeURIComponent(text),"_blank","noopener,noreferrer");});
-</script>
 </main>
 <footer class="footer"><span>BC Estética Avançada</span><span>Menos achismo. Mais ciência.</span></footer>
 <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
