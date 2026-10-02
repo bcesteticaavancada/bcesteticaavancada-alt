@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="170 115 690 735" role="img" aria-labelledby="title desc">
+<title id="title">BC Estética Avançada</title>
+<desc id="desc">Logotipo dourado da BC Estética Avançada sem fundo</desc>
+<defs>
+  <filter id="removeWhite" color-interpolation-filters="sRGB" x="-10%" y="-10%" width="120%" height="120%">
+    <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1 0 -1 0 0" result="alphaMask"/>
+    <feComponentTransfer in="alphaMask" result="masked">
+      <feFuncA type="linear" slope="3.4" intercept="0"/>
+    </feComponentTransfer>
+    <feColorMatrix in="masked" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+  </filter>
+</defs>
+<image href="../logo-bc-estetica-avancada.jpg" x="0" y="0" width="1024" height="1024" preserveAspectRatio="none" filter="url(#removeWhite)"/>
+</svg>
