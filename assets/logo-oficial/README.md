@@ -1,7 +1,11 @@
-# Logo oficial da BC Estética Avançada
+# Logo da BC Estética Avançada
 
-Coloque nesta pasta a nova logo PNG com fundo transparente.
+O arquivo mestre/original da logo permanece arquivado nesta pasta:
 
-**Nome recomendado:** `logo-bc-estetica-avancada.png`
+- `Logo-bc-estetica-avancada.png` — arquivo oficial em alta qualidade.
 
-Depois de enviar a imagem, a logo antiga `assets/logo-bc-estetica-avancada.jpg` pode ser removida.
+Para o carregamento do site, a página utiliza a versão leve:
+
+- `assets/logo-bc-estetica-avancada.jpg`
+
+A versão leve é a que aparece no cabeçalho e no rodapé para favorecer o carregamento em dispositivos móveis.
