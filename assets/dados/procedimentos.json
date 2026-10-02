@@ -1,0 +1,86 @@
+{
+  "atualizado_em": "2026-10-02",
+  "observacao": "Base inicial construída a partir dos valores promocionais fornecidos pela clínica. Confirmar preço, indicação, disponibilidade e regras da campanha antes da contratação.",
+  "procedimentos": [
+    {
+      "nome": "Limpeza de pele + Peeling",
+      "referencia": 250,
+      "promocional": 149.9,
+      "unidade": "sessão"
+    },
+    {
+      "nome": "Massagem Relaxante",
+      "referencia": 390,
+      "promocional": 99,
+      "unidade": "sessão"
+    },
+    {
+      "nome": "Skinbooster Facial",
+      "referencia": null,
+      "promocional": 149.9,
+      "unidade": "sessão"
+    },
+    {
+      "nome": "Microagulhamento",
+      "referencia": 590,
+      "promocional": 199,
+      "unidade": "sessão"
+    },
+    {
+      "nome": "Microvasos",
+      "referencia": 799,
+      "promocional": 499,
+      "unidade": "5 sessões"
+    },
+    {
+      "nome": "Peeling Coreano",
+      "referencia": 390,
+      "promocional": 99,
+      "unidade": "sessão"
+    },
+    {
+      "nome": "Radiofrequência Fracionada",
+      "referencia": 990,
+      "promocional": 490,
+      "unidade": "rosto e pescoço"
+    },
+    {
+      "nome": "Ultrassom Microfocado",
+      "referencia": 1990,
+      "promocional": 990,
+      "unidade": "rosto e pescoço"
+    },
+    {
+      "nome": "Combo Colágeno",
+      "referencia": 3970,
+      "promocional": 1990,
+      "unidade": "combo"
+    }
+  ],
+  "combos": [
+    {
+      "nome": "Papada Off",
+      "referencia": 1500,
+      "promocional": 690,
+      "parcelamento": "3x de R$ 249,00"
+    },
+    {
+      "nome": "Cryo Lift",
+      "referencia": 2950,
+      "promocional": 1950,
+      "condicao_especial": "6 primeiros por R$ 1.690,00"
+    },
+    {
+      "nome": "Sculpt Cryo",
+      "referencia": 2950,
+      "promocional": 1950,
+      "condicao_especial": "6 vagas por R$ 1.690,00 por região"
+    },
+    {
+      "nome": "Programa Corporal Premium",
+      "referencia": 1950,
+      "promocional": 1290,
+      "parcelamento": "8x de R$ 186,90 sem juros"
+    }
+  ]
+}
