@@ -2,9 +2,11 @@ const toggle=document.getElementById("menuToggle");
 const drawer=document.getElementById("siteDrawer");
 const overlay=document.getElementById("menuOverlay");
 const closeButton=document.getElementById("drawerClose");
+let lastFocusedElement=null;
 
 function setMenu(open){
   if(!toggle||!drawer||!overlay)return;
+  if(open) lastFocusedElement=document.activeElement;
   toggle.classList.toggle("is-open",open);
   drawer.classList.toggle("is-open",open);
   overlay.classList.toggle("is-open",open);
@@ -13,14 +15,23 @@ function setMenu(open){
   drawer.setAttribute("aria-hidden",String(!open));
   overlay.setAttribute("aria-hidden",String(!open));
   document.body.classList.toggle("menu-open",open);
+  if(open) closeButton?.focus();
+  else lastFocusedElement?.focus?.();
 }
+
 function closeMenu(){setMenu(false)}
 
 toggle?.addEventListener("click",()=>setMenu(!drawer.classList.contains("is-open")));
 closeButton?.addEventListener("click",closeMenu);
 overlay?.addEventListener("click",closeMenu);
-drawer?.querySelectorAll("a").forEach(link=>link.addEventListener("click",closeMenu));
-document.addEventListener("keydown",(event)=>{if(event.key==="Escape")closeMenu();});
+
+drawer?.querySelectorAll("a").forEach(link=>{
+  link.addEventListener("click",closeMenu);
+});
+
+document.addEventListener("keydown",(event)=>{
+  if(event.key==="Escape"&&drawer?.classList.contains("is-open")) closeMenu();
+});
 
 const currentPath=window.location.pathname.replace(/index\.html$/,"");
 drawer?.querySelectorAll("a").forEach(link=>{
@@ -32,10 +43,11 @@ drawer?.querySelectorAll("a").forEach(link=>{
 
 let startX=0,startY=0;
 document.addEventListener("touchstart",(event)=>{
-  if(!event.touches[0])return;
+  if(!event.touches[0]||drawer?.classList.contains("is-open"))return;
   startX=event.touches[0].clientX;
   startY=event.touches[0].clientY;
 },{passive:true});
+
 document.addEventListener("touchend",(event)=>{
   if(!event.changedTouches[0]||drawer?.classList.contains("is-open"))return;
   const endX=event.changedTouches[0].clientX;
