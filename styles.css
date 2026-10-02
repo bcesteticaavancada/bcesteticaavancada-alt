@@ -56,7 +56,13 @@ button{font:inherit}
 .btn:hover,.header-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.18)}
 .btn,.header-cta{transition:transform .2s ease,box-shadow .2s ease}
 .hero-note{font-size:11px;color:rgba(255,255,255,.65)}
-.footer{background:#100d0b;color:#fff;padding:24px 4%;display:flex;justify-content:space-between;gap:15px;font-size:11px;color:rgba(255,255,255,.6)}
+.footer{background:#100d0b;color:#fff;padding:30px 4%;display:grid;grid-template-columns:2fr 1fr 1fr;gap:28px;align-items:start;font-size:11px;color:rgba(255,255,255,.68)}
+.footer-item{display:flex;flex-direction:column;gap:8px}
+.footer-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.footer-value{font-size:12px;line-height:1.55;color:rgba(255,255,255,.82)}
+.footer-link{text-decoration:none}
+.footer-link:hover{color:#d7b676}
+.footer-gps{display:inline-flex;align-items:center;gap:7px;font-weight:700}
 .whatsapp-float{position:fixed;right:14px;bottom:14px;background:#1f8f4d;color:#fff;padding:11px 15px;border-radius:999px;font-size:12px;font-weight:700;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 @media(max-width:700px){
   .header-inner{height:68px;width:92%;grid-template-columns:86px 1fr 48px}
@@ -70,7 +76,7 @@ button{font:inherit}
   .hero-copy{width:90%;padding:42px 0 50px}
   .hero-copy h1{font-size:54px}
   .hero-copy p{font-size:15px}
-  .footer{flex-direction:column}
+  .footer{grid-template-columns:1fr;gap:18px;padding:26px 6%}
 }
 @media(max-width:420px){
   .brand{width:132px}
