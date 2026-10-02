@@ -50,4 +50,7 @@
 <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
 <script src="script.js"></script>
 <script>(function(){const t=document.getElementById("menuToggle"),n=document.getElementById("navLinks");if(!t||!n)return;function setMenu(open){n.classList.toggle("open",open);t.setAttribute("aria-expanded",open?"true":"false");t.setAttribute("aria-label",open?"Fechar menu":"Abrir menu");t.textContent=open?"×":"☰"}t.addEventListener("click",function(){setMenu(!n.classList.contains("open"))});n.querySelectorAll("a").forEach(function(a){a.addEventListener("click",function(){setMenu(false)})});document.addEventListener("keydown",function(e){if(e.key==="Escape")setMenu(false)});})();</script>
+
+// Microintegração: estado visual do cabeçalho ao rolar
+(()=>{const h=document.querySelector('.site-header');if(!h)return;const sync=()=>h.classList.toggle('scrolled',window.scrollY>10);sync();window.addEventListener('scroll',sync,{passive:true});})();
 </body></html>
