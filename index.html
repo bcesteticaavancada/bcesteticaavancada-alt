@@ -19,7 +19,7 @@
 <header class="site-header"><div class="wrap"><nav>
 <a class="brand-link" href="#inicio" aria-hidden="true"><img class="brand-logo" src="assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt=""></a>
 <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
-<div class="nav-links" id="navLinks"><a href="#inicio" class="active">Início</a><a href="#clinica">A Clínica</a><a href="#equipe">Equipe</a><a href="#mel">Mel</a><a href="#tratamentos">Tratamentos</a><a href="#agendamento">Agendamento</a><a href="#valores">Valores</a><a href="#portfolio">Portfólio</a><a href="#protocolos">Protocolos</a><a href="#ambiente">Ambiente</a><a href="#contato">Contato</a></div>
+<div class="nav-links" id="navLinks"><a href="#inicio" class="active">Início</a><a href="#clinica">A Clínica</a><a href="#equipe">Equipe</a><a href="#mel">Mel</a><a href="https://bcesteticaavancada.github.io/bcesteticaavancada-alt/" class="nav-procedimentos-special" aria-label="Abrir página de Procedimentos">Procedimentos</a><a href="#agendamento">Agendamento</a><a href="#valores">Valores</a><a href="#portfolio">Portfólio</a><a href="#protocolos">Protocolos</a><a href="#ambiente">Ambiente</a><a href="#contato">Contato</a></div>
 <a class="nav-cta" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Agendar</a>
 </nav></div></header>
 <div class="home-floating-logo" aria-label="BC Estética Avançada"><a href="#inicio"><img src="assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada"></a></div>
@@ -60,4 +60,7 @@ const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filt
 const update=()=>{const y=window.scrollY+120;let current=sections[0];for(const s of sections){if(s.offsetTop<=y)current=s;}links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current.id));header?.classList.toggle('scrolled',window.scrollY>12)};
 update();window.addEventListener('scroll',update,{passive:true});
 })();
+</script>
+<script>
+(()=>{const a=document.querySelector('.nav-procedimentos-special');if(a){a.addEventListener('click',e=>{e.preventDefault();window.location.href='procedimentos/';});}})();
 </script></body></html>
