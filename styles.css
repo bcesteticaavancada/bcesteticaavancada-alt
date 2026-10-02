@@ -8,3 +8,23 @@
 .photo img,.portfolio-grid img,.gallery-grid img{transition:transform .45s ease}.photo:hover img,.portfolio-grid figure:hover img{transform:scale(1.02)}
 .whatsapp-float{transition:transform .2s ease,box-shadow .2s ease}.whatsapp-float:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.24)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Movimento orgânico — rodada 02 */
+.site-header{transition:background .3s ease,box-shadow .3s ease,transform .3s ease}
+.nav{scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{position:relative}
+.nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-7px;height:1px;background:var(--gold);transition:right .25s ease}
+.nav a:hover::after,.nav a.active::after{right:0}
+.hero-content{animation:bc-rise .8s ease both}
+.photo img{will-change:transform}
+@keyframes bc-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:781px){
+  .two-col>.photo:nth-child(odd){transform:translateY(0);transition:transform .5s ease}
+  .two-col>.photo:nth-child(odd):hover{transform:translateY(-7px)}
+}
+@media(max-width:1050px){
+  .nav-links.open{animation:bc-menu-in .28s ease both}
+}
+@keyframes bc-menu-in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){.hero-content,.nav-links.open{animation:none!important}}
