@@ -69,6 +69,9 @@
 .launch-perks span{display:block;font:600 1.6rem var(--serif);margin:6px 0}
 .launch-perks small{display:block;color:rgba(255,255,255,.5);font-size:.65rem}
 .pricing-section{background:var(--cream)}
+.pricing-subtitle{font:600 2.2rem/1 var(--serif);color:var(--ink);margin:0 0 22px;letter-spacing:-.01em}.pricing-section .price-grid-combos{margin-top:4px}.pricing-section .price-card small{line-height:1.5}.pricing-section .price-card s{margin-bottom:3px}
+@media(max-width:520px){.pricing-subtitle{font-size:1.8rem;margin-top:12px}}
+
 .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 .price-card{background:var(--paper);border:1px solid var(--line);padding:26px;min-height:300px;display:flex;flex-direction:column}
 .price-card>span{color:var(--gold);font-size:.63rem;letter-spacing:.18em;font-weight:700}
