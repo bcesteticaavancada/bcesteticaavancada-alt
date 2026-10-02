@@ -10,13 +10,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="preload" as="image" href="assets/01-mel-perfil.jpg"><link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header">
     <div class="container nav-wrap">
       <a class="brand" href="#inicio" aria-label="BC Estética Avançada">
-        <span class="brand-logo-wrap"><img class="brand-logo" src="assets/logo-oficial/logo-bc-estetica-avancada.png?v=2" alt="BC Estética Avançada"></span>
+        <span class="brand-logo-wrap"><img loading="lazy" decoding="async" class="brand-logo" src="assets/logo-oficial/logo-bc-estetica-avancada.png?v=2" alt="BC Estética Avançada"></span>
       </a>
       <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="siteNav"><span></span><span></span><span></span></button>
       <nav class="nav" id="siteNav">
@@ -38,7 +38,7 @@
   <main>
     <section class="hero" id="inicio">
       <div class="hero-media">
-        <img src="assets/01-mel-perfil.jpg" alt="Retrato profissional da Mel">
+        <img src="assets/01-mel-perfil.jpg" alt="Retrato profissional da Mel" loading="eager" fetchpriority="high" decoding="async">
       </div>
       <div class="hero-shade"></div>
       <div class="container hero-content">
@@ -64,7 +64,7 @@
           <a class="text-link" href="#contato">Conheça a BC Estética <span>→</span></a>
         </div>
         <div class="intro-photo">
-          <img src="assets/03-recepcao-bc-estetica.jpg" alt="Recepção da BC Estética Avançada">
+          <img loading="lazy" decoding="async" src="assets/03-recepcao-bc-estetica.jpg" alt="Recepção da BC Estética Avançada">
           <div class="photo-caption">Um ambiente pensado para acolher.</div>
         </div>
       </div>
@@ -73,7 +73,7 @@
     <section class="section section-paper" id="mel">
       <div class="container mel-grid">
         <div class="mel-photo">
-          <img src="assets/01-mel-perfil.jpg" alt="Mel — profissional da BC Estética Avançada">
+          <img loading="lazy" decoding="async" src="assets/01-mel-perfil.jpg" alt="Mel — profissional da BC Estética Avançada">
           <div class="photo-frame"></div>
         </div>
         <div class="mel-copy">
@@ -184,23 +184,23 @@
     </div>
     <div class="portfolio-showcase-grid">
       <figure class="showcase-card showcase-featured">
-        <img src="assets/portfolio/bc-portfolio-01-sculpt-cryo-cintura-feminina.jpg" alt="Sculpt Cryo — cintura feminina" loading="lazy">
+        <img loading="lazy" decoding="async" src="assets/portfolio/bc-portfolio-01-sculpt-cryo-cintura-feminina.jpg" alt="Sculpt Cryo — cintura feminina" loading="lazy">
         <figcaption><span>01</span><strong>SCULPT CRYO</strong><small>Cintura feminina • antes e depois</small></figcaption>
       </figure>
       <figure class="showcase-card">
-        <img src="assets/portfolio/bc-portfolio-02-sculpt-cryo-abdomen-masculino.jpg" alt="Sculpt Cryo — abdômen masculino" loading="lazy">
+        <img loading="lazy" decoding="async" src="assets/portfolio/bc-portfolio-02-sculpt-cryo-abdomen-masculino.jpg" alt="Sculpt Cryo — abdômen masculino" loading="lazy">
         <figcaption><span>02</span><strong>SCULPT CRYO</strong><small>Abdômen masculino • antes e depois</small></figcaption>
       </figure>
       <figure class="showcase-card">
-        <img src="assets/portfolio/bc-portfolio-03-cellular-code-1-sessao.jpg" alt="Cellular Code — 1 sessão" loading="lazy">
+        <img loading="lazy" decoding="async" src="assets/portfolio/bc-portfolio-03-cellular-code-1-sessao.jpg" alt="Cellular Code — 1 sessão" loading="lazy">
         <figcaption><span>03</span><strong>CELLULAR CODE</strong><small>1 sessão • apresentação de resultado</small></figcaption>
       </figure>
       <figure class="showcase-card">
-        <img src="assets/portfolio/bc-portfolio-04-harmonizacao-labial.jpg" alt="Harmonização labial" loading="lazy">
+        <img loading="lazy" decoding="async" src="assets/portfolio/bc-portfolio-04-harmonizacao-labial.jpg" alt="Harmonização labial" loading="lazy">
         <figcaption><span>04</span><strong>HARMONIZAÇÃO LABIAL</strong><small>Volume, definição e equilíbrio</small></figcaption>
       </figure>
       <figure class="showcase-card showcase-featured">
-        <img src="assets/portfolio/bc-portfolio-05-cryo-lift-pescoco.jpg" alt="Cryo Lift — pescoço" loading="lazy">
+        <img loading="lazy" decoding="async" src="assets/portfolio/bc-portfolio-05-cryo-lift-pescoco.jpg" alt="Cryo Lift — pescoço" loading="lazy">
         <figcaption><span>05</span><strong>CRYO LIFT</strong><small>Pescoço • apresentação de resultado</small></figcaption>
       </figure>
     </div>
@@ -237,10 +237,10 @@
           <p>Detalhes da clínica que fazem parte da experiência Beautiful Center.</p>
         </div>
         <div class="gallery">
-          <figure class="gallery-large"><img src="assets/03-recepcao-bc-estetica.jpg" alt="Recepção da BC Estética"><figcaption>Recepção</figcaption></figure>
-          <figure><img src="assets/04-sala-massagem.jpg" alt="Sala de atendimento"><figcaption>Conforto e acolhimento</figcaption></figure>
-          <figure><img src="assets/05-sala-procedimentos.jpg" alt="Sala de procedimentos"><figcaption>Tecnologia e cuidado</figcaption></figure>
-          <figure class="gallery-wide"><img src="assets/06-sala-atendimento.jpg" alt="Sala de atendimento da BC Estética"><figcaption>Ambiente de atendimento</figcaption></figure>
+          <figure class="gallery-large"><img loading="lazy" decoding="async" src="assets/03-recepcao-bc-estetica.jpg" alt="Recepção da BC Estética"><figcaption>Recepção</figcaption></figure>
+          <figure><img loading="lazy" decoding="async" src="assets/04-sala-massagem.jpg" alt="Sala de atendimento"><figcaption>Conforto e acolhimento</figcaption></figure>
+          <figure><img loading="lazy" decoding="async" src="assets/05-sala-procedimentos.jpg" alt="Sala de procedimentos"><figcaption>Tecnologia e cuidado</figcaption></figure>
+          <figure class="gallery-wide"><img loading="lazy" decoding="async" src="assets/06-sala-atendimento.jpg" alt="Sala de atendimento da BC Estética"><figcaption>Ambiente de atendimento</figcaption></figure>
         </div>
       </div>
     </section>
@@ -257,7 +257,7 @@
           </div>
           <a class="btn btn-dark" href="#contato">Falar com a clínica</a>
         </div>
-        <div class="team-photo"><img src="assets/02-equipe-bc-estetica.jpg" alt="Equipe da BC Estética Avançada"></div>
+        <div class="team-photo"><img loading="lazy" decoding="async" src="assets/02-equipe-bc-estetica.jpg" alt="Equipe da BC Estética Avançada"></div>
       </div>
     </section>
 
@@ -299,7 +299,7 @@
 
   <footer class="footer">
     <div class="container footer-wrap">
-      <div class="footer-brand"><img src="assets/logo-oficial/logo-bc-estetica-avancada.png?v=2" alt="BC Estética Avançada"><p>Menos achismo. Mais ciência.</p></div>
+      <div class="footer-brand"><img src="assets/logo-oficial/logo-bc-estetica-avancada.png?v=2" alt="BC Estética Avançada" loading="eager" decoding="async"><p>Menos achismo. Mais ciência.</p></div>
       <p>© <span id="year"></span> BC Estética Avançada. Todos os direitos reservados.</p>
     </div>
   </footer>
