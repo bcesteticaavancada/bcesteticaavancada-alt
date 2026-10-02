@@ -24,11 +24,12 @@
         <a href="#clinica">A Clínica</a>
         <a href="#mel">Mel</a>
         <a href="#tratamentos">Tratamentos</a>
+        <a href="#agendamento">Agendamento</a>
         <a href="#protocolos">Protocolos</a>
         <a href="#ambiente">Ambiente</a>
         <a href="#contato">Contato</a>
       </nav>
-      <a class="header-cta" href="https://wa.me/5531995184110?text=Olá%20BC%20Estética!%20Quero%20agendar%20uma%20avaliação." target="_blank" rel="noopener">Agendar avaliação</a>
+      <a class="header-cta" href="#agendamento">Agendar avaliação</a>
     </div>
   </header>
 
@@ -44,7 +45,7 @@
         <h1>Beleza com <em>propósito.</em></h1>
         <p class="hero-copy">Avaliação individualizada, planejamento e protocolos personalizados para valorizar sua beleza com naturalidade, técnica e atenção aos detalhes.</p>
         <div class="hero-actions">
-          <a class="btn btn-gold" href="https://wa.me/5531995184110?text=Olá%20BC%20Estética!%20Quero%20agendar%20uma%20avaliação." target="_blank" rel="noopener">Agende sua avaliação</a>
+          <a class="btn btn-gold" href="#agendamento">Agende sua avaliação</a>
           <a class="btn btn-outline-light" href="#tratamentos">Conheça os tratamentos</a>
         </div>
         <div class="hero-note"><span>●</span> Belo Horizonte • Nova Suissa • Terça a sábado, 09h às 18h</div>
@@ -98,6 +99,74 @@
           <article class="treatment-card"><span class="card-num">04</span><h3>Tecnologias<br>Avançadas</h3><p>Ultrassom micro e macrofocado, radiofrequência, eletroporação e outras tecnologias.</p><a href="#contato">Saiba mais →</a></article>
         </div>
         <div class="treatment-footnote">* Os protocolos e procedimentos são definidos de acordo com avaliação e indicação individual.</div>
+      </div>
+    </section>
+
+    <section class="section booking-section" id="agendamento">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">AGENDAMENTO</span>
+          <h2>Escolha seu cuidado e <em>solicite seu horário.</em></h2>
+          <p>Selecione o procedimento, a data e um horário de preferência. Nesta primeira versão, a solicitação é enviada pelo WhatsApp da clínica para confirmação.</p>
+        </div>
+
+        <div class="booking-card">
+          <div class="booking-step">
+            <span class="booking-label">01 • PROCEDIMENTO</span>
+            <label for="serviceSelect">O que você deseja agendar?</label>
+            <select id="serviceSelect" class="booking-select">
+              <option value="">Selecione um procedimento</option>
+              <option>Consulta / Avaliação estética</option>
+              <option>Botox / Toxina botulínica</option>
+              <option>Preenchimento facial</option>
+              <option>Bioestimulador de colágeno</option>
+              <option>Skinbooster</option>
+              <option>Microagulhamento</option>
+              <option>Peeling</option>
+              <option>Tratamento para melasma e manchas</option>
+              <option>Tratamento para acne e sequelas</option>
+              <option>Limpeza de pele</option>
+              <option>Tecnologias avançadas</option>
+              <option>Outro procedimento</option>
+            </select>
+          </div>
+
+          <div class="booking-step">
+            <span class="booking-label">02 • DATA</span>
+            <div class="booking-calendar-head">
+              <button type="button" class="calendar-arrow" id="prevDays" aria-label="Datas anteriores">‹</button>
+              <strong id="calendarMonth">Próximas datas</strong>
+              <button type="button" class="calendar-arrow" id="nextDays" aria-label="Próximas datas">›</button>
+            </div>
+            <div class="date-grid" id="dateGrid" aria-live="polite"></div>
+          </div>
+
+          <div class="booking-step">
+            <span class="booking-label">03 • HORÁRIO DE PREFERÊNCIA</span>
+            <div class="time-grid" id="timeGrid">
+              <button type="button" class="time-slot" data-time="09:00">09:00</button>
+              <button type="button" class="time-slot" data-time="10:00">10:00</button>
+              <button type="button" class="time-slot" data-time="11:00">11:00</button>
+              <button type="button" class="time-slot" data-time="14:00">14:00</button>
+              <button type="button" class="time-slot" data-time="15:00">15:00</button>
+              <button type="button" class="time-slot" data-time="16:00">16:00</button>
+              <button type="button" class="time-slot" data-time="17:00">17:00</button>
+            </div>
+            <p class="booking-note">Os horários exibidos são preferências de atendimento e serão confirmados pela equipe da BC.</p>
+          </div>
+
+          <div class="booking-form">
+            <div>
+              <span class="booking-label">04 • SEUS DADOS</span>
+              <div class="booking-fields">
+                <input id="clientName" type="text" placeholder="Seu nome" autocomplete="name">
+                <input id="clientPhone" type="tel" placeholder="Seu WhatsApp" autocomplete="tel">
+              </div>
+            </div>
+            <button type="button" class="btn btn-gold booking-submit" id="bookingSubmit">Solicitar agendamento pelo WhatsApp</button>
+            <p class="booking-status" id="bookingStatus" role="status"></p>
+          </div>
+        </div>
       </div>
     </section>
 
