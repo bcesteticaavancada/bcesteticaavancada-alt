@@ -12,6 +12,7 @@ function fakeCanvas() {
     moveTo: (...args) => calls.push(['moveTo', ...args]),
     lineTo: (...args) => calls.push(['lineTo', ...args]),
     stroke: () => calls.push(['stroke']),
+    drawImage: (...args) => calls.push(['drawImage', ...args]),
     lineCap: '', lineJoin: '', lineWidth: 0, strokeStyle: '',
   };
   const canvas = {
@@ -26,6 +27,12 @@ function fakeCanvas() {
     setPointerCapture: () => {},
     releasePointerCapture: () => {},
     toDataURL: () => 'data:image/png;base64,AAAA',
+    ownerDocument: {
+      createElement: () => ({
+        width: 0, height: 0,
+        getContext: () => ({ drawImage: (...args) => calls.push(['snapshotDrawImage', ...args]) }),
+      }),
+    },
   };
   return { canvas, ctx, handlers, calls };
 }
@@ -54,4 +61,17 @@ test('signature pad starts empty, becomes non-empty after a stroke and clears', 
 
   pad.clear();
   assert.equal(pad.isEmpty(), true);
+});
+
+test('signature resize redraws the existing signature instead of losing it', () => {
+  const { canvas, handlers, calls } = fakeCanvas();
+  const pad = createSignaturePad(canvas, { devicePixelRatio: 2 });
+  handlers.get('pointerdown')({ pointerId: 7, clientX: 30, clientY: 40, preventDefault() {} });
+  handlers.get('pointermove')({ pointerId: 7, clientX: 120, clientY: 80, preventDefault() {} });
+  handlers.get('pointerup')({ pointerId: 7, clientX: 120, clientY: 80, preventDefault() {} });
+  calls.length = 0;
+  pad.resize();
+  assert.ok(calls.some((c) => c[0] === 'snapshotDrawImage'), 'captures the existing canvas before resize');
+  assert.ok(calls.some((c) => c[0] === 'drawImage'), 'redraws captured signature after resize');
+  assert.equal(pad.isEmpty(), false);
 });
