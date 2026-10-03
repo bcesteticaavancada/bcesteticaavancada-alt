@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171310">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>BC Estética — Área Administrativa</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <header class="admin-brandbar">
+      <a href="../" class="admin-brand" aria-label="Voltar ao site BC Estética">
+        <img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada">
+      </a>
+      <div>
+        <div class="eyebrow">BC Estética Avançada</div>
+        <h1>Área administrativa</h1>
+      </div>
+    </header>
+
+    <section id="loginView" class="auth-card" hidden>
+      <div class="section-kicker">Acesso restrito</div>
+      <h2>Entrar</h2>
+      <p>Use a conta administrativa autorizada pela BC.</p>
+      <form id="loginForm" class="stack" autocomplete="on">
+        <label>E-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
+        <label>Senha<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <button class="admin-btn primary" type="submit">Entrar com segurança</button>
+      </form>
+      <p id="loginError" class="message error" role="alert"></p>
+    </section>
+
+    <section id="deniedView" class="auth-card" hidden>
+      <div class="section-kicker">Acesso negado</div>
+      <h2>Conta sem autorização administrativa</h2>
+      <p>A sessão existe, mas esta conta não está ativa na lista de administradores da BC.</p>
+      <button id="deniedLogout" class="admin-btn secondary" type="button">Sair</button>
+    </section>
+
+    <section id="adminView" hidden>
+      <div class="admin-topline">
+        <div><span class="muted">Sessão administrativa</span><strong id="adminName"></strong></div>
+        <button id="logoutBtn" class="admin-btn secondary small" type="button">Sair</button>
+      </div>
+
+      <form id="filterForm" class="filters-card">
+        <label>Código da ficha<input id="filterCode" type="search" placeholder="BC-20261003-ABCDE"></label>
+        <label>Nome<input id="filterName" type="search" placeholder="Buscar cliente/paciente"></label>
+        <label>De<input id="filterFrom" type="date"></label>
+        <label>Até<input id="filterTo" type="date"></label>
+        <div class="filter-actions">
+          <button class="admin-btn primary" type="submit">Buscar</button>
+          <button id="clearFilters" class="admin-btn secondary" type="button">Limpar</button>
+        </div>
+      </form>
+
+      <p id="adminMessage" class="message" role="status"></p>
+
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Código</th><th>Nome</th><th>Procedimento</th><th>Data</th><th>Status</th><th></th></tr></thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+        <p id="emptyState" class="empty" hidden>Nenhuma ficha encontrada para os filtros atuais.</p>
+      </div>
+
+      <aside id="detailPanel" class="detail-panel" hidden aria-live="polite">
+        <div class="detail-head">
+          <div><span id="detailCode" class="code-pill"></span><h2 id="detailName"></h2><p id="detailMeta" class="muted"></p></div>
+          <button id="closeDetail" class="icon-btn" type="button" aria-label="Fechar detalhes">×</button>
+        </div>
+        <div class="detail-grid">
+          <div><span class="label">WhatsApp</span><strong id="detailPhone"></strong></div>
+          <div><span class="label">E-mail</span><strong id="detailEmail"></strong></div>
+          <label class="status-field">Status
+            <select id="detailStatus">
+              <option value="recebida">Recebida</option>
+              <option value="em_avaliacao">Em avaliação</option>
+              <option value="avaliada">Avaliada</option>
+            </select>
+          </label>
+        </div>
+        <div class="detail-block"><h3>Respostas</h3><pre id="detailAnswers"></pre></div>
+        <div class="detail-block"><h3>Consentimentos</h3><pre id="detailConsents"></pre></div>
+        <button id="downloadPdf" class="admin-btn primary" type="button">Abrir PDF privado</button>
+      </aside>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>
