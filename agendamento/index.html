@@ -5,72 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#171717">
 <title>BC Estética — Pré-anamnese</title>
-<style>
-:root{--black:#171717;--ink:#28231f;--gold:#c7a15b;--gold2:#e0c17d;--cream:#f7f0e8;--paper:#fffdf9;--line:#e3d8cd;--muted:#756b63;--danger:#9b4545}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,#f1e9e1,#fbf9f6 55%,#eee4da)}
-body{padding:20px 12px 40px}.page{max-width:980px;margin:auto}
-.hero{margin:0 0 16px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;color:#8b7047;text-transform:uppercase}.hero h1{font:700 clamp(30px,5vw,46px)/1.05 Georgia,serif;margin:6px 0}.hero p{margin:0;max-width:760px;color:var(--muted);line-height:1.6;font-size:14px}
-.shell{background:rgba(255,253,249,.95);border:1px solid #d9c5a9;border-radius:26px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.16)}
-.bar{background:linear-gradient(90deg,#161616,#29231f);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;gap:10px;align-items:center}.bar strong{font-size:14px}.bar span{font-size:12px;color:#ead8b6}.track{height:5px;background:#e8dfd6}.track>div{height:100%;width:8.33%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .25s}
-.panel{padding:24px}.step{display:none}.step.active{display:block;animation:in .2s ease}@keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:20px}.title{font:700 29px/1.08 Georgia,serif;margin:0}.note{margin:8px 0 0;color:var(--muted);line-height:1.55;font-size:14px}.count{white-space:nowrap;background:#f5ecdf;border:1px solid #dfcfba;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;color:#80643d}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:7px}.full{grid-column:1/-1}label{font-size:13px;font-weight:800}input,select,textarea{width:100%;border:1px solid #d8cec4;border-radius:13px;background:#fff;padding:12px 13px;font:inherit;color:var(--ink);outline:0}textarea{min-height:105px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px #c7a15b1c}
-.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.opt{position:relative}.opt input{position:absolute;opacity:0}.opt label{display:block;padding:13px;border:1px solid #ddd3ca;border-radius:13px;background:#fff;cursor:pointer}.opt input:checked+label{border-color:var(--gold);background:#fcf5ea}
-.checkgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.check{position:relative}.check input{position:absolute;opacity:0}.check label{display:flex;gap:9px;align-items:flex-start;padding:12px;border:1px solid #ddd3ca;border-radius:13px;background:#fff;cursor:pointer}.box{width:18px;height:18px;border:1px solid #c9bcae;border-radius:5px;flex:none}.check input:checked+label{border-color:var(--gold);background:#fcf5ea}.check input:checked+label .box{background:var(--gold);box-shadow:inset 0 0 0 4px #fff}
-.conditional{display:none;margin-top:12px;padding:14px;border:1px dashed #d8c5ad;border-radius:15px;background:#fcf7f0}.conditional.show{display:block}
-.notice{padding:13px 14px;border-left:3px solid var(--gold);background:#fbf4e9;border-radius:0 12px 12px 0;font-size:12px;line-height:1.55;color:#675d55}.spacer{height:12px}
-.summary{display:grid;gap:10px}.card{padding:14px;border:1px solid #dfd5cc;border-radius:15px;background:#fff}.card h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8b6e45;margin:0 0 7px}.card p{margin:0;white-space:pre-wrap;line-height:1.55;font-size:13px}
-.consent{display:flex;gap:10px;align-items:flex-start;padding:13px;border:1px solid #ddd3ca;border-radius:13px;background:#fcfaf7}.consent input{width:auto;margin-top:3px}.error{display:none;color:var(--danger);font-size:12px;font-weight:800;margin-top:8px}.error.show{display:block}
-.nav{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:17px;margin-top:21px}.btn{border:0;border-radius:999px;padding:12px 17px;font:inherit;font-weight:850;cursor:pointer}.secondary{background:#f0eae3;color:#493f37;border:1px solid #ddd2c8}.primary{background:linear-gradient(135deg,#b58a45,#dfbd77);color:#18130e;box-shadow:0 8px 18px #9b743522}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.small{padding:10px 14px;font-size:12px}.footer{text-align:center;color:#857b72;font-size:10px;line-height:1.5;margin-top:15px}
-.success{display:none;text-align:center;padding:20px}.success.show{display:block}.success h2{font:700 30px Georgia,serif;margin:0 0 8px}.id{font-weight:900;letter-spacing:.08em;margin:10px 0;color:#876a42}
-@media(max-width:700px){body{padding:12px 8px 25px}.shell{border-radius:21px}.panel{padding:17px 14px}.grid,.options,.checkgrid{grid-template-columns:1fr}.head{gap:8px}.title{font-size:25px}.count{font-size:10px}.bar{padding:13px 15px}}
-@media print{body{background:#fff;padding:0}.hero,.bar,.track,.nav,.footer,.actions,#liveSummary{display:none!important}.shell{box-shadow:none;border:0}.panel{padding:0}.step{display:none!important}#step11{display:block!important}#printArea{display:block!important}.card{break-inside:avoid}}
-#printArea{display:none}
-
-/* Integração visual do Agendamento ao sistema BC */
-html,body{overflow-x:hidden}
-body{padding:0;background:#f2e9df}
-.page-booking{max-width:1180px;width:100%;padding:0 4% 70px}
-.page-booking .agendamento-hero{position:relative;left:50%;width:100vw;transform:translateX(-50%);min-height:390px;margin:0 0 28px;padding:110px 5% 58px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;background:linear-gradient(90deg,rgba(16,12,10,.9),rgba(16,12,10,.46),rgba(16,12,10,.22)),url("../assets/06-sala-atendimento.jpg") center 38%/cover no-repeat;border-bottom:1px solid rgba(215,182,118,.25);box-shadow:0 18px 45px rgba(44,27,19,.11)}
-.page-booking .agendamento-hero .eyebrow{color:var(--gold2)}
-.page-booking .agendamento-hero h1{font:600 clamp(48px,7vw,84px)/.92 var(--serif);margin:8px 0 18px;color:#fff;letter-spacing:-.02em}
-.page-booking .agendamento-hero p{max-width:760px;color:rgba(255,255,255,.82);font-size:16px;line-height:1.65}
-.page-booking .shell{max-width:980px;margin:0 auto;background:rgba(255,253,249,.97);border:1px solid #d8c8b6;border-radius:28px;box-shadow:0 26px 80px rgba(44,27,19,.16)}
-.page-booking .bar{background:linear-gradient(90deg,#171310,#2b241f);padding:16px 22px}
-.page-booking .track{background:#e9e0d7}.page-booking .track>div{background:linear-gradient(90deg,var(--gold),var(--gold2))}
-.page-booking .panel{padding:30px}
-.page-booking .count{background:#f6eee2;border-color:#ddcbb4;color:#80633b}
-.page-booking .notice{background:#fbf4e9;border-left-color:var(--gold)}
-.page-booking input,.page-booking select,.page-booking textarea{border-color:#d9cec3;background:#fff}
-.page-booking input:focus,.page-booking select:focus,.page-booking textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(184,138,69,.12)}
-.page-booking .opt label,.page-booking .check label{border-color:#ded4cb;background:#fff}
-.page-booking .opt input:checked+label,.page-booking .check input:checked+label{border-color:var(--gold);background:#fcf5ea}
-.page-booking .conditional{background:#fcf7f0;border-color:#d8c5ad}
-.page-booking .nav{border-top-color:var(--line)}
-.page-booking .secondary{background:#f0eae3;border-color:#ddd2c8}
-.page-booking .primary{background:linear-gradient(135deg,#b58a45,#dfbd77);color:#18130e}
-.page-booking .form-footer-note{text-align:center;color:#857b72;font-size:10px;line-height:1.5;margin-top:15px}
-@media(max-width:700px){
-  .page-booking{padding:0 10px 50px}
-  .page-booking .agendamento-hero{min-height:410px;padding:100px 8% 44px;background-position:center 35%}
-  .page-booking .agendamento-hero h1{font-size:50px}
-  .page-booking .agendamento-hero p{font-size:14px}
-  .page-booking .shell{border-radius:22px}
-  .page-booking .panel{padding:19px 15px}
-}
-
-</style>
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="./anamnese.css">
 </head>
 <body>
 <header class="site-header" id="siteHeader">
   <div class="header-inner">
-    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="siteDrawer">
-      <span></span><span></span><span></span>
-    </button>
-    <a class="brand" href="../" aria-label="BC Estética Avançada — início">
-      <img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada">
-    </a>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="siteDrawer"><span></span><span></span><span></span></button>
+    <a class="brand" href="../" aria-label="BC Estética Avançada — início"><img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada"></a>
     <a class="header-cta" href="../agendamento/">Agendar</a>
   </div>
 </header>
@@ -82,260 +24,173 @@ body{padding:0;background:#f2e9df}
   </nav>
   <a class="drawer-whatsapp" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Falar com a BC pelo WhatsApp</a>
 </aside>
-<div class="page page-booking">
-  <div class="hero agendamento-hero">
+
+<main class="page-booking">
+  <section class="agendamento-hero">
     <div class="eyebrow">BC Estética Avançada</div>
     <h1>Pré-anamnese</h1>
     <p>Olá! Seja bem-vinda(o) à BC Estética. Esta pré-anamnese foi criada para conhecermos melhor você, seus objetivos estéticos e informações importantes antes do atendimento.</p>
-  </div>
+  </section>
 
-  <div class="shell">
-    <div class="bar"><strong>BC ESTÉTICA — PRÉ-ANAMNESE</strong><span id="stage">Etapa 1 de 12</span></div>
-    <div class="track"><div id="track"></div></div>
+  <section class="shell" aria-labelledby="formTitle">
+    <div class="bar"><strong id="formTitle">BC ESTÉTICA — PRÉ-ANAMNESE</strong><span id="stage">Etapa 1 de 8</span></div>
+    <div class="track" aria-hidden="true"><div id="track"></div></div>
     <div class="panel">
+      <form id="preAnamneseForm" novalidate>
+        <section class="step active" id="step1" data-step="1">
+          <div class="head"><div><h2 class="title">Identificação e procedimento</h2><p class="note">Comece pelos seus dados e pelo atendimento que deseja conhecer.</p></div><div class="count">01 / 08</div></div>
+          <div class="notice">Esta é uma pré-anamnese informativa. Ela não realiza diagnóstico e não determina automaticamente indicação, contraindicação ou liberação de procedimentos. As informações serão avaliadas pela profissional responsável.</div>
+          <div class="spacer"></div>
+          <div class="grid">
+            <div class="field full"><label for="nome">Nome completo *</label><input id="nome" name="nome" autocomplete="name" placeholder="Seu nome completo"></div>
+            <div class="field"><label for="nascimento">Data de nascimento *</label><input id="nascimento" name="nascimento" type="date"></div>
+            <div class="field"><label for="idade">Idade *</label><input id="idade" name="idade" type="number" min="1" max="120" inputmode="numeric" placeholder="Ex.: 35"></div>
+            <div class="field"><label for="whatsapp">WhatsApp *</label><input id="whatsapp" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(31) 99999-9999"></div>
+            <div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" placeholder="voce@email.com"></div>
+            <div class="field full"><label for="sexo">Sexo</label><select id="sexo" name="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Prefiro não informar</option></select></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="field full"><label>Qual atendimento você procura? *</label><div class="checkgrid">
+            <div class="check"><input id="proc1" name="procedimentos" type="checkbox" value="Limpeza de pele + Peeling"><label for="proc1"><span class="box"></span><span>Limpeza de pele + Peeling</span></label></div>
+            <div class="check"><input id="proc2" name="procedimentos" type="checkbox" value="Massagem Relaxante"><label for="proc2"><span class="box"></span><span>Massagem Relaxante</span></label></div>
+            <div class="check"><input id="proc3" name="procedimentos" type="checkbox" value="Skinbooster Facial"><label for="proc3"><span class="box"></span><span>Skinbooster Facial</span></label></div>
+            <div class="check"><input id="proc4" name="procedimentos" type="checkbox" value="Microagulhamento"><label for="proc4"><span class="box"></span><span>Microagulhamento</span></label></div>
+            <div class="check"><input id="proc5" name="procedimentos" type="checkbox" value="Microvasos"><label for="proc5"><span class="box"></span><span>Microvasos</span></label></div>
+            <div class="check"><input id="proc6" name="procedimentos" type="checkbox" value="Peeling Coreano"><label for="proc6"><span class="box"></span><span>Peeling Coreano</span></label></div>
+            <div class="check"><input id="proc7" name="procedimentos" type="checkbox" value="Radiofrequência Fracionada"><label for="proc7"><span class="box"></span><span>Radiofrequência Fracionada</span></label></div>
+            <div class="check"><input id="proc8" name="procedimentos" type="checkbox" value="Ultrassom Microfocado"><label for="proc8"><span class="box"></span><span>Ultrassom Microfocado</span></label></div>
+            <div class="check"><input id="proc9" name="procedimentos" type="checkbox" value="Combo Colágeno"><label for="proc9"><span class="box"></span><span>Combo Colágeno</span></label></div>
+            <div class="check"><input id="proc10" name="procedimentos" type="checkbox" value="Papada Off"><label for="proc10"><span class="box"></span><span>Papada Off</span></label></div>
+            <div class="check"><input id="proc11" name="procedimentos" type="checkbox" value="Cryo Lift"><label for="proc11"><span class="box"></span><span>Cryo Lift</span></label></div>
+            <div class="check"><input id="proc12" name="procedimentos" type="checkbox" value="Sculpt Cryo"><label for="proc12"><span class="box"></span><span>Sculpt Cryo</span></label></div>
+            <div class="check"><input id="proc13" name="procedimentos" type="checkbox" value="Programa Corporal Premium"><label for="proc13"><span class="box"></span><span>Programa Corporal Premium</span></label></div>
+            <div class="check"><input id="proc14" name="procedimentos" type="checkbox" value="Ainda não sei / Quero orientação profissional"><label for="proc14"><span class="box"></span><span>Ainda não sei / Quero orientação profissional</span></label></div>
+            <div class="check"><input id="proc15" name="procedimentos" type="checkbox" value="Outro"><label for="proc15"><span class="box"></span><span>Outro</span></label></div>
+          </div></div>
+          <div class="field full" id="outroProcWrap" hidden style="margin-top:12px"><label for="outroProc">Outro procedimento / descrição *</label><input id="outroProc" name="outroProc" placeholder="Descreva o atendimento de interesse"></div>
+        </section>
 
-      <section class="step active" id="step1">
-        <div class="head"><div><h2 class="title">Seja bem-vinda(o)</h2><p class="note">O preenchimento leva poucos minutos. As informações serão usadas para preparação e avaliação profissional.</p></div><div class="count">01 / 12</div></div>
-        <div class="notice">Esta é uma pré-anamnese informativa. Ela não realiza diagnóstico e não determina automaticamente indicação, contraindicação ou liberação de procedimentos. Informações relevantes serão encaminhadas para avaliação profissional.</div>
-        <div class="spacer"></div>
-        <div class="notice">Ao continuar, você poderá revisar todas as respostas antes de confirmar.</div>
-      </section>
+        <section class="step" id="step2" data-step="2">
+          <div class="head"><div><h2 class="title">Objetivo e histórico estético</h2><p class="note">Conte o que você gostaria de melhorar e experiências anteriores.</p></div><div class="count">02 / 08</div></div>
+          <div class="field full"><label>O que você deseja melhorar?</label><div class="checkgrid">
+            <div class="check"><input id="obj1" name="objetivos" type="checkbox" value="Qualidade da pele"><label for="obj1"><span class="box"></span><span>Qualidade da pele</span></label></div>
+            <div class="check"><input id="obj2" name="objetivos" type="checkbox" value="Manchas"><label for="obj2"><span class="box"></span><span>Manchas</span></label></div>
+            <div class="check"><input id="obj3" name="objetivos" type="checkbox" value="Acne"><label for="obj3"><span class="box"></span><span>Acne</span></label></div>
+            <div class="check"><input id="obj4" name="objetivos" type="checkbox" value="Cicatrizes"><label for="obj4"><span class="box"></span><span>Cicatrizes</span></label></div>
+            <div class="check"><input id="obj5" name="objetivos" type="checkbox" value="Linhas de expressão"><label for="obj5"><span class="box"></span><span>Linhas de expressão</span></label></div>
+            <div class="check"><input id="obj6" name="objetivos" type="checkbox" value="Flacidez"><label for="obj6"><span class="box"></span><span>Flacidez</span></label></div>
+            <div class="check"><input id="obj7" name="objetivos" type="checkbox" value="Contorno facial"><label for="obj7"><span class="box"></span><span>Contorno facial</span></label></div>
+            <div class="check"><input id="obj8" name="objetivos" type="checkbox" value="Papada"><label for="obj8"><span class="box"></span><span>Papada</span></label></div>
+            <div class="check"><input id="obj9" name="objetivos" type="checkbox" value="Gordura localizada"><label for="obj9"><span class="box"></span><span>Gordura localizada</span></label></div>
+            <div class="check"><input id="obj10" name="objetivos" type="checkbox" value="Celulite"><label for="obj10"><span class="box"></span><span>Celulite</span></label></div>
+            <div class="check"><input id="obj11" name="objetivos" type="checkbox" value="Estrias"><label for="obj11"><span class="box"></span><span>Estrias</span></label></div>
+            <div class="check"><input id="obj12" name="objetivos" type="checkbox" value="Microvasos"><label for="obj12"><span class="box"></span><span>Microvasos</span></label></div>
+            <div class="check"><input id="obj13" name="objetivos" type="checkbox" value="Hidratação"><label for="obj13"><span class="box"></span><span>Hidratação</span></label></div>
+            <div class="check"><input id="obj14" name="objetivos" type="checkbox" value="Rejuvenescimento"><label for="obj14"><span class="box"></span><span>Rejuvenescimento</span></label></div>
+            <div class="check"><input id="obj15" name="objetivos" type="checkbox" value="Relaxamento"><label for="obj15"><span class="box"></span><span>Relaxamento</span></label></div>
+            <div class="check"><input id="obj16" name="objetivos" type="checkbox" value="Outro"><label for="obj16"><span class="box"></span><span>Outro</span></label></div>
+          </div></div>
+          <div class="spacer"></div>
+          <div class="field"><label for="objetivoTexto">Conte um pouco mais sobre seu objetivo</label><textarea id="objetivoTexto" name="objetivoTexto" placeholder="Explique com suas palavras o que espera do atendimento."></textarea></div>
+          <div class="spacer"></div>
+          <div class="field full"><label>Já realizou procedimentos estéticos?</label><div class="options"><div class="opt"><input type="radio" name="histEst" id="histN" value="Não"><label for="histN">Não</label></div><div class="opt"><input type="radio" name="histEst" id="histS" value="Sim"><label for="histS">Sim</label></div></div></div>
+          <div class="conditional" id="histBox" hidden><div class="grid"><div class="field"><label for="histQual">Qual procedimento e quando?</label><textarea id="histQual" name="histQual"></textarea></div><div class="field"><label for="histReacao">Teve reação ou complicação?</label><textarea id="histReacao" name="histReacao"></textarea></div><div class="field full"><label for="histExperiencia">Como foi a experiência / há algo importante para informar?</label><textarea id="histExperiencia" name="histExperiencia"></textarea></div></div></div>
+        </section>
 
-      <section class="step" id="step2">
-        <div class="head"><div><h2 class="title">Dados pessoais</h2><p class="note">Precisamos destes dados para identificar sua ficha.</p></div><div class="count">02 / 12</div></div>
-        <div class="grid">
-          <div class="field full"><label>Nome completo *</label><input id="nome" placeholder="Seu nome completo"></div>
-          <div class="field"><label>Data de nascimento *</label><input id="nascimento" type="date"></div>
-          <div class="field"><label>Idade *</label><input id="idade" type="number" min="1" max="120" placeholder="Ex.: 35"></div>
-          <div class="field"><label>WhatsApp *</label><input id="whatsapp" inputmode="tel" placeholder="(31) 99999-9999"></div>
-          <div class="field"><label>E-mail</label><input id="email" type="email" placeholder="voce@email.com"></div>
-          <div class="field full"><label>Sexo</label><select id="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Prefiro não informar</option></select></div>
-        </div>
-      </section>
+        <section class="step" id="step3" data-step="3">
+          <div class="head"><div><h2 class="title">Pele e exposição solar</h2><p class="note">Estas informações ajudam a equipe a conhecer o estado atual da pele.</p></div><div class="count">03 / 08</div></div>
+          <div class="grid">
+            <div class="field"><label for="pele">Como considera sua pele?</label><select id="pele" name="pele"><option value="">Selecione</option><option>Seca</option><option>Oleosa</option><option>Mista</option><option>Sensível</option><option>Normal</option><option>Não sei</option></select></div>
+            <div class="field"><label>Teve exposição solar intensa recentemente?</label><div class="options"><div class="opt"><input type="radio" name="solIntenso" id="solS" value="Sim"><label for="solS">Sim</label></div><div class="opt"><input type="radio" name="solIntenso" id="solN" value="Não"><label for="solN">Não</label></div></div></div>
+            <div class="field full"><label>Apresenta atualmente</label><div class="checkgrid">
+              <div class="check"><input id="pele1" name="condPele" type="checkbox" value="Acne"><label for="pele1"><span class="box"></span><span>Acne</span></label></div>
+              <div class="check"><input id="pele2" name="condPele" type="checkbox" value="Manchas"><label for="pele2"><span class="box"></span><span>Manchas</span></label></div>
+              <div class="check"><input id="pele3" name="condPele" type="checkbox" value="Vermelhidão"><label for="pele3"><span class="box"></span><span>Vermelhidão</span></label></div>
+              <div class="check"><input id="pele4" name="condPele" type="checkbox" value="Sensibilidade"><label for="pele4"><span class="box"></span><span>Sensibilidade</span></label></div>
+              <div class="check"><input id="pele5" name="condPele" type="checkbox" value="Descamação"><label for="pele5"><span class="box"></span><span>Descamação</span></label></div>
+              <div class="check"><input id="pele6" name="condPele" type="checkbox" value="Feridas/lesões"><label for="pele6"><span class="box"></span><span>Feridas/lesões</span></label></div>
+              <div class="check"><input id="pele7" name="condPele" type="checkbox" value="Nenhuma"><label for="pele7"><span class="box"></span><span>Nenhuma</span></label></div>
+              <div class="check"><input id="pele8" name="condPele" type="checkbox" value="Não sei"><label for="pele8"><span class="box"></span><span>Não sei</span></label></div>
+            </div></div>
+            <div class="field full"><label>Já apresentou manchas após procedimentos ou inflamações?</label><div class="options"><div class="opt"><input type="radio" name="manchasPos" id="manS" value="Sim"><label for="manS">Sim</label></div><div class="opt"><input type="radio" name="manchasPos" id="manN" value="Não"><label for="manN">Não</label></div><div class="opt"><input type="radio" name="manchasPos" id="manNS" value="Não sei"><label for="manNS">Não sei</label></div></div></div>
+            <div class="field"><label for="quandoSol">Quando foi a exposição solar?</label><select id="quandoSol" name="quandoSol"><option value="">Selecione</option><option>Últimos 7 dias</option><option>8–15 dias</option><option>16–30 dias</option><option>Mais de 30 dias</option><option>Não se aplica</option></select></div>
+            <div class="field"><label for="protetor">Usa protetor solar?</label><select id="protetor" name="protetor"><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Às vezes</option></select></div>
+          </div>
+        </section>
 
-      <section class="step" id="step3">
-        <div class="head"><div><h2 class="title">Qual atendimento você procura?</h2><p class="note">Selecione um ou mais procedimentos. Se ainda não souber, escolha a opção de orientação.</p></div><div class="count">03 / 12</div></div>
-        <div class="checkgrid" id="procedimentos"></div>
-        <div class="field full" style="margin-top:12px"><label>Outro procedimento / descrição</label><input id="outroProc" placeholder="Se escolheu Outro, descreva"></div>
-      </section>
+        <section class="step" id="step4" data-step="4">
+          <div class="head"><div><h2 class="title">Saúde, medicamentos e alergias</h2><p class="note">Informe o que for relevante para avaliação profissional.</p></div><div class="count">04 / 08</div></div>
+          <div class="grid">
+            <div class="field full"><label>Possui ou já teve condição de saúde importante?</label><div class="options"><div class="opt"><input type="radio" name="condSaude" id="saudeS" value="Sim"><label for="saudeS">Sim</label></div><div class="opt"><input type="radio" name="condSaude" id="saudeN" value="Não"><label for="saudeN">Não</label></div><div class="opt"><input type="radio" name="condSaude" id="saudeP" value="Prefiro conversar pessoalmente"><label for="saudeP">Prefiro conversar pessoalmente</label></div></div></div>
+            <div class="field full"><label for="saudeDesc">Se sim, descreva</label><textarea id="saudeDesc" name="saudeDesc"></textarea></div>
+            <div class="field full"><label>Histórico de problemas cardíacos?</label><div class="options"><div class="opt"><input type="radio" name="cardio" id="cardS" value="Sim"><label for="cardS">Sim</label></div><div class="opt"><input type="radio" name="cardio" id="cardN" value="Não"><label for="cardN">Não</label></div><div class="opt"><input type="radio" name="cardio" id="cardNS" value="Não sei"><label for="cardNS">Não sei</label></div></div></div>
+            <div class="field full"><label for="cardioDesc">Detalhes cardíacos / pressão / desmaios, se houver</label><textarea id="cardioDesc" name="cardioDesc"></textarea></div>
+            <div class="field full"><label>Possui condição médica em acompanhamento?</label><div class="options"><div class="opt"><input type="radio" name="acomp" id="acompS" value="Sim"><label for="acompS">Sim</label></div><div class="opt"><input type="radio" name="acomp" id="acompN" value="Não"><label for="acompN">Não</label></div></div></div>
+            <div class="field full"><label>Faz uso contínuo de medicamentos?</label><div class="options"><div class="opt"><input type="radio" name="medCont" id="medS" value="Sim"><label for="medS">Sim</label></div><div class="opt"><input type="radio" name="medCont" id="medN" value="Não"><label for="medN">Não</label></div></div></div>
+            <div class="field full"><label for="medDesc">Medicamentos: nome, dosagem se souber e motivo</label><textarea id="medDesc" name="medDesc"></textarea></div>
+            <div class="field full"><label>Usa/usou recentemente medicamentos ou tratamentos dermatológicos?</label><div class="options"><div class="opt"><input type="radio" name="derm" id="dermS" value="Sim"><label for="dermS">Sim</label></div><div class="opt"><input type="radio" name="derm" id="dermN" value="Não"><label for="dermN">Não</label></div><div class="opt"><input type="radio" name="derm" id="dermNS" value="Não sei"><label for="dermNS">Não sei</label></div></div></div>
+            <div class="field full"><label for="dermDesc">Quais e quando?</label><textarea id="dermDesc" name="dermDesc"></textarea></div>
+            <div class="field full"><label>Possui alergia conhecida?</label><div class="options"><div class="opt"><input type="radio" name="alergia" id="alS" value="Sim"><label for="alS">Sim</label></div><div class="opt"><input type="radio" name="alergia" id="alN" value="Não"><label for="alN">Não</label></div><div class="opt"><input type="radio" name="alergia" id="alNS" value="Não sei"><label for="alNS">Não sei</label></div></div></div>
+            <div class="field full"><label for="alergiaDesc">Quais alergias?</label><textarea id="alergiaDesc" name="alergiaDesc"></textarea></div>
+            <div class="field full"><label>Já teve reação alérgica durante procedimento estético?</label><div class="options"><div class="opt"><input type="radio" name="reacaoEst" id="reS" value="Sim"><label for="reS">Sim</label></div><div class="opt"><input type="radio" name="reacaoEst" id="reN" value="Não"><label for="reN">Não</label></div></div></div>
+            <div class="field full"><label for="reacaoDesc">Se sim, explique</label><textarea id="reacaoDesc" name="reacaoDesc"></textarea></div>
+          </div>
+        </section>
 
-      <section class="step" id="step4">
-        <div class="head"><div><h2 class="title">Objetivo e histórico estético</h2><p class="note">Conte o que você gostaria de melhorar e experiências anteriores.</p></div><div class="count">04 / 12</div></div>
-        <div class="field full"><label>O que você deseja melhorar? <span class="muted"></span></label><div class="checkgrid" id="objetivos"></div></div>
-        <div class="spacer"></div>
-        <div class="field"><label>Conte um pouco mais sobre seu objetivo</label><textarea id="objetivoTexto" placeholder="Explique com suas palavras o que espera do atendimento."></textarea></div>
-        <div class="spacer"></div>
-        <div class="field full"><label>Já realizou procedimentos estéticos?</label><div class="options"><div class="opt"><input type="radio" name="histEst" id="histN" value="Não"><label for="histN">Não</label></div><div class="opt"><input type="radio" name="histEst" id="histS" value="Sim"><label for="histS">Sim</label></div></div></div>
-        <div class="conditional" id="histBox"><div class="grid"><div class="field"><label>Qual procedimento e quando?</label><textarea id="histQual"></textarea></div><div class="field"><label>Teve reação ou complicação?</label><textarea id="histReacao"></textarea></div><div class="field full"><label>Como foi a experiência / há algo importante para informar?</label><textarea id="histExperiencia"></textarea></div></div></div>
-      </section>
+        <section class="step" id="step5" data-step="5">
+          <div class="head"><div><h2 class="title">Hábitos, situações especiais e módulos</h2><p class="note">Reunimos aqui hábitos, procedimentos recentes e perguntas específicas do atendimento selecionado.</p></div><div class="count">05 / 08</div></div>
+          <div class="grid">
+            <div class="field full"><label>Consome bebidas alcoólicas?</label><div class="options"><div class="opt"><input type="radio" name="alcool" id="alcS" value="Sim"><label for="alcS">Sim</label></div><div class="opt"><input type="radio" name="alcool" id="alcN" value="Não"><label for="alcN">Não</label></div></div></div>
+            <div class="conditional full" id="alcoolBox" hidden><div class="grid"><div class="field"><label for="alcFreq">Frequência</label><select id="alcFreq" name="alcFreq"><option value="">Selecione</option><option>1 vez por semana</option><option>2 vezes por semana</option><option>3 vezes por semana</option><option>4 vezes por semana</option><option>5 vezes por semana</option><option>6 vezes por semana</option><option>7 vezes por semana / todos os dias</option></select></div><div class="field"><label for="alcObs">Observação</label><input id="alcObs" name="alcObs"></div></div></div>
+            <div class="field full"><label>Fuma ou utiliza produtos com nicotina?</label><div class="options"><div class="opt"><input type="radio" name="nic" id="nicS" value="Sim"><label for="nicS">Sim</label></div><div class="opt"><input type="radio" name="nic" id="nicN" value="Não"><label for="nicN">Não</label></div></div></div>
+            <div class="conditional full" id="nicBox" hidden><div class="grid"><div class="field"><label for="nicFreq">Frequência</label><input id="nicFreq" name="nicFreq" placeholder="Ex.: diariamente"></div><div class="field"><label for="nicTempo">Há quanto tempo?</label><input id="nicTempo" name="nicTempo"></div></div></div>
+            <div class="field full"><label>Existe possibilidade de gestação?</label><div class="options"><div class="opt"><input type="radio" name="gest" id="gestS" value="Sim"><label for="gestS">Sim</label></div><div class="opt"><input type="radio" name="gest" id="gestN" value="Não"><label for="gestN">Não</label></div><div class="opt"><input type="radio" name="gest" id="gestP" value="Prefiro não informar"><label for="gestP">Prefiro não informar</label></div><div class="opt"><input type="radio" name="gest" id="gestNA" value="Não se aplica"><label for="gestNA">Não se aplica</label></div></div></div>
+            <div class="field full"><label>Está amamentando?</label><div class="options"><div class="opt"><input type="radio" name="amamenta" id="amaS" value="Sim"><label for="amaS">Sim</label></div><div class="opt"><input type="radio" name="amamenta" id="amaN" value="Não"><label for="amaN">Não</label></div><div class="opt"><input type="radio" name="amamenta" id="amaNA" value="Não se aplica"><label for="amaNA">Não se aplica</label></div></div></div>
+            <div class="field full"><label>Realizou cirurgia ou procedimento médico/estético recentemente?</label><div class="options"><div class="opt"><input type="radio" name="recente" id="recS" value="Sim"><label for="recS">Sim</label></div><div class="opt"><input type="radio" name="recente" id="recN" value="Não"><label for="recN">Não</label></div></div></div>
+          </div>
+          <div class="conditional" id="recentBox" hidden><div class="grid"><div class="field"><label for="recQual">Qual procedimento?</label><textarea id="recQual" name="recQual"></textarea></div><div class="field"><label for="recQuando">Quando?</label><input id="recQuando" name="recQuando" type="date"></div><div class="field"><label for="recRecuperacao">Está em recuperação?</label><select id="recRecuperacao" name="recRecuperacao"><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Não sei</option></select></div><div class="field"><label for="recOrientacao">Existe orientação médica relacionada?</label><textarea id="recOrientacao" name="recOrientacao"></textarea></div></div></div>
 
-      <section class="step" id="step5">
-        <div class="head"><div><h2 class="title">Pele e exposição solar</h2><p class="note">Estas informações ajudam a equipe a conhecer o estado atual da pele.</p></div><div class="count">05 / 12</div></div>
-        <div class="grid">
-          <div class="field"><label>Como considera sua pele?</label><select id="pele"><option value="">Selecione</option><option>Seca</option><option>Oleosa</option><option>Mista</option><option>Sensível</option><option>Normal</option><option>Não sei</option></select></div>
-          <div class="field"><label>Teve exposição solar intensa recentemente?</label><div class="options"><div class="opt"><input type="radio" name="solIntenso" id="solS" value="Sim"><label for="solS">Sim</label></div><div class="opt"><input type="radio" name="solIntenso" id="solN" value="Não"><label for="solN">Não</label></div></div></div>
-          <div class="field full"><label>Apresenta atualmente</label><div class="checkgrid" id="condPele"></div></div>
-          <div class="field full"><label>Já apresentou manchas após procedimentos ou inflamações?</label><div class="options"><div class="opt"><input type="radio" name="manchasPos" id="manS" value="Sim"><label for="manS">Sim</label></div><div class="opt"><input type="radio" name="manchasPos" id="manN" value="Não"><label for="manN">Não</label></div><div class="opt"><input type="radio" name="manchasPos" id="manNS" value="Não sei"><label for="manNS">Não sei</label></div></div></div>
-          <div class="field"><label>Quando foi a exposição solar?</label><select id="quandoSol"><option value="">Selecione</option><option>Últimos 7 dias</option><option>8–15 dias</option><option>16–30 dias</option><option>Mais de 30 dias</option><option>Não se aplica</option></select></div>
-          <div class="field"><label>Usa protetor solar?</label><select id="protetor"><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Às vezes</option></select></div>
-        </div>
-      </section>
+          <div class="module-block" data-module="facial" hidden><h3>Módulo facial</h3><div class="grid"><div class="field"><label for="mFaceReg">Região</label><select id="mFaceReg" name="mFaceReg"><option value="">Selecione</option><option>Testa</option><option>Olhos</option><option>Bochechas</option><option>Nariz</option><option>Lábios</option><option>Queixo</option><option>Mandíbula</option><option>Papada</option><option>Pescoço</option><option>Outra</option></select></div><div class="field"><label for="mFaceObj">O que espera melhorar?</label><textarea id="mFaceObj" name="mFaceObj"></textarea></div></div></div>
+          <div class="module-block" data-module="corporal" hidden><h3>Módulo corporal / bem-estar</h3><div class="grid"><div class="field"><label for="mBodyReg">Região</label><select id="mBodyReg" name="mBodyReg"><option value="">Selecione</option><option>Abdômen</option><option>Flancos</option><option>Cintura</option><option>Braços</option><option>Pernas</option><option>Glúteos</option><option>Outra</option></select></div><div class="field"><label for="mBodyObj">Objetivo</label><textarea id="mBodyObj" name="mBodyObj"></textarea></div></div></div>
+          <div class="module-block" data-module="microvasos" hidden><h3>Módulo microvasos</h3><div class="grid"><div class="field"><label for="mVascReg">Região</label><input id="mVascReg" name="mVascReg"></div><div class="field"><label for="mVascTempo">Há quanto tempo?</label><input id="mVascTempo" name="mVascTempo"></div><div class="field full"><label for="mVascAnt">Tratamento anterior</label><textarea id="mVascAnt" name="mVascAnt"></textarea></div></div></div>
+          <div class="module-block" data-module="peeling" hidden><h3>Módulo peeling</h3><div class="grid"><div class="field"><label for="mPeelAnt">Já realizou peeling anteriormente?</label><textarea id="mPeelAnt" name="mPeelAnt"></textarea></div><div class="field"><label for="mPeelReac">Teve reação importante?</label><textarea id="mPeelReac" name="mPeelReac"></textarea></div><div class="field full"><label for="mPeelProd">Produtos dermatológicos atuais</label><textarea id="mPeelProd" name="mPeelProd"></textarea></div></div></div>
+          <div class="module-block" data-module="microagulhamento" hidden><h3>Módulo microagulhamento</h3><div class="grid"><div class="field"><label for="mMicroAnt">Microagulhamento anterior</label><textarea id="mMicroAnt" name="mMicroAnt"></textarea></div><div class="field"><label for="mMicroRec">Como foi a recuperação?</label><textarea id="mMicroRec" name="mMicroRec"></textarea></div></div></div>
+          <div class="module-block" data-module="tecnologias" hidden><h3>Módulo tecnologias</h3><div class="grid"><div class="field"><label for="mTecAnt">Já realizou tratamento semelhante?</label><textarea id="mTecAnt" name="mTecAnt"></textarea></div><div class="field"><label for="mTecReac">Teve reação relevante?</label><textarea id="mTecReac" name="mTecReac"></textarea></div></div></div>
+          <div class="module-block" data-module="orientacao" hidden><h3>Orientação profissional</h3><div class="field"><label for="mOrient">Conte o que gostaria de melhorar para a equipe orientar sua avaliação.</label><textarea id="mOrient" name="mOrient"></textarea></div></div>
+          <div class="module-block" data-module="outro" hidden><h3>Outro procedimento</h3><div class="field"><label for="mOutro">Descreva</label><textarea id="mOutro" name="mOutro"></textarea></div></div>
+          <div class="notice" style="margin-top:13px">As respostas desta etapa são informações para avaliação profissional. O sistema não determina automaticamente se um procedimento pode ou não ser realizado.</div>
+          <div class="spacer"></div>
+          <div class="grid"><div class="field full"><label for="expectativa">O que você espera alcançar com o tratamento?</label><textarea id="expectativa" name="expectativa"></textarea></div><div class="field full"><label for="resultadoEsp">Existe algum resultado específico que gostaria de conversar com a profissional?</label><textarea id="resultadoEsp" name="resultadoEsp"></textarea></div><div class="field full"><label for="observacoes">Existe algo mais que gostaria de nos contar?</label><textarea id="observacoes" name="observacoes" style="min-height:160px"></textarea></div></div>
+        </section>
 
-      <section class="step" id="step6">
-        <div class="head"><div><h2 class="title">Saúde, medicamentos e alergias</h2><p class="note">Informe o que for relevante para avaliação profissional.</p></div><div class="count">06 / 12</div></div>
-        <div class="grid">
-          <div class="field full"><label>Possui ou já teve condição de saúde importante?</label><div class="options"><div class="opt"><input type="radio" name="condSaude" id="saudeS" value="Sim"><label for="saudeS">Sim</label></div><div class="opt"><input type="radio" name="condSaude" id="saudeN" value="Não"><label for="saudeN">Não</label></div><div class="opt"><input type="radio" name="condSaude" id="saudeP" value="Prefiro conversar pessoalmente"><label for="saudeP">Prefiro conversar pessoalmente</label></div></div></div>
-          <div class="field full"><label>Se sim, descreva</label><textarea id="saudeDesc"></textarea></div>
-          <div class="field full"><label>Histórico de problemas cardíacos?</label><div class="options"><div class="opt"><input type="radio" name="cardio" id="cardS" value="Sim"><label for="cardS">Sim</label></div><div class="opt"><input type="radio" name="cardio" id="cardN" value="Não"><label for="cardN">Não</label></div><div class="opt"><input type="radio" name="cardio" id="cardNS" value="Não sei"><label for="cardNS">Não sei</label></div></div></div>
-          <div class="field full"><label>Detalhes cardíacos / pressão / desmaios, se houver</label><textarea id="cardioDesc"></textarea></div>
-          <div class="field full"><label>Possui condição médica em acompanhamento?</label><div class="options"><div class="opt"><input type="radio" name="acomp" id="acompS" value="Sim"><label for="acompS">Sim</label></div><div class="opt"><input type="radio" name="acomp" id="acompN" value="Não"><label for="acompN">Não</label></div></div></div>
-          <div class="field full"><label>Faz uso contínuo de medicamentos?</label><div class="options"><div class="opt"><input type="radio" name="medCont" id="medS" value="Sim"><label for="medS">Sim</label></div><div class="opt"><input type="radio" name="medCont" id="medN" value="Não"><label for="medN">Não</label></div></div></div>
-          <div class="field full"><label>Medicamentos: nome, dosagem se souber e motivo</label><textarea id="medDesc"></textarea></div>
-          <div class="field full"><label>Usa/usou recentemente medicamentos ou tratamentos dermatológicos?</label><div class="options"><div class="opt"><input type="radio" name="derm" id="dermS" value="Sim"><label for="dermS">Sim</label></div><div class="opt"><input type="radio" name="derm" id="dermN" value="Não"><label for="dermN">Não</label></div><div class="opt"><input type="radio" name="derm" id="dermNS" value="Não sei"><label for="dermNS">Não sei</label></div></div></div>
-          <div class="field full"><label>Quais e quando?</label><textarea id="dermDesc"></textarea></div>
-          <div class="field full"><label>Possui alergia conhecida?</label><div class="options"><div class="opt"><input type="radio" name="alergia" id="alS" value="Sim"><label for="alS">Sim</label></div><div class="opt"><input type="radio" name="alergia" id="alN" value="Não"><label for="alN">Não</label></div><div class="opt"><input type="radio" name="alergia" id="alNS" value="Não sei"><label for="alNS">Não sei</label></div></div></div>
-          <div class="field full"><label>Quais alergias?</label><textarea id="alergiaDesc"></textarea></div>
-          <div class="field full"><label>Já teve reação alérgica durante procedimento estético?</label><div class="options"><div class="opt"><input type="radio" name="reacaoEst" id="reS" value="Sim"><label for="reS">Sim</label></div><div class="opt"><input type="radio" name="reacaoEst" id="reN" value="Não"><label for="reN">Não</label></div></div></div>
-          <div class="field full"><label>Se sim, explique</label><textarea id="reacaoDesc"></textarea></div>
-        </div>
-      </section>
+        <section class="step" id="step6" data-step="6">
+          <div class="head"><div><h2 class="title">Revise sua pré-anamnese</h2><p class="note">Confira as respostas antes de continuar. Você pode voltar e editar qualquer etapa.</p></div><div class="count">06 / 08</div></div>
+          <div class="summary" id="reviewSummary"></div>
+        </section>
 
-      <section class="step" id="step7">
-        <div class="head"><div><h2 class="title">Hábitos e situações especiais</h2><p class="note">Registre estas informações para avaliação profissional.</p></div><div class="count">07 / 12</div></div>
-        <div class="grid">
-          <div class="field full"><label>Consome bebidas alcoólicas?</label><div class="options"><div class="opt"><input type="radio" name="alcool" id="alcS" value="Sim"><label for="alcS">Sim</label></div><div class="opt"><input type="radio" name="alcool" id="alcN" value="Não"><label for="alcN">Não</label></div></div></div>
-          <div class="conditional full" id="alcoolBox"><div class="grid"><div class="field"><label>Frequência</label><select id="alcFreq"><option value="">Selecione</option><option>1 vez por semana</option><option>2 vezes por semana</option><option>3 vezes por semana</option><option>4 vezes por semana</option><option>5 vezes por semana</option><option>6 vezes por semana</option><option>7 vezes por semana / todos os dias</option></select></div><div class="field"><label>Observação</label><input id="alcObs"></div></div></div>
-          <div class="field full"><label>Fuma ou utiliza produtos com nicotina?</label><div class="options"><div class="opt"><input type="radio" name="nic" id="nicS" value="Sim"><label for="nicS">Sim</label></div><div class="opt"><input type="radio" name="nic" id="nicN" value="Não"><label for="nicN">Não</label></div></div></div>
-          <div class="conditional full" id="nicBox"><div class="grid"><div class="field"><label>Frequência</label><input id="nicFreq" placeholder="Ex.: diariamente"></div><div class="field"><label>Há quanto tempo?</label><input id="nicTempo"></div></div></div>
-          <div class="field full"><label>Existe possibilidade de gestação?</label><div class="options"><div class="opt"><input type="radio" name="gest" id="gestS" value="Sim"><label for="gestS">Sim</label></div><div class="opt"><input type="radio" name="gest" id="gestN" value="Não"><label for="gestN">Não</label></div><div class="opt"><input type="radio" name="gest" id="gestP" value="Prefiro não informar"><label for="gestP">Prefiro não informar</label></div><div class="opt"><input type="radio" name="gest" id="gestNA" value="Não se aplica"><label for="gestNA">Não se aplica</label></div></div></div>
-          <div class="field full"><label>Está amamentando?</label><div class="options"><div class="opt"><input type="radio" name="amamenta" id="amaS" value="Sim"><label for="amaS">Sim</label></div><div class="opt"><input type="radio" name="amamenta" id="amaN" value="Não"><label for="amaN">Não</label></div><div class="opt"><input type="radio" name="amamenta" id="amaNA" value="Não se aplica"><label for="amaNA">Não se aplica</label></div></div></div>
-        </div>
-      </section>
+        <section class="step" id="step7" data-step="7">
+          <div class="head"><div><h2 class="title">Consentimentos e assinatura</h2><p class="note">Leia os termos. A assinatura será adicionada nesta etapa antes do envio definitivo.</p></div><div class="count">07 / 08</div></div>
+          <div class="consent"><input id="consentimento1" type="checkbox"><label for="consentimento1">Declaro que as informações fornecidas são verdadeiras conforme meu conhecimento e autorizo seu uso para preparação e avaliação profissional do atendimento. *</label></div>
+          <div class="spacer"></div>
+          <div class="consent"><input id="consentimento2" type="checkbox"><label for="consentimento2">Li e autorizo o tratamento das informações fornecidas para finalidade de atendimento, respeitando a legislação aplicável de proteção de dados. *</label></div>
+          <div class="spacer"></div>
+          <div id="signatureMount" class="notice">O campo de assinatura digital será ativado na próxima etapa técnica desta implementação.</div>
+        </section>
 
-      <section class="step" id="step8">
-        <div class="head"><div><h2 class="title">Cirurgias e procedimentos recentes</h2><p class="note">Informe qualquer procedimento médico ou estético recente que seja relevante.</p></div><div class="count">08 / 12</div></div>
-        <div class="field"><label>Realizou cirurgia ou procedimento médico/estético recentemente?</label><div class="options"><div class="opt"><input type="radio" name="recente" id="recS" value="Sim"><label for="recS">Sim</label></div><div class="opt"><input type="radio" name="recente" id="recN" value="Não"><label for="recN">Não</label></div></div></div>
-        <div class="spacer"></div>
-        <div class="grid">
-          <div class="field"><label>Qual procedimento?</label><textarea id="recQual"></textarea></div>
-          <div class="field"><label>Quando?</label><input id="recQuando" type="date"></div>
-          <div class="field"><label>Está em recuperação?</label><select id="recRecuperacao"><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Não sei</option></select></div>
-          <div class="field"><label>Existe orientação médica relacionada?</label><textarea id="recOrientacao"></textarea></div>
-        </div>
-      </section>
+        <section class="step" id="step8" data-step="8">
+          <div class="head"><div><h2 class="title">Finalização</h2><p class="note">Sua ficha está pronta para a conexão segura com a BC Estética.</p></div><div class="count">08 / 08</div></div>
+          <div class="success-panel"><img src="../assets/logo-oficial/logo-bc-estetica-sem-fundo.png" alt="BC Estética" style="width:96px;max-width:30%;height:auto"><h2>Pré-anamnese pronta</h2><p>O envio seguro ao banco da BC, a assinatura e o PDF institucional estão sendo integrados nesta branch de desenvolvimento.</p><div class="actions" style="justify-content:center"><button class="btn primary small" id="finalizeButton" type="button" disabled>FINALIZAR E GERAR PDF</button></div><p class="status-message" id="submitStatus"></p></div>
+        </section>
 
-      <section class="step" id="step9">
-        <div class="head"><div><h2 class="title">Módulo do procedimento</h2><p class="note">As perguntas abaixo aparecem de acordo com o atendimento selecionado.</p></div><div class="count">09 / 12</div></div>
-        <div id="modules"></div>
-        <div class="notice" style="margin-top:13px">As respostas desta etapa são informações para avaliação profissional. O sistema não determina automaticamente se um procedimento pode ou não ser realizado.</div>
-      </section>
-
-      <section class="step" id="step10">
-        <div class="head"><div><h2 class="title">Expectativas e observações</h2><p class="note">Queremos entender o resultado que você espera conversar com a profissional.</p></div><div class="count">10 / 12</div></div>
-        <div class="grid">
-          <div class="field full"><label>O que você espera alcançar com o tratamento?</label><textarea id="expectativa"></textarea></div>
-          <div class="field full"><label>Existe algum resultado específico que gostaria de conversar com a profissional?</label><textarea id="resultadoEsp"></textarea></div>
-          <div class="field full"><label>Existe algo mais que gostaria de nos contar?</label><textarea id="observacoes" style="min-height:160px"></textarea></div>
-        </div>
-      </section>
-
-      <section class="step" id="step11">
-        <div class="head"><div><h2 class="title">Revise sua pré-anamnese</h2><p class="note">Confira tudo antes de confirmar. Você pode voltar e editar qualquer etapa.</p></div><div class="count">11 / 12</div></div>
-        <div class="summary" id="liveSummary"></div>
-        <div id="printArea"></div>
-      </section>
-
-      <section class="step" id="step12">
-        <div class="head"><div><h2 class="title">Consentimento e finalização</h2><p class="note">Leia e confirme para concluir o registro.</p></div><div class="count">12 / 12</div></div>
-        <div class="consent"><input id="cons1" type="checkbox"><label for="cons1">Declaro que as informações fornecidas são verdadeiras conforme meu conhecimento e autorizo seu uso para preparação e avaliação profissional do atendimento. *</label></div>
-        <div class="spacer"></div>
-        <div class="consent"><input id="cons2" type="checkbox"><label for="cons2">Li e autorizo o tratamento das informações fornecidas para finalidade de atendimento, respeitando a legislação aplicável de proteção de dados. *</label></div>
-        <div id="consError" class="error">Marque os dois consentimentos para finalizar.</div>
-        <div class="actions">
-          <button class="btn primary small" type="button" onclick="finalizeForm()">CONFIRMAR E ENVIAR</button>
-          <button class="btn secondary small" type="button" onclick="generatePDF()">GERAR / VISUALIZAR PDF</button>
-          <button class="btn secondary small" type="button" onclick="shareWhatsApp()">PREPARAR WHATSAPP</button>
-          <button class="btn secondary small" type="button" onclick="prepareEmail()">PREPARAR E-MAIL</button>
-        </div>
-        <div class="success" id="success"><h2>Pré-anamnese recebida</h2><p>As informações foram organizadas para análise da equipe da BC Estética.</p><div class="id" id="recordId"></div><p id="recordDate"></p><div class="actions" style="justify-content:center"><button class="btn primary small" onclick="generatePDF()">VISUALIZAR / SALVAR PDF</button><button class="btn secondary small" onclick="shareWhatsApp()">COMPARTILHAR PELO WHATSAPP</button></div></div>
-      </section>
-
-      <div class="nav">
-        <button class="btn secondary" id="back" onclick="prev()" type="button">Voltar</button>
-        <button class="btn primary" id="next" onclick="next()" type="button">Continuar</button>
-      </div>
-      <div class="form-footer-note">Pré-anamnese para coleta e organização de informações antes do atendimento. Decisões sobre segurança, indicação, contraindicação ou conduta devem ser feitas pela profissional responsável.</div>
+        <div id="formError" class="error" role="alert" aria-live="polite"></div>
+        <div class="nav"><button class="btn secondary" id="back" type="button">Voltar</button><button class="btn primary" id="next" type="button">Continuar</button></div>
+        <div class="form-footer-note">Pré-anamnese para coleta e organização de informações antes do atendimento. Decisões sobre segurança, indicação, contraindicação ou conduta devem ser feitas pela profissional responsável.</div>
+      </form>
     </div>
-  </div>
-</div>
+  </section>
+</main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-const procedures=['Limpeza de pele + Peeling','Massagem Relaxante','Skinbooster Facial','Microagulhamento','Microvasos','Peeling Coreano','Radiofrequência Fracionada','Ultrassom Microfocado','Combo Colágeno','Papada Off','Cryo Lift','Sculpt Cryo','Programa Corporal Premium','Ainda não sei / Quero orientação profissional','Outro'];
-const objectives=['Qualidade da pele','Manchas','Acne','Cicatrizes','Linhas de expressão','Flacidez','Contorno facial','Papada','Gordura localizada','Celulite','Estrias','Microvasos','Hidratação','Rejuvenescimento','Relaxamento','Outro'];
-const skinConditions=['Acne','Manchas','Vermelhidão','Sensibilidade','Descamação','Feridas/lesões','Nenhuma','Não sei'];
-let step=1,total=12,record=null;
-
-const $=id=>document.getElementById(id);
-const val=id=>(($(id)?.value)||'').trim();
-const radio=n=>document.querySelector('input[name="'+n+'"]:checked')?.value||'';
-const checks=id=>Array.from(document.querySelectorAll('#'+id+' input:checked')).map(x=>x.value);
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-
-function makeChecks(id,items){$(id).innerHTML=items.map((x,i)=>'<div class="check"><input id="'+id+i+'" type="checkbox" value="'+esc(x)+'"><label for="'+id+i+'"><span class="box"></span><span>'+esc(x)+'</span></label></div>').join('')}
-function makeProcedures(){makeChecks('procedimentos',procedures);makeChecks('objetivos',objectives);makeChecks('condPele',skinConditions)}
-function conditionalRadios(){
-  document.querySelectorAll('input[name="histEst"]').forEach(x=>x.addEventListener('change',()=>$('histBox').classList.toggle('show',radio('histEst')==='Sim')));
-  document.querySelectorAll('input[name="alcool"]').forEach(x=>x.addEventListener('change',()=>$('alcoolBox').classList.toggle('show',radio('alcool')==='Sim')));
-  document.querySelectorAll('input[name="nic"]').forEach(x=>x.addEventListener('change',()=>$('nicBox').classList.toggle('show',radio('nic')==='Sim')));
-}
-function selected(){return checks('procedimentos')}
-function moduleHtml(){
-  const p=selected(),b=[];
-  const add=(title,html)=>b.push('<div class="conditional show"><h3 style="margin:0 0 10px;font:700 20px Georgia,serif">'+title+'</h3>'+html+'</div>');
-  const areaFace='<div class="field"><label>Região</label><select id="mFaceReg"><option value="">Selecione</option><option>Testa</option><option>Olhos</option><option>Bochechas</option><option>Nariz</option><option>Lábios</option><option>Queixo</option><option>Mandíbula</option><option>Papada</option><option>Pescoço</option><option>Outra</option></select></div><div class="field"><label>O que espera melhorar?</label><textarea id="mFaceObj"></textarea></div>';
-  const areaBody='<div class="field"><label>Região</label><select id="mBodyReg"><option value="">Selecione</option><option>Abdômen</option><option>Flancos</option><option>Cintura</option><option>Braços</option><option>Pernas</option><option>Glúteos</option><option>Outra</option></select></div><div class="field"><label>Objetivo</label><textarea id="mBodyObj"></textarea></div>';
-  if(p.some(x=>['Skinbooster Facial','Papada Off','Cryo Lift','Limpeza de pele + Peeling','Peeling Coreano','Microagulhamento','Radiofrequência Fracionada','Ultrassom Microfocado','Combo Colágeno'].includes(x))) add('Módulo facial', '<div class="grid">'+areaFace+'</div>');
-  if(p.some(x=>['Sculpt Cryo','Programa Corporal Premium','Massagem Relaxante'].includes(x))) add('Módulo corporal / bem-estar','<div class="grid">'+areaBody+'</div>');
-  if(p.includes('Microvasos')) add('Módulo microvasos','<div class="grid"><div class="field"><label>Região</label><input id="mVascReg"></div><div class="field"><label>Há quanto tempo?</label><input id="mVascTempo"></div><div class="field full"><label>Tratamento anterior</label><textarea id="mVascAnt"></textarea></div></div>');
-  if(p.some(x=>x.includes('Peeling'))) add('Módulo peeling','<div class="grid"><div class="field"><label>Já realizou peeling anteriormente?</label><textarea id="mPeelAnt"></textarea></div><div class="field"><label>Teve reação importante?</label><textarea id="mPeelReac"></textarea></div><div class="field full"><label>Produtos dermatológicos atuais</label><textarea id="mPeelProd"></textarea></div></div>');
-  if(p.includes('Microagulhamento')) add('Módulo microagulhamento','<div class="grid"><div class="field"><label>Microagulhamento anterior</label><textarea id="mMicroAnt"></textarea></div><div class="field"><label>Como foi a recuperação?</label><textarea id="mMicroRec"></textarea></div></div>');
-  if(p.some(x=>['Radiofrequência Fracionada','Ultrassom Microfocado'].includes(x))) add('Módulo tecnologias','<div class="grid"><div class="field"><label>Já realizou tratamento semelhante?</label><textarea id="mTecAnt"></textarea></div><div class="field"><label>Teve reação relevante?</label><textarea id="mTecReac"></textarea></div></div>');
-  if(p.includes('Ainda não sei / Quero orientação profissional')) add('Orientação profissional','<div class="field"><label>Conte o que gostaria de melhorar para a equipe orientar sua avaliação.</label><textarea id="mOrient"></textarea></div>');
-  if(p.includes('Outro')) add('Outro procedimento','<div class="field"><label>Descreva</label><textarea id="mOutro">'+esc(val('outroProc'))+'</textarea></div>');
-  return b.length?b.join(''):'<div class="notice">Nenhum procedimento selecionado. Volte à etapa 3 para escolher uma opção.</div>';
-}
-function renderModules(){$('modules').innerHTML=moduleHtml()}
-function moduleData(){
-  const ids=['mFaceReg','mFaceObj','mBodyReg','mBodyObj','mVascReg','mVascTempo','mVascAnt','mPeelAnt','mPeelReac','mPeelProd','mMicroAnt','mMicroRec','mTecAnt','mTecReac','mOrient','mOutro'];
-  return ids.filter(id=>$(id)).map(id=>[id.replace(/^m/,'').replace(/([A-Z])/g,' $1').trim(),val(id)]).filter(x=>x[1]);
-}
-function data(){
- return {
-  id:record?.id||'BC-'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)+'-'+Math.random().toString(36).slice(2,7).toUpperCase(),
-  dataHora:record?.dataHora||new Date().toLocaleString('pt-BR'),
-  nome:val('nome'),nascimento:val('nascimento'),idade:val('idade'),whatsapp:val('whatsapp'),email:val('email'),sexo:val('sexo'),
-  procedimentos:selected(),outro:val('outroProc'),objetivos:checks('objetivos'),objetivoTexto:val('objetivoTexto'),
-  historico:radio('histEst'),histQual:val('histQual'),histReacao:val('histReacao'),histExperiencia:val('histExperiencia'),
-  pele:val('pele'),condPele:checks('condPele'),manchasPos:radio('manchasPos'),solIntenso:radio('solIntenso'),quandoSol:val('quandoSol'),protetor:val('protetor'),
-  condSaude:radio('condSaude'),saudeDesc:val('saudeDesc'),cardio:radio('cardio'),cardioDesc:val('cardioDesc'),acomp:radio('acomp'),
-  medCont:radio('medCont'),medDesc:val('medDesc'),derm:radio('derm'),dermDesc:val('dermDesc'),alergia:radio('alergia'),alergiaDesc:val('alergiaDesc'),reacaoEst:radio('reacaoEst'),reacaoDesc:val('reacaoDesc'),
-  alcool:radio('alcool'),alcFreq:val('alcFreq'),alcObs:val('alcObs'),nic:radio('nic'),nicFreq:val('nicFreq'),nicTempo:val('nicTempo'),gest:radio('gest'),amamenta:radio('amamenta'),
-  recente:radio('recente'),recQual:val('recQual'),recQuando:val('recQuando'),recRecuperacao:val('recRecuperacao'),recOrientacao:val('recOrientacao'),
-  modulo:moduleData(),expectativa:val('expectativa'),resultadoEsp:val('resultadoEsp'),observacoes:val('observacoes'),
-  consentimento1:$('cons1')?.checked||false,consentimento2:$('cons2')?.checked||false
- };
-}
-function sections(d){return [
- ['Identificação','ID: '+d.id+'\nData/hora: '+d.dataHora+'\nNome: '+d.nome+'\nNascimento: '+d.nascimento+'\nIdade: '+d.idade+'\nWhatsApp: '+d.whatsapp+'\nE-mail: '+d.email+'\nSexo: '+d.sexo],
- ['Procedimento','Selecionados: '+(d.procedimentos.join(', ')||'—')+'\nOutro: '+(d.outro||'—')],
- ['Objetivos e histórico','Objetivos: '+(d.objetivos.join(', ')||'—')+'\nObjetivo: '+(d.objetivoTexto||'—')+'\nJá realizou: '+(d.historico||'—')+'\nProcedimentos anteriores: '+(d.histQual||'—')+'\nReação/complicação: '+(d.histReacao||'—')+'\nExperiência: '+(d.histExperiencia||'—')],
- ['Pele e sol','Pele: '+d.pele+'\nCondições atuais: '+(d.condPele.join(', ')||'—')+'\nManchas pós-procedimento/inflamação: '+(d.manchasPos||'—')+'\nExposição solar intensa: '+(d.solIntenso||'—')+'\nQuando: '+(d.quandoSol||'—')+'\nProtetor: '+(d.protetor||'—')],
- ['Saúde, medicamentos e alergias','Condição importante: '+(d.condSaude||'—')+'\nDetalhes: '+(d.saudeDesc||'—')+'\nHistórico cardíaco: '+(d.cardio||'—')+'\nDetalhes cardíacos: '+(d.cardioDesc||'—')+'\nAcompanhamento médico: '+(d.acomp||'—')+'\nUso contínuo: '+(d.medCont||'—')+'\nMedicamentos: '+(d.medDesc||'—')+'\nDermatológicos: '+(d.derm||'—')+'\nQuais/quando: '+(d.dermDesc||'—')+'\nAlergias: '+(d.alergia||'—')+'\nQuais: '+(d.alergiaDesc||'—')+'\nReação em procedimento: '+(d.reacaoEst||'—')+'\nDetalhes: '+(d.reacaoDesc||'—')],
- ['Hábitos e situações especiais','Álcool: '+(d.alcool||'—')+'\nFrequência: '+(d.alcFreq||'—')+'\nObservação: '+(d.alcObs||'—')+'\nNicotina: '+(d.nic||'—')+'\nFrequência: '+(d.nicFreq||'—')+'\nTempo: '+(d.nicTempo||'—')+'\nPossibilidade de gestação: '+(d.gest||'—')+'\nAmamentação: '+(d.amamenta||'—')],
- ['Cirurgias/procedimentos recentes','Realizou: '+(d.recente||'—')+'\nQual: '+(d.recQual||'—')+'\nQuando: '+(d.recQuando||'—')+'\nRecuperação: '+(d.recRecuperacao||'—')+'\nOrientação: '+(d.recOrientacao||'—')],
- ['Módulo do procedimento',d.modulo.map(x=>x[0]+': '+x[1]).join('\n')||'—'],
- ['Expectativas e observações','Expectativa: '+(d.expectativa||'—')+'\nResultado específico: '+(d.resultadoEsp||'—')+'\nObservações: '+(d.observacoes||'—')],
- ['Consentimentos','Consentimento para preparação/avaliação: '+(d.consentimento1?'Sim':'Não')+'\nConsentimento para tratamento das informações: '+(d.consentimento2?'Sim':'Não')]
-]}
-function renderSummary(){
- const d=data();$('liveSummary').innerHTML=sections(d).map(([h,b])=>'<div class="card"><h3>'+esc(h)+'</h3><p>'+esc(b)+'</p></div>').join('');
- $('printArea').innerHTML='<div style="font:700 28px Georgia,serif;margin-bottom:4px">BC Estética Avançada</div><div style="font-size:18px;font-weight:800;margin-bottom:16px">Ficha de Pré-anamnese</div>'+sections(d).map(([h,b])=>'<div class="card"><h3>'+esc(h)+'</h3><p>'+esc(b)+'</p></div>').join('')+'<p style="font-size:10px;color:#666;margin-top:15px">Pré-anamnese informativa. Decisões de segurança, indicação, contraindicação ou conduta devem ser feitas pela profissional responsável.</p>';
-}
-function validate(){
- if(step===2){for(const id of ['nome','nascimento','idade','whatsapp'])if(!val(id)){alert('Preencha os campos obrigatórios desta etapa.');$(id).focus();return false}}
- if(step===3&&!selected().length){alert('Selecione pelo menos um procedimento.');return false}
- if(step===12&&(!$('cons1').checked||!$('cons2').checked)){$('consError').classList.add('show');return false}
- return true
-}
-function show(){
- qsa('.step').forEach((x,i)=>x.classList.toggle('active',i===step-1));
- $('stage').textContent='Etapa '+step+' de '+total;$('track').style.width=(step/total*100)+'%';
- $('back').style.visibility=step===1?'hidden':'visible';$('next').style.display=step===12?'none':'';
- if(step===9)renderModules();if(step===11)renderSummary();window.scrollTo({top:0,behavior:'smooth'})
-}
-function qsa(s){return Array.from(document.querySelectorAll(s))}
-function next(){if(!validate())return;if(step<total){step++;show()}}
-function prev(){if(step>1){step--;show()}}
-function finalizeForm(){
- if(!validate())return;record=data();localStorage.setItem('bc_estetica_pre_anamnese',JSON.stringify(record));$('recordId').textContent='ID: '+record.id;$('recordDate').textContent='Registrada em '+record.dataHora;$('success').classList.add('show');$('cons1').disabled=true;$('cons2').disabled=true}
-function textForShare(){const d=record||data();return 'BC Estética — Pré-anamnese\n\nID: '+d.id+'\nNome: '+d.nome+'\nWhatsApp: '+d.whatsapp+'\nProcedimento: '+d.procedimentos.join(', ')+'\nObjetivo: '+(d.objetivoTexto||d.objetivos.join(', ')||'—')+'\nData: '+d.dataHora+'\n\nPré-anamnese registrada para avaliação profissional.'}
-function shareWhatsApp(){if(!record)record=data();window.open('https://wa.me/?text='+encodeURIComponent(textForShare()),'_blank')}
-function prepareEmail(){const d=record||data();window.location.href='mailto:?subject='+encodeURIComponent('Nova Pré-Anamnese — BC Estética — '+d.nome)+'&body='+encodeURIComponent(textForShare())}
-async function generatePDF(){
- const d=record||data();if(!d.nome){alert('Preencha a pré-anamnese antes de gerar o PDF.');return}
- const S=sections(d);
- if(window.jspdf?.jsPDF){
-   const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'mm',format:'a4'});let y=18;
-   pdf.setFont('helvetica','bold');pdf.setFontSize(18);pdf.text('BC Estética Avançada',15,y);y+=8;pdf.setFontSize(13);pdf.text('Ficha de Pré-anamnese',15,y);y+=7;
-   pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.text('ID: '+d.id,15,y);y+=5;pdf.text('Data/hora: '+d.dataHora,15,y);y+=8;
-   for(const [h,b] of S){pdf.setFont('helvetica','bold');pdf.setFontSize(10);if(y>275){pdf.addPage();y=18}pdf.text(h,15,y);y+=5;pdf.setFont('helvetica','normal');pdf.setFontSize(9);const lines=pdf.splitTextToSize(b,178);for(const line of lines){if(y>282){pdf.addPage();y=18}pdf.text(line,15,y);y+=4.5}y+=3}
-   pdf.setFontSize(8);pdf.setTextColor(100);pdf.text('Pré-anamnese informativa. Avaliação e conduta dependem da profissional responsável.',15,289);
-   pdf.save('BC-Estetica-Pre-Anamnese-'+d.id+'.pdf');
- }else window.print()
-}
-makeProcedures();conditionalRadios();show();
-</script>
+<script type="module" src="./js/main.js"></script>
 <script src="../script.js"></script>
 </body>
 </html>
