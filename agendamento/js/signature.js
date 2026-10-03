@@ -29,11 +29,24 @@ export function createSignaturePad(canvas, options = {}) {
   ctx.strokeStyle = '#28231f';
 
   const resize = () => {
-    resizeSignatureCanvas(canvas, ctx, dpr);
+    let snapshot = null;
+    if (!empty && canvas.ownerDocument?.createElement && canvas.width && canvas.height) {
+      snapshot = canvas.ownerDocument.createElement('canvas');
+      snapshot.width = canvas.width;
+      snapshot.height = canvas.height;
+      const snapshotCtx = snapshot.getContext?.('2d');
+      snapshotCtx?.drawImage?.(canvas, 0, 0);
+    }
+
+    const size = resizeSignatureCanvas(canvas, ctx, dpr);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#28231f';
+
+    if (snapshot) {
+      ctx.drawImage(snapshot, 0, 0, snapshot.width, snapshot.height, 0, 0, size.width, size.height);
+    }
   };
 
   const clear = () => {
