@@ -26,11 +26,64 @@ body{padding:20px 12px 40px}.page{max-width:980px;margin:auto}
 @media(max-width:700px){body{padding:12px 8px 25px}.shell{border-radius:21px}.panel{padding:17px 14px}.grid,.options,.checkgrid{grid-template-columns:1fr}.head{gap:8px}.title{font-size:25px}.count{font-size:10px}.bar{padding:13px 15px}}
 @media print{body{background:#fff;padding:0}.hero,.bar,.track,.nav,.footer,.actions,#liveSummary{display:none!important}.shell{box-shadow:none;border:0}.panel{padding:0}.step{display:none!important}#step11{display:block!important}#printArea{display:block!important}.card{break-inside:avoid}}
 #printArea{display:none}
+
+/* Integração visual do Agendamento ao sistema BC */
+html,body{overflow-x:hidden}
+body{padding:0;background:#f2e9df}
+.page-booking{max-width:1180px;width:100%;padding:0 4% 70px}
+.page-booking .agendamento-hero{position:relative;left:50%;width:100vw;transform:translateX(-50%);min-height:390px;margin:0 0 28px;padding:110px 5% 58px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;background:linear-gradient(90deg,rgba(16,12,10,.9),rgba(16,12,10,.46),rgba(16,12,10,.22)),url("../assets/06-sala-atendimento.jpg") center 38%/cover no-repeat;border-bottom:1px solid rgba(215,182,118,.25);box-shadow:0 18px 45px rgba(44,27,19,.11)}
+.page-booking .agendamento-hero .eyebrow{color:var(--gold2)}
+.page-booking .agendamento-hero h1{font:600 clamp(48px,7vw,84px)/.92 var(--serif);margin:8px 0 18px;color:#fff;letter-spacing:-.02em}
+.page-booking .agendamento-hero p{max-width:760px;color:rgba(255,255,255,.82);font-size:16px;line-height:1.65}
+.page-booking .shell{max-width:980px;margin:0 auto;background:rgba(255,253,249,.97);border:1px solid #d8c8b6;border-radius:28px;box-shadow:0 26px 80px rgba(44,27,19,.16)}
+.page-booking .bar{background:linear-gradient(90deg,#171310,#2b241f);padding:16px 22px}
+.page-booking .track{background:#e9e0d7}.page-booking .track>div{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.page-booking .panel{padding:30px}
+.page-booking .count{background:#f6eee2;border-color:#ddcbb4;color:#80633b}
+.page-booking .notice{background:#fbf4e9;border-left-color:var(--gold)}
+.page-booking input,.page-booking select,.page-booking textarea{border-color:#d9cec3;background:#fff}
+.page-booking input:focus,.page-booking select:focus,.page-booking textarea:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(184,138,69,.12)}
+.page-booking .opt label,.page-booking .check label{border-color:#ded4cb;background:#fff}
+.page-booking .opt input:checked+label,.page-booking .check input:checked+label{border-color:var(--gold);background:#fcf5ea}
+.page-booking .conditional{background:#fcf7f0;border-color:#d8c5ad}
+.page-booking .nav{border-top-color:var(--line)}
+.page-booking .secondary{background:#f0eae3;border-color:#ddd2c8}
+.page-booking .primary{background:linear-gradient(135deg,#b58a45,#dfbd77);color:#18130e}
+.page-booking .form-footer-note{text-align:center;color:#857b72;font-size:10px;line-height:1.5;margin-top:15px}
+@media(max-width:700px){
+  .page-booking{padding:0 10px 50px}
+  .page-booking .agendamento-hero{min-height:410px;padding:100px 8% 44px;background-position:center 35%}
+  .page-booking .agendamento-hero h1{font-size:50px}
+  .page-booking .agendamento-hero p{font-size:14px}
+  .page-booking .shell{border-radius:22px}
+  .page-booking .panel{padding:19px 15px}
+}
+
 </style>
+<link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-<div class="page">
-  <div class="hero">
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="siteDrawer">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="brand" href="../" aria-label="BC Estética Avançada — início">
+      <img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada">
+    </a>
+    <a class="header-cta" href="../agendamento/">Agendar</a>
+  </div>
+</header>
+<div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
+<aside class="site-drawer" id="siteDrawer" aria-hidden="true">
+  <div class="drawer-head"><span>BC</span><button class="drawer-close" id="drawerClose" type="button" aria-label="Fechar menu">×</button></div>
+  <nav class="drawer-nav" aria-label="Navegação principal">
+    <a href="../">Início</a><a href="../clinica/">A Clínica</a><a href="../equipe/">Nossa Equipe</a><a href="../mel/">Mel</a><a href="../procedimentos/">Procedimentos</a><a href="../resultados/">Resultados</a><a href="../protocolos/">Protocolos</a><a href="../ambiente/">Ambiente</a><a href="../valores/">Valores</a><a href="../agendamento/">Agendamento</a><a href="../contato/">Contato</a>
+  </nav>
+  <a class="drawer-whatsapp" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Falar com a BC pelo WhatsApp</a>
+</aside>
+<div class="page page-booking">
+  <div class="hero agendamento-hero">
     <div class="eyebrow">BC Estética Avançada</div>
     <h1>Pré-anamnese</h1>
     <p>Olá! Seja bem-vinda(o) à BC Estética. Esta pré-anamnese foi criada para conhecermos melhor você, seus objetivos estéticos e informações importantes antes do atendimento.</p>
@@ -171,7 +224,7 @@ body{padding:20px 12px 40px}.page{max-width:980px;margin:auto}
         <button class="btn secondary" id="back" onclick="prev()" type="button">Voltar</button>
         <button class="btn primary" id="next" onclick="next()" type="button">Continuar</button>
       </div>
-      <div class="footer">Pré-anamnese para coleta e organização de informações antes do atendimento. Decisões sobre segurança, indicação, contraindicação ou conduta devem ser feitas pela profissional responsável.</div>
+      <div class="form-footer-note">Pré-anamnese para coleta e organização de informações antes do atendimento. Decisões sobre segurança, indicação, contraindicação ou conduta devem ser feitas pela profissional responsável.</div>
     </div>
   </div>
 </div>
@@ -283,5 +336,6 @@ async function generatePDF(){
 }
 makeProcedures();conditionalRadios();show();
 </script>
+<script src="../script.js"></script>
 </body>
 </html>
