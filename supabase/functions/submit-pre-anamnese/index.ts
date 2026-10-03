@@ -3,6 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.58.0";
 import { validateSubmission, type ValidSubmission } from './validation.ts';
 import { buildPublicCode } from './public-code.ts';
 import { generatePreAnamnesePdf } from './pdf.ts';
+import { decodePngDataUrl } from './signature.ts';
 
 const ALLOWED_ORIGINS = new Set([
   'https://bcesteticaavancada.github.io',
@@ -27,14 +28,6 @@ function json(body: unknown, status = 200, origin: string | null = null): Respon
     status,
     headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...corsHeaders(origin) },
   });
-}
-
-function decodePngDataUrl(value: string): Uint8Array {
-  const comma = value.indexOf(',');
-  const binary = atob(value.slice(comma + 1).replace(/\s+/g, ''));
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-  return bytes;
 }
 
 async function fetchLogo(): Promise<Uint8Array | null> {
@@ -172,6 +165,13 @@ Deno.serve(async (req: Request) => {
   if (!validation.valid) return json({ error: 'Revise os dados antes de enviar.', errors: validation.errors }, 422, origin);
   const payload = validation.data;
 
+  let signatureBytes: Uint8Array;
+  try {
+    signatureBytes = decodePngDataUrl(payload.signatureDataUrl);
+  } catch {
+    return json({ error: 'Assinatura digital inválida.', errors: { signatureDataUrl: 'Assinatura PNG inválida.' } }, 422, origin);
+  }
+
   const url = Deno.env.get('SUPABASE_URL');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!url || !serviceKey) return json({ error: 'Serviço temporariamente indisponível.' }, 503, origin);
@@ -182,7 +182,6 @@ Deno.serve(async (req: Request) => {
     if (lookupError) throw lookupError;
     if (existing) return json(await completeExisting(supabase, existing), 200, origin);
 
-    const signatureBytes = decodePngDataUrl(payload.signatureDataUrl);
     const row = await insertSubmission(supabase, payload, signatureBytes);
     const result = await completeExisting(supabase, row);
     return json(result, 201, origin);
