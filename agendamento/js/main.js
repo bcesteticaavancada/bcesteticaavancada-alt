@@ -2,6 +2,7 @@ import { createInitialState, loadDraft, saveDraft, serializeForm } from './state
 import { validateStep } from './validation.js';
 import { getVisibleModuleKeys } from './conditional.js';
 import { buildReviewSections } from './review.js';
+import { createSignaturePad } from './signature.js';
 
 export function advanceStep(current, total) {
   return Math.min(total, current + 1);
@@ -13,6 +14,10 @@ export function retreatStep(current) {
 
 export function mergeStateValues(state, values) {
   return { step: state?.step || 1, values: { ...values } };
+}
+
+export function signatureStepErrors(signaturePad) {
+  return signaturePad?.isEmpty?.() ? { signature: 'Faça sua assinatura antes de continuar.' } : {};
 }
 
 function escapeHtml(value) {
@@ -58,6 +63,19 @@ function initializePreAnamnese() {
   const next = document.getElementById('next');
   const formError = document.getElementById('formError');
   const review = document.getElementById('reviewSummary');
+  const signatureMount = document.getElementById('signatureMount');
+  let signaturePad = null;
+
+  if (signatureMount) {
+    signatureMount.className = 'signature-wrap';
+    signatureMount.innerHTML = '<label for="signatureCanvas">Assinatura do(a) cliente/paciente *</label><canvas id="signatureCanvas" class="signature-canvas" aria-label="Área para assinatura"></canvas><div class="signature-actions"><button id="clearSignature" class="btn secondary small" type="button">Limpar assinatura</button></div>';
+    const signatureCanvas = document.getElementById('signatureCanvas');
+    if (signatureCanvas) {
+      signaturePad = createSignaturePad(signatureCanvas);
+      document.getElementById('clearSignature')?.addEventListener('click', () => signaturePad.clear());
+      window.addEventListener('resize', () => signaturePad.resize(), { passive: true });
+    }
+  }
 
   let state = loadDraft(window.localStorage);
   if (!state || !Number.isInteger(state.step)) state = createInitialState();
@@ -133,9 +151,11 @@ function initializePreAnamnese() {
   next?.addEventListener('click', () => {
     syncState();
     const check = validateStep(`step${state.step}`, state);
-    if (!check.valid) {
-      showErrors(check.errors);
-      const first = Object.keys(check.errors)[0];
+    const signatureErrors = state.step === 7 ? signatureStepErrors(signaturePad) : {};
+    const errors = { ...check.errors, ...signatureErrors };
+    if (Object.keys(errors).length) {
+      showErrors(errors);
+      const first = Object.keys(errors)[0];
       document.getElementById(first)?.focus?.();
       return;
     }
