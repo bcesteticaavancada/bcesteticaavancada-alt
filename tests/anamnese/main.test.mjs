@@ -16,3 +16,9 @@ test('mergeStateValues keeps the current step and replaces form values', () => {
   const merged = mergeStateValues({ step: 4, values: { old: 'x' } }, { nome: 'Maria' });
   assert.deepEqual(merged, { step: 4, values: { nome: 'Maria' } });
 });
+
+test('signature step blocks progression while the signature pad is empty', async () => {
+  const { signatureStepErrors } = await import('../../agendamento/js/main.js');
+  assert.deepEqual(signatureStepErrors({ isEmpty: () => true }), { signature: 'Faça sua assinatura antes de continuar.' });
+  assert.deepEqual(signatureStepErrors({ isEmpty: () => false }), {});
+});
