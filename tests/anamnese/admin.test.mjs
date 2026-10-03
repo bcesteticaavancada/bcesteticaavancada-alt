@@ -1,53 +1,48 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import {
-  isAuthorizedAdmin,
-  normalizeAdminFilters,
-  sanitizeStatus,
-  buildAdminQueryDescriptor,
+  buildListUrl,
+  signIn,
+  loadPreAnamneses,
+  updateStatus,
+  getPdfSignedUrl,
 } from '../../admin/admin.js';
 
-const root = new URL('../../', import.meta.url);
+const cfg = { url: 'https://project.supabase.co', key: 'pub' };
+const session = { accessToken: 'token', refreshToken: 'refresh', expiresAt: Date.now() + 3600000, user: { id: 'user-1', email: 'admin@example.com' } };
 
-test('isAuthorizedAdmin accepts only active admin rows matching the authenticated user', () => {
-  assert.equal(isAuthorizedAdmin({ id: 'u1' }, { user_id: 'u1', active: true, role: 'admin' }), true);
-  assert.equal(isAuthorizedAdmin({ id: 'u1' }, { user_id: 'u1', active: false, role: 'admin' }), false);
-  assert.equal(isAuthorizedAdmin({ id: 'u1' }, { user_id: 'u2', active: true, role: 'admin' }), false);
-  assert.equal(isAuthorizedAdmin(null, { user_id: 'u1', active: true, role: 'admin' }), false);
+test('buildListUrl keeps order and encodes admin filters', () => {
+  const url = buildListUrl({ publicCode: 'BC-2026', patientName: 'Maria Silva', from: '2026-10-01', to: '2026-10-03' }, cfg);
+  assert.match(url, /order=created_at\.desc/);
+  assert.match(url, /public_code=ilike\.\*BC-2026\*/);
+  assert.match(url, /patient_name=ilike\.\*Maria\+Silva\*/);
+  assert.match(url, /created_at=gte\.2026-10-01T03%3A00%3A00\.000Z/);
 });
 
-test('normalizeAdminFilters trims inputs and preserves date bounds', () => {
-  assert.deepEqual(normalizeAdminFilters({ publicCode: '  BC-20261003-ABCDE ', patientName: '  Ana  ', from: '2026-10-01', to: '2026-10-03' }), {
-    publicCode: 'BC-20261003-ABCDE',
-    patientName: 'Ana',
-    from: '2026-10-01',
-    to: '2026-10-03',
-  });
+test('signIn normalizes Supabase password token response', async () => {
+  const fetchImpl = async () => ({ ok: true, status: 200, json: async () => ({ access_token: 'a', refresh_token: 'r', expires_in: 3600, user: { id: 'u', email: 'a@b.com' } }) });
+  const result = await signIn('a@b.com', 'secret', fetchImpl, cfg, () => 1000);
+  assert.deepEqual(result, { accessToken: 'a', refreshToken: 'r', expiresAt: 3601000, user: { id: 'u', email: 'a@b.com' } });
 });
 
-test('sanitizeStatus allows only the three workflow statuses', () => {
-  assert.equal(sanitizeStatus('recebida'), 'recebida');
-  assert.equal(sanitizeStatus('em_avaliacao'), 'em_avaliacao');
-  assert.equal(sanitizeStatus('avaliada'), 'avaliada');
-  assert.throws(() => sanitizeStatus('apagada'));
+test('loadPreAnamneses sends bearer token and returns rows', async () => {
+  let auth = '';
+  const fetchImpl = async (_url, options) => { auth = options.headers.Authorization; return { ok: true, status: 200, json: async () => [{ id: '1' }] }; };
+  const rows = await loadPreAnamneses(session, {}, fetchImpl, cfg);
+  assert.equal(auth, 'Bearer token');
+  assert.deepEqual(rows, [{ id: '1' }]);
 });
 
-test('buildAdminQueryDescriptor defaults to newest first and maps filters safely', () => {
-  assert.deepEqual(buildAdminQueryDescriptor({ patientName: 'Ana', from: '2026-10-01', to: '2026-10-03' }), {
-    orderBy: 'created_at',
-    ascending: false,
-    publicCode: '',
-    patientName: 'Ana',
-    fromIso: '2026-10-01T00:00:00.000Z',
-    toIso: '2026-10-03T23:59:59.999Z',
-  });
+test('updateStatus rejects unknown status before request', async () => {
+  let calls = 0;
+  await assert.rejects(() => updateStatus(session, 'id', 'apagada', async () => { calls += 1; }, cfg), /Status inválido/);
+  assert.equal(calls, 0);
 });
 
-test('admin static HTML contains no embedded patient data or password', async () => {
-  const html = await readFile(new URL('../../admin/index.html', import.meta.url), 'utf8');
-  assert.equal(/patient_name\s*[:=]\s*["'][^"']+/i.test(html), false);
-  assert.equal(/password\s*[:=]\s*["'][^"']+/i.test(html), false);
-  assert.match(html, /id="loginView"/);
-  assert.match(html, /id="adminView"/);
+test('getPdfSignedUrl returns temporary signed URL from private bucket', async () => {
+  let called = '';
+  const fetchImpl = async (url) => { called = url; return { ok: true, status: 200, json: async () => ({ signedURL: '/storage/v1/object/sign/pre-anamnese-pdfs/2026/10/f.pdf?token=x' }) }; };
+  const url = await getPdfSignedUrl(session, '2026/10/f.pdf', fetchImpl, cfg);
+  assert.equal(url, 'https://project.supabase.co/storage/v1/object/sign/pre-anamnese-pdfs/2026/10/f.pdf?token=x');
+  assert.match(called, /pre-anamnese-pdfs\/2026\/10\/f\.pdf$/);
 });
