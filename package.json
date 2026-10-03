@@ -1,0 +1,8 @@
+{
+  "name": "bc-estetica-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:frontend": "node --test tests/anamnese/*.test.mjs"
+  }
+}
