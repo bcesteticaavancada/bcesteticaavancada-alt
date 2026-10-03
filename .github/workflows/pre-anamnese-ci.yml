@@ -1,0 +1,28 @@
+name: Pre-anamnese CI
+
+on:
+  push:
+    branches:
+      - feature/pre-anamnese-native
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run frontend tests
+        run: npm run test:frontend
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Run Supabase function tests
+        run: deno test --allow-env --allow-net supabase/functions/submit-pre-anamnese/*_test.ts
