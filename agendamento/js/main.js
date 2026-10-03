@@ -3,6 +3,9 @@ import { validateStep } from './validation.js';
 import { getVisibleModuleKeys } from './conditional.js';
 import { buildReviewSections } from './review.js';
 import { createSignaturePad } from './signature.js';
+import { FORM_VERSION } from './config.js';
+import { downloadPdf, filenameForCode, sharePdf } from './api.js';
+import { createSubmissionGate, finalizePreAnamnese } from './finalize.js';
 
 export function advanceStep(current, total) {
   return Math.min(total, current + 1);
@@ -18,6 +21,17 @@ export function mergeStateValues(state, values) {
 
 export function signatureStepErrors(signaturePad) {
   return signaturePad?.isEmpty?.() ? { signature: 'Faça sua assinatura antes de continuar.' } : {};
+}
+
+export function buildSubmissionSuccessView(result) {
+  const publicCode = String(result?.publicCode || '').trim();
+  return {
+    publicCode,
+    filename: filenameForCode(publicCode),
+    pdfUrl: String(result?.pdfUrl || ''),
+    pdfExpiresAt: String(result?.pdfExpiresAt || ''),
+    message: `Ficha ${publicCode} enviada com segurança.`,
+  };
 }
 
 function escapeHtml(value) {
@@ -51,9 +65,31 @@ function buildReviewHtml(state) {
   `).join('');
 }
 
+function installHoneypot(form) {
+  if (form.querySelector('[name="website"]')) return;
+  const wrap = document.createElement('div');
+  wrap.setAttribute('aria-hidden', 'true');
+  wrap.style.position = 'absolute';
+  wrap.style.left = '-10000px';
+  wrap.style.width = '1px';
+  wrap.style.height = '1px';
+  wrap.style.overflow = 'hidden';
+  const label = document.createElement('label');
+  label.textContent = 'Website';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.name = 'website';
+  input.tabIndex = -1;
+  input.autocomplete = 'off';
+  label.appendChild(input);
+  wrap.appendChild(label);
+  form.appendChild(wrap);
+}
+
 function initializePreAnamnese() {
   const form = document.getElementById('preAnamneseForm');
   if (!form) return;
+  installHoneypot(form);
 
   const steps = Array.from(form.querySelectorAll('.step[data-step]'));
   const total = steps.length || 8;
@@ -64,7 +100,12 @@ function initializePreAnamnese() {
   const formError = document.getElementById('formError');
   const review = document.getElementById('reviewSummary');
   const signatureMount = document.getElementById('signatureMount');
+  const finalizeButton = document.getElementById('finalizeButton');
+  const submitStatus = document.getElementById('submitStatus');
+  const successPanel = document.querySelector('#step8 .success-panel');
   let signaturePad = null;
+  let submissionSucceeded = false;
+  const runFinalize = createSubmissionGate();
 
   if (signatureMount) {
     signatureMount.className = 'signature-wrap';
@@ -124,12 +165,70 @@ function initializePreAnamnese() {
     }
     if (stage) stage.textContent = `Etapa ${state.step} de ${total}`;
     if (track) track.style.width = `${(state.step / total) * 100}%`;
-    if (back) back.style.visibility = state.step === 1 ? 'hidden' : 'visible';
+    if (back) back.style.visibility = state.step === 1 || submissionSucceeded ? 'hidden' : 'visible';
     if (next) next.style.display = state.step === total ? 'none' : '';
+    if (finalizeButton) finalizeButton.disabled = state.step !== total || submissionSucceeded;
     if (state.step === 6) renderReview();
+    if (state.step === total && !submissionSucceeded && successPanel) {
+      const intro = successPanel.querySelector('p:not(.status-message)');
+      if (intro) intro.textContent = 'Confira e finalize sua ficha. Após o envio, o PDF oficial da BC ficará disponível para baixar ou compartilhar.';
+    }
     renderConditionals();
     showErrors({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderSubmissionSuccess(result) {
+    const view = buildSubmissionSuccessView(result);
+    submissionSucceeded = true;
+    if (finalizeButton) finalizeButton.disabled = true;
+    if (back) back.style.visibility = 'hidden';
+    if (submitStatus) submitStatus.textContent = view.message;
+    if (!successPanel) return;
+    const intro = successPanel.querySelector('p:not(.status-message)');
+    if (intro) intro.textContent = 'Sua pré-anamnese foi recebida. Guarde o código abaixo e baixe o documento agora.';
+    let code = successPanel.querySelector('.submission-code');
+    if (!code) {
+      code = document.createElement('div');
+      code.className = 'submission-code id';
+      const actions = successPanel.querySelector('.actions');
+      successPanel.insertBefore(code, actions || submitStatus || null);
+    }
+    code.textContent = view.publicCode;
+    const actions = successPanel.querySelector('.actions');
+    if (actions) {
+      actions.innerHTML = '';
+      const download = document.createElement('button');
+      download.type = 'button';
+      download.className = 'btn primary small';
+      download.textContent = 'BAIXAR PDF';
+      download.addEventListener('click', async () => {
+        try {
+          download.disabled = true;
+          await downloadPdf(view.pdfUrl, view.filename);
+        } catch (error) {
+          if (submitStatus) submitStatus.textContent = error?.message || 'Não foi possível baixar o PDF.';
+        } finally {
+          download.disabled = false;
+        }
+      });
+      const share = document.createElement('button');
+      share.type = 'button';
+      share.className = 'btn secondary small';
+      share.textContent = 'COMPARTILHAR PDF';
+      share.addEventListener('click', async () => {
+        try {
+          share.disabled = true;
+          const shared = await sharePdf(view.pdfUrl, view.filename);
+          if (!shared) await downloadPdf(view.pdfUrl, view.filename);
+        } catch (error) {
+          if (submitStatus) submitStatus.textContent = error?.message || 'Não foi possível compartilhar o PDF.';
+        } finally {
+          share.disabled = false;
+        }
+      });
+      actions.append(download, share);
+    }
   }
 
   form.addEventListener('input', () => {
@@ -142,6 +241,7 @@ function initializePreAnamnese() {
   });
 
   back?.addEventListener('click', () => {
+    if (submissionSucceeded) return;
     syncState();
     state.step = retreatStep(state.step);
     saveDraft(window.localStorage, state);
@@ -162,6 +262,35 @@ function initializePreAnamnese() {
     state.step = advanceStep(state.step, total);
     saveDraft(window.localStorage, state);
     renderStep();
+  });
+
+  finalizeButton?.addEventListener('click', () => {
+    runFinalize(async () => {
+      syncState();
+      if (!signaturePad || signaturePad.isEmpty()) {
+        state.step = 7;
+        saveDraft(window.localStorage, state);
+        renderStep();
+        showErrors({ signature: 'Faça sua assinatura antes de finalizar.' });
+        return;
+      }
+      finalizeButton.disabled = true;
+      if (submitStatus) submitStatus.textContent = 'Enviando sua ficha com segurança e preparando o PDF...';
+      try {
+        const result = await finalizePreAnamnese({
+          state,
+          signaturePad,
+          storage: window.localStorage,
+          sourceVersion: FORM_VERSION,
+        });
+        renderSubmissionSuccess(result);
+      } catch (error) {
+        const details = error?.details || {};
+        showErrors(details);
+        if (submitStatus) submitStatus.textContent = error?.message || 'Não foi possível concluir agora. Seus dados continuam salvos para tentar novamente.';
+        finalizeButton.disabled = false;
+      }
+    });
   });
 
   renderStep();
