@@ -42,4 +42,24 @@ if(drawer){
   });
 }
 
+
+function ensureBCFooter(){
+  const existing=document.querySelector("footer.footer");
+  let footer=document.querySelector("footer.site-footer-bc");
+  if(existing){
+    footer=existing;
+    footer.className="site-footer-bc";
+  }
+  if(!footer){
+    footer=document.createElement("footer");
+    footer.className="site-footer-bc";
+    const wa=document.querySelector(".whatsapp-float");
+    if(wa&&wa.parentNode) wa.parentNode.insertBefore(footer,wa);
+    else document.body.appendChild(footer);
+  }
+  footer.setAttribute("aria-label","Informações e contato da BC Estética Avançada");
+  footer.innerHTML="\n<footer class=\"site-footer-bc\" aria-label=\"Informações e contato da BC Estética Avançada\">\n  <div class=\"bc-footer-grid\">\n    <section>\n      <span class=\"bc-footer-kicker\">BC Estética Avançada</span>\n      <h2 class=\"bc-footer-title\">Menos achismo. Mais ciência.</h2>\n      <p class=\"bc-footer-copy\">Avaliação individualizada, planejamento e uma experiência de cuidado pensada para cada pessoa.</p>\n      <div class=\"bc-footer-actions\">\n        <a class=\"bc-footer-action wa\" href=\"https://wa.me/5531995184110\" target=\"_blank\" rel=\"noopener\" aria-label=\"Falar com a BC Estética pelo WhatsApp\">\n          <span aria-hidden=\"true\">◉</span> WhatsApp\n        </a>\n        <a class=\"bc-footer-action\" href=\"https://bcesteticaavancada.github.io/bcesteticaavancada-alt/agendamento/\">\n          Faça sua Anamnese <span>(Pré-avaliação)</span>\n        </a>\n      </div>\n    </section>\n\n    <section>\n      <span class=\"bc-footer-label\">Onde estamos</span>\n      <p class=\"bc-footer-address\">Rua Gávea, 358 — Loja 02 — 2º andar<br>Nova Suissa, Belo Horizonte — MG</p>\n      <div style=\"height:18px\"></div>\n      <span class=\"bc-footer-label\">Contato</span>\n      <div class=\"bc-footer-contact\">\n        <a href=\"tel:+5531995184110\">(31) 99518-4110</a>\n        <a href=\"mailto:bcesteticaav@gmail.com\">bcesteticaav@gmail.com</a>\n      </div>\n    </section>\n\n    <section>\n      <span class=\"bc-footer-label\">Localização</span>\n      <div class=\"bc-footer-map\">\n        <iframe\n          title=\"Mapa da localização da BC Estética Avançada\"\n          src=\"https://www.google.com/maps?q=Rua%20G%C3%A1vea%2C%20358%2C%20Loja%2002%2C%202%C2%BA%20andar%2C%20Nova%20Suissa%2C%20Belo%20Horizonte%2C%20MG&output=embed\"\n          loading=\"lazy\"\n          referrerpolicy=\"no-referrer-when-downgrade\"\n          allowfullscreen>\n        </iframe>\n        <a class=\"bc-footer-map-link\" href=\"https://share.google/eh2hDmG6O5gNHK10i\" target=\"_blank\" rel=\"noopener\">\n          Abrir no Google Maps\n        </a>\n      </div>\n    </section>\n  </div>\n  <div class=\"bc-footer-bottom\">\n    <span>BC Estética Avançada • Belo Horizonte — MG</span>\n    <span>Atendimento: terça a sábado, 09h às 18h</span>\n  </div>\n</footer>";
+}
+ensureBCFooter();
+
 window.BCMenuReady=true;
