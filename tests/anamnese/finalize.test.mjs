@@ -14,7 +14,20 @@ function storage(initial = {}) {
   };
 }
 
-const validState = { step: 8, values: { nome: 'João da Silva', nascimento: '1990-01-02', idade: '36', whatsapp: '(31) 99999-9999', email: 'j@e.com', procedimentos: ['Cryo Lift'], consentimento1: true, consentimento2: true } };
+function makeValidCpf(seed = '123456789') {
+  const digit = (base, factor) => {
+    let sum = 0;
+    for (const ch of base) { sum += Number(ch) * factor; factor -= 1; }
+    const remainder = (sum * 10) % 11;
+    return String(remainder === 10 ? 0 : remainder);
+  };
+  const first = digit(seed, 10);
+  return `${seed}${first}${digit(`${seed}${first}`, 11)}`;
+}
+
+const validCpf = makeValidCpf();
+
+const validState = { step: 8, values: { nome: 'João da Silva', nascimento: '1990-01-02', idade: '36', whatsapp: '(31) 99999-9999', email: 'j@e.com', cpf: validCpf, dataAuthorization: true, procedimentos: ['Cryo Lift'], consentimento1: true, consentimento2: true } };
 const signaturePad = { isEmpty: () => false, toDataUrl: () => 'data:image/png;base64,cG5n' };
 
 test('createSubmissionGate collapses double tap into one submission', async () => {
