@@ -11,8 +11,10 @@ function sortCanonical(value: unknown): unknown {
 }
 
 export async function sha256Hex(value: Uint8Array | string): Promise<string> {
-  const bytes = typeof value === 'string' ? new TextEncoder().encode(value) : value;
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const source = typeof value === 'string' ? new TextEncoder().encode(value) : value;
+  const bytes = new Uint8Array(source.byteLength);
+  bytes.set(source);
+  const digest = await crypto.subtle.digest('SHA-256', bytes.buffer);
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
