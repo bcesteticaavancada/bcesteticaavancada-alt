@@ -1,4 +1,5 @@
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
+import { normalizeCpf } from './cpf.js';
 
 export const SUBMISSION_TOKEN_KEY = 'bc.preAnamnese.submissionToken.v1';
 
@@ -21,19 +22,24 @@ export function clearSubmissionToken(storage) {
 
 export function buildSubmissionPayload(values, signatureDataUrl, sourceVersion, submissionToken) {
   const procedures = Array.isArray(values?.procedimentos) ? values.procedimentos : [values?.procedimentos].filter(Boolean);
+  const answers = { ...(values || {}) };
+  delete answers.cpf;
+
   return {
     patient: {
       name: String(values?.nome || '').trim(),
+      cpf: normalizeCpf(values?.cpf),
       birthDate: String(values?.nascimento || '').trim(),
       age: Number(values?.idade || 0),
       phone: String(values?.whatsapp || '').trim(),
       email: String(values?.email || '').trim(),
     },
     procedure: procedures.map(String).join(', '),
-    answers: { ...(values || {}) },
+    answers,
     consents: {
       truthful: values?.consentimento1 === true,
       dataProcessing: values?.consentimento2 === true,
+      dataAuthorization: values?.dataAuthorization === true,
     },
     signatureDataUrl,
     sourceVersion,
