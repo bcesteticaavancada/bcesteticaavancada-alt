@@ -19,6 +19,19 @@ function memoryStorage(initial = {}) {
   };
 }
 
+function makeValidCpf(seed = '123456789') {
+  const digit = (base, factor) => {
+    let sum = 0;
+    for (const ch of base) { sum += Number(ch) * factor; factor -= 1; }
+    const remainder = (sum * 10) % 11;
+    return String(remainder === 10 ? 0 : remainder);
+  };
+  const first = digit(seed, 10);
+  return `${seed}${first}${digit(`${seed}${first}`, 11)}`;
+}
+
+const validCpf = makeValidCpf();
+
 test('loadDraft returns initial state when storage is empty', () => {
   const storage = memoryStorage();
   assert.deepEqual(loadDraft(storage), createInitialState());
@@ -34,6 +47,25 @@ test('saveDraft and loadDraft round-trip state', () => {
   const state = { step: 4, values: { nome: 'Ana', whatsapp: '(31) 99999-9999' } };
   saveDraft(storage, state);
   assert.deepEqual(loadDraft(storage), state);
+});
+
+test('saveDraft never persists CPF and loadDraft removes legacy CPF', () => {
+  const storage = memoryStorage();
+  const state = { step: 2, values: { nome: 'Ana', cpf: validCpf, whatsapp: '(31) 99999-9999' } };
+  saveDraft(storage, state);
+
+  const raw = storage.getItem(DRAFT_KEY);
+  assert.doesNotMatch(raw, /cpf/i);
+  assert.doesNotMatch(raw, /123456789/);
+  assert.deepEqual(loadDraft(storage), {
+    step: 2,
+    values: { nome: 'Ana', whatsapp: '(31) 99999-9999' },
+  });
+
+  const legacy = memoryStorage({
+    [DRAFT_KEY]: JSON.stringify({ step: 3, values: { nome: 'Bia', cpf: validCpf } }),
+  });
+  assert.deepEqual(loadDraft(legacy), { step: 3, values: { nome: 'Bia' } });
 });
 
 test('clearDraft removes the canonical draft key', () => {
