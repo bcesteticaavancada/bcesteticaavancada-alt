@@ -14,7 +14,7 @@ function storage(initial = {}) {
   };
 }
 
-const validState = { step: 8, values: { nome: 'João da Silva', nascimento: '1990-01-02', idade: '36', whatsapp: '(31) 99999-9999', email: 'j@e.com', procedimentos: ['Cryo Lift'], consentimento1: true, consentimento2: true } };
+const validState = { step: 8, values: { nome: 'João da Silva', nascimento: '1990-01-02', idade: '36', whatsapp: '(31) 99999-9999', email: 'j@e.com', cpf: '529.982.247-25', dataAuthorization: true, procedimentos: ['Cryo Lift'], consentimento1: true, consentimento2: true } };
 const signaturePad = { isEmpty: () => false, toDataUrl: () => 'data:image/png;base64,cG5n' };
 
 test('createSubmissionGate collapses double tap into one submission', async () => {
