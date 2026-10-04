@@ -17,11 +17,23 @@ test('mergeStateValues keeps the current step and replaces form values', () => {
   assert.deepEqual(merged, { step: 4, values: { nome: 'Maria' } });
 });
 
-test('signature step blocks progression while the signature pad is empty', async () => {
+test('rubric step blocks progression until movement metrics are valid', async () => {
   const { signatureStepErrors } = await import('../../agendamento/js/main.js');
-  assert.deepEqual(signatureStepErrors({ isEmpty: () => true }), { signature: 'Faça sua assinatura antes de continuar.' });
-  assert.deepEqual(signatureStepErrors({ isEmpty: () => false }), {});
+  assert.deepEqual(signatureStepErrors({ isValid: () => false }), { signature: 'Faça uma rubrica válida antes de continuar.' });
+  assert.deepEqual(signatureStepErrors({ isValid: () => true }), {});
 });
+
+test('scheduleSignatureResize waits for the next frame before resizing visible canvas', async () => {
+  const { scheduleSignatureResize } = await import('../../agendamento/js/main.js');
+  let resized = 0;
+  let queued = null;
+  scheduleSignatureResize({ resize: () => { resized += 1; } }, (callback) => { queued = callback; return 1; });
+  assert.equal(resized, 0);
+  assert.equal(typeof queued, 'function');
+  queued();
+  assert.equal(resized, 1);
+});
+
 
 test('applyCpfMask formats the CPF field in place', () => {
   const input = { value: '123456789' + '09' };
