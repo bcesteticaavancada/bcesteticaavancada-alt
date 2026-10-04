@@ -6,6 +6,7 @@ import { createSignaturePad } from './signature.js';
 import { FORM_VERSION } from './config.js';
 import { downloadPdf, filenameForCode, sharePdf } from './api.js';
 import { createSubmissionGate, finalizePreAnamnese } from './finalize.js';
+import { formatCpf } from './cpf.js';
 
 export function advanceStep(current, total) {
   return Math.min(total, current + 1);
@@ -17,6 +18,10 @@ export function retreatStep(current) {
 
 export function mergeStateValues(state, values) {
   return { step: state?.step || 1, values: { ...values } };
+}
+
+export function maskCpfValue(value) {
+  return formatCpf(value);
 }
 
 export function signatureStepErrors(signaturePad) {
@@ -56,6 +61,27 @@ function setFormValues(form, values) {
   }
 }
 
+function ensureCpfIdentityControls(form) {
+  const step1 = form?.querySelector?.('#step1');
+  const grid = step1?.querySelector?.('.grid');
+  if (!step1 || !grid) return;
+
+  if (!step1.querySelector('#cpf')) {
+    const field = document.createElement('div');
+    field.className = 'field';
+    field.innerHTML = '<label for="cpf">CPF *</label><input id="cpf" name="cpf" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00">';
+    const birthField = step1.querySelector('#nascimento')?.closest?.('.field');
+    grid.insertBefore(field, birthField || grid.children[1] || null);
+  }
+
+  if (!step1.querySelector('#dataAuthorization')) {
+    const authorization = document.createElement('div');
+    authorization.className = 'field full';
+    authorization.innerHTML = '<div class="check"><input id="dataAuthorization" type="checkbox"><label for="dataAuthorization"><span class="box"></span><span>Declaro estar ciente e autorizo o tratamento dos dados informados nesta pré-anamnese, incluindo CPF, exclusivamente para identificação, preparação e continuidade do atendimento na BC Estética.</span></label></div>';
+    grid.insertAdjacentElement('afterend', authorization);
+  }
+}
+
 function buildReviewHtml(state) {
   return buildReviewSections(state).map((section) => `
     <article class="card">
@@ -89,6 +115,7 @@ function installHoneypot(form) {
 function initializePreAnamnese() {
   const form = document.getElementById('preAnamneseForm');
   if (!form) return;
+  ensureCpfIdentityControls(form);
   installHoneypot(form);
 
   const steps = Array.from(form.querySelectorAll('.step[data-step]'));
@@ -231,7 +258,8 @@ function initializePreAnamnese() {
     }
   }
 
-  form.addEventListener('input', () => {
+  form.addEventListener('input', (event) => {
+    if (event?.target?.id === 'cpf') event.target.value = maskCpfValue(event.target.value);
     syncState();
     renderConditionals();
   });
