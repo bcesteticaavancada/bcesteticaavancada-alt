@@ -25,5 +25,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Type-check Supabase Edge Function
+        run: deno check --config supabase/functions/submit-pre-anamnese/deno.json supabase/functions/submit-pre-anamnese/index.ts
       - name: Run Supabase function tests
         run: deno test --config supabase/functions/submit-pre-anamnese/deno.json --allow-env --allow-net supabase/functions/submit-pre-anamnese/*_test.ts
