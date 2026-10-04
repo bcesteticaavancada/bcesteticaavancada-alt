@@ -38,12 +38,12 @@ export async function finalizePreAnamnese({
     error.details = validation.errors;
     throw error;
   }
-  if (!signaturePad || signaturePad.isEmpty?.() !== false) {
-    throw new Error('Faça sua assinatura antes de finalizar.');
+  if (!signaturePad || signaturePad.isValid?.() !== true) {
+    throw new Error('Faça uma rubrica válida antes de finalizar.');
   }
 
   const signatureDataUrl = signaturePad.toDataUrl();
-  if (!signatureDataUrl) throw new Error('Não foi possível preparar a assinatura. Tente novamente.');
+  if (!signatureDataUrl) throw new Error('Não foi possível preparar a rubrica. Tente novamente.');
   const submissionToken = getOrCreateSubmissionToken(storage, cryptoImpl);
   const payload = buildSubmissionPayload(state.values, signatureDataUrl, sourceVersion, submissionToken);
   const result = await submitImpl(payload);
