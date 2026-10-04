@@ -6,6 +6,7 @@ import { createSignaturePad } from './signature.js';
 import { FORM_VERSION } from './config.js';
 import { downloadPdf, filenameForCode, sharePdf } from './api.js';
 import { createSubmissionGate, finalizePreAnamnese } from './finalize.js';
+import { formatCpf } from './cpf.js';
 
 export function advanceStep(current, total) {
   return Math.min(total, current + 1);
@@ -19,8 +20,12 @@ export function mergeStateValues(state, values) {
   return { step: state?.step || 1, values: { ...values } };
 }
 
+export function maskCpfValue(value) {
+  return formatCpf(value);
+}
+
 export function signatureStepErrors(signaturePad) {
-  return signaturePad?.isEmpty?.() ? { signature: 'Faça sua assinatura antes de continuar.' } : {};
+  return signaturePad?.isValid?.() === true ? {} : { signature: 'Faça uma rubrica válida antes de continuar.' };
 }
 
 export function buildSubmissionSuccessView(result) {
@@ -53,6 +58,27 @@ function setFormValues(form, values) {
     } else {
       element.value = value ?? '';
     }
+  }
+}
+
+function ensureCpfIdentityControls(form) {
+  const step1 = form?.querySelector?.('#step1');
+  const grid = step1?.querySelector?.('.grid');
+  if (!step1 || !grid) return;
+
+  if (!step1.querySelector('#cpf')) {
+    const field = document.createElement('div');
+    field.className = 'field';
+    field.innerHTML = '<label for="cpf">CPF *</label><input id="cpf" name="cpf" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00">';
+    const birthField = step1.querySelector('#nascimento')?.closest?.('.field');
+    grid.insertBefore(field, birthField || grid.children[1] || null);
+  }
+
+  if (!step1.querySelector('#dataAuthorization')) {
+    const authorization = document.createElement('div');
+    authorization.className = 'field full';
+    authorization.innerHTML = '<div class="check"><input id="dataAuthorization" type="checkbox"><label for="dataAuthorization"><span class="box"></span><span>Declaro estar ciente e autorizo o tratamento dos dados informados nesta pré-anamnese, incluindo CPF, exclusivamente para identificação, preparação e continuidade do atendimento na BC Estética.</span></label></div>';
+    grid.insertAdjacentElement('afterend', authorization);
   }
 }
 
@@ -89,6 +115,7 @@ function installHoneypot(form) {
 function initializePreAnamnese() {
   const form = document.getElementById('preAnamneseForm');
   if (!form) return;
+  ensureCpfIdentityControls(form);
   installHoneypot(form);
 
   const steps = Array.from(form.querySelectorAll('.step[data-step]'));
@@ -109,12 +136,13 @@ function initializePreAnamnese() {
 
   if (signatureMount) {
     signatureMount.className = 'signature-wrap';
-    signatureMount.innerHTML = '<label for="signatureCanvas">Assinatura do(a) cliente/paciente *</label><canvas id="signatureCanvas" class="signature-canvas" aria-label="Área para assinatura"></canvas><div class="signature-actions"><button id="clearSignature" class="btn secondary small" type="button">Limpar assinatura</button></div>';
+    signatureMount.innerHTML = '<div class="signature-copy"><strong>Rubrica de confirmação da pré-anamnese</strong><p>Faça sua rubrica no campo abaixo usando o dedo. Esta rubrica confirma o preenchimento desta pré-anamnese. A assinatura formal e os termos específicos do procedimento serão realizados presencialmente.</p></div><label for="signatureCanvas">Rubrica *</label><canvas id="signatureCanvas" class="signature-canvas" aria-label="Área para rubrica de confirmação"></canvas><div class="signature-actions"><button id="clearSignature" class="btn secondary small" type="button">Limpar e refazer</button></div><div class="signature-identity"><p><strong>Nome:</strong> <span id="rubricName">—</span></p><p><strong>CPF:</strong> <span id="rubricCpf">—</span></p><p>Data e hora oficiais serão registradas pelo servidor no envio.</p></div>';
     const signatureCanvas = document.getElementById('signatureCanvas');
     if (signatureCanvas) {
       signaturePad = createSignaturePad(signatureCanvas);
       document.getElementById('clearSignature')?.addEventListener('click', () => signaturePad.clear());
       window.addEventListener('resize', () => signaturePad.resize(), { passive: true });
+      window.addEventListener('orientationchange', () => requestAnimationFrame(() => signaturePad.resize()), { passive: true });
     }
   }
 
@@ -169,6 +197,13 @@ function initializePreAnamnese() {
     if (next) next.style.display = state.step === total ? 'none' : '';
     if (finalizeButton) finalizeButton.disabled = state.step !== total || submissionSucceeded;
     if (state.step === 6) renderReview();
+    if (state.step === 7 && signaturePad) {
+      const rubricName = document.getElementById('rubricName');
+      const rubricCpf = document.getElementById('rubricCpf');
+      if (rubricName) rubricName.textContent = state.values?.nome || '—';
+      if (rubricCpf) rubricCpf.textContent = formatCpf(state.values?.cpf || '') || '—';
+      requestAnimationFrame(() => signaturePad.resize());
+    }
     if (state.step === total && !submissionSucceeded && successPanel) {
       const intro = successPanel.querySelector('p:not(.status-message)');
       if (intro) intro.textContent = 'Confira e finalize sua ficha. Após o envio, o PDF oficial da BC ficará disponível para baixar ou compartilhar.';
@@ -231,7 +266,8 @@ function initializePreAnamnese() {
     }
   }
 
-  form.addEventListener('input', () => {
+  form.addEventListener('input', (event) => {
+    if (event?.target?.id === 'cpf') event.target.value = maskCpfValue(event.target.value);
     syncState();
     renderConditionals();
   });
@@ -267,11 +303,11 @@ function initializePreAnamnese() {
   finalizeButton?.addEventListener('click', () => {
     runFinalize(async () => {
       syncState();
-      if (!signaturePad || signaturePad.isEmpty()) {
+      if (!signaturePad || signaturePad.isValid?.() !== true) {
         state.step = 7;
         saveDraft(window.localStorage, state);
         renderStep();
-        showErrors({ signature: 'Faça sua assinatura antes de finalizar.' });
+        showErrors({ signature: 'Faça uma rubrica válida antes de finalizar.' });
         return;
       }
       finalizeButton.disabled = true;

@@ -7,6 +7,7 @@ import {
   saveDraft,
   clearDraft,
   serializeForm,
+  stripSensitiveDraftValues,
 } from '../../agendamento/js/state.js';
 
 function memoryStorage(initial = {}) {
@@ -34,6 +35,43 @@ test('saveDraft and loadDraft round-trip state', () => {
   const state = { step: 4, values: { nome: 'Ana', whatsapp: '(31) 99999-9999' } };
   saveDraft(storage, state);
   assert.deepEqual(loadDraft(storage), state);
+});
+
+test('CPF is never persisted in the durable local draft', () => {
+  const storage = memoryStorage();
+  saveDraft(storage, {
+    step: 1,
+    values: { nome: 'Teste', cpf: '529.982.247-25', whatsapp: '(31) 99999-9999' },
+  });
+
+  const raw = storage.getItem(DRAFT_KEY);
+  assert.equal(raw.includes('cpf'), false);
+  assert.equal(raw.includes('52998224725'), false);
+  assert.equal(raw.includes('529.982.247-25'), false);
+  assert.deepEqual(loadDraft(storage), {
+    step: 1,
+    values: { nome: 'Teste', whatsapp: '(31) 99999-9999' },
+  });
+});
+
+test('loadDraft strips CPF from a legacy draft before returning state', () => {
+  const storage = memoryStorage({
+    [DRAFT_KEY]: JSON.stringify({
+      step: 2,
+      values: { nome: 'Legado', cpf: '52998224725', whatsapp: '31999999999' },
+    }),
+  });
+
+  assert.deepEqual(loadDraft(storage), {
+    step: 2,
+    values: { nome: 'Legado', whatsapp: '31999999999' },
+  });
+});
+
+test('stripSensitiveDraftValues returns a copy without CPF', () => {
+  const source = { nome: 'Teste', cpf: '52998224725', whatsapp: '31999999999' };
+  assert.deepEqual(stripSensitiveDraftValues(source), { nome: 'Teste', whatsapp: '31999999999' });
+  assert.equal(source.cpf, '52998224725');
 });
 
 test('clearDraft removes the canonical draft key', () => {

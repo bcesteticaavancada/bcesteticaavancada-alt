@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { advanceStep, retreatStep, mergeStateValues } from '../../agendamento/js/main.js';
+import { advanceStep, retreatStep, mergeStateValues, maskCpfValue } from '../../agendamento/js/main.js';
 
 test('advanceStep never exceeds the total number of steps', () => {
   assert.equal(advanceStep(7, 8), 8);
@@ -17,8 +17,14 @@ test('mergeStateValues keeps the current step and replaces form values', () => {
   assert.deepEqual(merged, { step: 4, values: { nome: 'Maria' } });
 });
 
-test('signature step blocks progression while the signature pad is empty', async () => {
+test('maskCpfValue formats partial and complete CPF input without extra digits', () => {
+  assert.equal(maskCpfValue('5299822'), '529.982.2');
+  assert.equal(maskCpfValue('52998224725'), '529.982.247-25');
+  assert.equal(maskCpfValue('529.982.247-25999'), '529.982.247-25');
+});
+
+test('rubric step blocks progression until the stroke passes validity metrics', async () => {
   const { signatureStepErrors } = await import('../../agendamento/js/main.js');
-  assert.deepEqual(signatureStepErrors({ isEmpty: () => true }), { signature: 'Faça sua assinatura antes de continuar.' });
-  assert.deepEqual(signatureStepErrors({ isEmpty: () => false }), {});
+  assert.deepEqual(signatureStepErrors({ isValid: () => false }), { signature: 'Faça uma rubrica válida antes de continuar.' });
+  assert.deepEqual(signatureStepErrors({ isValid: () => true }), {});
 });

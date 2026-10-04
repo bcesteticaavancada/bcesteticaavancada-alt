@@ -1,5 +1,9 @@
+import { normalizeCpf, isValidCpf } from './cpf.ts';
+export { normalizeCpf, isValidCpf } from './cpf.ts';
+
 export type SubmissionPatient = {
   name: string;
+  cpf: string;
   birthDate: string;
   age: number;
   phone: string;
@@ -10,7 +14,7 @@ export type ValidSubmission = {
   patient: SubmissionPatient;
   procedure: string;
   answers: Record<string, unknown>;
-  consents: Record<string, unknown> & { truthful: true; dataProcessing: true };
+  consents: Record<string, unknown> & { truthful: true; dataProcessing: true; dataAuthorization: true };
   signatureDataUrl: string;
   sourceVersion: string;
   submissionToken: string;
@@ -21,8 +25,9 @@ export type ValidationResult =
   | { valid: true; data: ValidSubmission; errors: Record<string, never> }
   | { valid: false; data: null; errors: Record<string, string> };
 
-const MAX_JSON_BYTES = 512_000;
+const MAX_JSON_BYTES = 2_900_000;
 const MAX_TEXT_LENGTH = 20_000;
+const MAX_SIGNATURE_DATA_URL_CHARS = 2_796_300;
 const PNG_DATA_URL = /^data:image\/png;base64,[A-Za-z0-9+/=\s]+$/;
 const TOKEN_RE = /^[A-Za-z0-9_-]{16,128}$/;
 
@@ -74,11 +79,12 @@ export function validateSubmission(input: unknown): ValidationResult {
     return { valid: false, data: null, errors: { payload: 'Payload inválido.' } };
   }
 
-  if (jsonSize(input) > MAX_JSON_BYTES || hasOversizedText(input)) {
+  const raw = input as Record<string, unknown>;
+  const textOnlyPayload = { ...raw, signatureDataUrl: '' };
+  if (jsonSize(input) > MAX_JSON_BYTES || hasOversizedText(textOnlyPayload)) {
     errors.payload = 'O conteúdo enviado excede o limite permitido.';
   }
 
-  const raw = input as Record<string, unknown>;
   if (normalizeText(String(raw.website ?? ''))) errors.website = 'Submissão recusada.';
 
   const patientRaw = raw.patient && typeof raw.patient === 'object' && !Array.isArray(raw.patient)
@@ -86,6 +92,7 @@ export function validateSubmission(input: unknown): ValidationResult {
     : {};
   const patient = {
     name: normalizeText(String(patientRaw.name ?? '')).slice(0, 160),
+    cpf: normalizeCpf(patientRaw.cpf),
     birthDate: normalizeText(String(patientRaw.birthDate ?? '')).slice(0, 20),
     age: Number(patientRaw.age ?? 0),
     phone: normalizeText(String(patientRaw.phone ?? '')).slice(0, 40),
@@ -93,6 +100,7 @@ export function validateSubmission(input: unknown): ValidationResult {
   };
 
   if (patient.name.length < 2) errors.patientName = 'Informe o nome completo.';
+  if (!isValidCpf(patient.cpf)) errors.patientCpf = 'Informe um CPF válido.';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(patient.birthDate)) errors.birthDate = 'Informe uma data de nascimento válida.';
   if (!Number.isInteger(patient.age) || patient.age < 1 || patient.age > 120) errors.age = 'Informe uma idade válida.';
   if (patient.phone.replace(/\D/g, '').length < 8) errors.phone = 'Informe um telefone válido.';
@@ -105,10 +113,11 @@ export function validateSubmission(input: unknown): ValidationResult {
   const consents = normalizeUnknown(raw.consents ?? {}) as Record<string, unknown>;
   if (consents.truthful !== true) errors.consentTruthful = 'Confirme a veracidade das informações.';
   if (consents.dataProcessing !== true) errors.consentDataProcessing = 'Confirme o tratamento das informações para atendimento.';
+  if (consents.dataAuthorization !== true) errors.dataAuthorization = 'Autorize o tratamento dos dados para continuar.';
 
   const signatureDataUrl = String(raw.signatureDataUrl ?? '');
-  if (!PNG_DATA_URL.test(signatureDataUrl) || signatureDataUrl.length > 2_500_000) {
-    errors.signatureDataUrl = 'Assinatura digital inválida.';
+  if (!PNG_DATA_URL.test(signatureDataUrl) || signatureDataUrl.length > MAX_SIGNATURE_DATA_URL_CHARS) {
+    errors.signatureDataUrl = 'Rubrica de confirmação inválida.';
   }
 
   const sourceVersion = normalizeText(String(raw.sourceVersion ?? '')).slice(0, 80);

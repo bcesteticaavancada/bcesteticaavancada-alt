@@ -10,6 +10,8 @@ const base = {
     nascimento: '1990-05-20',
     idade: '36',
     whatsapp: '(31) 99999-9999',
+    cpf: '529.982.247-25',
+    dataAuthorization: true,
     procedimentos: ['Cryo Lift'],
     consentimento1: true,
     consentimento2: true,
@@ -22,6 +24,28 @@ test('step 1 requires identity fields and at least one procedure', () => {
   assert.equal(result.valid, false);
   assert.equal(result.errors.nome, 'Informe seu nome completo.');
   assert.equal(result.errors.procedimentos, 'Selecione pelo menos um procedimento ou orientação profissional.');
+});
+
+test('step 1 requires a mathematically valid CPF', () => {
+  const missing = validateStep('step1', { step: 1, values: { ...base.values, cpf: '' } });
+  assert.equal(missing.valid, false);
+  assert.equal(missing.errors.cpf, 'Informe um CPF válido.');
+
+  const invalid = validateStep('step1', { step: 1, values: { ...base.values, cpf: '111.111.111-11' } });
+  assert.equal(invalid.valid, false);
+  assert.equal(invalid.errors.cpf, 'Informe um CPF válido.');
+});
+
+test('step 1 requires explicit data treatment authorization', () => {
+  const result = validateStep('step1', { step: 1, values: { ...base.values, dataAuthorization: false } });
+  assert.equal(result.valid, false);
+  assert.equal(result.errors.dataAuthorization, 'Autorize o tratamento dos dados para continuar.');
+});
+
+test('step 1 remains valid with valid CPF and authorization when other required fields are valid', () => {
+  const result = validateStep('step1', base);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, {});
 });
 
 test('Outro description is required only when Outro procedure is visible', () => {
