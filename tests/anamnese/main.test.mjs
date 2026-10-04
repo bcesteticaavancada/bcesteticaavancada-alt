@@ -23,8 +23,8 @@ test('maskCpfValue formats partial and complete CPF input without extra digits',
   assert.equal(maskCpfValue('529.982.247-25999'), '529.982.247-25');
 });
 
-test('signature step blocks progression while the signature pad is empty', async () => {
+test('rubric step blocks progression until the stroke passes validity metrics', async () => {
   const { signatureStepErrors } = await import('../../agendamento/js/main.js');
-  assert.deepEqual(signatureStepErrors({ isEmpty: () => true }), { signature: 'Faça sua assinatura antes de continuar.' });
-  assert.deepEqual(signatureStepErrors({ isEmpty: () => false }), {});
+  assert.deepEqual(signatureStepErrors({ isValid: () => false }), { signature: 'Faça uma rubrica válida antes de continuar.' });
+  assert.deepEqual(signatureStepErrors({ isValid: () => true }), {});
 });
