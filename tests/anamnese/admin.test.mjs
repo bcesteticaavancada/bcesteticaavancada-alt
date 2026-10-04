@@ -6,6 +6,7 @@ import {
   normalizeAdminFilters,
   sanitizeStatus,
   buildAdminQueryDescriptor,
+  formatCpfForAdmin,
 } from '../../admin/admin.js';
 
 const root = new URL('../../', import.meta.url);
@@ -42,6 +43,18 @@ test('buildAdminQueryDescriptor defaults to newest first and maps filters safely
     fromIso: '2026-10-01T00:00:00.000Z',
     toIso: '2026-10-03T23:59:59.999Z',
   });
+});
+
+test('formatCpfForAdmin formats only the authenticated detail value', () => {
+  assert.equal(formatCpfForAdmin('52998224725'), '529.982.247-25');
+  assert.equal(formatCpfForAdmin(null), '—');
+});
+
+test('admin static HTML exposes CPF only in detail panel, not list columns', async () => {
+  const html = await readFile(new URL('../../admin/index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="detailCpf"/);
+  const tableHead = html.match(/<thead>[\s\S]*?<\/thead>/i)?.[0] || '';
+  assert.doesNotMatch(tableHead, /CPF/i);
 });
 
 test('admin static HTML contains no embedded patient data or password', async () => {
