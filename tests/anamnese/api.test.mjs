@@ -43,11 +43,27 @@ test('getOrCreateSubmissionToken reuses token across retry and resets after clea
   assert.notEqual(getOrCreateSubmissionToken(storage, cryptoImpl), first);
 });
 
-test('buildSubmissionPayload maps form state to backend contract without losing Unicode', () => {
-  const values = { nome: 'João', nascimento: '1990-01-02', idade: '36', whatsapp: '(31) 99999-9999', email: 'j@e.com', procedimentos: ['Cryo Lift', 'Papada Off'], observacoes: 'ç ã —', consentimento1: true, consentimento2: true, website: '' };
+test('buildSubmissionPayload maps CPF and data authorization without duplicating CPF in answers', () => {
+  const values = {
+    nome: 'João',
+    cpf: '529.982.247-25',
+    nascimento: '1990-01-02',
+    idade: '36',
+    whatsapp: '(31) 99999-9999',
+    email: 'j@e.com',
+    procedimentos: ['Cryo Lift', 'Papada Off'],
+    observacoes: 'ç ã —',
+    dataAuthorization: true,
+    consentimento1: true,
+    consentimento2: true,
+    website: ''
+  };
   const payload = buildSubmissionPayload(values, 'data:image/png;base64,cG5n', 'v1', 'token-1234567890123456');
-  assert.deepEqual(payload.patient, { name: 'João', birthDate: '1990-01-02', age: 36, phone: '(31) 99999-9999', email: 'j@e.com' });
+  assert.deepEqual(payload.patient, { name: 'João', cpf: '52998224725', birthDate: '1990-01-02', age: 36, phone: '(31) 99999-9999', email: 'j@e.com' });
   assert.equal(payload.procedure, 'Cryo Lift, Papada Off');
   assert.equal(payload.answers.observacoes, 'ç ã —');
-  assert.deepEqual(payload.consents, { truthful: true, dataProcessing: true });
+  assert.equal('cpf' in payload.answers, false);
+  assert.equal(JSON.stringify(payload.answers).includes('52998224725'), false);
+  assert.equal(JSON.stringify(payload.answers).includes('529.982.247-25'), false);
+  assert.deepEqual(payload.consents, { truthful: true, dataProcessing: true, dataAuthorization: true });
 });
