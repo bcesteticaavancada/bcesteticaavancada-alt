@@ -1,3 +1,4 @@
+import { isValidCpf } from './cpf.js';
 function text(value) {
   return typeof value === 'string' ? value.trim() : value;
 }
@@ -15,6 +16,8 @@ export function validateStep(stepId, state) {
     if (!text(values.nascimento)) errors.nascimento = 'Informe sua data de nascimento.';
     if (!text(values.idade)) errors.idade = 'Informe sua idade.';
     if (!text(values.whatsapp)) errors.whatsapp = 'Informe um WhatsApp para contato.';
+    if (!isValidCpf(values.cpf)) errors.cpf = 'Informe um CPF válido.';
+    if (values.dataAuthorization !== true) errors.dataAuthorization = 'Autorize o tratamento dos dados para continuar.';
     const procedures = Array.isArray(values.procedimentos) ? values.procedimentos : [];
     if (procedures.length === 0) errors.procedimentos = 'Selecione pelo menos um procedimento ou orientação profissional.';
     if (procedures.includes('Outro') && !text(values.outroProc)) errors.outroProc = 'Descreva o procedimento de interesse.';
