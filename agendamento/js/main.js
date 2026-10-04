@@ -25,7 +25,7 @@ export function maskCpfValue(value) {
 }
 
 export function signatureStepErrors(signaturePad) {
-  return signaturePad?.isEmpty?.() ? { signature: 'Faça sua assinatura antes de continuar.' } : {};
+  return signaturePad?.isValid?.() === true ? {} : { signature: 'Faça uma rubrica válida antes de continuar.' };
 }
 
 export function buildSubmissionSuccessView(result) {
@@ -136,12 +136,13 @@ function initializePreAnamnese() {
 
   if (signatureMount) {
     signatureMount.className = 'signature-wrap';
-    signatureMount.innerHTML = '<label for="signatureCanvas">Assinatura do(a) cliente/paciente *</label><canvas id="signatureCanvas" class="signature-canvas" aria-label="Área para assinatura"></canvas><div class="signature-actions"><button id="clearSignature" class="btn secondary small" type="button">Limpar assinatura</button></div>';
+    signatureMount.innerHTML = '<div class="signature-copy"><strong>Rubrica de confirmação da pré-anamnese</strong><p>Faça sua rubrica no campo abaixo usando o dedo. Esta rubrica confirma o preenchimento desta pré-anamnese. A assinatura formal e os termos específicos do procedimento serão realizados presencialmente.</p></div><label for="signatureCanvas">Rubrica *</label><canvas id="signatureCanvas" class="signature-canvas" aria-label="Área para rubrica de confirmação"></canvas><div class="signature-actions"><button id="clearSignature" class="btn secondary small" type="button">Limpar e refazer</button></div><div class="signature-identity"><p><strong>Nome:</strong> <span id="rubricName">—</span></p><p><strong>CPF:</strong> <span id="rubricCpf">—</span></p><p>Data e hora oficiais serão registradas pelo servidor no envio.</p></div>';
     const signatureCanvas = document.getElementById('signatureCanvas');
     if (signatureCanvas) {
       signaturePad = createSignaturePad(signatureCanvas);
       document.getElementById('clearSignature')?.addEventListener('click', () => signaturePad.clear());
       window.addEventListener('resize', () => signaturePad.resize(), { passive: true });
+      window.addEventListener('orientationchange', () => requestAnimationFrame(() => signaturePad.resize()), { passive: true });
     }
   }
 
@@ -196,6 +197,13 @@ function initializePreAnamnese() {
     if (next) next.style.display = state.step === total ? 'none' : '';
     if (finalizeButton) finalizeButton.disabled = state.step !== total || submissionSucceeded;
     if (state.step === 6) renderReview();
+    if (state.step === 7 && signaturePad) {
+      const rubricName = document.getElementById('rubricName');
+      const rubricCpf = document.getElementById('rubricCpf');
+      if (rubricName) rubricName.textContent = state.values?.nome || '—';
+      if (rubricCpf) rubricCpf.textContent = formatCpf(state.values?.cpf || '') || '—';
+      requestAnimationFrame(() => signaturePad.resize());
+    }
     if (state.step === total && !submissionSucceeded && successPanel) {
       const intro = successPanel.querySelector('p:not(.status-message)');
       if (intro) intro.textContent = 'Confira e finalize sua ficha. Após o envio, o PDF oficial da BC ficará disponível para baixar ou compartilhar.';
@@ -295,11 +303,11 @@ function initializePreAnamnese() {
   finalizeButton?.addEventListener('click', () => {
     runFinalize(async () => {
       syncState();
-      if (!signaturePad || signaturePad.isEmpty()) {
+      if (!signaturePad || signaturePad.isValid?.() !== true) {
         state.step = 7;
         saveDraft(window.localStorage, state);
         renderStep();
-        showErrors({ signature: 'Faça sua assinatura antes de finalizar.' });
+        showErrors({ signature: 'Faça uma rubrica válida antes de finalizar.' });
         return;
       }
       finalizeButton.disabled = true;
