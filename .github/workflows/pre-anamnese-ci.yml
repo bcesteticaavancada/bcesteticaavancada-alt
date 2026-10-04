@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/pre-anamnese-native
+      - feature/cpf-rubrica-pre-anamnese
   pull_request:
     branches:
       - main
