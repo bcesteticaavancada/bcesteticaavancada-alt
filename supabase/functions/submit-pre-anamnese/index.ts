@@ -4,6 +4,7 @@ import { validateSubmission, type ValidSubmission } from './validation.ts';
 import { buildPublicCode } from './public-code.ts';
 import { generatePreAnamnesePdf } from './pdf.ts';
 import { decodePngDataUrl } from './signature.ts';
+import { canonicalSubmission, sha256Hex } from './integrity.ts';
 
 const ALLOWED_ORIGINS = new Set([
   'https://bcesteticaavancada.github.io',
@@ -51,6 +52,7 @@ function patientFromAnswers(row: any) {
   const answers = row.answers || {};
   return {
     name: row.patient_name,
+    cpf: row.patient_cpf || '',
     birthDate: String(answers.nascimento || ''),
     age: Number(answers.idade || 0),
     phone: row.patient_phone,
@@ -76,6 +78,8 @@ async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array) 
     consents: row.consents || {},
     signaturePngBytes: signatureBytes,
     logoPngBytes: logoBytes,
+    rubricSha256: row.rubric_sha256 || '',
+    rubricConfirmedAt: row.rubric_confirmed_at || row.created_at,
   });
 
   const { error: uploadError } = await supabase.storage.from('pre-anamnese-pdfs').upload(paths.pdf, pdfBytes, {
@@ -91,9 +95,9 @@ async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array) 
 async function completeExisting(supabase: any, row: any) {
   let pdfPath = row.pdf_path as string | null;
   if (!pdfPath) {
-    if (!row.signature_path) throw new Error('Ficha incompleta: assinatura não localizada.');
+    if (!row.signature_path) throw new Error('Ficha incompleta: rubrica não localizada.');
     const { data: signatureBlob, error } = await supabase.storage.from('pre-anamnese-signatures').download(row.signature_path);
-    if (error || !signatureBlob) throw new Error('Não foi possível recuperar a assinatura da ficha.');
+    if (error || !signatureBlob) throw new Error('Não foi possível recuperar a rubrica da ficha.');
     pdfPath = await finalizePdf(supabase, row, new Uint8Array(await signatureBlob.arrayBuffer()));
   }
   const signed = await signedPdfUrl(supabase, pdfPath);
@@ -102,11 +106,23 @@ async function completeExisting(supabase: any, row: any) {
 
 async function insertSubmission(supabase: any, payload: ValidSubmission, signatureBytes: Uint8Array) {
   const now = new Date();
+  const rubricSha256 = await sha256Hex(signatureBytes);
   let lastError: any = null;
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const publicCode = buildPublicCode(now);
     const createdAt = now.toISOString();
     const paths = storagePaths(publicCode, createdAt);
+    const payloadSha256 = await sha256Hex(canonicalSubmission({
+      publicCode,
+      patientName: payload.patient.name,
+      patientCpf: payload.patient.cpf,
+      procedure: payload.procedure,
+      answers: payload.answers,
+      consents: payload.consents,
+      sourceVersion: payload.sourceVersion,
+      rubricSha256,
+      confirmedAt: createdAt,
+    }));
 
     const { error: signatureError } = await supabase.storage.from('pre-anamnese-signatures').upload(paths.signature, signatureBytes, {
       contentType: 'image/png', upsert: false, cacheControl: '0',
@@ -121,6 +137,7 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
       public_code: publicCode,
       status: 'recebida',
       patient_name: payload.patient.name,
+      patient_cpf: payload.patient.cpf,
       patient_email: payload.patient.email || null,
       patient_phone: payload.patient.phone,
       procedure: payload.procedure,
@@ -129,6 +146,11 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
       signature_path: paths.signature,
       source_version: payload.sourceVersion,
       submission_token: payload.submissionToken,
+      created_at: createdAt,
+      data_authorization_accepted_at: createdAt,
+      rubric_sha256: rubricSha256,
+      payload_sha256: payloadSha256,
+      rubric_confirmed_at: createdAt,
     }).select('*').single();
 
     if (!insertError && row) return row;
@@ -169,7 +191,7 @@ Deno.serve(async (req: Request) => {
   try {
     signatureBytes = decodePngDataUrl(payload.signatureDataUrl);
   } catch {
-    return json({ error: 'Assinatura digital inválida.', errors: { signatureDataUrl: 'Assinatura PNG inválida.' } }, 422, origin);
+    return json({ error: 'Rubrica de confirmação inválida.', errors: { signatureDataUrl: 'Rubrica PNG inválida.' } }, 422, origin);
   }
 
   const url = Deno.env.get('SUPABASE_URL');
