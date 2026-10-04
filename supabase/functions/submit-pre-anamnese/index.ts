@@ -3,7 +3,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.58.0";
 import { validateSubmission, type ValidSubmission } from './validation.ts';
 import { buildPublicCode } from './public-code.ts';
 import { generatePreAnamnesePdf } from './pdf.ts';
-import { decodePngDataUrl } from './signature.ts';
+import { validateRubricPngDataUrl } from './signature.ts';
+import { buildCanonicalSubmissionSnapshot, canonicalStringify, sha256Hex } from './integrity.ts';
 
 const ALLOWED_ORIGINS = new Set([
   'https://bcesteticaavancada.github.io',
@@ -100,13 +101,33 @@ async function completeExisting(supabase: any, row: any) {
   return { id: row.id, publicCode: row.public_code, createdAt: row.created_at, ...signed };
 }
 
-async function insertSubmission(supabase: any, payload: ValidSubmission, signatureBytes: Uint8Array) {
+async function insertSubmission(
+  supabase: any,
+  payload: ValidSubmission,
+  signatureBytes: Uint8Array,
+  rubricSha256: string,
+) {
   const now = new Date();
+  const createdAt = now.toISOString();
   let lastError: any = null;
+
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const publicCode = buildPublicCode(now);
-    const createdAt = now.toISOString();
     const paths = storagePaths(publicCode, createdAt);
+    const snapshot = buildCanonicalSubmissionSnapshot({
+      publicCode,
+      patientName: payload.patient.name,
+      patientCpf: payload.patient.cpf,
+      procedure: payload.procedure,
+      answers: payload.answers,
+      consents: payload.consents,
+      sourceVersion: payload.sourceVersion,
+      rubricSha256,
+      confirmedAt: createdAt,
+    });
+    const payloadSha256 = await sha256Hex(
+      new TextEncoder().encode(canonicalStringify(snapshot)),
+    );
 
     const { error: signatureError } = await supabase.storage.from('pre-anamnese-signatures').upload(paths.signature, signatureBytes, {
       contentType: 'image/png', upsert: false, cacheControl: '0',
@@ -119,14 +140,20 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
 
     const { data: row, error: insertError } = await supabase.from('pre_anamneses').insert({
       public_code: publicCode,
+      created_at: createdAt,
       status: 'recebida',
       patient_name: payload.patient.name,
+      patient_cpf: payload.patient.cpf,
       patient_email: payload.patient.email || null,
       patient_phone: payload.patient.phone,
       procedure: payload.procedure,
       answers: payload.answers,
       consents: payload.consents,
+      data_authorization_accepted_at: createdAt,
       signature_path: paths.signature,
+      rubric_sha256: rubricSha256,
+      payload_sha256: payloadSha256,
+      rubric_confirmed_at: createdAt,
       source_version: payload.sourceVersion,
       submission_token: payload.submissionToken,
     }).select('*').single();
@@ -165,11 +192,11 @@ Deno.serve(async (req: Request) => {
   if (!validation.valid) return json({ error: 'Revise os dados antes de enviar.', errors: validation.errors }, 422, origin);
   const payload = validation.data;
 
-  let signatureBytes: Uint8Array;
+  let rubric: Awaited<ReturnType<typeof validateRubricPngDataUrl>>;
   try {
-    signatureBytes = decodePngDataUrl(payload.signatureDataUrl);
+    rubric = await validateRubricPngDataUrl(payload.signatureDataUrl);
   } catch {
-    return json({ error: 'Assinatura digital inválida.', errors: { signatureDataUrl: 'Assinatura PNG inválida.' } }, 422, origin);
+    return json({ error: 'Rubrica de confirmação inválida.', errors: { signatureDataUrl: 'Rubrica PNG inválida.' } }, 422, origin);
   }
 
   const url = Deno.env.get('SUPABASE_URL');
@@ -182,11 +209,14 @@ Deno.serve(async (req: Request) => {
     if (lookupError) throw lookupError;
     if (existing) return json(await completeExisting(supabase, existing), 200, origin);
 
-    const row = await insertSubmission(supabase, payload, signatureBytes);
+    const row = await insertSubmission(supabase, payload, rubric.bytes, rubric.sha256);
     const result = await completeExisting(supabase, row);
     return json(result, 201, origin);
   } catch (error) {
-    console.error('submit-pre-anamnese failed', error instanceof Error ? error.message : 'unknown error');
+    const diagnostic = error && typeof error === 'object' && 'code' in error
+      ? String((error as { code?: unknown }).code ?? 'database_error')
+      : error instanceof Error ? error.name : 'unknown_error';
+    console.error('submit-pre-anamnese failed', diagnostic);
     return json({ error: 'Não foi possível concluir o envio agora. Seus dados permanecem salvos neste dispositivo para tentar novamente.' }, 500, origin);
   }
 });
