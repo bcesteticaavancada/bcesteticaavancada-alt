@@ -6,6 +6,7 @@ import {
   normalizeAdminFilters,
   sanitizeStatus,
   buildAdminQueryDescriptor,
+  formatAdminCpf,
 } from '../../admin/admin.js';
 
 const root = new URL('../../', import.meta.url);
@@ -42,6 +43,25 @@ test('buildAdminQueryDescriptor defaults to newest first and maps filters safely
     fromIso: '2026-10-01T00:00:00.000Z',
     toIso: '2026-10-03T23:59:59.999Z',
   });
+});
+
+test('formatAdminCpf reveals full CPF only when a detail record provides exactly eleven digits', () => {
+  assert.equal(formatAdminCpf('52998224725'), '529.982.247-25');
+  assert.equal(formatAdminCpf(null), '—');
+  assert.equal(formatAdminCpf(''), '—');
+});
+
+test('admin list query excludes CPF while authenticated detail supports CPF display', async () => {
+  const js = await readFile(new URL('../../admin/admin.js', import.meta.url), 'utf8');
+  const listStart = js.indexOf('export async function loadPreAnamneses');
+  const detailStart = js.indexOf('export async function loadPreAnamnese', listStart + 1);
+  const listSource = js.slice(listStart, detailStart);
+  assert.doesNotMatch(listSource, /patient_cpf/);
+  assert.match(js, /setText\(qs\('detailCpf'\),\s*formatAdminCpf\(record\.patient_cpf\)\)/);
+
+  const html = await readFile(new URL('../../admin/index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="detailCpf"/);
+  assert.doesNotMatch(html, /<th>CPF<\/th>/i);
 });
 
 test('admin static HTML contains no embedded patient data or password', async () => {
