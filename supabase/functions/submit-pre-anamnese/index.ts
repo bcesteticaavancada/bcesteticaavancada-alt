@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.58.0";
 import { validateSubmission, type ValidSubmission } from './validation.ts';
 import { buildPublicCode } from './public-code.ts';
 import { generatePreAnamnesePdf } from './pdf.ts';
-import { decodePngDataUrl } from './signature.ts';
+import { validateRubricPngDataUrl } from './signature.ts';
 import { canonicalSubmission, sha256Hex } from './integrity.ts';
 
 const ALLOWED_ORIGINS = new Set([
@@ -12,7 +12,7 @@ const ALLOWED_ORIGINS = new Set([
   'http://127.0.0.1:8000',
 ]);
 const PDF_TTL_SECONDS = 600;
-const MAX_CONTENT_LENGTH = 700_000;
+const MAX_CONTENT_LENGTH = 3_000_000;
 const LOGO_URL = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/logo-oficial/logo-bc-estetica-sem-fundo.png';
 
 function corsHeaders(origin: string | null): HeadersInit {
@@ -189,7 +189,7 @@ Deno.serve(async (req: Request) => {
 
   let signatureBytes: Uint8Array;
   try {
-    signatureBytes = decodePngDataUrl(payload.signatureDataUrl);
+    signatureBytes = validateRubricPngDataUrl(payload.signatureDataUrl).bytes;
   } catch {
     return json({ error: 'Rubrica de confirmação inválida.', errors: { signatureDataUrl: 'Rubrica PNG inválida.' } }, 422, origin);
   }
