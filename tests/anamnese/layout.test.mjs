@@ -17,3 +17,10 @@ test('pre-anamnesis markup loads modular CSS and JS', async () => {
   assert.match(html, /href="\.\/anamnese\.css"/);
   assert.match(html, /src="\.\/js\/main\.js"/);
 });
+
+test('step 1 exposes CPF and explicit data authorization', async () => {
+  const html = await readFile(htmlUrl, 'utf8');
+  assert.match(html, /id="cpf"[^>]*name="cpf"/);
+  assert.match(html, /id="dataAuthorization"/);
+  assert.match(html, /incluindo CPF/);
+});
