@@ -4,6 +4,12 @@ export function createInitialState() {
   return { step: 1, values: {} };
 }
 
+export function stripSensitiveDraftValues(values = {}) {
+  const clean = { ...(values || {}) };
+  delete clean.cpf;
+  return clean;
+}
+
 export function loadDraft(storage) {
   try {
     const raw = storage?.getItem?.(DRAFT_KEY);
@@ -12,14 +18,18 @@ export function loadDraft(storage) {
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return createInitialState();
     if (!Number.isInteger(parsed.step) || parsed.step < 1) return createInitialState();
     if (!parsed.values || typeof parsed.values !== 'object' || Array.isArray(parsed.values)) return createInitialState();
-    return parsed;
+    return { ...parsed, values: stripSensitiveDraftValues(parsed.values) };
   } catch {
     return createInitialState();
   }
 }
 
 export function saveDraft(storage, state) {
-  storage?.setItem?.(DRAFT_KEY, JSON.stringify(state));
+  const safeState = {
+    ...(state || {}),
+    values: stripSensitiveDraftValues(state?.values || {}),
+  };
+  storage?.setItem?.(DRAFT_KEY, JSON.stringify(safeState));
 }
 
 export function clearDraft(storage) {
