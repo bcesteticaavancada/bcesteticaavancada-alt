@@ -20,6 +20,12 @@ export function sanitizeStatus(status) {
   return status;
 }
 
+export function formatAdminCpf(value) {
+  const digits = String(value ?? '').replace(/\D/g, '');
+  if (digits.length !== 11) return '—';
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+}
+
 export function buildAdminQueryDescriptor(filters = {}) {
   const clean = normalizeAdminFilters(filters);
   return {
@@ -98,6 +104,7 @@ function renderDetail(record, client) {
   setText(qs('detailCode'), record.public_code);
   setText(qs('detailName'), record.patient_name);
   setText(qs('detailMeta'), `${record.procedure || '—'} • ${formatDate(record.created_at)}`);
+  setText(qs('detailCpf'), formatAdminCpf(record.patient_cpf));
   setText(qs('detailPhone'), record.patient_phone || '—');
   setText(qs('detailEmail'), record.patient_email || '—');
   setText(qs('detailAnswers'), JSON.stringify(record.answers ?? {}, null, 2));
