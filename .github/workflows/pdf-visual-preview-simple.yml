@@ -1,0 +1,23 @@
+name: PDF Visual Preview Simple
+
+on:
+  push:
+    branches:
+      - feature/cpf-rubrica-pre-anamnese
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Generate PDF
+        run: deno run --config supabase/functions/submit-pre-anamnese/deno.json --allow-read --allow-write --allow-net supabase/functions/submit-pre-anamnese/visual_preview.ts
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-pre-anamnese-visual-simple
+          path: /tmp/BC_Pre_Anamnese_Visual.pdf
+          retention-days: 1
