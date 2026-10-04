@@ -6,6 +6,8 @@ import { createSignaturePad } from './signature.js';
 import { FORM_VERSION } from './config.js';
 import { downloadPdf, filenameForCode, sharePdf } from './api.js';
 import { createSubmissionGate, finalizePreAnamnese } from './finalize.js';
+import { formatCpf } from './cpf.js';
+import { mountCpfIdentification } from './identity.js';
 
 export function advanceStep(current, total) {
   return Math.min(total, current + 1);
@@ -17,6 +19,13 @@ export function retreatStep(current) {
 
 export function mergeStateValues(state, values) {
   return { step: state?.step || 1, values: { ...values } };
+}
+
+export function applyCpfMask(input) {
+  if (!input) return '';
+  const formatted = formatCpf(input.value);
+  input.value = formatted;
+  return formatted;
 }
 
 export function signatureStepErrors(signaturePad) {
@@ -90,6 +99,7 @@ function initializePreAnamnese() {
   const form = document.getElementById('preAnamneseForm');
   if (!form) return;
   installHoneypot(form);
+  mountCpfIdentification(form);
 
   const steps = Array.from(form.querySelectorAll('.step[data-step]'));
   const total = steps.length || 8;
@@ -122,6 +132,9 @@ function initializePreAnamnese() {
   if (!state || !Number.isInteger(state.step)) state = createInitialState();
   state.step = Math.min(Math.max(state.step, 1), total);
   setFormValues(form, state.values || {});
+
+  const cpfInput = document.getElementById('cpf');
+  cpfInput?.addEventListener('input', () => applyCpfMask(cpfInput));
 
   function syncState() {
     state = mergeStateValues(state, serializeForm(form));
