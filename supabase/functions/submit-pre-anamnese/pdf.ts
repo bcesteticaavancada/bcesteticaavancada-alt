@@ -54,15 +54,27 @@ function humanLabel(key: string): string {
     .replace(/^./, (c) => c.toUpperCase());
 }
 
+function formatCpf(value: string): string {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+  return digits.length === 11 ? `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}` : digits || '-';
+}
+
+function formatDateTime(value: string | Date): string {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+}
+
 export type PdfInput = {
   publicCode: string;
   createdAt: string | Date;
-  patient: { name: string; birthDate?: string; age?: number; phone: string; email?: string };
+  patient: { name: string; cpf?: string; birthDate?: string; age?: number; phone: string; email?: string };
   procedure: string;
   answers: Record<string, unknown>;
   consents: Record<string, unknown>;
   signaturePngBytes: Uint8Array;
   logoPngBytes?: Uint8Array | null;
+  rubricSha256?: string;
+  rubricConfirmedAt?: string | Date;
 };
 
 export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Array> {
@@ -137,12 +149,12 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   page.drawText('FICHA DE PRÉ-ANAMNESE', { x: marginX, y, size: 20, font: bold, color: colors.ink });
   y -= 21;
   page.drawText(`Código: ${sanitizePdfText(input.publicCode)}`, { x: marginX, y, size: 9, font: bold, color: colors.rose });
-  const created = new Date(input.createdAt);
-  page.drawText(`Gerada em: ${Number.isNaN(created.getTime()) ? '-' : created.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`, { x: 330, y, size: 8.5, font: regular, color: colors.muted });
+  page.drawText(`Gerada em: ${formatDateTime(input.createdAt)}`, { x: 330, y, size: 8.5, font: regular, color: colors.muted });
   y -= 31;
 
   drawSection('Identificação');
   drawField('Nome completo', input.patient.name);
+  drawField('CPF', formatCpf(input.patient.cpf || ''));
   drawField('Data de nascimento', input.patient.birthDate || '-');
   drawField('Idade', input.patient.age ?? '-');
   drawField('WhatsApp', input.patient.phone);
@@ -160,16 +172,17 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   drawSection('Consentimentos');
   drawField('Informações fornecidas declaradas como verdadeiras', input.consents?.truthful === true);
   drawField('Tratamento das informações para atendimento autorizado', input.consents?.dataProcessing === true);
-  ensure(38);
-  const disclaimer = 'Esta pré-anamnese organiza informações antes do atendimento e não substitui a avaliação profissional. A indicação, contraindicação e conduta devem ser definidas pela profissional responsável.';
+  drawField('Tratamento dos dados informados, incluindo CPF, autorizado', input.consents?.dataAuthorization === true);
+  ensure(48);
+  const disclaimer = 'Esta pré-anamnese organiza informações antes do atendimento e não substitui a avaliação profissional. A rubrica abaixo confirma o preenchimento desta pré-anamnese, mas não substitui a assinatura formal nem os termos específicos do procedimento, que serão realizados presencialmente.';
   for (const line of wrapPdfText(disclaimer, 92)) {
     page.drawText(line, { x: marginX, y, size: 8.2, font: regular, color: colors.muted });
     y -= 10;
   }
   y -= 18;
 
-  drawSection('Assinaturas');
-  ensure(130);
+  drawSection('Rubrica de confirmação e assinatura presencial');
+  ensure(172);
   if (embeddedSignature) {
     const maxW = 190;
     const maxH = 70;
@@ -177,10 +190,14 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
     page.drawImage(embeddedSignature, { x: marginX, y: y - embeddedSignature.height * scale + 5, width: embeddedSignature.width * scale, height: embeddedSignature.height * scale });
   }
   page.drawLine({ start: { x: marginX, y: y - 72 }, end: { x: 260, y: y - 72 }, thickness: 0.8, color: colors.ink });
-  page.drawText('Assinatura do(a) cliente/paciente', { x: marginX, y: y - 85, size: 8, font: regular, color: colors.muted });
+  page.drawText('Rubrica de confirmação da pré-anamnese', { x: marginX, y: y - 85, size: 8, font: regular, color: colors.muted });
   page.drawLine({ start: { x: 330, y: y - 72 }, end: { x: pageSize[0] - marginX, y: y - 72 }, thickness: 0.8, color: colors.ink });
-  page.drawText('Assinatura da profissional responsável', { x: 330, y: y - 85, size: 8, font: regular, color: colors.muted });
-  page.drawText('Data: ____/____/________', { x: marginX, y: y - 112, size: 8.5, font: regular, color: colors.ink });
+  page.drawText('Assinatura da profissional responsável (presencial)', { x: 330, y: y - 85, size: 8, font: regular, color: colors.muted });
+  page.drawText(`Confirmação registrada em: ${formatDateTime(input.rubricConfirmedAt || input.createdAt)}`, { x: marginX, y: y - 108, size: 8.2, font: regular, color: colors.ink });
+  if (input.rubricSha256) {
+    page.drawText('SHA-256 da rubrica:', { x: marginX, y: y - 124, size: 7.5, font: bold, color: colors.muted });
+    page.drawText(sanitizePdfText(input.rubricSha256), { x: marginX, y: y - 136, size: 6.6, font: regular, color: colors.muted, maxWidth: pageSize[0] - marginX * 2 });
+  }
 
   const pages = pdfDoc.getPages();
   pages.forEach((p: any, index: number) => {
