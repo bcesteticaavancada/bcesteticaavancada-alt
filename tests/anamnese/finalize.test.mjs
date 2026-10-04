@@ -28,7 +28,7 @@ function makeValidCpf(seed = '123456789') {
 const validCpf = makeValidCpf();
 
 const validState = { step: 8, values: { nome: 'João da Silva', nascimento: '1990-01-02', idade: '36', whatsapp: '(31) 99999-9999', email: 'j@e.com', cpf: validCpf, dataAuthorization: true, procedimentos: ['Cryo Lift'], consentimento1: true, consentimento2: true } };
-const signaturePad = { isEmpty: () => false, toDataUrl: () => 'data:image/png;base64,cG5n' };
+const signaturePad = { isEmpty: () => false, isValid: () => true, toDataUrl: () => 'data:image/png;base64,cG5n' };
 
 test('createSubmissionGate collapses double tap into one submission', async () => {
   let calls = 0;
@@ -72,9 +72,12 @@ test('finalizePreAnamnese clears draft and retry token only after success', asyn
   assert.equal(local.has(SUBMISSION_TOKEN_KEY), false);
 });
 
-test('finalizePreAnamnese refuses invalid state and empty signature without calling backend', async () => {
+test('finalizePreAnamnese refuses invalid state and invalid rubric without calling backend', async () => {
   let calls = 0;
   const local = storage();
-  await assert.rejects(() => finalizePreAnamnese({ state: { step: 8, values: {} }, signaturePad: { isEmpty: () => true }, storage: local, submitImpl: async () => { calls += 1; } }), /Revise|assinatura/i);
+  await assert.rejects(() => finalizePreAnamnese({ state: { step: 8, values: {} }, signaturePad: { isValid: () => false }, storage: local, submitImpl: async () => { calls += 1; } }), /Revise|rubrica/i);
+  assert.equal(calls, 0);
+
+  await assert.rejects(() => finalizePreAnamnese({ state: validState, signaturePad: { isEmpty: () => false, isValid: () => false, toDataUrl: () => 'data:image/png;base64,cG5n' }, storage: local, submitImpl: async () => { calls += 1; } }), /rubrica/i);
   assert.equal(calls, 0);
 });
