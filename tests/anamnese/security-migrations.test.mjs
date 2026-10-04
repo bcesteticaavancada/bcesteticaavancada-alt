@@ -65,3 +65,9 @@ test('submission validates rubric before writes and persists CPF, consent timest
 
   assert.doesNotMatch(source, /console\.(?:log|warn|error)\([^;\n]*(?:cpf|payload|answers)/i);
 });
+
+test('PDF generation uses persisted CPF and server rubric confirmation time', async () => {
+  const source = await readFile(submitIndexUrl, 'utf8');
+  assert.match(source, /cpf:\s*row\.patient_cpf\s*\|\|\s*''/);
+  assert.match(source, /rubricConfirmedAt:\s*row\.rubric_confirmed_at\s*\|\|\s*row\.created_at/);
+});
