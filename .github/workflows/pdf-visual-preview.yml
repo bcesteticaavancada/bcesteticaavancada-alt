@@ -1,0 +1,94 @@
+name: PDF Visual Preview
+
+on:
+  push:
+    branches:
+      - feature/cpf-rubrica-pre-anamnese
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Create synthetic rubric PNG
+        run: |
+          python3 - <<'PY'
+          import binascii, struct, zlib
+          w, h = 640, 220
+          pixels = bytearray([255,255,255,255] * w * h)
+
+          def put(x, y, rgba=(34,30,28,255), radius=3):
+              for yy in range(max(0,y-radius), min(h,y+radius+1)):
+                  for xx in range(max(0,x-radius), min(w,x+radius+1)):
+                      i=(yy*w+xx)*4
+                      pixels[i:i+4]=bytes(rgba)
+
+          def line(x0,y0,x1,y1):
+              dx=abs(x1-x0); sx=1 if x0<x1 else -1
+              dy=-abs(y1-y0); sy=1 if y0<y1 else -1
+              err=dx+dy
+              while True:
+                  put(x0,y0)
+                  if x0==x1 and y0==y1: break
+                  e2=2*err
+                  if e2>=dy: err+=dy; x0+=sx
+                  if e2<=dx: err+=dx; y0+=sy
+
+          points=[(65,145),(115,85),(145,155),(180,70),(205,150),(260,92),(310,135),(350,78),(390,142),(430,98),(505,128),(560,87)]
+          for a,b in zip(points, points[1:]): line(*a,*b)
+          line(95,160,520,160)
+
+          raw=b''.join(b'\x00'+bytes(pixels[y*w*4:(y+1)*w*4]) for y in range(h))
+          def chunk(kind,data):
+              return struct.pack('>I',len(data))+kind+data+struct.pack('>I',binascii.crc32(kind+data)&0xffffffff)
+          png=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',w,h,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(raw,9))+chunk(b'IEND',b'')
+          open('/tmp/bc-rubric.png','wb').write(png)
+          PY
+
+      - name: Generate real PDF from current source
+        run: |
+          cat > .pdf-preview.ts <<'TS'
+          import { generatePreAnamnesePdf } from './supabase/functions/submit-pre-anamnese/pdf.ts';
+          const logo = await Deno.readFile('./assets/logo-oficial/logo-bc-estetica-sem-fundo.png');
+          const rubric = await Deno.readFile('/tmp/bc-rubric.png');
+          const pdf = await generatePreAnamnesePdf({
+            publicCode: 'BC-20261004-VISUAL',
+            createdAt: '2026-10-04T18:20:00Z',
+            rubricConfirmedAt: '2026-10-04T18:20:00Z',
+            patient: {
+              name: 'Cliente Demonstração BC Estética',
+              cpf: '52998224725',
+              birthDate: '1990-01-02',
+              age: 36,
+              phone: '(31) 99999-9999',
+              email: 'demonstracao@example.com'
+            },
+            procedure: 'Cryo Lift, Papada Off, Hollywood Peel e Bioestimulador',
+            answers: {
+              objetivo: 'Melhorar contorno, textura e qualidade da pele com planejamento individualizado.',
+              histEst: 'Já realizou procedimentos estéticos anteriormente, sem intercorrências relatadas.',
+              expectativa: 'Resultado natural, elegante e progressivo, respeitando as características individuais.',
+              observacoes: 'Texto de demonstração para validar composição, margens, quebras de linha, acentuação e paginação. '.repeat(18)
+            },
+            consents: { truthful: true, dataProcessing: true, dataAuthorization: true },
+            signaturePngBytes: rubric,
+            logoPngBytes: logo,
+          });
+          await Deno.writeFile('/tmp/BC_Pre_Anamnese_Visual.pdf', pdf);
+          TS
+          deno run --allow-read --allow-write --allow-net .pdf-preview.ts
+          rm .pdf-preview.ts
+
+      - name: Upload PDF preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc-pre-anamnese-visual
+          path: /tmp/BC_Pre_Anamnese_Visual.pdf
+          retention-days: 1
