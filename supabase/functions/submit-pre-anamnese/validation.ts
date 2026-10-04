@@ -1,5 +1,8 @@
+import { isValidCpf, normalizeCpf } from './cpf.ts';
+
 export type SubmissionPatient = {
   name: string;
+  cpf: string;
   birthDate: string;
   age: number;
   phone: string;
@@ -10,7 +13,7 @@ export type ValidSubmission = {
   patient: SubmissionPatient;
   procedure: string;
   answers: Record<string, unknown>;
-  consents: Record<string, unknown> & { truthful: true; dataProcessing: true };
+  consents: Record<string, unknown> & { truthful: true; dataProcessing: true; dataAuthorization: true };
   signatureDataUrl: string;
   sourceVersion: string;
   submissionToken: string;
@@ -86,6 +89,7 @@ export function validateSubmission(input: unknown): ValidationResult {
     : {};
   const patient = {
     name: normalizeText(String(patientRaw.name ?? '')).slice(0, 160),
+    cpf: normalizeCpf(patientRaw.cpf),
     birthDate: normalizeText(String(patientRaw.birthDate ?? '')).slice(0, 20),
     age: Number(patientRaw.age ?? 0),
     phone: normalizeText(String(patientRaw.phone ?? '')).slice(0, 40),
@@ -93,6 +97,7 @@ export function validateSubmission(input: unknown): ValidationResult {
   };
 
   if (patient.name.length < 2) errors.patientName = 'Informe o nome completo.';
+  if (!isValidCpf(patientRaw.cpf)) errors.cpf = 'Informe um CPF válido.';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(patient.birthDate)) errors.birthDate = 'Informe uma data de nascimento válida.';
   if (!Number.isInteger(patient.age) || patient.age < 1 || patient.age > 120) errors.age = 'Informe uma idade válida.';
   if (patient.phone.replace(/\D/g, '').length < 8) errors.phone = 'Informe um telefone válido.';
@@ -105,6 +110,7 @@ export function validateSubmission(input: unknown): ValidationResult {
   const consents = normalizeUnknown(raw.consents ?? {}) as Record<string, unknown>;
   if (consents.truthful !== true) errors.consentTruthful = 'Confirme a veracidade das informações.';
   if (consents.dataProcessing !== true) errors.consentDataProcessing = 'Confirme o tratamento das informações para atendimento.';
+  if (consents.dataAuthorization !== true) errors.consentDataAuthorization = 'Autorize o tratamento dos dados desta pré-anamnese.';
 
   const signatureDataUrl = String(raw.signatureDataUrl ?? '');
   if (!PNG_DATA_URL.test(signatureDataUrl) || signatureDataUrl.length > 2_500_000) {
