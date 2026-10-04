@@ -34,6 +34,11 @@ Deno.test('validateSubmission accepts valid payload and normalizes CPF', () => {
   }
 });
 
+Deno.test('validateSubmission does not apply free-text limit to rubric data URL', () => {
+  const result = validateSubmission({ ...valid, signatureDataUrl: `data:image/png;base64,${'A'.repeat(24_000)}` });
+  assert(result.valid);
+});
+
 Deno.test('validateSubmission rejects missing or invalid CPF and missing data authorization', () => {
   assert(!validateSubmission({ ...valid, patient: { ...valid.patient, cpf: '' } }).valid);
   assert(!validateSubmission({ ...valid, patient: { ...valid.patient, cpf: '111.111.111-11' } }).valid);
