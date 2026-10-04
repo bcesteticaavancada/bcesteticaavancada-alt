@@ -52,6 +52,7 @@ function patientFromAnswers(row: any) {
   const answers = row.answers || {};
   return {
     name: row.patient_name,
+    cpf: row.patient_cpf || '',
     birthDate: String(answers.nascimento || ''),
     age: Number(answers.idade || 0),
     phone: row.patient_phone,
@@ -71,6 +72,7 @@ async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array) 
   const pdfBytes = await generatePreAnamnesePdf({
     publicCode: row.public_code,
     createdAt: row.created_at,
+    rubricConfirmedAt: row.rubric_confirmed_at || row.created_at,
     patient: patientFromAnswers(row),
     procedure: row.procedure,
     answers: row.answers || {},
