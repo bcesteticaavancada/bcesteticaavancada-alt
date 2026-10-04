@@ -39,10 +39,18 @@ test('submission validates rubric before writes and persists CPF, consent timest
   assert.match(source, /canonicalStringify\(/);
   assert.match(source, /sha256Hex\(/);
 
-  const validationAt = source.indexOf('validateRubricPngDataUrl(payload.signatureDataUrl)');
-  const storageWriteAt = source.indexOf(".from('pre-anamnese-signatures').upload");
-  const databaseWriteAt = source.indexOf(".from('pre_anamneses').insert");
-  assert.ok(validationAt >= 0 && storageWriteAt > validationAt && databaseWriteAt > validationAt);
+  const handlerAt = source.indexOf('Deno.serve');
+  const handler = source.slice(handlerAt);
+  const validationAt = handler.indexOf('validateRubricPngDataUrl(payload.signatureDataUrl)');
+  const idempotencyLookupAt = handler.indexOf(".eq('submission_token', payload.submissionToken).maybeSingle()");
+  const insertCallAt = handler.indexOf('insertSubmission(supabase, payload, rubric.bytes, rubric.sha256)');
+  assert.ok(handlerAt >= 0 && validationAt >= 0 && idempotencyLookupAt > validationAt && insertCallAt > idempotencyLookupAt);
+
+  const insertDefinitionStart = source.indexOf('async function insertSubmission');
+  const insertDefinitionEnd = source.indexOf('\nDeno.serve', insertDefinitionStart);
+  const insertDefinition = source.slice(insertDefinitionStart, insertDefinitionEnd);
+  assert.match(insertDefinition, /\.from\('pre-anamnese-signatures'\)\.upload/);
+  assert.match(insertDefinition, /\.from\('pre_anamneses'\)\.insert/);
 
   for (const field of [
     'created_at: createdAt',
