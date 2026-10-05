@@ -43,15 +43,38 @@ function displayValue(value: unknown): string {
 function humanLabel(key: string): string {
   const exact: Record<string, string> = {
     nome: 'Nome completo', nascimento: 'Data de nascimento', idade: 'Idade', whatsapp: 'WhatsApp', email: 'E-mail', sexo: 'Sexo',
-    procedimentos: 'Procedimento(s) de interesse', outroProc: 'Outro procedimento', objetivo: 'Objetivo principal', histEst: 'Histórico estético',
-    expectativa: 'Expectativa com o tratamento', resultadoEsp: 'Resultado específico para conversar', observacoes: 'Observações',
+    procedimentos: 'Qual atendimento você procura?', outroProc: 'Outro procedimento / descrição',
+    objetivos: 'O que você deseja melhorar?', objetivoTexto: 'Conte um pouco mais sobre seu objetivo',
+    histEst: 'Já realizou procedimentos estéticos?', histQual: 'Qual procedimento e quando?', histReacao: 'Teve reação ou complicação?',
+    histExperiencia: 'Como foi a experiência / há algo importante para informar?',
+    pele: 'Como considera sua pele?', solIntenso: 'Teve exposição solar intensa recentemente?', condPele: 'Apresenta atualmente',
+    manchasPos: 'Já apresentou manchas após procedimentos ou inflamações?', quandoSol: 'Quando foi a exposição solar?', protetor: 'Usa protetor solar?',
+    condSaude: 'Possui ou já teve condição de saúde importante?', saudeDesc: 'Se sim, descreva',
+    cardio: 'Histórico de problemas cardíacos?', cardioDesc: 'Detalhes cardíacos / pressão / desmaios, se houver',
+    acomp: 'Possui condição médica em acompanhamento?', medCont: 'Faz uso contínuo de medicamentos?',
+    medDesc: 'Medicamentos: nome, dosagem se souber e motivo',
+    derm: 'Usa/usou recentemente medicamentos ou tratamentos dermatológicos?', dermDesc: 'Quais e quando?',
+    alergia: 'Possui alergia conhecida?', alergiaDesc: 'Quais alergias?',
+    reacaoEst: 'Já teve reação alérgica durante procedimento estético?', reacaoDesc: 'Se sim, explique',
+    alcool: 'Consome bebidas alcoólicas?', alcFreq: 'Frequência do consumo de bebidas alcoólicas', alcObs: 'Observação sobre consumo de bebidas alcoólicas',
+    nic: 'Fuma ou utiliza produtos com nicotina?', nicFreq: 'Frequência de uso de nicotina', nicTempo: 'Há quanto tempo utiliza nicotina?',
+    gest: 'Existe possibilidade de gestação?', amamenta: 'Está amamentando?',
+    recente: 'Realizou cirurgia ou procedimento médico/estético recentemente?', recQual: 'Qual procedimento?', recQuando: 'Quando?',
+    recRecuperacao: 'Está em recuperação?', recOrientacao: 'Existe orientação médica relacionada?',
+    mFaceReg: 'Módulo facial — Região', mFaceObj: 'Módulo facial — O que espera melhorar?',
+    mBodyReg: 'Módulo corporal / bem-estar — Região', mBodyObj: 'Módulo corporal / bem-estar — Objetivo',
+    mVascReg: 'Módulo microvasos — Região', mVascTempo: 'Módulo microvasos — Há quanto tempo?', mVascAnt: 'Módulo microvasos — Tratamento anterior',
+    mPeelAnt: 'Módulo peeling — Já realizou peeling anteriormente?', mPeelReac: 'Módulo peeling — Teve reação importante?', mPeelProd: 'Módulo peeling — Produtos dermatológicos atuais',
+    mMicroAnt: 'Módulo microagulhamento — Microagulhamento anterior', mMicroRec: 'Módulo microagulhamento — Como foi a recuperação?',
+    mTecAnt: 'Módulo tecnologias — Já realizou tratamento semelhante?', mTecReac: 'Módulo tecnologias — Teve reação relevante?',
+    mOrient: 'Orientação profissional — O que gostaria de melhorar?', mOutro: 'Outro procedimento — Descreva',
+    expectativa: 'O que você espera alcançar com o tratamento?',
+    resultadoEsp: 'Existe algum resultado específico que gostaria de conversar com a profissional?',
+    observacoes: 'Existe algo mais que gostaria de nos contar?',
     consentimento1: 'Veracidade das informações', consentimento2: 'Tratamento das informações',
   };
   if (exact[key]) return exact[key];
-  return key
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/[_-]+/g, ' ')
-    .replace(/^./, (c) => c.toUpperCase());
+  return key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').replace(/^./, (char) => char.toUpperCase());
 }
 
 function formatCpf(value: string): string {
@@ -132,16 +155,43 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   };
 
   const drawField = (label: string, value: unknown) => {
-    const lines = wrapPdfText(displayValue(value), 82);
-    const height = 18 + lines.length * 12;
+    const questionLines = wrapPdfText(label, 66);
+    const answerLines = wrapPdfText(displayValue(value), 66);
+    const innerHeight = questionLines.length * 13 + 8 + answerLines.length * 15;
+    const height = innerHeight + 22;
     ensure(height);
-    page.drawText(sanitizePdfText(label), { x: marginX, y, size: 8.5, font: bold, color: colors.ink });
-    y -= 12;
-    for (const line of lines) {
-      page.drawText(line || '-', { x: marginX, y, size: 9.2, font: regular, color: colors.muted, maxWidth: pageSize[0] - marginX * 2 });
-      y -= 12;
+
+    const boxTop = y + 7;
+    const boxHeight = innerHeight + 12;
+    page.drawRectangle({
+      x: marginX,
+      y: boxTop - boxHeight,
+      width: pageSize[0] - marginX * 2,
+      height: boxHeight,
+      color: colors.cream,
+      borderColor: colors.line,
+      borderWidth: 0.6,
+    });
+
+    let fieldY = y - 5;
+    for (const line of questionLines) {
+      page.drawText(sanitizePdfText(line), {
+        x: marginX + 14, y: fieldY, size: 10.2, font: bold, color: colors.ink,
+        maxWidth: pageSize[0] - marginX * 2 - 28,
+      });
+      fieldY -= 13;
     }
-    y -= 6;
+
+    fieldY -= 4;
+    for (const line of answerLines) {
+      page.drawText(line || '-', {
+        x: marginX + 14, y: fieldY, size: 11.2, font: regular, color: colors.muted,
+        maxWidth: pageSize[0] - marginX * 2 - 28,
+      });
+      fieldY -= 15;
+    }
+
+    y = boxTop - boxHeight - 12;
   };
 
   drawBrandHeader();
