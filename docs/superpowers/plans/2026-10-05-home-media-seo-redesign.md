@@ -18,14 +18,17 @@
 - Fotografias/vídeos reais da BC têm prioridade sobre IA.
 - IA não pode inventar paciente, antes/depois, resultado clínico, profissional real ou ambiente falso apresentado como real.
 - Conteúdo clínico sem promessas absolutas; usar linguagem prudente e avaliação profissional.
-- Dados fixos consistentes: Rua Gávea, 358, Loja 02, 2º andar, Nova Suissa, Belo Horizonte/MG; WhatsApp `(31) 99518-4110`; terça a sábado, 09h às 18h.
+- Dados fixos consistentes: Rua Gávea, 358, Loja 02, 2º andar, Nova Suissa, Belo Horizonte/MG; telefone `+55 31 99518-4110`; terça a sábado, 09h às 18h.
+- Título SEO da Home: `BC Estética Avançada | Belo Horizonte`.
+- Canonical: `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`.
+- Open Graph image: `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/02-equipe-bc-estetica.jpg`.
 
 ## Review Focus
 
-- Home em 320–360 px: nenhuma seção ou mídia causa overflow horizontal.
-- Vídeos: nenhum download pesado inicia na primeira pintura; sem atributo `autoplay` no HTML inicial.
-- JS do modal: abrir/fechar repetidamente não duplica eventos nem mantém áudio tocando.
-- Schema/SEO: JSON-LD permanece JSON válido e dados locais batem com o conteúdo visível.
+- Home em 320–360 px: CSS contém regra de colapso para grids, `overflow-x:hidden` e containers fluidos sem largura fixa de viewport.
+- Vídeos: nenhum MP4 é carregado no HTML inicial e nenhum `autoplay` existe.
+- JS do modal: existe guard `window.BCVideoReady`, fechamento pausa vídeo, remove `src`, chama `load()` e restaura foco.
+- Schema/SEO: JSON-LD é JSON válido e dados locais batem com o conteúdo visível.
 - Imagens: todos os `<img>` novos têm `alt` útil ou `alt=""` quando puramente decorativos.
 
 ---
@@ -41,20 +44,23 @@
 - Add script: `test:site` -> `node --test tests/site/*.test.mjs`.
 
 - [ ] **Step 1: Write failing tests**
-  - title contains service + Belo Horizonte and is 30–60 characters;
-  - canonical exists and points to the GitHub Pages Home;
-  - Open Graph includes title, description, image and URL;
+  - `<title>` equals `BC Estética Avançada | Belo Horizonte`;
+  - canonical equals the exact URL in Global Constraints;
+  - Open Graph includes `og:title`, `og:description`, exact `og:image` and `og:url`;
   - exactly one H1 remains;
-  - JSON-LD `LocalBusiness` parses as JSON and includes name/address/telephone/opening hours;
+  - JSON-LD parses as JSON, has `@type: "LocalBusiness"`, name `BC Estética Avançada`, telephone `+5531995184110`, address fields for Rua Gávea 358 / Nova Suissa / Belo Horizonte / MG, and opening hours Tuesday–Saturday 09:00–18:00;
   - Home contains landmarks for method, pillars, media, environment, specialists, FAQ and final CTA;
-  - every non-decorative image has `alt`.
+  - every non-decorative image has `alt`;
+  - CSS includes `overflow-x:hidden`, responsive one-column fallback and fluid media containers.
 
 - [ ] **Step 2: Run tests and confirm failure**
 
 Run: `node --test tests/site/home.test.mjs`
-Expected: FAIL because the current Home lacks required sections and SEO tags.
+Expected: FAIL because current Home lacks the required metadata/sections.
 
-- [ ] **Step 3: Add the package script only after the failing test exists**
+- [ ] **Step 3: Add the package script**
+
+Add `"test:site": "node --test tests/site/*.test.mjs"` to `package.json` without changing `test:frontend`.
 
 - [ ] **Step 4: Commit**
 
@@ -71,12 +77,12 @@ Expected: FAIL because the current Home lacks required sections and SEO tags.
 
 - [ ] **Step 1: Implement exact SEO head structure**
 
-Use a descriptive title in the 30–60 character range, canonical `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`, Open Graph tags, and `LocalBusiness` JSON-LD with clinic address, phone and hours.
+Use the exact title, canonical and Open Graph image from Global Constraints. Add `og:title`, `og:description`, `og:image`, `og:url` and JSON-LD `LocalBusiness` with the exact local data pinned in Task 1.
 
-- [ ] **Step 2: Run SEO unit test**
+- [ ] **Step 2: Run site tests**
 
 Run: `npm run test:site`
-Expected: SEO assertions PASS; editorial-section assertions may still fail.
+Expected: SEO assertions PASS; editorial/media assertions may still FAIL.
 
 - [ ] **Step 3: Commit**
 
@@ -92,6 +98,7 @@ Expected: SEO assertions PASS; editorial-section assertions may still fail.
 
 **Interfaces:**
 - Preserve current header, drawer IDs and CTA URLs.
+- Section landmarks use stable IDs: `metodo-bc`, `pilares`, `tratamentos`, `protocolos`, `tecnologia`, `ambiente`, `especialistas`, `resultados`, `avaliacao`, `faq`, `cta-final`.
 
 - [ ] **Step 1: Add editorial sections in this order**
   1. Hero;
@@ -109,16 +116,16 @@ Expected: SEO assertions PASS; editorial-section assertions may still fail.
 
 - [ ] **Step 2: Use real BC imagery before generated imagery**
 
-Each image gets descriptive `alt`; no fake before/after or clinical claim.
+Each real image gets descriptive `alt`; no fake before/after or clinical claim.
 
 - [ ] **Step 3: Add responsive editorial CSS**
 
-Use existing design tokens; introduce no new color system. Desktop can use asymmetric grids; mobile collapses to a single readable flow.
+Use existing design tokens; introduce no new color system. Desktop may use asymmetric grids; mobile collapses to a single readable flow with fluid images and no horizontal overflow.
 
 - [ ] **Step 4: Run tests**
 
 Run: `npm run test:site`
-Expected: editorial and image-alt assertions PASS.
+Expected: SEO, editorial-landmark, responsive-CSS and image-alt assertions PASS; media campaign assertions remain pending until Task 5.
 
 - [ ] **Step 5: Commit**
 
@@ -132,17 +139,19 @@ Expected: editorial and image-alt assertions PASS.
 - Modify: `styles.css` and/or `index.html` to use them only as decorative backgrounds.
 
 **Interfaces:**
-- Generated images have no people, clinic room, devices, procedures or patient results.
+- Generated images contain no people, clinic room, devices, procedures or patient results.
 
 - [ ] **Step 1: Generate the ivory/gold texture**
 
-Prompt intent: refined warm ivory paper, subtle organic light, restrained champagne-gold accents, luxury editorial beauty brand, no text, no objects, no people.
+Intent: refined warm ivory paper, subtle organic light, restrained champagne-gold accents, luxury editorial beauty brand, no text, no objects, no people.
 
 - [ ] **Step 2: Generate the dark/gold texture**
 
-Prompt intent: deep warm chocolate-black background, soft directional glow, restrained brushed-gold abstract detail, premium editorial aesthetic, no text, no objects, no people.
+Intent: deep warm chocolate-black background, soft directional glow, restrained brushed-gold abstract detail, premium editorial aesthetic, no text, no objects, no people.
 
-- [ ] **Step 3: Optimize to WebP and keep decorative alt empty if used through `<img>`**
+- [ ] **Step 3: Optimize to WebP**
+
+If rendered as `<img>`, use `alt=""`; if CSS background, expose no semantic image role.
 
 - [ ] **Step 4: Verify they do not visually impersonate real BC environments**
 
@@ -168,32 +177,34 @@ Prompt intent: deep warm chocolate-black background, soft directional glow, rest
 
 **Interfaces:**
 - Video cards expose `data-video-src` and `data-video-title`.
-- One reusable dialog/modal owns the only active `<video>` element.
-- Initial HTML contains no `autoplay` attribute and no eager MP4 `src` on cards.
+- One reusable `<dialog id="bcVideoDialog">` owns the only active `<video id="bcVideoPlayer">` element.
+- `window.BCVideoReady` prevents duplicate initialization.
+- Initial HTML contains no `autoplay` and the player starts without MP4 `src`.
 
 - [ ] **Step 1: Add failing tests for lazy media behavior**
   - four media cards exist;
   - each has a poster and `data-video-src`;
   - no card contains eager `<video src="...mp4">`;
   - no `autoplay` attribute exists;
-  - reusable modal/dialog markup exists.
+  - `#bcVideoDialog` and `#bcVideoPlayer` exist;
+  - `script.js` contains `window.BCVideoReady` guard, `pause()`, `removeAttribute("src")`, `load()` and focus restoration.
 
 - [ ] **Step 2: Run tests and confirm failure**
 
 Run: `npm run test:site`
-Expected: FAIL on video campaign assertions.
+Expected: FAIL on media assertions.
 
 - [ ] **Step 3: Optimize source videos for web**
 
-Target: H.264 MP4, `+faststart`, portrait dimensions preserved at web-appropriate resolution, bitrate/CRF chosen to materially reduce size without obvious mobile degradation. Preserve full duration unless source contains unusable lead/trailing frames.
+Target: H.264 MP4, `+faststart`, portrait dimensions preserved at web-appropriate resolution, materially smaller files without obvious mobile degradation. Preserve full duration unless source contains unusable lead/trailing frames.
 
 - [ ] **Step 4: Extract representative poster frames**
 
-Posters must show real BC work from each source video and be compressed WebP.
+Posters show real BC work from each source video and are compressed WebP.
 
-- [ ] **Step 5: Implement cards and lazy modal controller**
+- [ ] **Step 5: Implement cards and lazy dialog controller**
 
-On open: set video source, load and play only after explicit user action. On close/Escape: pause, reset currentTime, clear `src`, call `load()`, restore focus to trigger.
+On open: set `src`, call `load()` and play only after explicit user action. On close/Escape: pause, reset `currentTime`, remove `src`, call `load()`, close dialog and restore focus to the trigger.
 
 - [ ] **Step 6: Run tests**
 
@@ -214,16 +225,18 @@ Expected: PASS.
 **Interfaces:**
 - `window.BCMenuReady` remains the compatibility flag.
 
-- [ ] **Step 1: Add test that Home does not duplicate menu behavior inline and externally**
+- [ ] **Step 1: Add failing test for duplicate menu implementation**
+
+Assert Home loads `script.js` but contains no second inline block that binds `#menuToggle`/`#siteDrawer` listeners.
 
 - [ ] **Step 2: Run test and confirm current duplication fails**
 
 Run: `npm run test:site`
-Expected: FAIL because Home currently has both `script.js` and inline fallback menu logic.
+Expected: FAIL because current Home has both external and inline menu logic.
 
 - [ ] **Step 3: Keep one canonical menu implementation**
 
-Retain robust external behavior in `script.js`; remove inline duplicate only after verifying all selectors exist and tests cover open/close/Escape.
+Retain robust external behavior in `script.js`; remove the inline duplicate only after tests cover menu markup and Escape-close behavior source markers.
 
 - [ ] **Step 4: Run site tests**
 
@@ -249,7 +262,7 @@ Expected: all PASS.
 
 - [ ] **Step 2: Verify Home manually at mobile/tablet/desktop widths**
 
-Check menu, images, cards, FAQ, CTAs, modal open/close/Escape, no overflow and no background audio.
+Check menu, images, cards, FAQ, CTAs, dialog open/close/Escape, no overflow and no background audio.
 
 - [ ] **Step 3: Run Grow My Website on the published Home**
 
