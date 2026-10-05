@@ -21,137 +21,106 @@
 
 ## Review Focus
 
-- Tela de 320–360 px: campos, opções e botões não vazam lateralmente.
-- Textos longos em labels/avisos: quebram linha sem encobrir controles.
-- Navegação por teclado: foco sempre visível em inputs, radios, checkboxes e botões.
-- `prefers-reduced-motion`: transições não impedem leitura/navegação.
-- Estados de erro/sucesso: contraste suficiente e sem depender só de cor.
+- Tela de 320–360 px: grids colapsam, containers têm `min-width:0`/largura fluida e não vazam lateralmente.
+- Textos longos em labels/avisos: quebram linha com regra explícita de wrapping.
+- Navegação por teclado: `:focus-visible` é claramente perceptível.
+- `prefers-reduced-motion`: animação de troca de etapa é removida/reduzida.
+- Estados de erro/sucesso: possuem contraste e pista estrutural (borda/ícone/texto), não só cor.
 
 ---
 
-### Task 1: Travar a estrutura visual esperada em testes
+### Task 1: Travar o novo contrato visual em testes
 
 **Files:**
 - Modify: `tests/anamnese/layout.test.mjs`
 - Test: `tests/anamnese/layout.test.mjs`
 
 **Interfaces:**
-- Consumes: current `agendamento/index.html` and `agendamento/anamnese.css` as text fixtures.
-- Produces: regression contract for visual landmarks and responsiveness.
+- Tests read `agendamento/index.html` and `agendamento/anamnese.css` as text fixtures.
+- New presentational landmarks: `data-ui="bc-form-header"` and `data-ui="bc-progress"`.
 
 - [ ] **Step 1: Add failing tests**
-  - HTML still exposes exactly eight `data-step` sections.
-  - shell contains branded intro/header landmark and progress landmark.
-  - CSS contains explicit focus-visible styling.
-  - CSS contains mobile breakpoint at or below 700 px and reduced-motion handling.
-  - form container has a max width and no fixed viewport width.
+  - exactly eight `data-step` sections remain;
+  - `data-ui="bc-form-header"` exists inside the form shell;
+  - `data-ui="bc-progress"` wraps stage/progress presentation;
+  - CSS contains `:focus-visible` for actionable controls;
+  - CSS contains `@media (prefers-reduced-motion: reduce)`;
+  - mobile breakpoint at/below 700 px collapses `.grid`, `.options` and `.checkgrid` to one column;
+  - fluid containers use `max-width`/`width:100%` and `min-width:0` where grid children could overflow;
+  - labels/notices have explicit wrapping behavior;
+  - error/success states include a non-color cue such as border or pseudo-element marker.
 
 - [ ] **Step 2: Run test to verify new assertions fail**
 
 Run: `node --test tests/anamnese/layout.test.mjs`
-Expected: FAIL on newly required landmarks/styles.
+Expected: FAIL on new landmarks/accessibility/responsive requirements.
 
 - [ ] **Step 3: Commit test contract**
 
 `git commit -m "test: define premium pre-anamnese layout contract"`
 
-### Task 2: Refinar cabeçalho, shell e hierarquia dos passos
+### Task 2: Implementar o redesign visual sem tocar no comportamento
 
 **Files:**
 - Modify: `agendamento/index.html`
 - Modify: `agendamento/anamnese.css`
+- Verify unchanged behavior hooks in: `agendamento/js/main.js`, `conditional.js`, `review.js`, `validation.js`, `signature.js`, `finalize.js`.
 
 **Interfaces:**
-- Keep all existing field IDs/names and `data-step` values unchanged.
-- Keep `#stage`, `#track`, `.step`, `.nav`, validation containers and form ID unchanged.
+- Keep `#preAnamneseForm`, `#stage`, `#track`, `.step`, `.nav`, all field IDs/names and all `data-step` values unchanged.
+- Add only the two `data-ui` landmarks defined in Task 1 plus presentation-only classes when needed.
 
-- [ ] **Step 1: Implement minimal markup additions**
+- [ ] **Step 1: Add the two structural landmarks**
 
-Add only presentational wrappers/labels needed for: BC identity strip, personalized-card feel, clearer section metadata, and a more editorial progress header. Do not rename behavior hooks.
+Wrap/mark the BC form identity area with `data-ui="bc-form-header"` and the progress area with `data-ui="bc-progress"`; do not move or rename JS hooks.
 
-- [ ] **Step 2: Implement shell and card styling**
+- [ ] **Step 2: Refine shell and section hierarchy**
 
-Use layered paper/cream surfaces, restrained gold rules, stronger serif headings, denser but readable spacing, and clear section grouping. Remove any visual treatment that makes the form look like a generic admin panel.
+Use layered paper/cream surfaces, restrained gold rules, stronger serif headings, denser but readable spacing, and clear grouping so the experience resembles a personalized BC document rather than a generic admin form.
 
-- [ ] **Step 3: Run layout test**
+- [ ] **Step 3: Refine interactive states**
+
+Selected radios/checkboxes read as selected cards; conditionals look subordinate; summary cards are scan-friendly; signature area is clearly delimited; error/success states include structural cues in addition to color.
+
+- [ ] **Step 4: Add responsive/accessibility rules**
+
+Implement explicit text wrapping, `min-width:0` where needed, visible `:focus-visible`, reduced-motion handling, comfortable tap targets, stacked navigation when necessary, and no hover-only dependency.
+
+- [ ] **Step 5: Run layout test**
 
 Run: `node --test tests/anamnese/layout.test.mjs`
 Expected: PASS.
 
-- [ ] **Step 4: Run full frontend suite**
+- [ ] **Step 6: Run full frontend suite**
 
 Run: `npm run test:frontend`
 Expected: all PASS.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 7: Commit**
 
-`git commit -m "feat: refine pre-anamnese visual hierarchy"`
+`git commit -m "feat: refine BC pre-anamnese interface"`
 
-### Task 3: Melhorar opções, campos, condicionais e resumo
+### Task 3: Fluxo completo e acabamento de regressão
 
 **Files:**
-- Modify: `agendamento/anamnese.css`
-- Modify: `agendamento/index.html` only where a semantic wrapper/class is required.
-- Verify: `agendamento/js/conditional.js`, `review.js`, `validation.js` remain behavior-compatible.
+- Modify only if a verified regression is found.
 
 **Interfaces:**
-- Existing JS selectors must continue matching.
+- No API or payload contract changes.
 
-- [ ] **Step 1: Add failing static assertions for state classes**
+- [ ] **Step 1: Manual browser verification**
 
-Extend `tests/anamnese/layout.test.mjs` to require visible styles for checked options, conditionals, summary cards, errors, success state, and signature area.
+Check widths near 360 px, 768 px and desktop; complete all eight steps; trigger conditionals; review answers; accept consents; draw/clear rubric; verify success/error panels.
 
-- [ ] **Step 2: Run test and confirm failure**
+- [ ] **Step 2: Verify keyboard flow**
 
-Run: `node --test tests/anamnese/layout.test.mjs`
-Expected: FAIL on missing state styling assertions.
+Tab through controls, confirm focus visibility, Enter/Space behavior on choices, and no keyboard trap in any step.
 
-- [ ] **Step 3: Implement refined state styling**
-
-Checked radios/checkboxes must read as selected cards; conditionals must look subordinate, not detached; summary cards must be scan-friendly; error/success blocks must carry icon/text or border cues in addition to color.
-
-- [ ] **Step 4: Run frontend tests**
+- [ ] **Step 3: Run full suite again**
 
 Run: `npm run test:frontend`
 Expected: all PASS.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit only if regression fixes were required**
 
-`git commit -m "feat: polish pre-anamnese interactive states"`
-
-### Task 4: Responsividade, acessibilidade e acabamento mobile
-
-**Files:**
-- Modify: `agendamento/anamnese.css`
-- Modify: `tests/anamnese/layout.test.mjs`
-
-**Interfaces:**
-- No JS API changes.
-
-- [ ] **Step 1: Add failing assertions for accessibility CSS**
-  - `:focus-visible` present for actionable controls;
-  - `prefers-reduced-motion: reduce` present;
-  - mobile layout collapses grids to one column;
-  - signature canvas remains width 100%.
-
-- [ ] **Step 2: Run test to verify failure**
-
-Run: `node --test tests/anamnese/layout.test.mjs`
-Expected: FAIL until all rules exist.
-
-- [ ] **Step 3: Implement mobile/accessibility rules**
-
-Ensure tap targets are at least visually comfortable, navigation buttons can stack when necessary, and no section depends on hover.
-
-- [ ] **Step 4: Run complete frontend suite**
-
-Run: `npm run test:frontend`
-Expected: all PASS.
-
-- [ ] **Step 5: Manual browser verification**
-
-Check widths near 360 px, 768 px and desktop; complete all eight steps; verify conditionals, review, consent, rubric and final submission UI remain intact.
-
-- [ ] **Step 6: Commit**
-
-`git commit -m "fix: harden pre-anamnese responsive accessibility"`
+`git commit -m "fix: polish pre-anamnese responsive flow"`
