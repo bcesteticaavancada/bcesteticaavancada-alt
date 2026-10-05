@@ -170,6 +170,10 @@ A síntese poderá usar regras determinísticas para agrupar:
 
 Nunca criar diagnóstico, contraindicação, indicação de procedimento ou conclusão clínica automática.
 
+### Frente D — Mídia editorial, conteúdo e SEO
+
+Completar lacunas visuais e narrativas do site priorizando material real da BC e usar geração de imagem apenas quando faltar um recurso editorial legítimo. A mesma frente inclui os ajustes de SEO técnico e metadados identificados nas auditorias.
+
 ## 4. Arquitetura técnica do PDF
 
 O arquivo atual concentra sanitização, labels, paginação, desenho e conteúdo em `supabase/functions/submit-pre-anamnese/pdf.ts`.
