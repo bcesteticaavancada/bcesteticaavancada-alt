@@ -164,3 +164,15 @@ button{font:inherit}
   .bc-footer-actions{display:grid}
   .bc-footer-action{justify-content:center}
 }
+
+
+/* Equipe — apresentação editorial premium */
+.alice-profile{position:relative;overflow:hidden}
+.alice-profile::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-180px;top:-160px;background:radial-gradient(circle,rgba(184,138,69,.14),rgba(184,138,69,0) 70%);pointer-events:none}
+.alice-profile .page-grid{position:relative;z-index:1}
+.alice-portrait{border-radius:180px 180px 28px 28px;box-shadow:0 28px 70px rgba(54,35,24,.16);border-color:rgba(184,138,69,.38)}
+.alice-portrait img{height:650px;object-position:center 20%}
+.alice-tags{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 28px}
+.alice-tags span{border:1px solid rgba(184,138,69,.42);background:rgba(255,255,255,.55);border-radius:999px;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6d5636}
+@media(max-width:800px){.alice-profile .page-copy{order:2}.alice-profile .alice-portrait{order:1}.alice-portrait img{height:560px}}
+@media(max-width:520px){.alice-portrait{border-radius:120px 120px 24px 24px}.alice-portrait img{height:500px}.alice-tags{margin:20px 0 24px}}
