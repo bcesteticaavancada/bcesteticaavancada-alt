@@ -58,16 +58,47 @@ window.BCMenuReady=true;
   if(!dialog||!player||!triggers.length)return;
   let lastTrigger=null;
 
-  function openVideo(trigger){
-    const src=trigger.getAttribute("data-video-src");
-    if(!src)return;
+  const posterFallbacks={
+    "Rejuvenescimento facial":"assets/05-sala-procedimentos.jpg",
+    "Peeling Coreano":"assets/06-sala-atendimento.jpg",
+    "Tecnologia corporal":"assets/05-sala-procedimentos.jpg",
+    "Massagem e cuidado corporal":"assets/04-sala-massagem.jpg"
+  };
+
+  triggers.forEach(function(trigger){
+    const poster=trigger.querySelector(".bc-video-poster img");
+    const videoTitle=trigger.getAttribute("data-video-title")||"";
+    if(poster&&posterFallbacks[videoTitle])poster.setAttribute("src",posterFallbacks[videoTitle]);
+  });
+
+  async function resolveVideoSource(originalSrc){
+    let src=originalSrc.replace(/\.mp4(?=$|[?#])/i,".txt");
+    const response=await fetch(src,{cache:"force-cache"});
+    if(!response.ok)throw new Error("Não foi possível carregar o vídeo da BC.");
+    const encoded=await response.text();
+    if(!encoded.trim().startsWith("data:video/mp4;base64,"))throw new Error("Mídia da BC inválida.");
+    return encoded.trim();
+  }
+
+  async function openVideo(trigger){
+    const originalSrc=trigger.getAttribute("data-video-src");
+    if(!originalSrc)return;
     lastTrigger=trigger;
+    trigger.setAttribute("aria-busy","true");
     if(title)title.textContent=trigger.getAttribute("data-video-title")||"Vídeo BC";
-    player.src=src;
-    player.load();
-    if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");
-    const playing=player.play();
-    if(playing&&typeof playing.catch==="function")playing.catch(function(){});
+    try{
+      const resolvedSrc=await resolveVideoSource(originalSrc);
+      if(lastTrigger!==trigger)return;
+      player.src=resolvedSrc;
+      player.load();
+      if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");
+      const playing=player.play();
+      if(playing&&typeof playing.catch==="function")playing.catch(function(){});
+    }catch(error){
+      console.warn("BC video:",error);
+    }finally{
+      trigger.removeAttribute("aria-busy");
+    }
   }
 
   function closeVideo(){
