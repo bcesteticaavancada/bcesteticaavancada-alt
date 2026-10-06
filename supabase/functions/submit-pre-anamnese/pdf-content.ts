@@ -1,3 +1,5 @@
+export const PDF_DOCUMENT_TITLE = 'Pré-Avaliação Estética Individualizada';
+
 export type PdfSpan = 1 | 2 | 3;
 
 export type PdfField = {
