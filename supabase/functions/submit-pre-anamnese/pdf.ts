@@ -1,5 +1,6 @@
 import {
   PDF_DOCUMENT_TITLE,
+  PDF_PROFESSIONAL_NOTES_TITLE,
   buildPdfSections,
   buildStructuredSummary,
   displayValue,
@@ -376,6 +377,52 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
       color: colors.muted,
       maxWidth: contentWidth,
     });
+  }
+
+  const notesTop = y - (input.rubricSha256 ? 143 : 117);
+  const notesBottom = bottomY + 14;
+  const notesHeight = notesTop - notesBottom;
+  if (notesHeight >= 100) {
+    const headerHeight = 27;
+    page.drawRectangle({
+      x: marginX,
+      y: notesBottom,
+      width: contentWidth,
+      height: notesHeight,
+      borderColor: colors.line,
+      borderWidth: 0.7,
+    });
+    page.drawRectangle({
+      x: marginX,
+      y: notesTop - headerHeight,
+      width: contentWidth,
+      height: headerHeight,
+      color: colors.cream,
+      borderColor: colors.line,
+      borderWidth: 0.7,
+    });
+    page.drawText(sanitizePdfText(PDF_PROFESSIONAL_NOTES_TITLE), {
+      x: marginX + 12,
+      y: notesTop - 18,
+      size: 8.3,
+      font: bold,
+      color: colors.rose,
+    });
+    page.drawText('Espaço reservado para registro manual durante a avaliação presencial.', {
+      x: marginX + 12,
+      y: notesTop - 39,
+      size: 7.2,
+      font: regular,
+      color: colors.muted,
+    });
+    for (let lineY = notesTop - 61; lineY > notesBottom + 16; lineY -= 27) {
+      page.drawLine({
+        start: { x: marginX + 12, y: lineY },
+        end: { x: pageSize[0] - marginX - 12, y: lineY },
+        thickness: 0.45,
+        color: colors.line,
+      });
+    }
   }
 
   const pages = pdfDoc.getPages();
