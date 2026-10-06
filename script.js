@@ -42,8 +42,8 @@ if(drawer){
   });
 }
 
-
 function ensureBCFooter(){
+  if(document.querySelector('footer[data-bc-footer="home"]'))return;
   const existing=document.querySelector("footer.footer");
   let footer=document.querySelector("footer.site-footer-bc");
   if(existing){
