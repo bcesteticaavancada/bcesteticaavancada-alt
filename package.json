@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:frontend": "node --test tests/anamnese/*.test.mjs"
+    "test:frontend": "node --test tests/anamnese/*.test.mjs",
+    "test:site": "node --test tests/site/*.test.mjs",
+    "test": "npm run test:frontend && npm run test:site"
   }
 }
