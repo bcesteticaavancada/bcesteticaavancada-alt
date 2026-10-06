@@ -1,0 +1,38 @@
+name: Site CI
+
+on:
+  push:
+    branches:
+      - 'work/**'
+      - main
+    paths:
+      - '**/*.html'
+      - 'styles.css'
+      - 'script.js'
+      - 'assets/**'
+      - 'tests/site/**'
+      - 'package.json'
+      - '.github/workflows/site-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - 'styles.css'
+      - 'script.js'
+      - 'assets/**'
+      - 'tests/site/**'
+      - 'package.json'
+      - '.github/workflows/site-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Existing pre-anamnese tests
+        run: npm run test:frontend
+      - name: Site regression tests
+        run: node --test tests/site/*.test.mjs
