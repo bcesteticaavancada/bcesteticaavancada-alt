@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const htmlUrl = new URL('../../index.html', import.meta.url);
 const cssUrl = new URL('../../styles.css', import.meta.url);
+const homeCssUrl = new URL('../../home-redesign.css', import.meta.url);
 const scriptUrl = new URL('../../script.js', import.meta.url);
 
 async function homeHtml() {
@@ -72,13 +73,36 @@ test('every home image has an alt attribute and real BC images are referenced', 
 });
 
 test('home CSS stays fluid and the interaction script remains external', async () => {
-  const [html, css, script] = await Promise.all([
+  const [html, css, homeCss, script] = await Promise.all([
     homeHtml(),
     readFile(cssUrl, 'utf8'),
+    readFile(homeCssUrl, 'utf8'),
     readFile(scriptUrl, 'utf8'),
   ]);
   assert.match(css, /overflow-x:\s*hidden/i);
-  assert.match(css, /@media\(max-width:800px\)/i);
+  assert.match(homeCss, /@media\(max-width:800px\)/i);
   assert.match(html, /<script\s+src=["']script\.js["']><\/script>/i);
   assert.ok(script.includes('window.BCMenuReady=true'));
+});
+
+test('home exposes four lazy video cards and one reusable dialog', async () => {
+  const html = await homeHtml();
+  const cards = html.match(/<(?:button|article)\b[^>]*data-video-src=["'][^"']+\.mp4["'][^>]*>/gi) || [];
+  assert.equal(cards.length, 4, 'expected four procedure video cards');
+  for (const card of cards) {
+    assert.match(card, /data-video-title=["'][^"']+["']/i);
+  }
+  assert.equal(/\bautoplay\b/i.test(html), false, 'initial HTML must not autoplay video');
+  assert.equal(/<video\b[^>]*\bsrc=["'][^"']+\.mp4/i.test(html), false, 'initial video element must not eagerly load MP4');
+  assert.match(html, /<dialog\b[^>]*id=["']bcVideoDialog["']/i);
+  assert.match(html, /<video\b[^>]*id=["']bcVideoPlayer["'][^>]*preload=["']none["']/i);
+});
+
+test('video controller clears media and restores focus when closing', async () => {
+  const script = await readFile(scriptUrl, 'utf8');
+  assert.match(script, /window\.BCVideoReady/);
+  assert.match(script, /\.pause\(\)/);
+  assert.match(script, /removeAttribute\(["']src["']\)/);
+  assert.match(script, /\.load\(\)/);
+  assert.match(script, /\.focus\(\)/);
 });
