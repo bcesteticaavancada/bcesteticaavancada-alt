@@ -125,18 +125,19 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   };
 
   const charsForWidth = (width: number, glyphWidth = 5.25) =>
-    Math.max(10, Math.floor((Math.max(40, width - 26)) / glyphWidth));
+    Math.max(10, Math.floor((Math.max(40, width - 24)) / glyphWidth));
 
   const fieldWidth = (span: 1 | 2 | 3) => columnWidth * span + columnGap * (span - 1);
 
   const fieldMetrics = (field: PdfField, width: number) => {
-    const labelLines = wrapPdfText(field.label, charsForWidth(width, 5.15));
-    const answerLines = wrapPdfText(field.displayValue, charsForWidth(width, 5.45));
-    const actualHeight = 22 + labelLines.length * 11.5 + 6 + answerLines.length * 13.5;
+    const labelLines = wrapPdfText(field.label, charsForWidth(width, 5.0));
+    const answerLines = wrapPdfText(field.displayValue, charsForWidth(width, 5.3));
+    const actualHeight = 16 + labelLines.length * 10 + 4 + answerLines.length * 12;
+    const estimated = estimateCardHeight(field, width);
     return {
       labelLines,
       answerLines,
-      height: Math.max(actualHeight, estimateCardHeight(field, width)),
+      height: Math.max(actualHeight, Math.min(estimated, actualHeight + 3)),
     };
   };
 
@@ -148,8 +149,8 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
     labelLines?: string[],
     answerLines?: string[],
   ) => {
-    const labels = labelLines ?? wrapPdfText(field.label, charsForWidth(width, 5.15));
-    const answers = answerLines ?? wrapPdfText(field.displayValue, charsForWidth(width, 5.45));
+    const labels = labelLines ?? wrapPdfText(field.label, charsForWidth(width, 5.0));
+    const answers = answerLines ?? wrapPdfText(field.displayValue, charsForWidth(width, 5.3));
     page.drawRectangle({
       x,
       y: y - height,
@@ -160,49 +161,49 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
       borderWidth: 0.65,
     });
 
-    let textY = y - 15;
+    let textY = y - 12;
     for (const line of labels) {
       page.drawText(sanitizePdfText(line), {
-        x: x + 12,
+        x: x + 10,
         y: textY,
-        size: 8.8,
+        size: 8.2,
         font: bold,
         color: colors.ink,
-        maxWidth: width - 24,
+        maxWidth: width - 20,
       });
-      textY -= 11.5;
+      textY -= 10;
     }
-    textY -= 5;
+    textY -= 4;
     for (const line of answers) {
       page.drawText(sanitizePdfText(line || '-'), {
-        x: x + 12,
+        x: x + 10,
         y: textY,
-        size: 9.7,
+        size: 9.2,
         font: regular,
         color: colors.muted,
-        maxWidth: width - 24,
+        maxWidth: width - 20,
       });
-      textY -= 13.5;
+      textY -= 12;
     }
   };
 
   const drawLongFullWidthField = (field: PdfField) => {
     const width = contentWidth;
-    const allAnswerLines = wrapPdfText(field.displayValue, charsForWidth(width, 5.45));
+    const allAnswerLines = wrapPdfText(field.displayValue, charsForWidth(width, 5.3));
     let offset = 0;
     let continuation = false;
 
     while (offset < allAnswerLines.length) {
-      if (y - bottomY < 92) newPage();
+      if (y - bottomY < 82) newPage();
       const label = continuation ? `${field.label} (continuação)` : field.label;
-      const labelLines = wrapPdfText(label, charsForWidth(width, 5.15));
-      const fixedHeight = 22 + labelLines.length * 11.5 + 6;
+      const labelLines = wrapPdfText(label, charsForWidth(width, 5.0));
+      const fixedHeight = 16 + labelLines.length * 10 + 4;
       const available = y - bottomY;
-      const maxLines = Math.max(1, Math.floor((available - fixedHeight - 4) / 13.5));
+      const maxLines = Math.max(1, Math.floor((available - fixedHeight - 4) / 12));
       const answerLines = allAnswerLines.slice(offset, offset + maxLines);
-      const height = fixedHeight + answerLines.length * 13.5;
+      const height = fixedHeight + answerLines.length * 12;
       drawCard(field, marginX, width, height, labelLines, answerLines);
-      y -= height + 10;
+      y -= height + 6;
       offset += answerLines.length;
       continuation = true;
       if (offset < allAnswerLines.length) newPage();
@@ -217,9 +218,9 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
         drawLongFullWidthField(row[0]);
         return;
       }
-      ensure(metrics.height + 10);
+      ensure(metrics.height + 6);
       drawCard(row[0], marginX, width, metrics.height, metrics.labelLines, metrics.answerLines);
-      y -= metrics.height + 10;
+      y -= metrics.height + 6;
       return;
     }
 
@@ -228,7 +229,7 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
       return { field, width, metrics: fieldMetrics(field, width) };
     });
     const rowHeight = Math.max(...metrics.map((item) => item.metrics.height));
-    ensure(rowHeight + 10);
+    ensure(rowHeight + 6);
 
     let usedColumns = 0;
     for (const item of metrics) {
@@ -243,25 +244,25 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
       );
       usedColumns += item.field.span;
     }
-    y -= rowHeight + 10;
+    y -= rowHeight + 6;
   };
 
   const drawSectionTitle = (title: string) => {
     page.drawText(sanitizePdfText(title).toUpperCase(), {
       x: marginX,
       y,
-      size: 9.2,
+      size: 8.8,
       font: bold,
       color: colors.rose,
     });
-    y -= 7;
+    y -= 5;
     page.drawLine({
       start: { x: marginX, y },
       end: { x: pageSize[0] - marginX, y },
-      thickness: 0.75,
+      thickness: 0.7,
       color: colors.line,
     });
-    y -= 16;
+    y -= 12;
   };
 
   const renderSection = (section: PdfSection) => {
@@ -269,15 +270,15 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
     const rows = packFieldsIntoRows(section.fields);
     const firstRow = rows[0];
     const firstHeight = firstRow.length === 1 && firstRow[0].span === 3
-      ? Math.min(90, fieldMetrics(firstRow[0], contentWidth).height)
+      ? Math.min(82, fieldMetrics(firstRow[0], contentWidth).height)
       : Math.min(
-        90,
+        82,
         Math.max(...firstRow.map((field) => fieldMetrics(field, fieldWidth(field.span)).height)),
       );
-    ensure(28 + firstHeight);
+    ensure(22 + firstHeight);
     drawSectionTitle(section.title);
     for (const row of rows) drawRow(row);
-    y -= 4;
+    y -= 2;
   };
 
   drawBrandHeader();
@@ -298,7 +299,7 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
     font: regular,
     color: colors.muted,
   });
-  y -= 31;
+  y -= 27;
 
   for (const section of buildPdfSections(input)) renderSection(section);
 
@@ -330,30 +331,30 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   });
 
   const disclaimer = 'Esta pré-anamnese organiza informações antes do atendimento e não substitui a avaliação profissional. A rubrica confirma o preenchimento, mas não substitui a assinatura formal nem os termos específicos do procedimento.';
-  const disclaimerLines = wrapPdfText(disclaimer, 96);
-  ensure(disclaimerLines.length * 10 + 28);
+  const disclaimerLines = wrapPdfText(disclaimer, 100);
+  const disclaimerHeight = disclaimerLines.length * 9 + 14;
+  ensure(disclaimerHeight + 8);
   page.drawRectangle({
     x: marginX,
-    y: y - disclaimerLines.length * 10 - 18,
+    y: y - disclaimerHeight,
     width: contentWidth,
-    height: disclaimerLines.length * 10 + 18,
+    height: disclaimerHeight,
     color: colors.white,
     borderColor: colors.line,
     borderWidth: 0.6,
   });
-  let disclaimerY = y - 13;
+  let disclaimerY = y - 10;
   for (const line of disclaimerLines) {
-    page.drawText(line, { x: marginX + 12, y: disclaimerY, size: 7.8, font: regular, color: colors.muted });
-    disclaimerY -= 10;
+    page.drawText(line, { x: marginX + 10, y: disclaimerY, size: 7.5, font: regular, color: colors.muted });
+    disclaimerY -= 9;
   }
-  y -= disclaimerLines.length * 10 + 30;
+  y -= disclaimerHeight + 8;
 
-  ensure(196);
+  ensure(150);
   drawSectionTitle('Rubrica de confirmação e assinatura presencial');
-  ensure(166);
   if (embeddedSignature) {
     const maxW = 190;
-    const maxH = 62;
+    const maxH = 56;
     const scale = Math.min(maxW / embeddedSignature.width, maxH / embeddedSignature.height);
     page.drawImage(embeddedSignature, {
       x: marginX,
@@ -362,23 +363,23 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
       height: embeddedSignature.height * scale,
     });
   }
-  page.drawLine({ start: { x: marginX, y: y - 66 }, end: { x: 260, y: y - 66 }, thickness: 0.8, color: colors.ink });
-  page.drawText('Rubrica de confirmação da pré-anamnese', { x: marginX, y: y - 79, size: 7.7, font: regular, color: colors.muted });
-  page.drawLine({ start: { x: 330, y: y - 66 }, end: { x: pageSize[0] - marginX, y: y - 66 }, thickness: 0.8, color: colors.ink });
-  page.drawText('Assinatura da profissional responsável (presencial)', { x: 330, y: y - 79, size: 7.7, font: regular, color: colors.muted });
+  page.drawLine({ start: { x: marginX, y: y - 60 }, end: { x: 260, y: y - 60 }, thickness: 0.8, color: colors.ink });
+  page.drawText('Rubrica de confirmação da pré-anamnese', { x: marginX, y: y - 72, size: 7.5, font: regular, color: colors.muted });
+  page.drawLine({ start: { x: 330, y: y - 60 }, end: { x: pageSize[0] - marginX, y: y - 60 }, thickness: 0.8, color: colors.ink });
+  page.drawText('Assinatura da profissional responsável (presencial)', { x: 330, y: y - 72, size: 7.5, font: regular, color: colors.muted });
   page.drawText(`Confirmação registrada em: ${formatDateTime(input.rubricConfirmedAt || input.createdAt)}`, {
     x: marginX,
-    y: y - 102,
-    size: 8,
+    y: y - 93,
+    size: 7.8,
     font: regular,
     color: colors.ink,
   });
   if (input.rubricSha256) {
-    page.drawText('SHA-256 da rubrica:', { x: marginX, y: y - 118, size: 7.3, font: bold, color: colors.muted });
+    page.drawText('SHA-256 da rubrica:', { x: marginX, y: y - 108, size: 7, font: bold, color: colors.muted });
     page.drawText(sanitizePdfText(input.rubricSha256), {
       x: marginX,
-      y: y - 130,
-      size: 6.4,
+      y: y - 119,
+      size: 6.2,
       font: regular,
       color: colors.muted,
       maxWidth: contentWidth,
