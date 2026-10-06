@@ -85,10 +85,10 @@ test('home CSS stays fluid and the interaction script remains external', async (
   assert.ok(script.includes('window.BCMenuReady=true'));
 });
 
-test('home exposes four lazy encoded video cards and one reusable dialog', async () => {
+test('home exposes four lazy procedure video cards and one reusable dialog', async () => {
   const html = await homeHtml();
-  const cards = html.match(/<(?:button|article)\b[^>]*data-video-src=["'][^"']+\.txt["'][^>]*>/gi) || [];
-  assert.equal(cards.length, 4, 'expected four procedure video cards backed by lazy text media');
+  const cards = html.match(/<(?:button|article)\b[^>]*data-video-src=["'][^"']+\.mp4["'][^>]*>/gi) || [];
+  assert.equal(cards.length, 4, 'expected four procedure video cards');
   for (const card of cards) {
     assert.match(card, /data-video-title=["'][^"']+["']/i);
   }
@@ -101,6 +101,7 @@ test('home exposes four lazy encoded video cards and one reusable dialog', async
 test('video controller resolves encoded media only after interaction and restores focus', async () => {
   const script = await readFile(scriptUrl, 'utf8');
   assert.match(script, /window\.BCVideoReady/);
+  assert.match(script, /\.replace\([^\n]+\.txt/);
   assert.match(script, /fetch\(src/);
   assert.match(script, /response\.text\(\)/);
   assert.match(script, /\.pause\(\)/);
