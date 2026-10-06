@@ -1,4 +1,5 @@
 export const PDF_DOCUMENT_TITLE = 'Pré-Avaliação Estética Individualizada';
+export const PDF_PROFESSIONAL_NOTES_TITLE = 'Anotações da avaliação presencial — uso profissional';
 
 export type PdfSpan = 1 | 2 | 3;
 
