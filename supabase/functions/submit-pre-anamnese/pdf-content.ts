@@ -140,7 +140,8 @@ export function displayValue(value: unknown): string {
 
 const COMPACT_KEYS = new Set([
   'cpf', 'idade', 'sexo', 'pele', 'gest', 'amamenta', 'alergia', 'nic', 'alcool', 'cardio', 'acomp', 'derm',
-  'solIntenso', 'protetor', 'manchasPos', 'reacaoEst', 'recRecuperacao', 'medCont', 'histEst',
+  'solIntenso', 'protetor', 'manchasPos', 'reacaoEst', 'recRecuperacao', 'medCont', 'histEst', 'condSaude',
+  'recente', 'mPeelAnt', 'mPeelReac', 'mMicroAnt', 'mTecAnt',
 ]);
 
 const MEDIUM_KEYS = new Set([
@@ -219,17 +220,22 @@ function hasMeaningfulValue(value: unknown): boolean {
 
 export function buildPdfSections(input: PdfContentInput): PdfSection[] {
   const answers = input.answers || {};
+  const identificationFields: PdfField[] = [
+    makeField('nome', input.patient.name, { span: 3 }),
+    makeField('cpf', formatCpf(input.patient.cpf), { span: 1, importance: 'critical' }),
+    makeField('nascimento', input.patient.birthDate || '-', { span: 1 }),
+    makeField('idade', input.patient.age ?? '-', { span: 1 }),
+  ];
+  if (hasMeaningfulValue(answers.sexo)) identificationFields.push(makeField('sexo', answers.sexo, { span: 1 }));
+  identificationFields.push(
+    makeField('whatsapp', input.patient.phone, { span: 2 }),
+    makeField('email', input.patient.email || '-', { span: 2 }),
+  );
+
   const sections: PdfSection[] = [
     {
       title: 'Identificação',
-      fields: [
-        makeField('nome', input.patient.name, { span: 3 }),
-        makeField('cpf', formatCpf(input.patient.cpf), { span: 1, importance: 'critical' }),
-        makeField('nascimento', input.patient.birthDate || '-', { span: 1 }),
-        makeField('idade', input.patient.age ?? '-', { span: 1 }),
-        makeField('whatsapp', input.patient.phone, { span: 2 }),
-        makeField('email', input.patient.email || '-', { span: 1 }),
-      ],
+      fields: identificationFields,
     },
     {
       title: 'Objetivo da avaliação',
@@ -248,7 +254,7 @@ export function buildPdfSections(input: PdfContentInput): PdfSection[] {
   }
 
   const known = new Set(SECTION_KEYS.flatMap((section) => section.keys));
-  const ignored = new Set(['nome', 'cpf', 'nascimento', 'idade', 'whatsapp', 'email', 'consentimento1', 'consentimento2', 'procedimentos']);
+  const ignored = new Set(['nome', 'cpf', 'nascimento', 'idade', 'whatsapp', 'email', 'sexo', 'consentimento1', 'consentimento2', 'procedimentos']);
   const remaining = Object.entries(answers)
     .filter(([key, value]) => !known.has(key) && !ignored.has(key) && hasMeaningfulValue(value))
     .map(([key, value]) => makeField(key, value));
@@ -257,13 +263,13 @@ export function buildPdfSections(input: PdfContentInput): PdfSection[] {
   return sections;
 }
 
-function summaryField(key: string, label: string, value: unknown): PdfField | null {
+function summaryField(key: string, label: string, value: unknown, span: PdfSpan): PdfField | null {
   if (!hasMeaningfulValue(value)) return null;
   return {
     key,
     label,
     displayValue: displayValue(value),
-    span: 3,
+    span,
     importance: 'critical',
   };
 }
@@ -271,13 +277,13 @@ function summaryField(key: string, label: string, value: unknown): PdfField | nu
 export function buildStructuredSummary(input: PdfContentInput): PdfSection {
   const answers = input.answers || {};
   const candidates = [
-    summaryField('summaryObjetivos', 'Objetivos declarados', answers.objetivos),
-    summaryField('summaryObjetivoTexto', 'Descrição do objetivo', answers.objetivoTexto),
-    summaryField('summaryHistorico', 'Histórico estético informado', answers.histQual ?? answers.histEst),
-    summaryField('summarySaude', 'Informações de saúde declaradas', answers.saudeDesc ?? answers.condSaude),
-    summaryField('summaryAlergias', 'Alergias declaradas', answers.alergiaDesc ?? answers.alergia),
-    summaryField('summaryMedicamentos', 'Medicamentos declarados', answers.medDesc ?? answers.medCont),
-    summaryField('summaryObservacoes', 'Observações', answers.observacoes),
+    summaryField('summaryObjetivos', 'Objetivos declarados', answers.objetivos, 2),
+    summaryField('summaryHistorico', 'Histórico estético informado', answers.histQual ?? answers.histEst, 1),
+    summaryField('summaryObjetivoTexto', 'Descrição do objetivo', answers.objetivoTexto, 3),
+    summaryField('summarySaude', 'Informações de saúde declaradas', answers.saudeDesc ?? answers.condSaude, 1),
+    summaryField('summaryAlergias', 'Alergias declaradas', answers.alergiaDesc ?? answers.alergia, 1),
+    summaryField('summaryMedicamentos', 'Medicamentos declarados', answers.medDesc ?? answers.medCont, 2),
+    summaryField('summaryObservacoes', 'Observações', answers.observacoes, 3),
   ];
 
   return {
