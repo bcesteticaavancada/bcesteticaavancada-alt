@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/pre-anamnese-native
+      - feat/bc-editorial-redesign
   pull_request:
     branches:
       - main
@@ -20,6 +21,8 @@ jobs:
           node-version: '22'
       - name: Run frontend tests
         run: npm run test:frontend
+      - name: Run site tests when present
+        run: npm run test:site --if-present
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
