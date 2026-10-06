@@ -29,3 +29,13 @@ jobs:
           deno-version: v2.x
       - name: Run Supabase function tests
         run: deno test --config supabase/functions/submit-pre-anamnese/deno.json --allow-env --allow-net supabase/functions/submit-pre-anamnese/*_test.ts
+      - name: Generate PDF preview
+        if: github.ref == 'refs/heads/feat/bc-editorial-redesign'
+        run: deno run --config supabase/functions/submit-pre-anamnese/deno.json --allow-write --allow-net scripts/generate-pre-anamnese-preview.ts
+      - name: Upload PDF preview
+        if: github.ref == 'refs/heads/feat/bc-editorial-redesign'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-anamnese-preview
+          path: artifacts/pre-anamnese-preview.pdf
+          if-no-files-found: error
