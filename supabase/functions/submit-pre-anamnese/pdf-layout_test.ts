@@ -41,6 +41,18 @@ Deno.test('packFieldsIntoRows always places full-width fields alone and never ex
   }
 });
 
+Deno.test('packFieldsIntoRows expands incomplete rows to use all three columns', () => {
+  const one = packFieldsIntoRows([field('single', 1)]);
+  assertEquals(one[0].map((item) => item.span), [3]);
+
+  const two = packFieldsIntoRows([field('a', 1), field('b', 1)]);
+  assertEquals(two[0].reduce((sum, item) => sum + item.span, 0), 3);
+  assertEquals(two[0].map((item) => item.span), [1, 2]);
+
+  const medium = packFieldsIntoRows([field('medium', 2)]);
+  assertEquals(medium[0].map((item) => item.span), [3]);
+});
+
 Deno.test('estimateCardHeight grows for multiline or long narrative content', () => {
   const short = estimateCardHeight(field('curto', 1, 'Não'), 150);
   const long = estimateCardHeight(field('longo', 3, 'Texto de observação '.repeat(30)), 450);
