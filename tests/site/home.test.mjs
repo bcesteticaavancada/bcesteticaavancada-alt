@@ -85,22 +85,24 @@ test('home CSS stays fluid and the interaction script remains external', async (
   assert.ok(script.includes('window.BCMenuReady=true'));
 });
 
-test('home exposes four lazy video cards and one reusable dialog', async () => {
+test('home exposes four lazy encoded video cards and one reusable dialog', async () => {
   const html = await homeHtml();
-  const cards = html.match(/<(?:button|article)\b[^>]*data-video-src=["'][^"']+\.mp4["'][^>]*>/gi) || [];
-  assert.equal(cards.length, 4, 'expected four procedure video cards');
+  const cards = html.match(/<(?:button|article)\b[^>]*data-video-src=["'][^"']+\.txt["'][^>]*>/gi) || [];
+  assert.equal(cards.length, 4, 'expected four procedure video cards backed by lazy text media');
   for (const card of cards) {
     assert.match(card, /data-video-title=["'][^"']+["']/i);
   }
   assert.equal(/\bautoplay\b/i.test(html), false, 'initial HTML must not autoplay video');
-  assert.equal(/<video\b[^>]*\bsrc=["'][^"']+\.mp4/i.test(html), false, 'initial video element must not eagerly load MP4');
+  assert.equal(/<video\b[^>]*\bsrc=["'][^"']+/i.test(html), false, 'initial video element must not eagerly load media');
   assert.match(html, /<dialog\b[^>]*id=["']bcVideoDialog["']/i);
   assert.match(html, /<video\b[^>]*id=["']bcVideoPlayer["'][^>]*preload=["']none["']/i);
 });
 
-test('video controller clears media and restores focus when closing', async () => {
+test('video controller resolves encoded media only after interaction and restores focus', async () => {
   const script = await readFile(scriptUrl, 'utf8');
   assert.match(script, /window\.BCVideoReady/);
+  assert.match(script, /fetch\(src/);
+  assert.match(script, /response\.text\(\)/);
   assert.match(script, /\.pause\(\)/);
   assert.match(script, /removeAttribute\(["']src["']\)/);
   assert.match(script, /\.load\(\)/);
