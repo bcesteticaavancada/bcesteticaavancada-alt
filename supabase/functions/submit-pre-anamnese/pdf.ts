@@ -1,15 +1,20 @@
-export function sanitizePdfText(value: unknown): string {
-  const normalized = String(value ?? '')
-    .normalize('NFKC')
-    .replace(/[“”„‟]/g, '"')
-    .replace(/[‘’‚‛]/g, "'")
-    .replace(/[–—―]/g, '-')
-    .replace(/…/g, '...')
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '');
-  return Array.from(normalized, (ch) => {
-    const cp = ch.codePointAt(0) ?? 0;
-    return ch === '\n' || ch === '\r' || (cp >= 0x20 && cp <= 0x7e) || (cp >= 0xa0 && cp <= 0xff) ? ch : '?';
-  }).join('');
+import {
+  PDF_DOCUMENT_TITLE,
+  PDF_PROFESSIONAL_NOTES_TITLE,
+  buildPdfSections,
+  buildStructuredSummary,
+  displayValue,
+  sanitizePdfText,
+  type PdfContentInput,
+  type PdfField,
+  type PdfSection,
+} from './pdf-content.ts';
+import { estimateCardHeight, packFieldsIntoRows } from './pdf-layout.ts';
+
+export { sanitizePdfText };
+
+export function formatPageLabel(pageNumber: number, pageCount: number): string {
+  return `Página ${pageNumber} de ${pageCount}`;
 }
 
 export function wrapPdfText(value: unknown, maxChars = 78): string[] {
@@ -18,68 +23,25 @@ export function wrapPdfText(value: unknown, maxChars = 78): string[] {
   const out: string[] = [];
   for (const paragraph of text.split(/\r?\n/)) {
     const words = paragraph.trim().split(/\s+/).filter(Boolean);
-    if (!words.length) { out.push(''); continue; }
+    if (!words.length) {
+      out.push('');
+      continue;
+    }
     let line = '';
     for (const word of words) {
-      if (!line) { line = word; continue; }
+      if (!line) {
+        line = word;
+        continue;
+      }
       if (`${line} ${word}`.length <= maxChars) line += ` ${word}`;
-      else { out.push(line); line = word; }
+      else {
+        out.push(line);
+        line = word;
+      }
     }
     if (line) out.push(line);
   }
   return out.length ? out : ['-'];
-}
-
-function displayValue(value: unknown): string {
-  if (value === true) return 'Sim';
-  if (value === false) return 'Não';
-  if (value === null || value === undefined || value === '') return '-';
-  if (Array.isArray(value)) return value.map(displayValue).join(', ');
-  if (typeof value === 'object') return Object.entries(value as Record<string, unknown>)
-    .map(([key, child]) => `${humanLabel(key)}: ${displayValue(child)}`).join(' | ');
-  return sanitizePdfText(value);
-}
-
-function humanLabel(key: string): string {
-  const exact: Record<string, string> = {
-    nome: 'Nome completo', nascimento: 'Data de nascimento', idade: 'Idade', whatsapp: 'WhatsApp', email: 'E-mail', sexo: 'Sexo',
-    procedimentos: 'Qual atendimento você procura?', outroProc: 'Outro procedimento / descrição',
-    objetivos: 'O que você deseja melhorar?', objetivoTexto: 'Conte um pouco mais sobre seu objetivo',
-    histEst: 'Já realizou procedimentos estéticos?', histQual: 'Qual procedimento e quando?', histReacao: 'Teve reação ou complicação?',
-    histExperiencia: 'Como foi a experiência / há algo importante para informar?',
-    pele: 'Como considera sua pele?', solIntenso: 'Teve exposição solar intensa recentemente?', condPele: 'Apresenta atualmente',
-    manchasPos: 'Já apresentou manchas após procedimentos ou inflamações?', quandoSol: 'Quando foi a exposição solar?', protetor: 'Usa protetor solar?',
-    condSaude: 'Possui ou já teve condição de saúde importante?', saudeDesc: 'Se sim, descreva',
-    cardio: 'Histórico de problemas cardíacos?', cardioDesc: 'Detalhes cardíacos / pressão / desmaios, se houver',
-    acomp: 'Possui condição médica em acompanhamento?', medCont: 'Faz uso contínuo de medicamentos?',
-    medDesc: 'Medicamentos: nome, dosagem se souber e motivo',
-    derm: 'Usa/usou recentemente medicamentos ou tratamentos dermatológicos?', dermDesc: 'Quais e quando?',
-    alergia: 'Possui alergia conhecida?', alergiaDesc: 'Quais alergias?',
-    reacaoEst: 'Já teve reação alérgica durante procedimento estético?', reacaoDesc: 'Se sim, explique',
-    alcool: 'Consome bebidas alcoólicas?', alcFreq: 'Frequência do consumo de bebidas alcoólicas', alcObs: 'Observação sobre consumo de bebidas alcoólicas',
-    nic: 'Fuma ou utiliza produtos com nicotina?', nicFreq: 'Frequência de uso de nicotina', nicTempo: 'Há quanto tempo utiliza nicotina?',
-    gest: 'Existe possibilidade de gestação?', amamenta: 'Está amamentando?',
-    recente: 'Realizou cirurgia ou procedimento médico/estético recentemente?', recQual: 'Qual procedimento?', recQuando: 'Quando?',
-    recRecuperacao: 'Está em recuperação?', recOrientacao: 'Existe orientação médica relacionada?',
-    mFaceReg: 'Módulo facial — Região', mFaceObj: 'Módulo facial — O que espera melhorar?',
-    mBodyReg: 'Módulo corporal / bem-estar — Região', mBodyObj: 'Módulo corporal / bem-estar — Objetivo',
-    mVascReg: 'Módulo microvasos — Região', mVascTempo: 'Módulo microvasos — Há quanto tempo?', mVascAnt: 'Módulo microvasos — Tratamento anterior',
-    mPeelAnt: 'Módulo peeling — Já realizou peeling anteriormente?', mPeelReac: 'Módulo peeling — Teve reação importante?', mPeelProd: 'Módulo peeling — Produtos dermatológicos atuais',
-    mMicroAnt: 'Módulo microagulhamento — Microagulhamento anterior', mMicroRec: 'Módulo microagulhamento — Como foi a recuperação?',
-    mTecAnt: 'Módulo tecnologias — Já realizou tratamento semelhante?', mTecReac: 'Módulo tecnologias — Teve reação relevante?',
-    mOrient: 'Orientação profissional — O que gostaria de melhorar?', mOutro: 'Outro procedimento — Descreva',
-    expectativa: 'O que você espera alcançar com o tratamento?',
-    resultadoEsp: 'Existe algum resultado específico que gostaria de conversar com a profissional?',
-    observacoes: 'Existe algo mais que gostaria de nos contar?',
-    consentimento1: 'Veracidade das informações', consentimento2: 'Tratamento das informações',
-  };
-  if (exact[key]) return exact[key];
-  return key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').replace(/^./, (char) => char.toUpperCase());
-}
-
-function formatCpf(value: string): string {
-  const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
-  return digits.length === 11 ? `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}` : digits || '-';
 }
 
 function formatDateTime(value: string | Date): string {
@@ -87,13 +49,9 @@ function formatDateTime(value: string | Date): string {
   return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 }
 
-export type PdfInput = {
+export type PdfInput = PdfContentInput & {
   publicCode: string;
   createdAt: string | Date;
-  patient: { name: string; cpf?: string; birthDate?: string; age?: number; phone: string; email?: string };
-  procedure: string;
-  answers: Record<string, unknown>;
-  consents: Record<string, unknown>;
   signaturePngBytes: Uint8Array;
   logoPngBytes?: Uint8Array | null;
   rubricSha256?: string;
@@ -109,13 +67,19 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   const pageSize: [number, number] = [595.28, 841.89];
   const marginX = 46;
   const topY = 785;
+  const bodyTopY = 775;
   const bottomY = 70;
+  const contentWidth = pageSize[0] - marginX * 2;
+  const columnGap = 8;
+  const columnWidth = (contentWidth - columnGap * 2) / 3;
+  const maxBodyHeight = bodyTopY - bottomY;
   const colors = {
     ink: rgb(0.18, 0.15, 0.13),
     muted: rgb(0.43, 0.38, 0.35),
     rose: rgb(0.62, 0.43, 0.39),
     gold: rgb(0.72, 0.57, 0.32),
     cream: rgb(0.97, 0.95, 0.92),
+    creamStrong: rgb(0.945, 0.91, 0.865),
     line: rgb(0.86, 0.82, 0.78),
   };
 
@@ -123,137 +87,375 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   let y = topY;
   let embeddedLogo: any = null;
   let embeddedSignature: any = null;
-  try { if (input.logoPngBytes?.length) embeddedLogo = await pdfDoc.embedPng(input.logoPngBytes); } catch { embeddedLogo = null; }
-  try { if (input.signaturePngBytes?.length) embeddedSignature = await pdfDoc.embedPng(input.signaturePngBytes); } catch { embeddedSignature = null; }
+  try {
+    if (input.logoPngBytes?.length) embeddedLogo = await pdfDoc.embedPng(input.logoPngBytes);
+  } catch {
+    embeddedLogo = null;
+  }
+  try {
+    if (input.signaturePngBytes?.length) embeddedSignature = await pdfDoc.embedPng(input.signaturePngBytes);
+  } catch {
+    embeddedSignature = null;
+  }
 
   const drawBrandHeader = () => {
     page.drawRectangle({ x: 0, y: 802, width: pageSize[0], height: 40, color: colors.cream });
     if (embeddedLogo) {
       const scale = Math.min(54 / embeddedLogo.width, 34 / embeddedLogo.height);
-      page.drawImage(embeddedLogo, { x: marginX, y: 805, width: embeddedLogo.width * scale, height: embeddedLogo.height * scale });
+      page.drawImage(embeddedLogo, {
+        x: marginX,
+        y: 805,
+        width: embeddedLogo.width * scale,
+        height: embeddedLogo.height * scale,
+      });
     }
-    page.drawText('BC ESTÉTICA AVANÇADA', { x: embeddedLogo ? 112 : marginX, y: 822, size: 10, font: bold, color: colors.ink });
-    page.drawText('Ficha de Pré-Anamnese', { x: embeddedLogo ? 112 : marginX, y: 807, size: 9, font: regular, color: colors.muted });
-    page.drawLine({ start: { x: marginX, y: 798 }, end: { x: pageSize[0] - marginX, y: 798 }, thickness: 1, color: colors.gold });
+    const textX = embeddedLogo ? 112 : marginX;
+    page.drawText('BC ESTÉTICA AVANÇADA', { x: textX, y: 822, size: 10, font: bold, color: colors.ink });
+    page.drawText(PDF_DOCUMENT_TITLE, { x: textX, y: 807, size: 8.6, font: regular, color: colors.muted });
+    page.drawLine({
+      start: { x: marginX, y: 798 },
+      end: { x: pageSize[0] - marginX, y: 798 },
+      thickness: 1,
+      color: colors.gold,
+    });
   };
 
   const newPage = () => {
     page = pdfDoc.addPage(pageSize);
-    y = topY;
     drawBrandHeader();
-    y = 775;
+    y = bodyTopY;
   };
 
-  const ensure = (height: number) => { if (y - height < bottomY) newPage(); };
-
-  const drawSection = (title: string) => {
-    ensure(34);
-    page.drawText(sanitizePdfText(title).toUpperCase(), { x: marginX, y, size: 10, font: bold, color: colors.rose });
-    y -= 7;
-    page.drawLine({ start: { x: marginX, y }, end: { x: pageSize[0] - marginX, y }, thickness: 0.8, color: colors.line });
-    y -= 17;
+  const ensure = (height: number) => {
+    if (y - height < bottomY) newPage();
   };
 
-  const drawField = (label: string, value: unknown) => {
-    const questionLines = wrapPdfText(label, 66);
-    const answerLines = wrapPdfText(displayValue(value), 66);
-    const innerHeight = questionLines.length * 13 + 8 + answerLines.length * 15;
-    const height = innerHeight + 22;
-    ensure(height);
+  const charsForWidth = (width: number, glyphWidth = 5.25) =>
+    Math.max(10, Math.floor((Math.max(40, width - 24)) / glyphWidth));
 
-    const boxTop = y + 7;
-    const boxHeight = innerHeight + 12;
+  const fieldWidth = (span: 1 | 2 | 3) => columnWidth * span + columnGap * (span - 1);
+
+  const fieldMetrics = (field: PdfField, width: number) => {
+    const labelLines = wrapPdfText(field.label, charsForWidth(width, 5.0));
+    const answerLines = wrapPdfText(field.displayValue, charsForWidth(width, 5.3));
+    const actualHeight = 16 + labelLines.length * 10 + 4 + answerLines.length * 12;
+    const estimated = estimateCardHeight(field, width);
+    return {
+      labelLines,
+      answerLines,
+      height: Math.max(actualHeight, Math.min(estimated, actualHeight + 3)),
+    };
+  };
+
+  const drawCard = (
+    field: PdfField,
+    x: number,
+    width: number,
+    height: number,
+    labelLines?: string[],
+    answerLines?: string[],
+  ) => {
+    const labels = labelLines ?? wrapPdfText(field.label, charsForWidth(width, 5.0));
+    const answers = answerLines ?? wrapPdfText(field.displayValue, charsForWidth(width, 5.3));
     page.drawRectangle({
-      x: marginX,
-      y: boxTop - boxHeight,
-      width: pageSize[0] - marginX * 2,
-      height: boxHeight,
-      color: colors.cream,
+      x,
+      y: y - height,
+      width,
+      height,
+      color: field.importance === 'critical' ? colors.creamStrong : colors.cream,
       borderColor: colors.line,
-      borderWidth: 0.6,
+      borderWidth: 0.65,
     });
 
-    let fieldY = y - 5;
-    for (const line of questionLines) {
+    let textY = y - 12;
+    for (const line of labels) {
       page.drawText(sanitizePdfText(line), {
-        x: marginX + 14, y: fieldY, size: 10.2, font: bold, color: colors.ink,
-        maxWidth: pageSize[0] - marginX * 2 - 28,
+        x: x + 10,
+        y: textY,
+        size: 8.2,
+        font: bold,
+        color: colors.ink,
+        maxWidth: width - 20,
       });
-      fieldY -= 13;
+      textY -= 10;
+    }
+    textY -= 4;
+    for (const line of answers) {
+      page.drawText(sanitizePdfText(line || '-'), {
+        x: x + 10,
+        y: textY,
+        size: 9.2,
+        font: regular,
+        color: colors.muted,
+        maxWidth: width - 20,
+      });
+      textY -= 12;
+    }
+  };
+
+  const drawLongFullWidthField = (field: PdfField) => {
+    const width = contentWidth;
+    const allAnswerLines = wrapPdfText(field.displayValue, charsForWidth(width, 5.3));
+    let offset = 0;
+    let continuation = false;
+
+    while (offset < allAnswerLines.length) {
+      if (y - bottomY < 82) newPage();
+      const label = continuation ? `${field.label} (continuação)` : field.label;
+      const labelLines = wrapPdfText(label, charsForWidth(width, 5.0));
+      const fixedHeight = 16 + labelLines.length * 10 + 4;
+      const available = y - bottomY;
+      const maxLines = Math.max(1, Math.floor((available - fixedHeight - 4) / 12));
+      const answerLines = allAnswerLines.slice(offset, offset + maxLines);
+      const height = fixedHeight + answerLines.length * 12;
+      drawCard(field, marginX, width, height, labelLines, answerLines);
+      y -= height + 6;
+      offset += answerLines.length;
+      continuation = true;
+      if (offset < allAnswerLines.length) newPage();
+    }
+  };
+
+  const drawRow = (row: PdfField[]) => {
+    if (row.length === 1 && row[0].span === 3) {
+      const width = contentWidth;
+      const metrics = fieldMetrics(row[0], width);
+      if (metrics.height > maxBodyHeight - 20) {
+        drawLongFullWidthField(row[0]);
+        return;
+      }
+      ensure(metrics.height + 6);
+      drawCard(row[0], marginX, width, metrics.height, metrics.labelLines, metrics.answerLines);
+      y -= metrics.height + 6;
+      return;
     }
 
-    fieldY -= 4;
-    for (const line of answerLines) {
-      page.drawText(line || '-', {
-        x: marginX + 14, y: fieldY, size: 11.2, font: regular, color: colors.muted,
-        maxWidth: pageSize[0] - marginX * 2 - 28,
-      });
-      fieldY -= 15;
-    }
+    const metrics = row.map((field) => {
+      const width = fieldWidth(field.span);
+      return { field, width, metrics: fieldMetrics(field, width) };
+    });
+    const rowHeight = Math.max(...metrics.map((item) => item.metrics.height));
+    ensure(rowHeight + 6);
 
-    y = boxTop - boxHeight - 12;
+    let usedColumns = 0;
+    for (const item of metrics) {
+      const x = marginX + usedColumns * (columnWidth + columnGap);
+      drawCard(
+        item.field,
+        x,
+        item.width,
+        rowHeight,
+        item.metrics.labelLines,
+        item.metrics.answerLines,
+      );
+      usedColumns += item.field.span;
+    }
+    y -= rowHeight + 6;
+  };
+
+  const drawSectionTitle = (title: string) => {
+    page.drawText(sanitizePdfText(title).toUpperCase(), {
+      x: marginX,
+      y,
+      size: 8.8,
+      font: bold,
+      color: colors.rose,
+    });
+    y -= 5;
+    page.drawLine({
+      start: { x: marginX, y },
+      end: { x: pageSize[0] - marginX, y },
+      thickness: 0.7,
+      color: colors.line,
+    });
+    y -= 12;
+  };
+
+  const renderSection = (section: PdfSection) => {
+    if (!section.fields.length) return;
+    const rows = packFieldsIntoRows(section.fields);
+    const firstRow = rows[0];
+    const firstHeight = firstRow.length === 1 && firstRow[0].span === 3
+      ? Math.min(82, fieldMetrics(firstRow[0], contentWidth).height)
+      : Math.min(
+        82,
+        Math.max(...firstRow.map((field) => fieldMetrics(field, fieldWidth(field.span)).height)),
+      );
+    ensure(22 + firstHeight);
+    drawSectionTitle(section.title);
+    for (const row of rows) drawRow(row);
+    y -= 2;
   };
 
   drawBrandHeader();
   y = 771;
-  page.drawText('FICHA DE PRÉ-ANAMNESE', { x: marginX, y, size: 20, font: bold, color: colors.ink });
+  page.drawText(PDF_DOCUMENT_TITLE.toUpperCase(), { x: marginX, y, size: 17.5, font: bold, color: colors.ink });
   y -= 21;
-  page.drawText(`Código: ${sanitizePdfText(input.publicCode)}`, { x: marginX, y, size: 9, font: bold, color: colors.rose });
-  page.drawText(`Gerada em: ${formatDateTime(input.createdAt)}`, { x: 330, y, size: 8.5, font: regular, color: colors.muted });
-  y -= 31;
+  page.drawText(`Código: ${sanitizePdfText(input.publicCode)}`, {
+    x: marginX,
+    y,
+    size: 9,
+    font: bold,
+    color: colors.rose,
+  });
+  page.drawText(`Gerada em: ${formatDateTime(input.createdAt)}`, {
+    x: 330,
+    y,
+    size: 8.5,
+    font: regular,
+    color: colors.muted,
+  });
+  y -= 27;
 
-  drawSection('Identificação');
-  drawField('Nome completo', input.patient.name);
-  drawField('CPF', formatCpf(input.patient.cpf || ''));
-  drawField('Data de nascimento', input.patient.birthDate || '-');
-  drawField('Idade', input.patient.age ?? '-');
-  drawField('WhatsApp', input.patient.phone);
-  drawField('E-mail', input.patient.email || '-');
+  for (const section of buildPdfSections(input)) renderSection(section);
 
-  drawSection('Procedimento');
-  drawField('Procedimento(s) de interesse', input.procedure);
+  const summary = buildStructuredSummary(input);
+  summary.fields = summary.fields.filter((field) => {
+    const normalized = field.displayValue.trim().toLowerCase();
+    return !['-', 'não', 'nao', 'não se aplica', 'nao se aplica'].includes(normalized);
+  });
+  if (summary.fields.length) renderSection(summary);
 
-  drawSection('Respostas da pré-anamnese');
-  for (const [key, value] of Object.entries(input.answers || {})) {
-    if (['nome', 'nascimento', 'idade', 'whatsapp', 'email', 'consentimento1', 'consentimento2'].includes(key)) continue;
-    drawField(humanLabel(key), value);
-  }
+  renderSection({
+    title: 'Consentimentos',
+    fields: [
+      {
+        key: 'consentTruthful',
+        label: 'Informações declaradas verdadeiras',
+        displayValue: displayValue(input.consents?.truthful === true),
+        span: 1,
+        importance: 'critical',
+      },
+      {
+        key: 'consentProcessing',
+        label: 'Tratamento para atendimento',
+        displayValue: displayValue(input.consents?.dataProcessing === true),
+        span: 1,
+        importance: 'critical',
+      },
+      {
+        key: 'consentData',
+        label: 'Tratamento dos dados autorizado',
+        displayValue: displayValue(input.consents?.dataAuthorization === true),
+        span: 1,
+        importance: 'critical',
+      },
+    ],
+  });
 
-  drawSection('Consentimentos');
-  drawField('Informações fornecidas declaradas como verdadeiras', input.consents?.truthful === true);
-  drawField('Tratamento das informações para atendimento autorizado', input.consents?.dataProcessing === true);
-  drawField('Tratamento dos dados informados, incluindo CPF, autorizado', input.consents?.dataAuthorization === true);
-  ensure(48);
-  const disclaimer = 'Esta pré-anamnese organiza informações antes do atendimento e não substitui a avaliação profissional. A rubrica abaixo confirma o preenchimento desta pré-anamnese, mas não substitui a assinatura formal nem os termos específicos do procedimento, que serão realizados presencialmente.';
-  for (const line of wrapPdfText(disclaimer, 92)) {
-    page.drawText(line, { x: marginX, y, size: 8.2, font: regular, color: colors.muted });
-    y -= 10;
-  }
-  y -= 18;
-
-  drawSection('Rubrica de confirmação e assinatura presencial');
-  ensure(172);
+  ensure(150);
+  drawSectionTitle('Rubrica de confirmação e assinatura presencial');
   if (embeddedSignature) {
     const maxW = 190;
-    const maxH = 70;
+    const maxH = 56;
     const scale = Math.min(maxW / embeddedSignature.width, maxH / embeddedSignature.height);
-    page.drawImage(embeddedSignature, { x: marginX, y: y - embeddedSignature.height * scale + 5, width: embeddedSignature.width * scale, height: embeddedSignature.height * scale });
+    page.drawImage(embeddedSignature, {
+      x: marginX,
+      y: y - embeddedSignature.height * scale + 3,
+      width: embeddedSignature.width * scale,
+      height: embeddedSignature.height * scale,
+    });
   }
-  page.drawLine({ start: { x: marginX, y: y - 72 }, end: { x: 260, y: y - 72 }, thickness: 0.8, color: colors.ink });
-  page.drawText('Rubrica de confirmação da pré-anamnese', { x: marginX, y: y - 85, size: 8, font: regular, color: colors.muted });
-  page.drawLine({ start: { x: 330, y: y - 72 }, end: { x: pageSize[0] - marginX, y: y - 72 }, thickness: 0.8, color: colors.ink });
-  page.drawText('Assinatura da profissional responsável (presencial)', { x: 330, y: y - 85, size: 8, font: regular, color: colors.muted });
-  page.drawText(`Confirmação registrada em: ${formatDateTime(input.rubricConfirmedAt || input.createdAt)}`, { x: marginX, y: y - 108, size: 8.2, font: regular, color: colors.ink });
+  page.drawLine({ start: { x: marginX, y: y - 60 }, end: { x: 260, y: y - 60 }, thickness: 0.8, color: colors.ink });
+  page.drawText('Rubrica de confirmação da pré-anamnese', { x: marginX, y: y - 72, size: 7.5, font: regular, color: colors.muted });
+  page.drawLine({ start: { x: 330, y: y - 60 }, end: { x: pageSize[0] - marginX, y: y - 60 }, thickness: 0.8, color: colors.ink });
+  page.drawText('Assinatura da profissional responsável (presencial)', { x: 330, y: y - 72, size: 7.5, font: regular, color: colors.muted });
+  page.drawText(`Confirmação registrada em: ${formatDateTime(input.rubricConfirmedAt || input.createdAt)}`, {
+    x: marginX,
+    y: y - 93,
+    size: 7.8,
+    font: regular,
+    color: colors.ink,
+  });
   if (input.rubricSha256) {
-    page.drawText('SHA-256 da rubrica:', { x: marginX, y: y - 124, size: 7.5, font: bold, color: colors.muted });
-    page.drawText(sanitizePdfText(input.rubricSha256), { x: marginX, y: y - 136, size: 6.6, font: regular, color: colors.muted, maxWidth: pageSize[0] - marginX * 2 });
+    page.drawText('SHA-256 da rubrica:', { x: marginX, y: y - 108, size: 7, font: bold, color: colors.muted });
+    page.drawText(sanitizePdfText(input.rubricSha256), {
+      x: marginX,
+      y: y - 119,
+      size: 6.2,
+      font: regular,
+      color: colors.muted,
+      maxWidth: contentWidth,
+    });
+  }
+
+  const notesTop = y - (input.rubricSha256 ? 143 : 117);
+  const notesBottom = bottomY + 14;
+  const notesHeight = notesTop - notesBottom;
+  if (notesHeight >= 100) {
+    const headerHeight = 27;
+    page.drawRectangle({
+      x: marginX,
+      y: notesBottom,
+      width: contentWidth,
+      height: notesHeight,
+      borderColor: colors.line,
+      borderWidth: 0.7,
+    });
+    page.drawRectangle({
+      x: marginX,
+      y: notesTop - headerHeight,
+      width: contentWidth,
+      height: headerHeight,
+      color: colors.cream,
+      borderColor: colors.line,
+      borderWidth: 0.7,
+    });
+    page.drawText(sanitizePdfText(PDF_PROFESSIONAL_NOTES_TITLE), {
+      x: marginX + 12,
+      y: notesTop - 18,
+      size: 8.3,
+      font: bold,
+      color: colors.rose,
+    });
+    page.drawText('Espaço reservado para registro manual durante a avaliação presencial.', {
+      x: marginX + 12,
+      y: notesTop - 39,
+      size: 7.2,
+      font: regular,
+      color: colors.muted,
+    });
+    for (let lineY = notesTop - 61; lineY > notesBottom + 16; lineY -= 27) {
+      page.drawLine({
+        start: { x: marginX + 12, y: lineY },
+        end: { x: pageSize[0] - marginX - 12, y: lineY },
+        thickness: 0.45,
+        color: colors.line,
+      });
+    }
   }
 
   const pages = pdfDoc.getPages();
   pages.forEach((p: any, index: number) => {
-    p.drawLine({ start: { x: marginX, y: 52 }, end: { x: pageSize[0] - marginX, y: 52 }, thickness: 0.6, color: colors.line });
-    p.drawText('BC Estética Avançada • Belo Horizonte/MG • Documento confidencial', { x: marginX, y: 36, size: 7.2, font: regular, color: colors.muted });
-    p.drawText(`${index + 1}/${pages.length}`, { x: pageSize[0] - marginX - 22, y: 36, size: 7.2, font: regular, color: colors.muted });
+    p.drawLine({
+      start: { x: marginX, y: 54 },
+      end: { x: pageSize[0] - marginX, y: 54 },
+      thickness: 0.6,
+      color: colors.line,
+    });
+    p.drawText(`BC Estética Avançada • ${sanitizePdfText(input.publicCode)}`, {
+      x: marginX,
+      y: 40,
+      size: 7,
+      font: bold,
+      color: colors.muted,
+    });
+    p.drawText('Pré-anamnese não substitui avaliação profissional.', {
+      x: marginX,
+      y: 29,
+      size: 6.6,
+      font: regular,
+      color: colors.muted,
+    });
+    const pageLabel = formatPageLabel(index + 1, pages.length);
+    const pageLabelWidth = regular.widthOfTextAtSize(pageLabel, 7);
+    p.drawText(pageLabel, {
+      x: pageSize[0] - marginX - pageLabelWidth,
+      y: 40,
+      size: 7,
+      font: regular,
+      color: colors.muted,
+    });
   });
 
   return await pdfDoc.save();
