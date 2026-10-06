@@ -1,4 +1,4 @@
-import type { PdfField } from './pdf-content.ts';
+import type { PdfField, PdfSpan } from './pdf-content.ts';
 
 export function packFieldsIntoRows(fields: PdfField[]): PdfField[][] {
   const rows: PdfField[][] = [];
@@ -6,7 +6,18 @@ export function packFieldsIntoRows(fields: PdfField[]): PdfField[][] {
   let used = 0;
 
   const flush = () => {
-    if (current.length) rows.push(current);
+    if (current.length) {
+      const remaining = 3 - used;
+      if (remaining > 0) {
+        const lastIndex = current.length - 1;
+        const last = current[lastIndex];
+        const expandedSpan = Math.min(3, last.span + remaining) as PdfSpan;
+        current = current.map((field, index) =>
+          index === lastIndex ? { ...field, span: expandedSpan } : field
+        );
+      }
+      rows.push(current);
+    }
     current = [];
     used = 0;
   };
