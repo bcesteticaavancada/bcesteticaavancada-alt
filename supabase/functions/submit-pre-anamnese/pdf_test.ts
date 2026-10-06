@@ -1,5 +1,12 @@
 import { assert, assertEquals } from 'jsr:@std/assert@1';
-import { generatePreAnamnesePdf, sanitizePdfText } from './pdf.ts';
+import { PDF_DOCUMENT_TITLE } from './pdf-content.ts';
+import { formatPageLabel, generatePreAnamnesePdf, sanitizePdfText } from './pdf.ts';
+
+Deno.test('premium document identity exposes the approved title and page label', () => {
+  assertEquals(PDF_DOCUMENT_TITLE, 'Pré-Avaliação Estética Individualizada');
+  assertEquals(formatPageLabel(1, 3), 'Página 1 de 3');
+  assertEquals(formatPageLabel(3, 3), 'Página 3 de 3');
+});
 
 Deno.test('sanitizePdfText preserves Portuguese accents and removes unsupported glyphs safely', () => {
   assertEquals(sanitizePdfText('áéíóú ç ã ê “aspas” — travessão 😀'), 'áéíóú ç ã ê "aspas" - travessão ?');
