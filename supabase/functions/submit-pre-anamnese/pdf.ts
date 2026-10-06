@@ -1,5 +1,7 @@
 import {
+  PDF_DOCUMENT_TITLE,
   buildPdfSections,
+  buildStructuredSummary,
   displayValue,
   sanitizePdfText,
   type PdfContentInput,
@@ -9,6 +11,10 @@ import {
 import { estimateCardHeight, packFieldsIntoRows } from './pdf-layout.ts';
 
 export { sanitizePdfText };
+
+export function formatPageLabel(pageNumber: number, pageCount: number): string {
+  return `Página ${pageNumber} de ${pageCount}`;
+}
 
 export function wrapPdfText(value: unknown, maxChars = 78): string[] {
   const text = sanitizePdfText(value).trim();
@@ -74,7 +80,6 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
     cream: rgb(0.97, 0.95, 0.92),
     creamStrong: rgb(0.945, 0.91, 0.865),
     line: rgb(0.86, 0.82, 0.78),
-    white: rgb(1, 1, 1),
   };
 
   let page = pdfDoc.addPage(pageSize);
@@ -105,7 +110,7 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
     }
     const textX = embeddedLogo ? 112 : marginX;
     page.drawText('BC ESTÉTICA AVANÇADA', { x: textX, y: 822, size: 10, font: bold, color: colors.ink });
-    page.drawText('Ficha de Pré-Anamnese', { x: textX, y: 807, size: 9, font: regular, color: colors.muted });
+    page.drawText(PDF_DOCUMENT_TITLE, { x: textX, y: 807, size: 8.6, font: regular, color: colors.muted });
     page.drawLine({
       start: { x: marginX, y: 798 },
       end: { x: pageSize[0] - marginX, y: 798 },
@@ -283,7 +288,7 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
 
   drawBrandHeader();
   y = 771;
-  page.drawText('FICHA DE PRÉ-ANAMNESE', { x: marginX, y, size: 20, font: bold, color: colors.ink });
+  page.drawText(PDF_DOCUMENT_TITLE.toUpperCase(), { x: marginX, y, size: 17.5, font: bold, color: colors.ink });
   y -= 21;
   page.drawText(`Código: ${sanitizePdfText(input.publicCode)}`, {
     x: marginX,
@@ -302,6 +307,13 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   y -= 27;
 
   for (const section of buildPdfSections(input)) renderSection(section);
+
+  const summary = buildStructuredSummary(input);
+  summary.fields = summary.fields.filter((field) => {
+    const normalized = field.displayValue.trim().toLowerCase();
+    return !['-', 'não', 'nao', 'não se aplica', 'nao se aplica'].includes(normalized);
+  });
+  if (summary.fields.length) renderSection(summary);
 
   renderSection({
     title: 'Consentimentos',
@@ -329,26 +341,6 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
       },
     ],
   });
-
-  const disclaimer = 'Esta pré-anamnese organiza informações antes do atendimento e não substitui a avaliação profissional. A rubrica confirma o preenchimento, mas não substitui a assinatura formal nem os termos específicos do procedimento.';
-  const disclaimerLines = wrapPdfText(disclaimer, 100);
-  const disclaimerHeight = disclaimerLines.length * 9 + 14;
-  ensure(disclaimerHeight + 8);
-  page.drawRectangle({
-    x: marginX,
-    y: y - disclaimerHeight,
-    width: contentWidth,
-    height: disclaimerHeight,
-    color: colors.white,
-    borderColor: colors.line,
-    borderWidth: 0.6,
-  });
-  let disclaimerY = y - 10;
-  for (const line of disclaimerLines) {
-    page.drawText(line, { x: marginX + 10, y: disclaimerY, size: 7.5, font: regular, color: colors.muted });
-    disclaimerY -= 9;
-  }
-  y -= disclaimerHeight + 8;
 
   ensure(150);
   drawSectionTitle('Rubrica de confirmação e assinatura presencial');
@@ -389,22 +381,31 @@ export async function generatePreAnamnesePdf(input: PdfInput): Promise<Uint8Arra
   const pages = pdfDoc.getPages();
   pages.forEach((p: any, index: number) => {
     p.drawLine({
-      start: { x: marginX, y: 52 },
-      end: { x: pageSize[0] - marginX, y: 52 },
+      start: { x: marginX, y: 54 },
+      end: { x: pageSize[0] - marginX, y: 54 },
       thickness: 0.6,
       color: colors.line,
     });
-    p.drawText('BC Estética Avançada • Belo Horizonte/MG • Documento confidencial', {
+    p.drawText(`BC Estética Avançada • ${sanitizePdfText(input.publicCode)}`, {
       x: marginX,
-      y: 36,
-      size: 7.2,
+      y: 40,
+      size: 7,
+      font: bold,
+      color: colors.muted,
+    });
+    p.drawText('Pré-anamnese não substitui avaliação profissional.', {
+      x: marginX,
+      y: 29,
+      size: 6.6,
       font: regular,
       color: colors.muted,
     });
-    p.drawText(`${index + 1}/${pages.length}`, {
-      x: pageSize[0] - marginX - 22,
-      y: 36,
-      size: 7.2,
+    const pageLabel = formatPageLabel(index + 1, pages.length);
+    const pageLabelWidth = regular.widthOfTextAtSize(pageLabel, 7);
+    p.drawText(pageLabel, {
+      x: pageSize[0] - marginX - pageLabelWidth,
+      y: 40,
+      size: 7,
       font: regular,
       color: colors.muted,
     });
