@@ -31,5 +31,5 @@ test('home remains presentation-only with one logo and Mel background', () => {
 test('home simple footer is protected from global rich-footer replacement', () => {
   assert.match(home, /<footer[^>]*data-bc-footer="home"/);
   assert.match(script, /footer\[data-bc-footer=["']home["']\]/);
-  assert.match(script, /if\s*\([^)]*data-bc-footer[^)]*\)\s*return/);
+  assert.match(script, /if\(document\.querySelector\('footer\[data-bc-footer="home"\]'\)\)return;/);
 });
