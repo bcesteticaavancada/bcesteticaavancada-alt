@@ -44,3 +44,13 @@ test('pre-anamnesis CSS provides keyboard focus and reduced-motion treatment', a
   assert.match(css, /prefers-reduced-motion:\s*reduce/i);
   assert.match(css, /outline:/i);
 });
+
+test('interactive states remain visibly distinct without relying on color alone', async () => {
+  const css = await readFile(cssUrl, 'utf8');
+  assert.match(css, /\.opt input:checked\+label,.check input:checked\+label\{[^}]*box-shadow:/i);
+  assert.match(css, /\.conditional,.module-block\{[^}]*border-left:/i);
+  assert.match(css, /\.status-message\.error\{[^}]*border:/i);
+  assert.match(css, /\.status-message\.success\{[^}]*border:/i);
+  assert.match(css, /\.consent:has\(input:checked\)/i);
+  assert.match(css, /\.signature-wrap:focus-within/i);
+});
