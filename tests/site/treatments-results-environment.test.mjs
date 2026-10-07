@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 const procedimentos = readFileSync(new URL('../../procedimentos/index.html', import.meta.url), 'utf8');
 const resultados = readFileSync(new URL('../../resultados/index.html', import.meta.url), 'utf8');
@@ -27,8 +27,9 @@ test('Procedimentos publica apenas apresentações com mídia real enquanto o ca
     'bc-estetica-video-02.mp4',
     'bc-estetica-video-04.mp4',
     'bc-estetica-video-03.mp4',
-    'BC-Estetica-Apresentacao-Glamourosa-Mobile-WEB.mp4'
+    'bc-estetica-tratamento-laser-apresentacao.mp4'
   ]) assert.match(procedimentos, new RegExp(video.replace('.', '\\.')));
+  assert.ok(existsSync(new URL('../../assets/videos/bc-estetica-tratamento-laser-apresentacao.mp4', import.meta.url)));
   assert.match(procedimentos, /class="laser-showcase"/);
   assert.match(procedimentos, /autoplay[^>]*muted[^>]*loop[^>]*playsinline/);
   assert.doesNotMatch(procedimentos, /data:image/i);
