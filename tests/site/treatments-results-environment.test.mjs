@@ -31,13 +31,19 @@ test('Procedimentos becomes an editorial treatment collection without provisiona
   assert.doesNotMatch(procedimentos, /R\$\s*\d/);
 });
 
-test('Resultados preserves the five real portfolio assets and adds individualized-results context', () => {
+test('Resultados preserves the five real portfolio assets inside a numbered editorial casebook', () => {
   expectNativeShell(resultados);
   for (const image of [
     'bc-cellular-code-1-sessao.webp', 'bc-cryo-lift-pescoco.webp', 'bc-harmonizacao-labial.webp',
     'bc-sculpt-cryo-abdomen-masculino.webp', 'bc-sculpt-cryo-cintura-feminina.webp'
   ]) assert.match(resultados, new RegExp(image.replace('.', '\\.')));
   assert.match(resultados, /resultados individuais podem variar/i);
+  assert.match(resultados, /class="results-casebook"/);
+  assert.equal((resultados.match(/class="result-case\b/g) || []).length, 5);
+  assert.match(resultados, /class="result-case result-case--hero"/);
+  assert.match(resultados, /class="result-case__index">01<\/span>/);
+  assert.match(resultados, /class="result-case__index">05<\/span>/);
+  assert.match(resultados, /class="results-context"/);
 });
 
 test('Protocolos presents the documented authorial protocol names without publishing provisional prices', () => {
