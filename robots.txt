@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bcesteticaavancada.github.io/bcesteticaavancada-alt/sitemap.xml
