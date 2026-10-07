@@ -22,15 +22,19 @@ test('Home publishes LocalBusiness structured data with official clinic facts', 
   assert.match(home, /"addressLocality"\s*:\s*"Belo Horizonte"/);
 });
 
-test('Robots and sitemap cover the official GitHub Pages site', () => {
+test('Robots and sitemap cover exactly the eleven public navigation destinations', () => {
   const robotsUrl = new URL('../../robots.txt', import.meta.url);
   const sitemapUrl = new URL('../../sitemap.xml', import.meta.url);
   assert.equal(existsSync(robotsUrl), true);
   assert.equal(existsSync(sitemapUrl), true);
   const robots = readFileSync(robotsUrl, 'utf8');
   const sitemap = readFileSync(sitemapUrl, 'utf8');
+  assert.match(robots, /User-agent: \*/);
+  assert.match(robots, /Allow: \//);
   assert.match(robots, /Sitemap: https:\/\/bcesteticaavancada\.github\.io\/bcesteticaavancada-alt\/sitemap\.xml/);
-  for (const path of ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/']) {
+  const paths = ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/'];
+  assert.equal((sitemap.match(/<url>/g) || []).length, paths.length);
+  for (const path of paths) {
     assert.match(sitemap, new RegExp(`<loc>${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</loc>`));
   }
 });
