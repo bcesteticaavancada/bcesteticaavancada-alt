@@ -37,13 +37,18 @@ test('approved cinematic videos are used only on internal pages', () => {
   assert.doesNotMatch(combined, /WA0045|Aline esteticista/i);
 });
 
-test('cinematic video component is responsive, lazy and respects reduced-motion', () => {
+test('cinematic video component is responsive, identifiable on mobile and respects reduced-motion', () => {
   assert.match(editorialCss, /\.cinematic-video/);
   assert.match(editorialCss, /\.cinematic-video\s+video/);
   assert.match(editorialCss, /prefers-reduced-motion/);
-  assert.match(procedimentos, /preload="none"/);
+  assert.match(procedimentos, /<video[^>]*controls[^>]*preload="metadata"/i);
+  assert.match(ambiente, /<video[^>]*controls[^>]*preload="metadata"/i);
   assert.match(procedimentos, /data-bc-cinematic/);
   assert.match(procedimentos, /IntersectionObserver/);
-  assert.match(ambiente, /preload="none"/);
   assert.match(ambiente, /data-bc-cinematic/);
+});
+
+test('public video copy speaks to the client, not to the site-production process', () => {
+  assert.doesNotMatch(procedimentos, /decoração solta|tutorial técnico|narrativa da clínica/i);
+  assert.match(procedimentos, /cada atendimento une técnica, cuidado e atenção aos detalhes/i);
 });
