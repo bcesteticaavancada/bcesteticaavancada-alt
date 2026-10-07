@@ -42,8 +42,11 @@
         <p>Os nomes abaixo fazem parte dos materiais apresentados pela clínica. Indicação, combinação, frequência e planejamento dependem de avaliação individualizada.</p>
         <p>Por isso, esta página descreve objetivos e contextos de forma informativa, sem prometer resultados e sem publicar valores de campanha ainda sujeitos a confirmação.</p>
       </div>
-      <figure class="editorial-portrait">
-        <div class="cinematic-frame"><img src="../assets/05-sala-procedimentos.jpg" alt="Ambiente de procedimentos da BC Estética" loading="lazy"></div>
+      <figure class="cinematic-video" aria-label="Cena real de cuidado facial na BC Estética">
+        <video muted loop playsinline preload="none" data-bc-cinematic poster="../assets/05-sala-procedimentos.jpg">
+          <source src="../assets/videos/bc-estetica-video-02.mp4" type="video/mp4">
+        </video>
+        <figcaption>Cuidado facial • BC Estética</figcaption>
       </figure>
     </div>
   </section>
@@ -51,8 +54,8 @@
   <section class="editorial-section dark media-feature">
     <div class="editorial-split">
       <figure class="cinematic-video" aria-label="Cena real de atendimento na BC Estética">
-        <video autoplay muted loop playsinline preload="metadata" poster="../assets/05-sala-procedimentos.jpg">
-          <source src="../assets/video/clinical-detail.mp4" type="video/mp4">
+        <video muted loop playsinline preload="none" data-bc-cinematic poster="../assets/05-sala-procedimentos.jpg">
+          <source src="../assets/videos/bc-estetica-video-04.mp4" type="video/mp4">
         </video>
         <figcaption>Detalhes do atendimento • BC Estética</figcaption>
       </figure>
@@ -86,8 +89,8 @@
         <p>Contorno, firmeza, relaxamento e qualidade da pele entram no planejamento conforme região, objetivo e avaliação profissional.</p>
       </div>
       <figure class="cinematic-video" aria-label="Cena real de cuidado corporal na BC Estética">
-        <video autoplay muted loop playsinline preload="metadata" poster="../assets/04-sala-massagem.jpg">
-          <source src="../assets/video/body-care.mp4" type="video/mp4">
+        <video muted loop playsinline preload="none" data-bc-cinematic poster="../assets/04-sala-massagem.jpg">
+          <source src="../assets/videos/bc-estetica-video-03.mp4" type="video/mp4">
         </video>
         <figcaption>Cuidado corporal • BC Estética</figcaption>
       </figure>
@@ -136,7 +139,16 @@
 <script src="../script.js"></script>
 <script>
 (function(){
-  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('.cinematic-video video').forEach(function(v){v.pause();v.removeAttribute('autoplay');});}
+  var reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var videos=document.querySelectorAll('[data-bc-cinematic]');
+  if(reduceMotion){
+    videos.forEach(function(v){v.pause();});
+  }else if('IntersectionObserver' in window){
+    var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){var v=entry.target;if(entry.isIntersecting&&entry.intersectionRatio>=.45){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}});},{threshold:[0,.45,1]});
+    videos.forEach(function(v){observer.observe(v);});
+  }else{
+    videos.forEach(function(v){var p=v.play();if(p&&p.catch)p.catch(function(){});});
+  }
   if(window.BCMenuReady)return;
   var t=document.getElementById("menuToggle"),d=document.getElementById("siteDrawer"),o=document.getElementById("menuOverlay"),c=document.getElementById("drawerClose");if(!t||!d||!o)return;
   function m(open){t.classList.toggle("is-open",open);d.classList.toggle("is-open",open);o.classList.toggle("is-open",open);t.setAttribute("aria-expanded",open?"true":"false");t.setAttribute("aria-label",open?"Fechar menu":"Abrir menu");d.setAttribute("aria-hidden",open?"false":"true");o.setAttribute("aria-hidden",open?"false":"true");document.body.classList.toggle("menu-open",open)}
