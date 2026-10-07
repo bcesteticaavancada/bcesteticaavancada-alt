@@ -20,3 +20,25 @@ body{margin:0;min-height:100%;color:var(--ink);background:#f2e9df}
 .signature-wrap{padding:14px;border:1px solid #ddd3ca;border-radius:15px;background:#fff}.signature-canvas{display:block;width:100%;height:190px;border:1px dashed #cdbca8;border-radius:12px;background:#fff;touch-action:none}.signature-actions{display:flex;justify-content:flex-end;margin-top:8px}
 .success-panel{text-align:center;padding:22px}.success-panel h2{font:700 30px Georgia,serif;margin:0 0 8px}.record-id{font-weight:900;letter-spacing:.08em;margin:10px 0;color:#876a42}
 @media(max-width:700px){.page-booking{padding:0 10px 50px}.agendamento-hero{min-height:410px;padding:100px 8% 44px;background-position:center 35%}.agendamento-hero h1{font-size:50px}.agendamento-hero p{font-size:14px}.shell{border-radius:22px}.panel{padding:19px 15px}.grid,.options,.checkgrid{grid-template-columns:1fr}.head{gap:8px}.title{font-size:25px}.count{font-size:10px}.bar{padding:13px 15px}}
+
+/* BC Native booking refinement */
+body{background:
+  radial-gradient(circle at 12% 8%,rgba(199,161,91,.11),transparent 28%),
+  radial-gradient(circle at 88% 22%,rgba(92,58,41,.08),transparent 30%),
+  #f2e9df;
+}
+.page-booking{padding-bottom:clamp(64px,8vw,110px)}
+.agendamento-hero::after{content:"";position:absolute;inset:auto 5% 26px;width:88px;height:1px;background:linear-gradient(90deg,var(--gold2),transparent)}
+.shell{position:relative;border-color:rgba(184,138,69,.28);box-shadow:0 34px 95px rgba(44,27,19,.18)}
+.shell::before{content:"";position:absolute;z-index:3;left:0;top:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);pointer-events:none}
+.panel{background:linear-gradient(180deg,rgba(255,253,249,.98),rgba(250,246,240,.98))}
+.title{letter-spacing:-.018em}
+.notice{border-left-width:2px;background:linear-gradient(90deg,#fbf4e9,#fffaf3)}
+.opt label,.check label,.card,.consent,.signature-wrap{box-shadow:0 10px 26px rgba(47,33,25,.035)}
+.opt input:checked+label,.check input:checked+label{box-shadow:inset 0 0 0 1px rgba(199,161,91,.16),0 12px 28px rgba(127,91,43,.07)}
+.primary{box-shadow:0 13px 28px rgba(155,116,53,.2);transition:transform .18s ease,box-shadow .18s ease}
+.primary:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 16px 34px rgba(155,116,53,.24)}
+.signature-wrap{border-color:rgba(184,138,69,.28);background:linear-gradient(180deg,#fff,#fdfaf6)}
+.signature-canvas{border-color:#cdbca8}
+@media(max-width:700px){.agendamento-hero::after{left:8%;bottom:20px}.shell{box-shadow:0 22px 55px rgba(44,27,19,.15)}}
+@media(prefers-reduced-motion:reduce){.primary{transition:none}.step.active{animation:none}}
