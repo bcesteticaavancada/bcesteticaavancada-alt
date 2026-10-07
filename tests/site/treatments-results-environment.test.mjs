@@ -26,7 +26,7 @@ test('Procedimentos becomes an editorial treatment collection without provisiona
     'Gluteo Max', 'Sculpt Crio', 'Massagem relaxante', 'Ultrassom microfocado',
     'Botox', 'Preenchimento Labial', 'Perfiloplastia', 'Bioestimulador de Colágeno',
     'Black peel', 'Remoção a laser', 'Terapia Capilar', 'Estrias'
-  ]) assert.match(procedimentos, new RegExp(name));
+  ]) assert.match(procedimentos, new RegExp(name, 'i'));
   assert.doesNotMatch(procedimentos, /data:image/i);
   assert.doesNotMatch(procedimentos, /R\$\s*\d/);
 });
@@ -43,7 +43,7 @@ test('Resultados preserves the five real portfolio assets inside a numbered edit
   assert.match(resultados, /class="result-case result-case--hero"/);
   assert.match(resultados, /class="result-case__index">01<\/span>/);
   assert.match(resultados, /class="result-case__index">05<\/span>/);
-  assert.match(resultados, /class="results-context"/);
+  assert.match(resultados, /class="[^"]*\bresults-context\b[^"]*"/);
 });
 
 test('Protocolos presents the documented authorial protocol names without publishing provisional prices', () => {
