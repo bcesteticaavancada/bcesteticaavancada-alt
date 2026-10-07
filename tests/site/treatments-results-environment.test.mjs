@@ -18,17 +18,18 @@ function expectNativeShell(html) {
   assert.equal((html.slice(start, end).match(/<a\b/g) || []).length, 11);
 }
 
-test('Procedimentos becomes an editorial treatment collection without provisional prices or embedded base64', () => {
+test('Procedimentos publica apenas apresentações com mídia real enquanto o catálogo textual fica fora da página pública', () => {
   expectNativeShell(procedimentos);
-  assert.match(procedimentos, /treatment-collection/);
-  for (const name of [
-    'Limpeza de pele', 'Drenagem Linfática', 'Massagem modeladora', 'Face Reset',
-    'Gluteo Max', 'Sculpt Crio', 'Massagem relaxante', 'Ultrassom microfocado',
-    'Botox', 'Preenchimento Labial', 'Perfiloplastia', 'Bioestimulador de Colágeno',
-    'Black peel', 'Remoção a laser', 'Terapia Capilar', 'Estrias'
-  ]) assert.match(procedimentos, new RegExp(name, 'i'));
+  assert.doesNotMatch(procedimentos, /class="treatment-collection/);
+  assert.doesNotMatch(procedimentos, /class="treatment-entry/);
+  assert.equal((procedimentos.match(/<video\b/g) || []).length, 4);
+  for (const video of [
+    'bc-estetica-video-02.mp4',
+    'bc-estetica-video-04.mp4',
+    'bc-estetica-video-03.mp4',
+    'BC-Estetica-Apresentacao-Glamourosa-Mobile-WEB.mp4'
+  ]) assert.match(procedimentos, new RegExp(video.replace('.', '\\.')));
   assert.match(procedimentos, /class="laser-showcase"/);
-  assert.match(procedimentos, /bc-estetica-tratamento-laser-apresentacao\.mp4/);
   assert.match(procedimentos, /autoplay[^>]*muted[^>]*loop[^>]*playsinline/);
   assert.doesNotMatch(procedimentos, /data:image/i);
   assert.doesNotMatch(procedimentos, /R\$\s*\d/);
