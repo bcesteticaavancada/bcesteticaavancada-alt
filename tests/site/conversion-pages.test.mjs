@@ -36,13 +36,16 @@ test('Contato presents the official contact, address, hours and GPS in Native la
   assert.match(contato, /share\.google\/eh2hDmG6O5gNHK10i/);
 });
 
-test('Agendamento keeps the complete pre-anamnese flow and receives isolated Native refinement', () => {
+test('Agendamento keeps the complete pre-anamnese flow and current accessibility refinements', () => {
   expectElevenLinks(agendamento);
   assert.match(agendamento, /id="preAnamneseForm"/);
   for (let i = 1; i <= 8; i++) assert.match(agendamento, new RegExp(`id="step${i}"`));
   assert.match(agendamento, /id="signatureMount"/);
   assert.match(agendamento, /FINALIZAR E GERAR PDF/i);
-  assert.match(agendamentoCss, /BC Native booking refinement/);
   assert.match(agendamentoCss, /\.agendamento-hero/);
   assert.match(agendamentoCss, /\.signature-wrap/);
+  assert.match(agendamentoCss, /min-width:\s*0/i);
+  assert.match(agendamentoCss, /:focus-visible/i);
+  assert.match(agendamentoCss, /prefers-reduced-motion/i);
+  assert.match(agendamentoCss, /\.conditional,.module-block\{[^}]*border-left:3px solid var\(--gold\)/i);
 });
