@@ -11,9 +11,10 @@ const editorialCss = readFileSync(new URL('../../editorial.css', import.meta.url
 test('approved media assets exist on the Native branch', () => {
   for (const path of [
     '../../assets/alice-rocha.jpg',
-    '../../assets/video/clinical-detail.mp4',
-    '../../assets/video/wellbeing-massage.mp4',
-    '../../assets/video/body-care.mp4',
+    '../../assets/videos/bc-estetica-video-01.mp4',
+    '../../assets/videos/bc-estetica-video-02.mp4',
+    '../../assets/videos/bc-estetica-video-03.mp4',
+    '../../assets/videos/bc-estetica-video-04.mp4',
   ]) assert.equal(existsSync(new URL(path, import.meta.url)), true, path);
 });
 
@@ -27,16 +28,22 @@ test('Alice profile uses the real approved portrait', () => {
   assert.match(equipe, /Biomédica Esteta/);
 });
 
-test('approved cinematic loops are used only on internal pages', () => {
-  assert.match(procedimentos, /\.\.\/assets\/video\/clinical-detail\.mp4/);
-  assert.match(procedimentos, /\.\.\/assets\/video\/body-care\.mp4/);
-  assert.match(ambiente, /\.\.\/assets\/video\/wellbeing-massage\.mp4/);
+test('approved cinematic videos are used only on internal pages', () => {
+  assert.match(ambiente, /\.\.\/assets\/videos\/bc-estetica-video-01\.mp4/);
+  assert.match(procedimentos, /\.\.\/assets\/videos\/bc-estetica-video-02\.mp4/);
+  assert.match(procedimentos, /\.\.\/assets\/videos\/bc-estetica-video-03\.mp4/);
+  assert.match(procedimentos, /\.\.\/assets\/videos\/bc-estetica-video-04\.mp4/);
   const combined = `${home}\n${equipe}\n${procedimentos}\n${ambiente}`;
   assert.doesNotMatch(combined, /WA0045|Aline esteticista/i);
 });
 
-test('cinematic video component is responsive and respects reduced-motion', () => {
+test('cinematic video component is responsive, lazy and respects reduced-motion', () => {
   assert.match(editorialCss, /\.cinematic-video/);
   assert.match(editorialCss, /\.cinematic-video\s+video/);
   assert.match(editorialCss, /prefers-reduced-motion/);
+  assert.match(procedimentos, /preload="none"/);
+  assert.match(procedimentos, /data-bc-cinematic/);
+  assert.match(procedimentos, /IntersectionObserver/);
+  assert.match(ambiente, /preload="none"/);
+  assert.match(ambiente, /data-bc-cinematic/);
 });
