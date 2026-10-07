@@ -31,7 +31,7 @@ test('Procedimentos publica apenas apresentações com mídia real enquanto o ca
   ]) assert.match(procedimentos, new RegExp(video.replace('.', '\\.')));
   assert.ok(existsSync(new URL('../../assets/videos/bc-estetica-tratamento-laser-apresentacao.mp4', import.meta.url)));
   assert.match(procedimentos, /class="laser-showcase"/);
-  assert.match(procedimentos, /autoplay[^>]*muted[^>]*loop[^>]*playsinline/);
+  assert.match(procedimentos, /<video[^>]*controls[^>]*autoplay[^>]*muted[^>]*loop[^>]*playsinline[^>]*>/);
   assert.doesNotMatch(procedimentos, /data:image/i);
   assert.doesNotMatch(procedimentos, /R\$\s*\d/);
 });
