@@ -27,6 +27,9 @@ test('Procedimentos becomes an editorial treatment collection without provisiona
     'Botox', 'Preenchimento Labial', 'Perfiloplastia', 'Bioestimulador de Colágeno',
     'Black peel', 'Remoção a laser', 'Terapia Capilar', 'Estrias'
   ]) assert.match(procedimentos, new RegExp(name, 'i'));
+  assert.match(procedimentos, /class="laser-showcase"/);
+  assert.match(procedimentos, /bc-estetica-tratamento-laser-apresentacao\.mp4/);
+  assert.match(procedimentos, /autoplay[^>]*muted[^>]*loop[^>]*playsinline/);
   assert.doesNotMatch(procedimentos, /data:image/i);
   assert.doesNotMatch(procedimentos, /R\$\s*\d/);
 });
