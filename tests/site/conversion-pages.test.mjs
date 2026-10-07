@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const valores = readFileSync(new URL('../../valores/index.html', import.meta.url), 'utf8');
 const agendamento = readFileSync(new URL('../../agendamento/index.html', import.meta.url), 'utf8');
+const agendamentoCss = readFileSync(new URL('../../agendamento/anamnese.css', import.meta.url), 'utf8');
 const contato = readFileSync(new URL('../../contato/index.html', import.meta.url), 'utf8');
 
 function expectElevenLinks(html) {
@@ -35,12 +36,13 @@ test('Contato presents the official contact, address, hours and GPS in Native la
   assert.match(contato, /share\.google\/eh2hDmG6O5gNHK10i/);
 });
 
-test('Agendamento gets Native visual integration while preserving the complete pre-anamnese flow', () => {
+test('Agendamento keeps the complete pre-anamnese flow and receives isolated Native refinement', () => {
   expectElevenLinks(agendamento);
-  assert.match(agendamento, /href="\.\.\/editorial\.css"/);
-  assert.match(agendamento, /class="page-booking native-booking"/);
   assert.match(agendamento, /id="preAnamneseForm"/);
   for (let i = 1; i <= 8; i++) assert.match(agendamento, new RegExp(`id="step${i}"`));
   assert.match(agendamento, /id="signatureCanvas"/);
   assert.match(agendamento, /FINALIZAR E GERAR PDF/i);
+  assert.match(agendamentoCss, /BC Native booking refinement/);
+  assert.match(agendamentoCss, /\.agendamento-hero/);
+  assert.match(agendamentoCss, /\.signature-wrap/);
 });
