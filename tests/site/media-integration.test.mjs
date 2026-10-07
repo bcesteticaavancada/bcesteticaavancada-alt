@@ -10,7 +10,7 @@ const editorialCss = readFileSync(new URL('../../editorial.css', import.meta.url
 
 test('approved media assets exist on the Native branch', () => {
   for (const path of [
-    '../../assets/alice-rocha.jpg',
+    '../../assets/alice-rocha.webp',
     '../../assets/videos/bc-estetica-video-01.mp4',
     '../../assets/videos/bc-estetica-video-02.mp4',
     '../../assets/videos/bc-estetica-video-03.mp4',
@@ -23,7 +23,7 @@ test('Home stays presentation-only and has no video element', () => {
 });
 
 test('Alice profile uses the real approved portrait', () => {
-  assert.match(equipe, /\.\.\/assets\/alice-rocha\.jpg/);
+  assert.match(equipe, /\.\.\/assets\/alice-rocha\.webp/);
   assert.match(equipe, /Alice Rocha/);
   assert.match(equipe, /Biomédica Esteta/);
 });
@@ -50,5 +50,5 @@ test('cinematic video component is responsive, identifiable on mobile and respec
 
 test('public video copy speaks to the client, not to the site-production process', () => {
   assert.doesNotMatch(procedimentos, /decoração solta|tutorial técnico|narrativa da clínica/i);
-  assert.match(procedimentos, /cada atendimento une técnica, cuidado e atenção aos detalhes/i);
+  assert.match(procedimentos, /cada etapa é conduzida com atenção à individualidade, ao conforto e aos objetivos/i);
 });
