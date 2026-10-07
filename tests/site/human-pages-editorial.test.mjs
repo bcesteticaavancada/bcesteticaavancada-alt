@@ -24,7 +24,7 @@ test('Nossa Equipe uses Native editorial structure and verified professional dat
   assert.match(equipe, /Alice Izabel Rocha/);
   assert.match(equipe, /19272/);
   assert.match(equipe, /Cosmetologia e Estética \+ Biomedicina/);
-  assert.match(equipe, /alice-rocha\.jpg/);
+  assert.match(equipe, /alice-rocha\.webp/);
 });
 
 test('Mel page uses Native editorial structure and documented positioning', () => {
