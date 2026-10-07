@@ -40,7 +40,7 @@ test('Agendamento keeps the complete pre-anamnese flow and receives isolated Nat
   expectElevenLinks(agendamento);
   assert.match(agendamento, /id="preAnamneseForm"/);
   for (let i = 1; i <= 8; i++) assert.match(agendamento, new RegExp(`id="step${i}"`));
-  assert.match(agendamento, /id="signatureCanvas"/);
+  assert.match(agendamento, /id="signatureMount"/);
   assert.match(agendamento, /FINALIZAR E GERAR PDF/i);
   assert.match(agendamentoCss, /BC Native booking refinement/);
   assert.match(agendamentoCss, /\.agendamento-hero/);
