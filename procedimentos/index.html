@@ -48,6 +48,22 @@
     </div>
   </section>
 
+  <section class="editorial-section dark media-feature">
+    <div class="editorial-split">
+      <figure class="cinematic-video" aria-label="Cena real de atendimento na BC Estética">
+        <video autoplay muted loop playsinline preload="metadata" poster="../assets/05-sala-procedimentos.jpg">
+          <source src="../assets/video/clinical-detail.mp4" type="video/mp4">
+        </video>
+        <figcaption>Detalhes do atendimento • BC Estética</figcaption>
+      </figure>
+      <div class="cinematic-copy">
+        <div class="eyebrow">Técnica em movimento</div>
+        <h2>Detalhe, presença e <em>precisão.</em></h2>
+        <p>Os vídeos reais entram como parte da narrativa da clínica — não como decoração solta. Eles mostram atmosfera, cuidado e atenção ao processo sem transformar o site em um tutorial técnico.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="editorial-section warm">
     <div class="wrap"><div class="eyebrow">Facial e estética avançada</div><h2 style="font:500 clamp(42px,5.7vw,72px)/.95 var(--serif);margin:0 0 34px">Tratamentos apresentados pela <em style="color:var(--gold)">BC.</em></h2></div>
     <div class="treatment-collection">
@@ -63,8 +79,20 @@
   </section>
 
   <section class="editorial-section">
-    <div class="wrap"><div class="eyebrow">Corporal e bem-estar</div><h2 style="font:500 clamp(42px,5.7vw,72px)/.95 var(--serif);margin:0 0 34px">Cuidado corporal com <em style="color:var(--gold)">contexto.</em></h2></div>
-    <div class="treatment-collection">
+    <div class="editorial-split body-story">
+      <div class="cinematic-copy">
+        <div class="eyebrow">Corporal e bem-estar</div>
+        <h2>Cuidado corporal com <em>contexto.</em></h2>
+        <p>Contorno, firmeza, relaxamento e qualidade da pele entram no planejamento conforme região, objetivo e avaliação profissional.</p>
+      </div>
+      <figure class="cinematic-video" aria-label="Cena real de cuidado corporal na BC Estética">
+        <video autoplay muted loop playsinline preload="metadata" poster="../assets/04-sala-massagem.jpg">
+          <source src="../assets/video/body-care.mp4" type="video/mp4">
+        </video>
+        <figcaption>Cuidado corporal • BC Estética</figcaption>
+      </figure>
+    </div>
+    <div class="treatment-collection treatment-spaced">
       <div class="treatment-entry"><span class="index">09</span><h3>Drenagem Linfática</h3><p>Apresentada para cuidado de inchaço e retenção, com foco também em sensação de leveza e circulação.</p><span class="arrow" aria-hidden="true">→</span></div>
       <div class="treatment-entry"><span class="index">10</span><h3>Massagem modeladora</h3><p>Voltada ao contorno corporal, medidas e aparência da celulite dentro de um planejamento individualizado.</p><span class="arrow" aria-hidden="true">→</span></div>
       <div class="treatment-entry"><span class="index">11</span><h3>Gluteo Max</h3><p>Proposta apresentada para contorno, firmeza, qualidade da pele e aparência de flacidez ou celulite na região glútea.</p><span class="arrow" aria-hidden="true">→</span></div>
@@ -106,6 +134,14 @@
 <footer class="footer"><span>BC Estética Avançada</span><span>Menos achismo. Mais ciência.</span></footer>
 <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
 <script src="../script.js"></script>
-<script>(function(){if(window.BCMenuReady)return;var t=document.getElementById("menuToggle"),d=document.getElementById("siteDrawer"),o=document.getElementById("menuOverlay"),c=document.getElementById("drawerClose");if(!t||!d||!o)return;function m(open){t.classList.toggle("is-open",open);d.classList.toggle("is-open",open);o.classList.toggle("is-open",open);t.setAttribute("aria-expanded",open?"true":"false");t.setAttribute("aria-label",open?"Fechar menu":"Abrir menu");d.setAttribute("aria-hidden",open?"false":"true");o.setAttribute("aria-hidden",open?"false":"true");document.body.classList.toggle("menu-open",open)}t.addEventListener("click",function(){m(!d.classList.contains("is-open"))});if(c)c.addEventListener("click",function(){m(false)});o.addEventListener("click",function(){m(false)});d.querySelectorAll("a").forEach(function(a){a.addEventListener("click",function(){m(false)})});document.addEventListener("keydown",function(e){if(e.key==="Escape")m(false)})})();</script>
+<script>
+(function(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelectorAll('.cinematic-video video').forEach(function(v){v.pause();v.removeAttribute('autoplay');});}
+  if(window.BCMenuReady)return;
+  var t=document.getElementById("menuToggle"),d=document.getElementById("siteDrawer"),o=document.getElementById("menuOverlay"),c=document.getElementById("drawerClose");if(!t||!d||!o)return;
+  function m(open){t.classList.toggle("is-open",open);d.classList.toggle("is-open",open);o.classList.toggle("is-open",open);t.setAttribute("aria-expanded",open?"true":"false");t.setAttribute("aria-label",open?"Fechar menu":"Abrir menu");d.setAttribute("aria-hidden",open?"false":"true");o.setAttribute("aria-hidden",open?"false":"true");document.body.classList.toggle("menu-open",open)}
+  t.addEventListener("click",function(){m(!d.classList.contains("is-open"))});if(c)c.addEventListener("click",function(){m(false)});o.addEventListener("click",function(){m(false)});d.querySelectorAll("a").forEach(function(a){a.addEventListener("click",function(){m(false)})});document.addEventListener("keydown",function(e){if(e.key==="Escape")m(false)})
+})();
+</script>
 </body>
 </html>
