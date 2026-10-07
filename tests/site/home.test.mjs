@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const htmlUrl = new URL('../../index.html', import.meta.url);
 const cssUrl = new URL('../../styles.css', import.meta.url);
+const heroCssUrl = new URL('../../home-team-hero.css', import.meta.url);
 const scriptUrl = new URL('../../script.js', import.meta.url);
 
 async function homeHtml() {
@@ -62,23 +63,33 @@ test('home LocalBusiness schema matches official clinic data', async () => {
   assert.ok(schema.openingHoursSpecification.length > 0);
 });
 
-test('home keeps one visible brand image and Mel as background presentation', async () => {
+test('home keeps the official logo and exposes the team hero with conversion actions', async () => {
   const html = await homeHtml();
   const images = html.match(/<img\b[^>]*>/gi) || [];
-  assert.equal(images.length, 1, 'home must keep a single visible logo image');
-  assert.match(images[0], /\balt=["']BC Estética Avançada["']/i);
+  assert.equal(images.length, 2, 'home must render the logo plus the team hero image');
   assert.match(html, /assets\/logo-oficial\/bc-logo-estetica-avancada-flutuante\.webp/);
-  assert.doesNotMatch(html, /<img\b[^>]*01-mel-perfil\.jpg/i);
+  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-home-sem-fundo\.webp["']/i);
+  assert.match(html, /alt=["']Equipe da BC Estética Avançada["']/i);
+  assert.match(html, /href=["']agendamento\/["'][^>]*>Agende sua avaliação</i);
+  assert.match(html, /href=["']agendamento\/#preAnamneseForm["'][^>]*>Faça sua pré-anamnese</i);
+  assert.match(html, /href=["']procedimentos\/["']/i);
+  assert.match(html, /home-team-hero\.css/i);
 });
 
-test('home CSS stays fluid and interaction script remains external', async () => {
-  const [html, css, script] = await Promise.all([
+test('home team hero is mobile-first and cannot block menu, CTAs or WhatsApp', async () => {
+  const [html, css, heroCss, script] = await Promise.all([
     homeHtml(),
     readFile(cssUrl, 'utf8'),
+    readFile(heroCssUrl, 'utf8'),
     readFile(scriptUrl, 'utf8'),
   ]);
   assert.match(css, /overflow-x:\s*hidden/i);
-  assert.match(css, /01-mel-perfil\.jpg/i);
+  assert.match(heroCss, /\.hero-team-wrap\s*\{[^}]*pointer-events:\s*none/is);
+  assert.match(heroCss, /@media\s*\(max-width:\s*700px\)/i);
+  assert.match(heroCss, /\.hero-team-image\s*\{/i);
+  assert.match(heroCss, /\.hero-actions\s*\{/i);
+  assert.match(heroCss, /\.site-header\s*\{[^}]*z-index:\s*220/is);
+  assert.match(heroCss, /\.whatsapp-float\s*\{[^}]*z-index:\s*210/is);
   assert.match(html, /<script\s+src=["']script\.js["']><\/script>/i);
   assert.ok(script.includes('window.BCMenuReady=true'));
 });
