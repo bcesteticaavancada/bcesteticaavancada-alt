@@ -1,0 +1,143 @@
+/* BC Estética — apresentação premium do tratamento a laser */
+.laser-showcase{
+  position:relative;
+  isolation:isolate;
+  width:min(1180px,92%);
+  margin:clamp(46px,7vw,86px) auto 0;
+  padding:clamp(24px,4vw,46px);
+  display:grid;
+  grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);
+  gap:clamp(30px,6vw,78px);
+  align-items:center;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 18% 22%,rgba(215,182,118,.13),transparent 28%),
+    linear-gradient(145deg,#211914 0%,#100d0b 74%);
+  border:1px solid rgba(215,182,118,.24);
+  box-shadow:0 34px 90px rgba(0,0,0,.28);
+}
+.laser-showcase::before{
+  content:"";
+  position:absolute;
+  inset:16px;
+  z-index:-1;
+  pointer-events:none;
+  border:1px solid rgba(215,182,118,.08);
+}
+.laser-showcase__media{
+  position:relative;
+  width:min(360px,100%);
+  margin:auto;
+  aspect-ratio:9/16;
+  overflow:hidden;
+  background:#090706;
+  border:1px solid rgba(215,182,118,.5);
+  box-shadow:0 28px 70px rgba(0,0,0,.42);
+}
+.laser-showcase__media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(12,9,8,.02) 45%,rgba(12,9,8,.32) 100%),
+    linear-gradient(90deg,rgba(215,182,118,.04),transparent 16%,transparent 84%,rgba(215,182,118,.04));
+}
+.laser-showcase__media video{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  background:#090706;
+}
+.laser-showcase__copy{
+  max-width:620px;
+}
+.laser-showcase__copy .eyebrow{
+  color:var(--gold2);
+  margin-bottom:16px;
+}
+.laser-showcase__copy h3{
+  margin:0 0 20px;
+  color:#fff;
+  font:500 clamp(42px,5.2vw,70px)/.94 var(--serif);
+  letter-spacing:-.035em;
+}
+.laser-showcase__copy h3 em{
+  color:var(--gold2);
+  font-style:italic;
+}
+.laser-showcase__copy p{
+  margin:0 0 26px;
+  max-width:58ch;
+  color:rgba(255,255,255,.7);
+  font-size:14px;
+  line-height:1.8;
+}
+.laser-showcase__meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:28px;
+}
+.laser-showcase__meta span{
+  padding:8px 11px;
+  border:1px solid rgba(215,182,118,.22);
+  color:rgba(255,255,255,.68);
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.laser-showcase .btn{
+  min-width:210px;
+}
+
+@media(max-width:800px){
+  .laser-showcase{
+    width:92%;
+    grid-template-columns:1fr;
+    gap:34px;
+    padding:32px 24px 36px;
+  }
+  .laser-showcase__media{
+    width:min(360px,88vw);
+    order:2;
+  }
+  .laser-showcase__copy{
+    width:100%;
+    order:1;
+  }
+  .laser-showcase__copy h3{
+    font-size:clamp(40px,11vw,58px);
+  }
+}
+
+@media(max-width:520px){
+  .laser-showcase{
+    width:90%;
+    margin-top:42px;
+    padding:26px 18px 30px;
+    gap:28px;
+  }
+  .laser-showcase::before{inset:10px}
+  .laser-showcase__media{
+    width:min(330px,88vw);
+  }
+  .laser-showcase__copy p{
+    font-size:13px;
+    line-height:1.72;
+  }
+  .laser-showcase__meta{
+    gap:8px;
+    margin-bottom:22px;
+  }
+  .laser-showcase .btn{
+    width:100%;
+    min-width:0;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .laser-showcase__media video{scroll-behavior:auto}
+}
