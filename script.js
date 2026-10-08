@@ -93,6 +93,12 @@ function installHomeHeroFullBleedFix(){
     object-fit:cover!important;
     object-position:74% center!important;
     transform:none!important;
+    filter:brightness(1.18) contrast(1.08) saturate(1.06)!important;
+  }
+  .home-hero::before{
+    background:
+      linear-gradient(90deg,rgba(6,4,3,.46) 0%,rgba(9,6,4,.30) 31%,rgba(10,7,5,.16) 52%,rgba(10,7,5,.04) 80%),
+      linear-gradient(180deg,rgba(255,229,185,.02),transparent 40%,rgba(0,0,0,.08))!important;
   }
 }`;
   document.head.appendChild(style);
