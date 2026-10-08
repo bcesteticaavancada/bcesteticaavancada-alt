@@ -100,6 +100,10 @@ function installHomeHeroFullBleedFix(){
       linear-gradient(90deg,rgba(6,4,3,.46) 0%,rgba(9,6,4,.30) 31%,rgba(10,7,5,.16) 52%,rgba(10,7,5,.04) 80%),
       linear-gradient(180deg,rgba(255,229,185,.02),transparent 40%,rgba(0,0,0,.08))!important;
   }
+  .home-hero .hero-actions,
+  .home-hero .hero-treatment-link{
+    transform:translateY(15vh)!important;
+  }
 }`;
   document.head.appendChild(style);
 }
