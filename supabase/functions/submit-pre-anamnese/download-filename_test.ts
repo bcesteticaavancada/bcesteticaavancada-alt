@@ -1,5 +1,5 @@
 import { assertEquals } from "jsr:@std/assert@1.0.14";
-import { buildPdfDownloadFilename } from './download-filename.ts';
+import { buildPdfDownloadFilename } from './download-filename.js';
 
 Deno.test('gera nome BC-Ficha com data de Belo Horizonte, primeiro nome e último sobrenome', () => {
   assertEquals(
