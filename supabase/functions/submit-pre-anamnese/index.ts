@@ -5,6 +5,7 @@ import { buildPublicCode } from './public-code.ts';
 import { generatePreAnamnesePdf } from './pdf.ts';
 import { validateRubricPngDataUrl } from './signature.ts';
 import { canonicalSubmission, sha256Hex } from './integrity.ts';
+import { buildPdfDownloadFilename } from './download-filename.js';
 
 const ALLOWED_ORIGINS = new Set([
   'https://bcesteticaavancada.github.io',
@@ -60,8 +61,12 @@ function patientFromAnswers(row: any) {
   };
 }
 
-async function signedPdfUrl(supabase: any, pdfPath: string) {
-  const { data, error } = await supabase.storage.from('pre-anamnese-pdfs').createSignedUrl(pdfPath, PDF_TTL_SECONDS, { download: true });
+async function signedPdfUrl(supabase: any, pdfPath: string, downloadFilename: string) {
+  const { data, error } = await supabase.storage.from('pre-anamnese-pdfs').createSignedUrl(
+    pdfPath,
+    PDF_TTL_SECONDS,
+    { download: downloadFilename },
+  );
   if (error || !data?.signedUrl) throw new Error('Falha ao criar acesso temporário ao PDF.');
   return { pdfUrl: data.signedUrl, pdfExpiresAt: new Date(Date.now() + PDF_TTL_SECONDS * 1000).toISOString() };
 }
@@ -100,7 +105,8 @@ async function completeExisting(supabase: any, row: any) {
     if (error || !signatureBlob) throw new Error('Não foi possível recuperar a rubrica da ficha.');
     pdfPath = await finalizePdf(supabase, row, new Uint8Array(await signatureBlob.arrayBuffer()));
   }
-  const signed = await signedPdfUrl(supabase, pdfPath);
+  const downloadFilename = buildPdfDownloadFilename(row.patient_name, row.created_at);
+  const signed = await signedPdfUrl(supabase, pdfPath, downloadFilename);
   return { id: row.id, publicCode: row.public_code, createdAt: row.created_at, ...signed };
 }
 
