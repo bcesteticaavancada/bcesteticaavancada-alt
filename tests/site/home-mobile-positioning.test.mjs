@@ -2,27 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const cssUrl = new URL('../../home-team-hero.css', import.meta.url);
 const scriptUrl = new URL('../../script.js', import.meta.url);
 
 test('mobile home uses a full-bleed hero image and keeps the header group five percent left', async () => {
-  const [css, script] = await Promise.all([
-    readFile(cssUrl, 'utf8'),
-    readFile(scriptUrl, 'utf8'),
-  ]);
+  const script = await readFile(scriptUrl, 'utf8');
 
+  assert.match(script, /bc-home-hero-fullbleed-fix/i);
   assert.match(
-    css,
-    /@media\(max-width:700px\)[\s\S]*?\.site-header\s+\.header-inner\s*\{[^}]*transform:\s*translateX\(-5vw\)/i,
+    script,
+    /\.site-header\s+\.header-inner\s*\{[^}]*transform:\s*translateX\(-5vw\)\s*!important/is,
   );
   assert.match(
-    css,
-    /@media\(max-width:700px\)[\s\S]*?\.hero-team-wrap\s*\{[^}]*inset:\s*0/i,
+    script,
+    /\.home-hero\s+\.hero-team-wrap\s*\{[^}]*inset:\s*0\s*!important[^}]*width:\s*100%\s*!important[^}]*height:\s*100%\s*!important/is,
   );
   assert.match(
-    css,
-    /@media\(max-width:700px\)[\s\S]*?\.hero-team-image\s*\{[^}]*width:\s*100%[^}]*height:\s*100%[^}]*object-fit:\s*cover[^}]*object-position:\s*74%\s+center[^}]*transform:\s*none/i,
+    script,
+    /\.home-hero\s+\.hero-team-image\s*\{[^}]*inset:\s*0\s*!important[^}]*width:\s*100%\s*!important[^}]*height:\s*100%\s*!important[^}]*object-fit:\s*cover\s*!important[^}]*object-position:\s*74%\s+center\s*!important[^}]*transform:\s*none\s*!important/is,
   );
-  assert.doesNotMatch(script, /bc-home-mobile-position-fix/i);
   assert.doesNotMatch(script, /left:\s*100%\s*!important/i);
 });
