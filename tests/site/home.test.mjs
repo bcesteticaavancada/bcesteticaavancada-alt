@@ -61,6 +61,19 @@ test('home follows the approved glamorous editorial structure without becoming c
   assert.doesNotMatch(main, /data-video-src=/i);
 });
 
+test('treatment cards lazy-load real media and harmonization uses coherent facial imagery', async () => {
+  const [html, heroCss] = await Promise.all([homeHtml(), readFile(heroCssUrl, 'utf8')]);
+  const images = html.match(/<img\b[^>]*class=["'][^"']*home-treatment-media[^"']*["'][^>]*>/gi) || [];
+  assert.equal(images.length, 3, 'the three treatment cards must use real img elements');
+  for (const image of images) {
+    assert.match(image, /\bloading=["']lazy["']/i);
+    assert.match(image, /\bdecoding=["']async["']/i);
+    assert.match(image, /\balt=["']["']/i);
+  }
+  assert.match(html, /home-treatment-card--facial[\s\S]*?<img\b[^>]*src=["']assets\/procedimentos\/facial\/bc-combo-colageno\.webp["']/i);
+  assert.doesNotMatch(heroCss, /home-treatment-card--(?:facial|skin|body)\s*\{[^}]*background-image/is);
+});
+
 test('home LocalBusiness schema matches official clinic data', async () => {
   const html = await homeHtml();
   const schema = extractJsonLd(html);
