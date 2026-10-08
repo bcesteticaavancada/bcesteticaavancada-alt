@@ -134,3 +134,15 @@ test('mobile home keeps the four premium differentiators in one row', async () =
   const mobile = heroCss.match(/@media\(max-width:700px\)\{([\s\S]*?)@media\(max-width:420px\)/i)?.[1] || '';
   assert.match(mobile, /\.home-signature-grid\s*\{\s*grid-template-columns:repeat\(4,1fr\)/i);
 });
+
+test('mobile hero integrates the team into the luminous scene instead of placing it below the copy', async () => {
+  const [html, heroCss] = await Promise.all([homeHtml(), readFile(heroCssUrl, 'utf8')]);
+  assert.match(html, /class=["'][^"']*hero-scene-backdrop[^"']*["'][^>]*aria-hidden=["']true["']/i);
+  assert.match(heroCss, /\.hero-scene-backdrop\s*\{[^}]*position:\s*absolute/is);
+  assert.match(heroCss, /\.hero-scene-backdrop::before\s*\{[^}]*linear-gradient/is);
+
+  const mobile = heroCss.match(/@media\(max-width:700px\)\{([\s\S]*?)@media\(max-width:420px\)/i)?.[1] || '';
+  assert.match(mobile, /\.hero-team-wrap\s*\{[^}]*top:\s*clamp\(/is);
+  assert.match(mobile, /\.hero-team-wrap\s*\{[^}]*bottom:\s*auto/is);
+  assert.match(mobile, /\.hero-actions\s*\{[^}]*width:\s*min\(/is);
+});
