@@ -62,6 +62,20 @@ function ensureBCFooter(){
 }
 ensureBCFooter();
 
+function installInnerPageHeaderOffset(){
+  if(document.querySelector(".home-editorial"))return;
+  if(document.getElementById("bc-inner-header-left-offset"))return;
+
+  const style=document.createElement("style");
+  style.id="bc-inner-header-left-offset";
+  style.textContent=`
+.site-header .header-inner{
+  transform:translateX(-10vw)!important;
+}`;
+  document.head.appendChild(style);
+}
+installInnerPageHeaderOffset();
+
 function installHomeHeroFullBleedFix(){
   if(!document.querySelector(".home-editorial"))return;
   if(document.getElementById("bc-home-hero-fullbleed-fix"))return;
