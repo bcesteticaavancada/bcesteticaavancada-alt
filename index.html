@@ -16,9 +16,197 @@
   <meta property="og:image" content="https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/01-mel-perfil.jpg">
   <meta property="og:image:alt" content="BC Estética Avançada — Belo Horizonte">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preload" as="image" href="assets/bc-estetica-equipe-home-sem-fundo-v3.webp" type="image/webp">
+  <link rel="preload" as="image" href="assets/bc-estetica-equipe-hero-luxo-dourado.webp" type="image/webp">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="home-team-hero.css">
+  <style id="bc-home-hero-v2">
+    .home-hero{
+      background:#0b0705!important;
+      min-height:calc(100svh - 78px)!important;
+    }
+    .home-hero::after,
+    .hero-scene-backdrop,
+    .hero-team-glow{
+      display:none!important;
+    }
+    .home-hero::before{
+      content:""!important;
+      position:absolute!important;
+      inset:0!important;
+      z-index:3!important;
+      pointer-events:none!important;
+      background:
+        linear-gradient(90deg,rgba(7,4,3,.98) 0%,rgba(7,4,3,.88) 26%,rgba(8,5,4,.56) 44%,rgba(8,5,4,.08) 72%),
+        linear-gradient(180deg,rgba(8,5,4,.18) 0%,rgba(8,5,4,0) 55%,rgba(8,5,4,.28) 100%)!important;
+    }
+    .home-hero .hero-stage{
+      position:relative!important;
+      width:min(1280px,100%)!important;
+      min-height:calc(100svh - 78px)!important;
+      margin:auto!important;
+      display:block!important;
+      overflow:hidden!important;
+      isolation:isolate!important;
+    }
+    .home-hero .hero-team-wrap{
+      position:absolute!important;
+      inset:0!important;
+      z-index:1!important;
+      width:100%!important;
+      min-height:0!important;
+      display:block!important;
+      pointer-events:none!important;
+      overflow:hidden!important;
+    }
+    .home-hero .hero-team-image{
+      position:absolute!important;
+      z-index:1!important;
+      top:-8%!important;
+      right:-2%!important;
+      width:min(72vw,900px)!important;
+      max-width:none!important;
+      height:auto!important;
+      object-fit:contain!important;
+      object-position:center top!important;
+      filter:none!important;
+      transform:none!important;
+    }
+    .home-hero .hero-copy{
+      position:relative!important;
+      z-index:5!important;
+      width:min(46%,545px)!important;
+      max-width:545px!important;
+      margin-left:max(5vw,calc((100vw - 1180px)/2))!important;
+      padding:112px 0 82px!important;
+    }
+    .home-hero .hero-copy h1{
+      max-width:520px!important;
+      font-size:clamp(58px,6.8vw,94px)!important;
+      line-height:.88!important;
+    }
+    .home-hero .hero-copy p{
+      max-width:430px!important;
+      font-size:17px!important;
+      line-height:1.62!important;
+    }
+    .home-hero .hero-actions{
+      position:relative!important;
+      z-index:6!important;
+      max-width:410px!important;
+    }
+    @media(max-width:900px){
+      .home-hero .hero-team-image{
+        top:-1%!important;
+        right:-14%!important;
+        width:min(88vw,760px)!important;
+      }
+      .home-hero .hero-copy{
+        width:52%!important;
+        padding-top:96px!important;
+      }
+    }
+    @media(max-width:700px){
+      .home-hero{
+        min-height:760px!important;
+      }
+      .home-hero::before{
+        background:
+          linear-gradient(90deg,rgba(7,4,3,.93) 0%,rgba(7,4,3,.74) 36%,rgba(7,4,3,.34) 58%,rgba(7,4,3,.04) 82%),
+          linear-gradient(180deg,rgba(7,4,3,.20) 0%,rgba(7,4,3,0) 52%,rgba(7,4,3,.30) 100%)!important;
+      }
+      .home-hero .hero-stage{
+        width:100%!important;
+        min-height:760px!important;
+        display:block!important;
+      }
+      .home-hero .hero-team-wrap{
+        top:0!important;
+        right:0!important;
+        bottom:auto!important;
+        left:0!important;
+        width:100%!important;
+        height:690px!important;
+      }
+      .home-hero .hero-team-image{
+        top:108px!important;
+        right:auto!important;
+        left:50%!important;
+        width:100%!important;
+        height:auto!important;
+        object-fit:contain!important;
+        object-position:center top!important;
+        transform:translateX(-50%)!important;
+      }
+      .home-hero .hero-copy{
+        width:100%!important;
+        max-width:none!important;
+        margin:0!important;
+        padding:74px 22px 28px!important;
+      }
+      .home-hero .hero-copy::before{
+        margin-bottom:16px!important;
+      }
+      .home-hero .hero-copy .eyebrow{
+        max-width:250px!important;
+        margin-bottom:15px!important;
+        font-size:8px!important;
+        line-height:1.5!important;
+      }
+      .home-hero .hero-copy h1{
+        max-width:310px!important;
+        margin-bottom:16px!important;
+        font-size:clamp(48px,14vw,62px)!important;
+        line-height:.88!important;
+      }
+      .home-hero .hero-copy p{
+        max-width:300px!important;
+        font-size:15px!important;
+        line-height:1.46!important;
+        text-shadow:0 2px 18px rgba(0,0,0,.56)!important;
+      }
+      .home-hero .hero-actions{
+        width:min(88%,340px)!important;
+        max-width:340px!important;
+        margin:22px 0 14px!important;
+        gap:10px!important;
+      }
+      .home-hero .hero-actions .btn{
+        width:100%!important;
+        min-width:0!important;
+        min-height:50px!important;
+      }
+      .home-hero .hero-treatment-link{
+        margin-top:2px!important;
+      }
+    }
+    @media(max-width:420px){
+      .home-hero,
+      .home-hero .hero-stage{
+        min-height:735px!important;
+      }
+      .home-hero .hero-team-wrap{
+        height:660px!important;
+      }
+      .home-hero .hero-team-image{
+        top:104px!important;
+        width:102%!important;
+      }
+      .home-hero .hero-copy{
+        padding:66px 20px 24px!important;
+      }
+      .home-hero .hero-copy h1{
+        max-width:292px!important;
+        font-size:clamp(46px,14vw,58px)!important;
+      }
+      .home-hero .hero-copy p{
+        max-width:280px!important;
+        font-size:14px!important;
+      }
+      .home-hero .hero-actions{
+        width:min(90%,328px)!important;
+      }
+    }
+  </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -101,13 +289,13 @@
           <div class="hero-team-glow"></div>
           <img
             class="hero-team-image"
-            src="assets/bc-estetica-equipe-home-sem-fundo-v3.webp"
+            src="assets/bc-estetica-equipe-hero-luxo-dourado.webp"
             alt=""
-            width="1536"
-            height="1024"
+            width="1122"
+            height="1402"
             decoding="async"
             fetchpriority="high"
-            onerror="this.onerror=null;this.src='assets/02-equipe-bc-estetica.jpg'"
+            onerror="this.onerror=null;this.src='assets/bc-estetica-equipe-home-sem-fundo-v3.webp'"
           >
         </div>
       </div>
