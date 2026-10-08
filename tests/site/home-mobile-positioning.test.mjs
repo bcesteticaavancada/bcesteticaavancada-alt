@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const scriptUrl = new URL('../../script.js', import.meta.url);
 
-test('mobile home uses a full-bleed hero image and keeps the header group five percent left', async () => {
+test('mobile home keeps the hero wrapper full bleed, zooms the photo out twenty percent, and keeps the header group five percent left', async () => {
   const script = await readFile(scriptUrl, 'utf8');
 
   assert.match(script, /bc-home-hero-fullbleed-fix/i);
@@ -18,7 +18,7 @@ test('mobile home uses a full-bleed hero image and keeps the header group five p
   );
   assert.match(
     script,
-    /\.home-hero\s+\.hero-team-image\s*\{[^}]*inset:\s*0\s*!important[^}]*width:\s*100%\s*!important[^}]*height:\s*100%\s*!important[^}]*object-fit:\s*cover\s*!important[^}]*object-position:\s*74%\s+center\s*!important[^}]*transform:\s*none\s*!important/is,
+    /\.home-hero\s+\.hero-team-image\s*\{[^}]*top:\s*10%\s*!important[^}]*left:\s*0\s*!important[^}]*width:\s*100%\s*!important[^}]*height:\s*80%\s*!important[^}]*object-fit:\s*cover\s*!important[^}]*object-position:\s*74%\s+center\s*!important[^}]*transform:\s*none\s*!important/is,
   );
   assert.doesNotMatch(script, /left:\s*100%\s*!important/i);
 });

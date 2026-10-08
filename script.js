@@ -99,9 +99,12 @@ function installHomeHeroFullBleedFix(){
   }
   .home-hero .hero-team-image{
     position:absolute!important;
-    inset:0!important;
+    top:10%!important;
+    left:0!important;
+    right:0!important;
+    bottom:auto!important;
     width:100%!important;
-    height:100%!important;
+    height:80%!important;
     max-width:none!important;
     margin:0!important;
     object-fit:cover!important;
