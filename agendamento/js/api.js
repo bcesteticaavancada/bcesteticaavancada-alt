@@ -3,6 +3,28 @@ import { normalizeCpf } from './cpf.js';
 
 export const SUBMISSION_TOKEN_KEY = 'bc.preAnamnese.submissionToken.v1';
 
+const SAFE_FILENAME_PART = /[^\p{L}\p{N}._-]+/gu;
+
+function cleanFilenamePart(value) {
+  return String(value ?? '')
+    .normalize('NFC')
+    .replace(SAFE_FILENAME_PART, '')
+    .replace(/^[._-]+|[._-]+$/g, '');
+}
+
+function beloHorizonteDate(createdAt) {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return '';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 export function createSubmissionToken(cryptoImpl = globalThis.crypto) {
   if (!cryptoImpl?.randomUUID) throw new Error('Este navegador não suporta geração segura de identificador.');
   return cryptoImpl.randomUUID();
@@ -49,6 +71,16 @@ export function buildSubmissionPayload(values, signatureDataUrl, sourceVersion, 
 export function filenameForCode(publicCode) {
   const safe = String(publicCode || 'BC-pre-anamnese').replace(/[^A-Za-z0-9._-]+/g, '-').replace(/-+/g, '-');
   return `${safe}.pdf`;
+}
+
+export function filenameForPatient(patientName, createdAt, fallbackCode = '') {
+  const date = beloHorizonteDate(createdAt);
+  if (!date) return filenameForCode(fallbackCode);
+  const words = String(patientName ?? '').trim().split(/\s+/).filter(Boolean);
+  const first = cleanFilenamePart(words[0] ?? 'Paciente') || 'Paciente';
+  const last = cleanFilenamePart(words.length > 1 ? words.at(-1) : '');
+  const person = last && last !== first ? `${first}-${last}` : first;
+  return `BC-Ficha${date}${person}.pdf`;
 }
 
 export async function submitPreAnamnese(payload, fetchImpl = fetch, config = {}) {
