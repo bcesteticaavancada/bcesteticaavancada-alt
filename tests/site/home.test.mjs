@@ -91,7 +91,8 @@ test('home keeps the official logo, decorative team hero and conversion actions'
   const html = await homeHtml();
   assert.match(html, /assets\/logo-oficial\/bc-logo-estetica-avancada-flutuante\.webp/);
   assert.match(html, /class=["'][^"']*hero-team-wrap[^"']*["'][^>]*aria-hidden=["']true["']/i);
-  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-home-sem-fundo-v3\.webp["'][^>]*alt=["']["']/i);
+  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-hero-luxo-dourado\.webp["'][^>]*alt=["']["']/i);
+  assert.match(html, /id=["']bc-home-hero-v2["']/i);
   assert.match(html, /href=["']agendamento\/["'][^>]*>Agende sua avaliação/i);
   assert.match(html, /href=["']agendamento\/#preAnamneseForm["'][^>]*>Faça sua pré-anamnese/i);
   assert.match(html, /href=["']procedimentos\/["']/i);
