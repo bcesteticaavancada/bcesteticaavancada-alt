@@ -63,13 +63,13 @@ test('home LocalBusiness schema matches official clinic data', async () => {
   assert.ok(schema.openingHoursSpecification.length > 0);
 });
 
-test('home keeps the official logo and exposes the team hero with conversion actions', async () => {
+test('home keeps the official logo and exposes the decorative team hero with conversion actions', async () => {
   const html = await homeHtml();
   const images = html.match(/<img\b[^>]*>/gi) || [];
   assert.equal(images.length, 2, 'home must render the logo plus the team hero image');
   assert.match(html, /assets\/logo-oficial\/bc-logo-estetica-avancada-flutuante\.webp/);
-  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-home-sem-fundo\.webp["']/i);
-  assert.match(html, /alt=["']Equipe da BC Estética Avançada["']/i);
+  assert.match(html, /class=["'][^"']*hero-team-wrap[^"']*["'][^>]*aria-hidden=["']true["']/i);
+  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-home-sem-fundo-v3\.webp["'][^>]*alt=["']["']/i);
   assert.match(html, /href=["']agendamento\/["'][^>]*>Agende sua avaliação</i);
   assert.match(html, /href=["']agendamento\/#preAnamneseForm["'][^>]*>Faça sua pré-anamnese</i);
   assert.match(html, /href=["']procedimentos\/["']/i);
