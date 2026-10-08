@@ -4,7 +4,7 @@ import { getVisibleModuleKeys } from './conditional.js';
 import { buildReviewSections } from './review.js';
 import { createSignaturePad } from './signature.js';
 import { FORM_VERSION } from './config.js';
-import { downloadPdf, filenameForCode, sharePdf } from './api.js';
+import { downloadPdf, filenameForPatient, sharePdf } from './api.js';
 import { createSubmissionGate, finalizePreAnamnese } from './finalize.js';
 import { formatCpf } from './cpf.js';
 
@@ -28,11 +28,11 @@ export function signatureStepErrors(signaturePad) {
   return signaturePad?.isValid?.() === true ? {} : { signature: 'Faça uma rubrica válida antes de continuar.' };
 }
 
-export function buildSubmissionSuccessView(result) {
+export function buildSubmissionSuccessView(result, patientName = '') {
   const publicCode = String(result?.publicCode || '').trim();
   return {
     publicCode,
-    filename: filenameForCode(publicCode),
+    filename: filenameForPatient(patientName, result?.createdAt, publicCode),
     pdfUrl: String(result?.pdfUrl || ''),
     pdfExpiresAt: String(result?.pdfExpiresAt || ''),
     message: `Ficha ${publicCode} enviada com segurança.`,
@@ -214,7 +214,7 @@ function initializePreAnamnese() {
   }
 
   function renderSubmissionSuccess(result) {
-    const view = buildSubmissionSuccessView(result);
+    const view = buildSubmissionSuccessView(result, state.values?.nome || '');
     submissionSucceeded = true;
     if (finalizeButton) finalizeButton.disabled = true;
     if (back) back.style.visibility = 'hidden';
