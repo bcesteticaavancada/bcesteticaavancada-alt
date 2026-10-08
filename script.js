@@ -62,25 +62,41 @@ function ensureBCFooter(){
 }
 ensureBCFooter();
 
-function installHomeMobilePositionFix(){
+function installHomeHeroFullBleedFix(){
   if(!document.querySelector(".home-editorial"))return;
-  if(document.getElementById("bc-home-mobile-position-fix"))return;
+  if(document.getElementById("bc-home-hero-fullbleed-fix"))return;
 
   const style=document.createElement("style");
-  style.id="bc-home-mobile-position-fix";
+  style.id="bc-home-hero-fullbleed-fix";
   style.textContent=`
 @media(max-width:700px){
   .site-header .header-inner{
     transform:translateX(-5vw)!important;
   }
+  .home-hero .hero-team-wrap{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    margin:0!important;
+    transform:none!important;
+    overflow:hidden!important;
+  }
   .home-hero .hero-team-image{
-    left:100%!important;
-    right:auto!important;
-    transform:translateX(-50%)!important;
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    object-fit:cover!important;
+    object-position:74% center!important;
+    transform:none!important;
   }
 }`;
   document.head.appendChild(style);
 }
-installHomeMobilePositionFix();
+installHomeHeroFullBleedFix();
 
 window.BCMenuReady=true;
