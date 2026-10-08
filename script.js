@@ -62,4 +62,25 @@ function ensureBCFooter(){
 }
 ensureBCFooter();
 
+function installHomeMobilePositionFix(){
+  if(!document.querySelector(".home-editorial"))return;
+  if(document.getElementById("bc-home-mobile-position-fix"))return;
+
+  const style=document.createElement("style");
+  style.id="bc-home-mobile-position-fix";
+  style.textContent=`
+@media(max-width:700px){
+  .site-header .header-inner{
+    transform:translateX(-5vw)!important;
+  }
+  .home-hero .hero-team-image{
+    left:100%!important;
+    right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+}`;
+  document.head.appendChild(style);
+}
+installHomeMobilePositionFix();
+
 window.BCMenuReady=true;
