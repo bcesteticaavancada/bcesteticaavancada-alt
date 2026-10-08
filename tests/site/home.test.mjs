@@ -120,8 +120,17 @@ test('home preserves menu, WhatsApp, official address and GPS', async () => {
   assert.ok(script.includes('window.BCMenuReady=true'));
 });
 
-test('home simple footer is protected from rich-footer replacement', async () => {
+test('home embeds the rich footer map while preserving the home footer guard', async () => {
   const [html, script] = await Promise.all([homeHtml(), readFile(scriptUrl, 'utf8')]);
   assert.match(html, /<footer\b[^>]*data-bc-footer=["']home["']/i);
+  assert.match(html, /class=["'][^"']*bc-footer-map[^"']*["']/i);
+  assert.match(html, /<iframe\b[^>]*src=["']https:\/\/www\.google\.com\/maps\?q=/i);
+  assert.match(html, /Abrir no Google Maps/i);
   assert.match(script, /footer\[data-bc-footer=["']home["']\]/i);
+});
+
+test('mobile home keeps the four premium differentiators in one row', async () => {
+  const heroCss = await readFile(heroCssUrl, 'utf8');
+  const mobile = heroCss.match(/@media\(max-width:700px\)\{([\s\S]*?)@media\(max-width:420px\)/i)?.[1] || '';
+  assert.match(mobile, /\.home-signature-grid\s*\{\s*grid-template-columns:repeat\(4,1fr\)/i);
 });
