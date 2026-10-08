@@ -68,7 +68,7 @@ test('home keeps the official logo and exposes the team hero with conversion act
   const images = html.match(/<img\b[^>]*>/gi) || [];
   assert.equal(images.length, 2, 'home must render the logo plus the team hero image');
   assert.match(html, /assets\/logo-oficial\/bc-logo-estetica-avancada-flutuante\.webp/);
-  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-home-sem-fundo\.webp["']/i);
+  assert.match(html, /class=["'][^"']*hero-team-image[^"']*["'][^>]*src=["']assets\/bc-estetica-equipe-home-sem-fundo-v3\.webp["']/i);
   assert.match(html, /alt=["']Equipe da BC Estética Avançada["']/i);
   assert.match(html, /href=["']agendamento\/["'][^>]*>Agende sua avaliação</i);
   assert.match(html, /href=["']agendamento\/#preAnamneseForm["'][^>]*>Faça sua pré-anamnese</i);
