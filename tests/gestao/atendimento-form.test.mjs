@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   normalizeAttendanceFields,
   validateAttendanceFields,
+  canRegisterAttendance,
   bindAttendanceForm,
 } from '../../gestao/js/atendimento-form.js';
 
@@ -102,6 +103,14 @@ test('validateAttendanceFields exige ao menos um conteúdo significativo', () =>
     valid: true,
     message: '',
   });
+});
+
+test('ficha só pode ser registrada enquanto o agendamento está agendado', () => {
+  assert.equal(canRegisterAttendance('agendado'), true);
+  assert.equal(canRegisterAttendance('atendido'), false);
+  assert.equal(canRegisterAttendance('cancelado'), false);
+  assert.equal(canRegisterAttendance('faltou'), false);
+  assert.equal(canRegisterAttendance(''), false);
 });
 
 test('bindAttendanceForm envia somente appointmentId e campos aprovados', async () => {
