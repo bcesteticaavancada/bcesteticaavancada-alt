@@ -156,12 +156,12 @@ test('login and role pages are wired to real authentication without hardcoded st
   assert.doesNotMatch(login, /mel@|alice@/i);
 
   const admin = fs.readFileSync(path.join(root, 'gestao/admin/index.html'), 'utf8');
-  assert.match(admin, /requireRole\(['"]admin['"]\)/);
+  assert.match(admin, /requireRole\(['"]admin['"](?:\s*,\s*client)?\)/);
   assert.match(admin, /id=["']gestaoApp["'][^>]*hidden/i);
   assert.match(admin, /id=["']logoutBtn["']/);
 
   const colaborador = fs.readFileSync(path.join(root, 'gestao/colaborador/index.html'), 'utf8');
-  assert.match(colaborador, /requireRole\(['"]colaborador['"]\)/);
+  assert.match(colaborador, /requireRole\(['"]colaborador['"](?:\s*,\s*client)?\)/);
   assert.match(colaborador, /id=["']gestaoApp["'][^>]*hidden/i);
   assert.match(colaborador, /id=["']logoutBtn["']/);
   assert.doesNotMatch(colaborador, /financeiro|faturamento|pagamentos?/i);
