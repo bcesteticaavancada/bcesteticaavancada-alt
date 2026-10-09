@@ -58,6 +58,9 @@ function makeClient({ response = { data: 'att-1', error: null }, deferred = null
   return {
     rpcCalls,
     client: {
+      from() {
+        throw new Error('from não deve ser chamado nos testes da ficha.');
+      },
       async rpc(name, payload) {
         rpcCalls.push([name, payload]);
         if (deferred) return deferred.promise;
