@@ -16,7 +16,8 @@ test('fase 3 cria rpc segura de status com papéis e estados permitidos', async 
   for (const status of ['agendado', 'atendido', 'cancelado', 'faltou']) assert.match(sql, new RegExp(`'${status}'`));
   assert.match(sql, /private\.is_bc_admin\(\)/);
   assert.match(sql, /private\.is_bc_active_colaborador\(\)/);
-  assert.match(sql, /colaboradora_user_id\s*=\s*auth\.uid\(\)/);
+  assert.match(sql, /v_user_id\s+uuid\s*:=\s*auth\.uid\(\)/);
+  assert.match(sql, /v_agendamento\.colaboradora_user_id\s*<>\s*v_user_id/);
 });
 
 test('fase 3 registra atendimento derivando vínculo somente do agendamento', async () => {
