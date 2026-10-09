@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel administrativo • BC Gestão</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="../assets/gestao.css">
+</head>
+<body class="bcg-page bcg-dashboard-page">
+  <div class="bcg-dashboard-shell">
+    <aside class="bcg-sidebar">
+      <a class="bcg-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
+      <nav class="bcg-nav" aria-label="Navegação administrativa">
+        <a data-nav aria-current="page" href="#dashboard">Dashboard</a>
+        <a data-nav href="#agenda">Agenda</a>
+        <a data-nav href="#clientes">Clientes</a>
+        <a data-nav href="#historico">Histórico</a>
+        <a data-nav href="#financeiro">Financeiro</a>
+      </nav>
+      <div class="bcg-sidebar-note">Perfil previsto: <strong>administradora</strong><br>Autorização real será aplicada pelo backend.</div>
+    </aside>
+    <main class="bcg-dashboard-main">
+      <header class="bcg-topbar">
+        <div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Painel <em>administrativo</em></h1></div>
+        <span class="bcg-chip">Fundação</span>
+      </header>
+      <section id="dashboard" class="bcg-section">
+        <div class="bcg-section-head"><div><p class="bcg-eyebrow">VISÃO GERAL</p><h2>Dashboard da Mel</h2></div><p>Sem números fictícios: os indicadores serão carregados somente quando houver fonte autenticada.</p></div>
+        <div class="bcg-metric-grid">
+          <article class="bcg-metric"><span>Faturamento hoje</span><strong>Em preparação</strong></article>
+          <article class="bcg-metric"><span>Atendimentos</span><strong>Em preparação</strong></article>
+          <article class="bcg-metric"><span>Ticket médio</span><strong>Em preparação</strong></article>
+          <article class="bcg-metric"><span>A receber</span><strong>Em preparação</strong></article>
+        </div>
+      </section>
+      <section id="agenda" class="bcg-panel"><p class="bcg-eyebrow">AGENDA</p><h2>Atendimentos do dia</h2><div class="bcg-empty">Nenhum dado conectado nesta fase.</div></section>
+      <section id="clientes" class="bcg-panel"><p class="bcg-eyebrow">CLIENTES</p><h2>Cadastro e acompanhamento</h2><div class="bcg-empty">O cadastro será ligado ao banco depois da autenticação e das regras de acesso.</div></section>
+      <section id="historico" class="bcg-panel"><p class="bcg-eyebrow">HISTÓRICO</p><h2>Linha do tempo de atendimentos</h2><div class="bcg-empty">Estrutura reservada para registros de sessões, observações e evolução.</div></section>
+      <section id="financeiro" class="bcg-panel"><p class="bcg-eyebrow">FINANCEIRO • SOMENTE ADMIN</p><h2>Recebimentos e contas a receber</h2><div class="bcg-empty">Módulo financeiro reservado à administradora e ainda sem conexão de dados.</div></section>
+      <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
+    </main>
+  </div>
+  <script type="module" src="../js/shell.js"></script>
+</body>
+</html>
