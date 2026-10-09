@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   formatClinicDateTime,
   clinicDayRange,
+  clinicLocalDateTimeToIso,
   statusLabel,
 } from '../../gestao/js/agenda-format.js';
 
@@ -24,6 +25,21 @@ test('clinicDayRange delimita meia-noite a meia-noite da clínica sem depender d
     fromIso: '2026-10-09T03:00:00.000Z',
     toIso: '2026-10-10T03:00:00.000Z',
   });
+});
+
+test('clinicLocalDateTimeToIso interpreta datetime-local no fuso da clínica', () => {
+  assert.equal(
+    clinicLocalDateTimeToIso('2026-10-09T09:00'),
+    '2026-10-09T12:00:00.000Z',
+  );
+  assert.equal(
+    clinicLocalDateTimeToIso('2026-10-09T18:30'),
+    '2026-10-09T21:30:00.000Z',
+  );
+});
+
+test('clinicLocalDateTimeToIso rejeita valor datetime-local inválido', () => {
+  assert.throws(() => clinicLocalDateTimeToIso('09/10/2026 09:00'), /inválido/i);
 });
 
 test('statusLabel mantém os quatro estados operacionais aprovados', () => {
