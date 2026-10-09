@@ -20,6 +20,7 @@
       </nav>
       <div class="bcg-sidebar-note">Acesso restrito à agenda e ao histórico autorizado dos clientes vinculados.</div>
     </aside>
+
     <main class="bcg-dashboard-main">
       <header class="bcg-topbar">
         <div>
@@ -29,9 +30,39 @@
         </div>
         <button id="logoutBtn" class="bcg-button" type="button">Sair</button>
       </header>
-      <section id="hoje" class="bcg-section"><div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA DE HOJE</p><h2>Seus atendimentos</h2></div><p>Esta área exibirá somente os atendimentos autorizados para a profissional autenticada.</p></div><div class="bcg-empty bcg-empty-large">Agenda autenticada pronta para receber dados na próxima etapa.</div></section>
-      <section id="proximos" class="bcg-panel"><p class="bcg-eyebrow">PRÓXIMOS</p><h2>Próximos atendimentos</h2><div class="bcg-empty">A consulta seguirá o vínculo da profissional autenticada.</div></section>
-      <section id="historico" class="bcg-panel"><p class="bcg-eyebrow">HISTÓRICO AUTORIZADO</p><h2>Contexto de atendimentos anteriores</h2><div class="bcg-empty">Esta área exibirá observações permitidas somente quando houver vínculo com o cliente.</div></section>
+
+      <p id="collaboratorAgendaStatus" class="bcg-status" role="status" aria-live="polite"></p>
+
+      <section id="hoje" class="bcg-section">
+        <div class="bcg-section-head">
+          <div><p class="bcg-eyebrow">AGENDA DE HOJE</p><h2>Seus atendimentos</h2></div>
+          <p>Somente os horários vinculados ao seu perfil autenticado são exibidos.</p>
+        </div>
+        <div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
+      </section>
+
+      <section id="proximos" class="bcg-panel">
+        <p class="bcg-eyebrow">PRÓXIMOS</p>
+        <h2>Próximos atendimentos</h2>
+        <div id="nextAgendaList"><div class="bcg-empty">Carregando próximos horários…</div></div>
+      </section>
+
+      <section id="appointmentDetail" class="bcg-panel bcg-detail-panel" hidden>
+        <div class="bcg-detail-toolbar">
+          <p class="bcg-eyebrow">DETALHE AUTORIZADO</p>
+          <button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button>
+        </div>
+        <div id="appointmentDetailContent"></div>
+
+        <div id="historico" class="bcg-detail-history">
+          <p class="bcg-eyebrow">HISTÓRICO AUTORIZADO</p>
+          <h2>Contexto das sessões anteriores</h2>
+          <div id="historyTimeline"></div>
+        </div>
+
+        <div id="attendanceFormSlot"></div>
+      </section>
+
       <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
     </main>
   </div>
@@ -39,23 +70,32 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
     import { requireRole, signOut } from '../js/auth.js';
+    import { createBcGestaoClient } from '../js/supabase-client.js';
+    import { initCollaboratorAgenda } from '../js/colaborador-agenda.js';
     import '../js/shell.js';
 
     const app = document.getElementById('gestaoApp');
     const status = document.getElementById('authStatus');
     const logout = document.getElementById('logoutBtn');
-    const profile = await requireRole('colaborador');
+    const client = createBcGestaoClient(globalThis.supabase?.createClient);
+    const profile = await requireRole('colaborador', client);
 
     if (profile) {
       document.getElementById('profileName').textContent = profile.display_name || 'Profissional';
       status.hidden = true;
       app.hidden = false;
+      try {
+        await initCollaboratorAgenda({ client, profile, root: document });
+      } catch (error) {
+        status.hidden = false;
+        status.textContent = error?.message || 'Não foi possível iniciar sua agenda.';
+      }
     }
 
     logout.addEventListener('click', async () => {
       logout.disabled = true;
       try {
-        await signOut();
+        await signOut(client);
       } finally {
         window.location.replace('../login/');
       }
