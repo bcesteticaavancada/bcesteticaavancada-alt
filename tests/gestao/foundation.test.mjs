@@ -10,6 +10,8 @@ const requiredFiles = [
   'gestao/colaborador/index.html',
   'gestao/assets/gestao.css',
   'gestao/js/routes.js',
+  'gestao/js/config.js',
+  'gestao/js/supabase-client.js',
 ];
 
 function walk(dir) {
