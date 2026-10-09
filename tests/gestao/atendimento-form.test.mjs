@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
   normalizeAttendanceFields,
   validateAttendanceFields,
@@ -16,6 +17,8 @@ const FIELD_NAMES = [
   'orientacoes',
   'recomendacao_proxima_sessao',
 ];
+
+const collaboratorHtmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
 
 function makeForm(values = {}) {
   const listeners = new Map();
@@ -111,6 +114,18 @@ test('ficha só pode ser registrada enquanto o agendamento está agendado', () =
   assert.equal(canRegisterAttendance('cancelado'), false);
   assert.equal(canRegisterAttendance('faltou'), false);
   assert.equal(canRegisterAttendance(''), false);
+});
+
+test('tela da colaboradora contém os sete campos da ficha e binding real', async () => {
+  const html = await readFile(collaboratorHtmlUrl, 'utf8');
+  assert.match(html, /id=["']attendanceForm["']/);
+  for (const name of FIELD_NAMES) {
+    assert.match(html, new RegExp(`name=["']${name}["']`));
+  }
+  assert.match(html, /data-attendance-status/);
+  assert.match(html, /atendimento-form\.js/);
+  assert.match(html, /bindAttendanceForm\s*\(/);
+  assert.match(html, /appointmentId\s*:\s*\(\)\s*=>/);
 });
 
 test('bindAttendanceForm envia somente appointmentId e campos aprovados', async () => {
