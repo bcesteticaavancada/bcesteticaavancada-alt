@@ -4,11 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Área da colaboradora • BC Gestão</title>
-  <meta name="robots" content="noindex,nofollow">
+  <meta name="robots" content="noindex,nofollow,noarchive">
   <link rel="stylesheet" href="../assets/gestao.css">
 </head>
 <body class="bcg-page bcg-dashboard-page">
-  <div class="bcg-dashboard-shell">
+  <p id="authStatus" class="bcg-status" role="status" aria-live="polite">Validando acesso da profissional…</p>
+
+  <div id="gestaoApp" class="bcg-dashboard-shell" hidden>
     <aside class="bcg-sidebar">
       <a class="bcg-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
       <nav class="bcg-nav" aria-label="Navegação da colaboradora">
@@ -16,16 +18,48 @@
         <a data-nav href="#proximos">Próximos</a>
         <a data-nav href="#historico">Histórico autorizado</a>
       </nav>
-      <div class="bcg-sidebar-note">Perfil previsto: <strong>colaboradora</strong><br>Sem acesso ao módulo financeiro.</div>
+      <div class="bcg-sidebar-note">Acesso restrito à agenda e ao histórico autorizado dos clientes vinculados.</div>
     </aside>
     <main class="bcg-dashboard-main">
-      <header class="bcg-topbar"><div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Área da <em>colaboradora</em></h1></div><span class="bcg-chip">Fundação</span></header>
-      <section id="hoje" class="bcg-section"><div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA DE HOJE</p><h2>Seus atendimentos</h2></div><p>Quando o login for conectado, esta área mostrará somente atendimentos autorizados para a profissional autenticada.</p></div><div class="bcg-empty bcg-empty-large">Agenda ainda não conectada.</div></section>
-      <section id="proximos" class="bcg-panel"><p class="bcg-eyebrow">PRÓXIMOS</p><h2>Próximos atendimentos</h2><div class="bcg-empty">Nenhum dado real é carregado nesta fase.</div></section>
-      <section id="historico" class="bcg-panel"><p class="bcg-eyebrow">HISTÓRICO AUTORIZADO</p><h2>Contexto de atendimentos anteriores</h2><div class="bcg-empty">Futuramente exibirá observações permitidas do cliente vinculado ao atendimento, sem acesso financeiro.</div></section>
+      <header class="bcg-topbar">
+        <div>
+          <p class="bcg-eyebrow">BC GESTÃO 1.0</p>
+          <h1>Área da <em>colaboradora</em></h1>
+          <p class="bcg-muted">Olá, <strong id="profileName">Profissional</strong></p>
+        </div>
+        <button id="logoutBtn" class="bcg-button" type="button">Sair</button>
+      </header>
+      <section id="hoje" class="bcg-section"><div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA DE HOJE</p><h2>Seus atendimentos</h2></div><p>Esta área exibirá somente os atendimentos autorizados para a profissional autenticada.</p></div><div class="bcg-empty bcg-empty-large">Agenda autenticada pronta para receber dados na próxima etapa.</div></section>
+      <section id="proximos" class="bcg-panel"><p class="bcg-eyebrow">PRÓXIMOS</p><h2>Próximos atendimentos</h2><div class="bcg-empty">A consulta seguirá o vínculo da profissional autenticada.</div></section>
+      <section id="historico" class="bcg-panel"><p class="bcg-eyebrow">HISTÓRICO AUTORIZADO</p><h2>Contexto de atendimentos anteriores</h2><div class="bcg-empty">Esta área exibirá observações permitidas somente quando houver vínculo com o cliente.</div></section>
       <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
     </main>
   </div>
-  <script type="module" src="../js/shell.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { requireRole, signOut } from '../js/auth.js';
+    import '../js/shell.js';
+
+    const app = document.getElementById('gestaoApp');
+    const status = document.getElementById('authStatus');
+    const logout = document.getElementById('logoutBtn');
+    const profile = await requireRole('colaborador');
+
+    if (profile) {
+      document.getElementById('profileName').textContent = profile.display_name || 'Profissional';
+      status.hidden = true;
+      app.hidden = false;
+    }
+
+    logout.addEventListener('click', async () => {
+      logout.disabled = true;
+      try {
+        await signOut();
+      } finally {
+        window.location.replace('../login/');
+      }
+    });
+  </script>
 </body>
 </html>
