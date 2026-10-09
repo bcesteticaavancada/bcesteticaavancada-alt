@@ -50,16 +50,20 @@ function zoneOffsetMs(date) {
   return localAsUtc - wholeSecondUtc;
 }
 
-function clinicMidnightUtc(year, month, day) {
-  const targetLocalAsUtc = Date.UTC(year, month - 1, day, 0, 0, 0);
+function localPartsToUtc(year, month, day, hour = 0, minute = 0, second = 0) {
+  const targetLocalAsUtc = Date.UTC(year, month - 1, day, hour, minute, second);
   let candidate = targetLocalAsUtc;
 
-  // Two passes are enough to settle timezone/DST offset around midnight.
+  // Recalcula o offset no instante alvo para não depender do fuso do aparelho.
   for (let i = 0; i < 2; i += 1) {
     candidate = targetLocalAsUtc - zoneOffsetMs(new Date(candidate));
   }
 
   return new Date(candidate);
+}
+
+function clinicMidnightUtc(year, month, day) {
+  return localPartsToUtc(year, month, day, 0, 0, 0);
 }
 
 export function formatClinicDateTime(iso) {
@@ -82,6 +86,34 @@ export function clinicDayRange(date = new Date()) {
     fromIso: from.toISOString(),
     toIso: to.toISOString(),
   };
+}
+
+export function clinicLocalDateTimeToIso(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(String(value ?? '').trim());
+  if (!match) throw new Error('Data ou horário local inválido.');
+
+  const [, year, month, day, hour, minute, second = '0'] = match;
+  const numbers = [year, month, day, hour, minute, second].map(Number);
+  const [y, m, d, h, min, s] = numbers;
+
+  if (m < 1 || m > 12 || d < 1 || d > 31 || h < 0 || h > 23 || min < 0 || min > 59 || s < 0 || s > 59) {
+    throw new Error('Data ou horário local inválido.');
+  }
+
+  const utc = localPartsToUtc(y, m, d, h, min, s);
+  const roundTrip = partsMap(utc);
+  if (
+    roundTrip.year !== y
+    || roundTrip.month !== m
+    || roundTrip.day !== d
+    || roundTrip.hour !== h
+    || roundTrip.minute !== min
+    || roundTrip.second !== s
+  ) {
+    throw new Error('Data ou horário local inválido.');
+  }
+
+  return utc.toISOString();
 }
 
 export function statusLabel(status) {
