@@ -8,3 +8,7 @@ export function destinationForRole(role) {
   const normalized = role.trim().toLowerCase();
   return ROLE_DESTINATIONS[normalized] ?? null;
 }
+
+export function routeForRole(role) {
+  return destinationForRole(role);
+}
