@@ -24,6 +24,10 @@ export function validateAttendanceFields(values = {}) {
     : { valid: false, message: 'Registre ao menos uma observação do atendimento.' };
 }
 
+export function canRegisterAttendance(status) {
+  return String(status ?? '').trim() === 'agendado';
+}
+
 function valuesFromForm(form) {
   return Object.fromEntries(
     ATTENDANCE_FIELDS.map((name) => [name, form?.elements?.namedItem?.(name)?.value ?? '']),
