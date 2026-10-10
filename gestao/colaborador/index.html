@@ -1,19 +1,120 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Área da colaboradora • BC Gestão</title><meta name="robots" content="noindex,nofollow,noarchive"><link rel="stylesheet" href="../assets/gestao.css"></head>
-<body class="bcg-page bcg-dashboard-page"><p id="authStatus" class="bcg-status">Validando acesso da profissional…</p><div id="gestaoApp" class="bcg-dashboard-shell" hidden>
-<aside class="bcg-sidebar"><a class="bcg-brand" href="../"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a><nav class="bcg-nav"><a data-nav aria-current="page" href="#agenda">Minha agenda</a><a data-nav href="#clientes">Clientes</a></nav><div class="bcg-sidebar-note">Sua agenda é individual. O cadastro e o histórico de clientes pertencem à clínica.</div></aside>
-<main class="bcg-dashboard-main"><header class="bcg-topbar"><div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Área da <em>colaboradora</em></h1><p class="bcg-muted">Olá, <strong id="profileName">Profissional</strong></p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
-<p id="collaboratorAgendaStatus" class="bcg-status"></p>
-<section id="agenda" class="bcg-section"><div class="bcg-section-head"><div><p class="bcg-eyebrow">MINHA AGENDA</p><h2>Seus atendimentos</h2></div><p>Somente seus horários podem ser criados ou alterados por você.</p></div>
-<h3>Hoje</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div><div class="bcg-divider"></div><h3>Próximos atendimentos</h3><div id="nextAgendaList"></div>
-<div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p><form id="collaboratorAppointmentForm" class="bcg-form bcg-form-grid"><label>Cliente<select id="collaboratorAppointmentClient" class="bcg-input" required></select></label><label>Procedimento<select id="collaboratorAppointmentProcedure" class="bcg-input" required></select></label><label>Início<input id="collaboratorAppointmentStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="collaboratorAppointmentEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="collaboratorAppointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="collaboratorAppointmentStatus" class="bcg-status"></span></div></form></section>
-<section id="appointmentDetail" class="bcg-panel bcg-detail-panel" hidden><div class="bcg-detail-toolbar"><p class="bcg-eyebrow">DETALHE DO ATENDIMENTO</p><button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button></div><div id="appointmentDetailContent"></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO DA CLIENTE</p><h2>Atendimentos anteriores na BC</h2><div id="historyTimeline"></div></div>
-<div id="attendanceFormSlot" class="bcg-detail-history" hidden><p class="bcg-eyebrow">REGISTRO DA SESSÃO</p><h2>Ficha do atendimento atual</h2><form id="attendanceForm" class="bcg-form bcg-form-grid" novalidate>
-<label class="bcg-field bcg-field-wide">Queixa / objetivo da sessão<textarea class="bcg-textarea" name="queixa_objetivo" rows="3"></textarea></label><label class="bcg-field bcg-field-wide">Observações<textarea class="bcg-textarea" name="observacoes" rows="3"></textarea></label><label class="bcg-field">Reações<textarea class="bcg-textarea" name="reacoes" rows="3"></textarea></label><label class="bcg-field">Intercorrências<textarea class="bcg-textarea" name="intercorrencias" rows="3"></textarea></label><label class="bcg-field">Feedback da cliente<textarea class="bcg-textarea" name="feedback_cliente" rows="3"></textarea></label><label class="bcg-field">Orientações<textarea class="bcg-textarea" name="orientacoes" rows="3"></textarea></label><label class="bcg-field bcg-field-wide">Recomendação para a próxima sessão<textarea class="bcg-textarea" name="recomendacao_proxima_sessao" rows="3"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar atendimento</button><p class="bcg-status" data-attendance-status></p></div></form></div></section>
-<section id="clientes" class="bcg-panel"><div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e histórico compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome da cliente"></label></div><div class="bcg-subgrid"><article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article></div><div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div></section>
-<footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script type="module">
-import { requireRole, signOut } from '../js/auth.js'; import { createBcGestaoClient } from '../js/supabase-client.js'; import { initCollaboratorAgenda } from '../js/colaborador-agenda.js'; import { initClientesPanel } from '../js/clientes-panel.js'; import { bindAttendanceForm } from '../js/atendimento-form.js'; import '../js/shell.js';
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Área da colaboradora • BC Gestão</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <link rel="stylesheet" href="../assets/gestao.css">
+</head>
+<body class="bcg-page bcg-dashboard-page">
+<p id="authStatus" class="bcg-status">Validando acesso da profissional…</p>
+<div id="gestaoApp" class="bcg-dashboard-shell" hidden>
+  <aside class="bcg-sidebar">
+    <a class="bcg-brand" href="../"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
+    <nav class="bcg-nav">
+      <a data-nav aria-current="page" href="#agenda">Minha agenda</a>
+      <a data-nav href="#clientes">Clientes</a>
+      <a data-nav href="#financeiro">Meu financeiro</a>
+    </nav>
+    <div class="bcg-sidebar-note">Sua agenda e seu financeiro são individuais. O cadastro e o histórico de clientes pertencem à clínica.</div>
+  </aside>
+  <main class="bcg-dashboard-main">
+    <header class="bcg-topbar"><div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Área da <em>colaboradora</em></h1><p class="bcg-muted">Olá, <strong id="profileName">Profissional</strong></p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
+    <p id="collaboratorAgendaStatus" class="bcg-status"></p>
+
+    <section id="agenda" class="bcg-section">
+      <div class="bcg-section-head"><div><p class="bcg-eyebrow">MINHA AGENDA</p><h2>Seus atendimentos</h2></div><p>Somente seus horários podem ser criados ou alterados por você.</p></div>
+      <h3>Hoje</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
+      <div class="bcg-divider"></div><h3>Próximos atendimentos</h3><div id="nextAgendaList"></div>
+      <div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
+      <form id="collaboratorAppointmentForm" class="bcg-form bcg-form-grid">
+        <label>Cliente<select id="collaboratorAppointmentClient" class="bcg-input" required></select></label>
+        <label>Procedimento<select id="collaboratorAppointmentProcedure" class="bcg-input" required></select></label>
+        <label>Início<input id="collaboratorAppointmentStart" class="bcg-input" type="datetime-local" required></label>
+        <label>Fim <span class="bcg-optional">opcional</span><input id="collaboratorAppointmentEnd" class="bcg-input" type="datetime-local"></label>
+        <label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="collaboratorAppointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
+        <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="collaboratorAppointmentStatus" class="bcg-status"></span></div>
+      </form>
+    </section>
+
+    <section id="appointmentDetail" class="bcg-panel bcg-detail-panel" hidden>
+      <div class="bcg-detail-toolbar"><p class="bcg-eyebrow">DETALHE DO ATENDIMENTO</p><button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button></div>
+      <div id="appointmentDetailContent"></div>
+      <div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO DA CLIENTE</p><h2>Atendimentos anteriores na BC</h2><div id="historyTimeline"></div></div>
+      <div id="attendanceFormSlot" class="bcg-detail-history" hidden>
+        <p class="bcg-eyebrow">REGISTRO DA SESSÃO</p><h2>Ficha do atendimento atual</h2>
+        <form id="attendanceForm" class="bcg-form bcg-form-grid" novalidate>
+          <label class="bcg-field bcg-field-wide">Queixa / objetivo da sessão<textarea class="bcg-textarea" name="queixa_objetivo" rows="3"></textarea></label>
+          <label class="bcg-field bcg-field-wide">Observações<textarea class="bcg-textarea" name="observacoes" rows="3"></textarea></label>
+          <label class="bcg-field">Reações<textarea class="bcg-textarea" name="reacoes" rows="3"></textarea></label>
+          <label class="bcg-field">Intercorrências<textarea class="bcg-textarea" name="intercorrencias" rows="3"></textarea></label>
+          <label class="bcg-field">Feedback da cliente<textarea class="bcg-textarea" name="feedback_cliente" rows="3"></textarea></label>
+          <label class="bcg-field">Orientações<textarea class="bcg-textarea" name="orientacoes" rows="3"></textarea></label>
+          <label class="bcg-field bcg-field-wide">Recomendação para a próxima sessão<textarea class="bcg-textarea" name="recomendacao_proxima_sessao" rows="3"></textarea></label>
+          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar atendimento</button><p class="bcg-status" data-attendance-status></p></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="clientes" class="bcg-panel">
+      <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e histórico compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome da cliente"></label></div>
+      <div class="bcg-subgrid">
+        <article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article>
+        <article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article>
+      </div>
+      <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div>
+      <div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div>
+    </section>
+
+    <section id="financeiro" class="bcg-panel">
+      <div class="bcg-section-head">
+        <div><p class="bcg-eyebrow">MEU FINANCEIRO</p><h2>Produção, valores e repasses</h2></div>
+        <div class="bcg-inline-filters"><label>De<input id="collaboratorFinanceFrom" class="bcg-input" type="date"></label><label>Até<input id="collaboratorFinanceTo" class="bcg-input" type="date"></label><button id="collaboratorFinanceRefresh" class="bcg-small-button" type="button">Atualizar</button></div>
+      </div>
+      <p class="bcg-muted">Aqui aparecem somente seus próprios valores. Regras internas de cálculo permanecem reservadas à administração.</p>
+      <div class="bcg-metric-grid">
+        <article class="bcg-metric"><span>Recebido no período</span><strong id="collaboratorTotalReceived">R$ 0,00</strong></article>
+        <article class="bcg-metric"><span>Valor apurado em livros</span><strong id="collaboratorTotalEarned">R$ 0,00</strong></article>
+        <article class="bcg-metric"><span>Repasses pagos</span><strong id="collaboratorTotalPaid">R$ 0,00</strong></article>
+      </div>
+      <p id="collaboratorFinanceStatus" class="bcg-status"></p>
+      <div class="bcg-subgrid">
+        <article class="bcg-subpanel">
+          <p class="bcg-eyebrow">REGISTRAR RECEBIMENTO</p><h3>Pagamento de atendimento realizado</h3>
+          <form id="collaboratorReceiptForm" class="bcg-form">
+            <label>Atendimento<select id="collaboratorReceiptAttendance" class="bcg-input" required></select></label>
+            <label>Valor recebido<input id="collaboratorReceiptValue" class="bcg-input" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
+            <label>Forma de pagamento<select id="collaboratorReceiptMethod" class="bcg-input" required><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="cartao_credito">Cartão de crédito</option><option value="cartao_debito">Cartão de débito</option><option value="transferencia">Transferência</option><option value="outro">Outro</option></select></label>
+            <label>Recebido em <span class="bcg-optional">opcional</span><input id="collaboratorReceiptAt" class="bcg-input" type="datetime-local"></label>
+            <label>Observação <span class="bcg-optional">opcional</span><textarea id="collaboratorReceiptNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
+            <button class="bcg-button" type="submit">Registrar recebimento</button>
+          </form>
+        </article>
+        <article class="bcg-subpanel"><p class="bcg-eyebrow">MOVIMENTOS</p><h3>Meus recebimentos</h3><div id="collaboratorFinanceReceipts"></div></article>
+      </div>
+      <div class="bcg-divider"></div>
+      <div class="bcg-subgrid">
+        <article class="bcg-subpanel"><p class="bcg-eyebrow">LIVROS SEMANAIS</p><h3>Valores apurados</h3><div id="collaboratorFinanceBooks"></div></article>
+        <article class="bcg-subpanel"><p class="bcg-eyebrow">REPASSES</p><h3>Pagamentos da clínica</h3><div id="collaboratorFinancePayouts"></div></article>
+      </div>
+    </section>
+
+    <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+import { requireRole, signOut } from '../js/auth.js';
+import { createBcGestaoClient } from '../js/supabase-client.js';
+import { initCollaboratorAgenda } from '../js/colaborador-agenda.js';
+import { initClientesPanel } from '../js/clientes-panel.js';
+import { bindAttendanceForm } from '../js/atendimento-form.js';
+import { initCollaboratorFinance } from '../js/colaborador-finance.js';
+import '../js/shell.js';
 const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const attendanceForm=document.getElementById('attendanceForm'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('colaborador',client);
-if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';status.hidden=true;app.hidden=false;try{const agenda=await initCollaboratorAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:false,onClientsChanged:agenda.refreshClients});bindAttendanceForm({form:attendanceForm,client,appointmentId:()=>agenda.getCurrentAppointment()?.id,onSuccess:async()=>{const id=agenda.getCurrentAppointment()?.id;await agenda.refresh();if(id)await agenda.openAppointment(id);}});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar sua área.';}}
+if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';status.hidden=true;app.hidden=false;try{const agenda=await initCollaboratorAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:false,onClientsChanged:agenda.refreshClients});bindAttendanceForm({form:attendanceForm,client,appointmentId:()=>agenda.getCurrentAppointment()?.id,onSuccess:async()=>{const id=agenda.getCurrentAppointment()?.id;await agenda.refresh();if(id)await agenda.openAppointment(id);}});await initCollaboratorFinance({client,profile,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar sua área.';}}
 logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
-</script></body></html>
+</script>
+</body>
+</html>

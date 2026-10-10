@@ -13,70 +13,67 @@
     <aside class="bcg-sidebar">
       <a class="bcg-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
       <nav class="bcg-nav" aria-label="Navegação administrativa">
-        <a data-nav aria-current="page" href="#dashboard">Dashboard</a>
-        <a data-nav href="#agenda">Agenda</a>
-        <a data-nav href="#clientes">Clientes</a>
-        <a data-nav href="#procedimentos">Procedimentos</a>
-        <a data-nav href="#auditoria">Auditoria</a>
-        <a data-nav href="#financeiro">Financeiro</a>
+        <a data-nav aria-current="page" href="#dashboard">Dashboard</a><a data-nav href="#agenda">Agenda</a><a data-nav href="#clientes">Clientes</a><a data-nav href="#procedimentos">Procedimentos</a><a data-nav href="#auditoria">Auditoria</a><a data-nav href="#financeiro">Financeiro</a>
       </nav>
-      <div class="bcg-sidebar-note">Mel administra todas as agendas e também pode atender como profissional.</div>
+      <div class="bcg-sidebar-note">Mel administra todas as agendas, o financeiro e também pode atender como profissional.</div>
     </aside>
-
     <main class="bcg-dashboard-main">
       <header class="bcg-topbar"><div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Painel da <em>Mel</em></h1><p class="bcg-muted">Olá, <strong id="profileName">Administradora</strong></p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
 
       <section id="dashboard" class="bcg-section">
-        <div class="bcg-section-head"><div><p class="bcg-eyebrow">VISÃO GERAL</p><h2>Gestão da clínica</h2></div><p>Clientes e agendas estão integrados. O financeiro continua reservado para uma fase posterior.</p></div>
-        <div class="bcg-metric-grid"><article class="bcg-metric"><span>Agenda</span><strong>Geral + própria</strong></article><article class="bcg-metric"><span>Clientes</span><strong>Compartilhados</strong></article><article class="bcg-metric"><span>Auditoria</span><strong>Ativa</strong></article><article class="bcg-metric"><span>Financeiro</span><strong>Próxima fase</strong></article></div>
+        <div class="bcg-section-head"><div><p class="bcg-eyebrow">VISÃO GERAL</p><h2>Gestão da clínica</h2></div><p>Clientes, agendas, auditoria e financeiro integrados.</p></div>
+        <div class="bcg-metric-grid"><article class="bcg-metric"><span>Agenda</span><strong>Geral + própria</strong></article><article class="bcg-metric"><span>Clientes</span><strong>Compartilhados</strong></article><article class="bcg-metric"><span>Auditoria</span><strong>Ativa</strong></article><article class="bcg-metric"><span>Financeiro</span><strong>Fase 5 ativa</strong></article></div>
       </section>
 
       <section id="agenda" class="bcg-panel">
-        <div class="bcg-section-head">
-          <div><p class="bcg-eyebrow">AGENDA GERAL</p><h2>Atendimentos do dia</h2></div>
-          <div class="bcg-inline-filters">
-            <label class="bcg-field bcg-field-compact">Profissional<select id="adminAgendaProfessionalFilter" class="bcg-input"></select></label>
-            <label class="bcg-field bcg-field-compact" for="adminAgendaDate">Data<input id="adminAgendaDate" class="bcg-input" type="date"></label>
-          </div>
-        </div>
-        <p id="adminAgendaStatus" class="bcg-status" role="status" aria-live="polite"></p>
-        <div id="adminAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
-        <div class="bcg-divider"></div>
-        <p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
-        <form id="appointmentForm" class="bcg-form bcg-form-grid">
-          <label>Cliente<select id="appointmentClient" class="bcg-input" required></select></label>
-          <label>Profissional<select id="appointmentCollaborator" class="bcg-input" required></select></label>
-          <label>Procedimento<select id="appointmentProcedure" class="bcg-input" required></select></label>
-          <label>Início<input id="appointmentStart" class="bcg-input" type="datetime-local" required></label>
-          <label>Fim <span class="bcg-optional">opcional</span><input id="appointmentEnd" class="bcg-input" type="datetime-local"></label>
-          <label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="appointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
-          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="appointmentFormStatus" class="bcg-status"></span></div>
-        </form>
-        <form id="adminAppointmentEditForm" class="bcg-form bcg-form-grid bcg-editor-card" hidden>
-          <div class="bcg-field-wide"><p class="bcg-eyebrow">EDITAR AGENDAMENTO</p><strong id="adminEditProfessional">Profissional</strong></div>
-          <label>Procedimento<select id="adminEditProcedure" class="bcg-input" required></select></label>
-          <label>Início<input id="adminEditStart" class="bcg-input" type="datetime-local" required></label>
-          <label>Fim <span class="bcg-optional">opcional</span><input id="adminEditEnd" class="bcg-input" type="datetime-local"></label>
-          <label class="bcg-field-wide">Observação administrativa<textarea id="adminEditNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
-          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar alterações</button><button id="adminAppointmentEditCancel" class="bcg-small-button" type="button">Cancelar edição</button><span id="adminAppointmentEditStatus" class="bcg-status"></span></div>
-        </form>
+        <div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA GERAL</p><h2>Atendimentos do dia</h2></div><div class="bcg-inline-filters"><label class="bcg-field bcg-field-compact">Profissional<select id="adminAgendaProfessionalFilter" class="bcg-input"></select></label><label class="bcg-field bcg-field-compact" for="adminAgendaDate">Data<input id="adminAgendaDate" class="bcg-input" type="date"></label></div></div>
+        <p id="adminAgendaStatus" class="bcg-status" role="status" aria-live="polite"></p><div id="adminAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
+        <div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
+        <form id="appointmentForm" class="bcg-form bcg-form-grid"><label>Cliente<select id="appointmentClient" class="bcg-input" required></select></label><label>Profissional<select id="appointmentCollaborator" class="bcg-input" required></select></label><label>Procedimento<select id="appointmentProcedure" class="bcg-input" required></select></label><label>Início<input id="appointmentStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="appointmentEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="appointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="appointmentFormStatus" class="bcg-status"></span></div></form>
+        <form id="adminAppointmentEditForm" class="bcg-form bcg-form-grid bcg-editor-card" hidden><div class="bcg-field-wide"><p class="bcg-eyebrow">EDITAR AGENDAMENTO</p><strong id="adminEditProfessional">Profissional</strong></div><label>Procedimento<select id="adminEditProcedure" class="bcg-input" required></select></label><label>Início<input id="adminEditStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="adminEditEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa<textarea id="adminEditNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar alterações</button><button id="adminAppointmentEditCancel" class="bcg-small-button" type="button">Cancelar edição</button><span id="adminAppointmentEditStatus" class="bcg-status"></span></div></form>
       </section>
 
       <section id="clientes" class="bcg-panel">
         <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro, histórico e arquivamento</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome da cliente"></label></div>
-        <div class="bcg-subgrid">
-          <article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article>
-          <article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article>
-        </div>
-        <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div>
-        <div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div>
+        <div class="bcg-subgrid"><article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article></div>
+        <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div>
       </section>
 
       <section id="procedimentos" class="bcg-panel"><p class="bcg-eyebrow">PROCEDIMENTOS</p><h2>Cadastro de procedimentos</h2><div class="bcg-subgrid"><article class="bcg-subpanel"><form id="procedureForm" class="bcg-form"><label>Nome do procedimento<input id="procedureNome" class="bcg-input" type="text" required></label><label>Duração padrão em minutos <span class="bcg-optional">opcional</span><input id="procedureDuration" class="bcg-input" type="number" inputmode="numeric" min="1" step="1"></label><button class="bcg-button" type="submit">Cadastrar procedimento</button><span id="procedureFormStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Ativos</h3><div id="proceduresList"></div></article></div></section>
 
-      <section id="auditoria" class="bcg-panel"><div class="bcg-section-head"><div><p class="bcg-eyebrow">AUDITORIA</p><h2>Trilha de alterações</h2></div><p>Somente leitura. Registros gerados automaticamente pelo sistema.</p></div><div class="bcg-inline-filters"><label>Entidade<select id="auditEntityType" class="bcg-input"><option value="">Todas</option><option value="clientes">Clientes</option><option value="agendamentos">Agendamentos</option><option value="atendimentos">Atendimentos</option></select></label><label>ID <span class="bcg-optional">opcional</span><input id="auditEntityId" class="bcg-input" type="text"></label><button id="auditRefresh" class="bcg-small-button" type="button">Atualizar</button></div><p id="auditStatus" class="bcg-status"></p><div id="auditList"></div></section>
+      <section id="auditoria" class="bcg-panel">
+        <div class="bcg-section-head"><div><p class="bcg-eyebrow">AUDITORIA</p><h2>Trilha de alterações</h2></div><p>Somente leitura. Registros gerados automaticamente pelo sistema.</p></div>
+        <div class="bcg-inline-filters"><label>Entidade<select id="auditEntityType" class="bcg-input"><option value="">Todas</option><option value="clientes">Clientes</option><option value="agendamentos">Agendamentos</option><option value="atendimentos">Atendimentos</option><option value="recebimentos">Recebimentos</option><option value="livros_financeiros">Livros financeiros</option><option value="repasses">Repasses</option><option value="comissao_profissional_procedimento">Comissões</option><option value="config_repasses">Ciclos de repasse</option></select></label><label>ID <span class="bcg-optional">opcional</span><input id="auditEntityId" class="bcg-input" type="text"></label><button id="auditRefresh" class="bcg-small-button" type="button">Atualizar</button></div><p id="auditStatus" class="bcg-status"></p><div id="auditList"></div>
+      </section>
 
-      <section id="financeiro" class="bcg-panel"><p class="bcg-eyebrow">FINANCEIRO • SOMENTE ADMIN</p><h2>Recebimentos e contas a receber</h2><div class="bcg-empty">Módulo propositalmente não ativado nesta fase.</div></section>
+      <section id="financeiro" class="bcg-panel">
+        <div class="bcg-section-head">
+          <div><p class="bcg-eyebrow">FINANCEIRO • SOMENTE ADMIN</p><h2>Recebimentos, livros e repasses</h2></div>
+          <div class="bcg-inline-filters"><label>Profissional<select id="adminFinanceProfessional" data-finance-professional class="bcg-input"></select></label><label>De<input id="adminFinanceFrom" class="bcg-input" type="date"></label><label>Até<input id="adminFinanceTo" class="bcg-input" type="date"></label><button id="adminFinanceRefresh" class="bcg-small-button" type="button">Atualizar</button></div>
+        </div>
+        <p id="adminFinanceStatus" class="bcg-status"></p>
+        <div class="bcg-metric-grid"><article class="bcg-metric"><span>Recebido no filtro</span><strong id="adminFinanceTotalReceived">R$ 0,00</strong></article><article class="bcg-metric"><span>Repasses em aberto</span><strong id="adminFinanceTotalPending">R$ 0,00</strong></article></div>
+
+        <div class="bcg-subgrid">
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">COMISSÃO</p><h3>Regra por profissional e procedimento</h3><form id="adminCommissionForm" class="bcg-form"><label>Profissional<select name="profissional" data-finance-professional class="bcg-input" required></select></label><label>Procedimento<select name="procedimento" data-finance-procedure class="bcg-input" required></select></label><label>Percentual<input name="percentual" class="bcg-input" type="number" min="0" max="100" step="0.01" required></label><button class="bcg-button" type="submit">Salvar comissão</button></form><div class="bcg-divider"></div><div id="adminFinanceCommissions"></div></article>
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">FECHAR LIVRO</p><h3>Período semanal de 7 dias</h3><form id="adminBookCloseForm" class="bcg-form"><label>Profissional<select name="profissional" data-finance-professional class="bcg-input" required></select></label><label>Início<input name="inicio" class="bcg-input" type="date" required></label><label>Fim<input name="fim" class="bcg-input" type="date" required></label><button class="bcg-button" type="submit">Fechar livro</button></form></article>
+        </div>
+
+        <div class="bcg-subgrid">
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">RECALCULAR</p><h3>Livro em revisão</h3><form id="adminBookRecalcForm" class="bcg-form"><label>Profissional<select name="profissional" data-finance-professional class="bcg-input" required></select></label><label>Procedimento <span class="bcg-optional">opcional</span><select name="procedimento" data-finance-procedure class="bcg-input"></select></label><label>De<input name="inicio" class="bcg-input" type="date" required></label><label>Até<input name="fim" class="bcg-input" type="date" required></label><button class="bcg-button" type="submit">Recalcular livros</button></form></article>
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">CICLO DE REPASSE</p><h3>7, 15 ou 30 dias</h3><form id="adminPayoutCycleForm" class="bcg-form"><label>Profissional<select name="profissional" data-finance-professional class="bcg-input" required></select></label><label>Ciclo<select name="ciclo" class="bcg-input" required><option value="7">7 dias</option><option value="15">15 dias</option><option value="30">30 dias</option></select></label><button class="bcg-button" type="submit">Salvar ciclo</button></form></article>
+        </div>
+
+        <div class="bcg-subgrid">
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">CRIAR REPASSE</p><h3>Agrupar livros fechados</h3><form id="adminPayoutCreateForm" class="bcg-form"><label>Profissional<select name="profissional" data-finance-professional class="bcg-input" required></select></label><div id="adminPayoutBooks" class="bcg-check-list"></div><label>Observação <span class="bcg-optional">opcional</span><textarea name="observacao" class="bcg-input bcg-textarea" rows="2"></textarea></label><button class="bcg-button" type="submit">Criar repasse</button></form></article>
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">RECEBIMENTOS</p><h3>Movimentos financeiros</h3><div id="adminFinanceReceipts"></div></article>
+        </div>
+
+        <div class="bcg-subgrid">
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">LIVROS</p><h3>Fechamentos semanais</h3><div id="adminFinanceBooks"></div></article>
+          <article class="bcg-subpanel"><p class="bcg-eyebrow">REPASSES</p><h3>Lotes de pagamento</h3><div id="adminFinancePayouts"></div></article>
+        </div>
+      </section>
       <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
     </main>
   </div>
@@ -88,25 +85,11 @@
     import { initAdminAgenda } from '../js/admin-agenda.js';
     import { initClientesPanel } from '../js/clientes-panel.js';
     import { initAdminAudit } from '../js/admin-audit.js';
+    import { initAdminFinance } from '../js/admin-finance.js';
     import '../js/shell.js';
-
-    const app = document.getElementById('gestaoApp');
-    const status = document.getElementById('authStatus');
-    const logout = document.getElementById('logoutBtn');
-    const client = createBcGestaoClient(globalThis.supabase?.createClient);
-    const profile = await requireRole('admin', client);
-    if (profile) {
-      document.getElementById('profileName').textContent = profile.display_name || 'Administradora';
-      status.hidden = true; app.hidden = false;
-      try {
-        const agenda = await initAdminAgenda({ client, profile, root: document });
-        await initClientesPanel({ client, profile, root: document, canArchive: true, onClientsChanged: agenda.refreshClients });
-        await initAdminAudit({ client, root: document, staffMap: agenda.getStaffMap() });
-      } catch (error) {
-        status.hidden = false;
-        status.textContent = error?.message || 'Não foi possível iniciar o painel administrativo.';
-      }
-    }
-    logout.addEventListener('click', async () => { logout.disabled = true; try { await signOut(client); } finally { window.location.replace('../login/'); } });
+    const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('admin',client);
+    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Administradora';status.hidden=true;app.hidden=false;try{const agenda=await initAdminAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});await initAdminFinance({client,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
+    logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
   </script>
-</body></html>
+</body>
+</html>
