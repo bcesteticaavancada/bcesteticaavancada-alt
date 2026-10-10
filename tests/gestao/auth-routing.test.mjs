@@ -164,5 +164,7 @@ test('login and role pages are wired to real authentication without hardcoded st
   assert.match(colaborador, /requireRole\(['"]colaborador['"](?:\s*,\s*client)?\)/);
   assert.match(colaborador, /id=["']gestaoApp["'][^>]*hidden/i);
   assert.match(colaborador, /id=["']logoutBtn["']/);
-  assert.doesNotMatch(colaborador, /financeiro|faturamento|pagamentos?/i);
+  assert.match(colaborador, /id=["']financeiro["']/i);
+  assert.match(colaborador, /colaborador-finance\.js/i);
+  assert.doesNotMatch(colaborador, /service_role|secret|sk_[a-z0-9]/i);
 });
