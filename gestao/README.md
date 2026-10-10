@@ -21,7 +21,7 @@ O projeto de pré-anamnese não é usado por esta aplicação.
 ## Segurança
 
 - frontend usa somente a chave pública/publishable do Supabase;
-- `service_role`, segredos e chaves privadas são proibidos no navegador e no repositório;
+- chaves privilegiadas de servidor, segredos e chaves privadas são proibidos no navegador e no repositório;
 - papéis válidos: `admin` e `colaborador`;
 - autorização sensível é validada no banco com RLS e RPCs;
 - funções privilegiadas ficam no schema `private`, com `SECURITY DEFINER` e `search_path` fixo;
