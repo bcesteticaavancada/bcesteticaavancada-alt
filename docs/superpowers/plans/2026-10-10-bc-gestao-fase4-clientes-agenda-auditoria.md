@@ -30,7 +30,7 @@
 
 - **Duplo cadastro de cliente:** busca/edição deve favorecer cadastro único; testes garantem que a UI não cria duplicata por reenvio acidental depois de sucesso.
 - **Escalada de agenda:** colaboradora jamais pode criar/mover/cancelar agendamento de outra profissional; testes de RPC/RLS devem rejeitar explicitamente.
-- **Arquivamento concorrente:** cliente arquivado por Mel não pode continuar selecionável para novo agendamento de colaboradora; testes cobrem filtro `ativo = true`.
+- **Cliente arquivado:** não pode ser selecionado nem aceito pela RPC de novo agendamento, mesmo que alguém force o ID manualmente.
 - **Auditoria incompleta:** operações críticas devem registrar ator, entidade, ação e antes/depois sem depender de payload de autoria do browser.
 - **Mel como admin atendente:** `role = admin` não pode impedir que Mel apareça no diretório clínico nem receba agendamento próprio.
 
@@ -63,6 +63,9 @@ Cobrir por regex/contrato:
 - `audit_log` com RLS e sem `UPDATE/DELETE` para `authenticated`;
 - RPCs com wrapper público `security invoker`, implementação privada `security definer`, `search_path` fixo e grants apenas para `authenticated`;
 - colaboradora em `bc_agendamento_create/update` obrigada a usar `auth.uid()` como profissional; admin pode escolher qualquer profissional atendente;
+- `bc_agendamento_create` rejeitando cliente `ativo = false`, inclusive quando o ID for fornecido diretamente;
+- colaboradora vendo somente clientes ativos; admin podendo consultar ativos e arquivados;
+- `bc_cliente_update` limitado aos campos cadastrais permitidos, sem permitir alteração de `ativo`, `arquivado_at` ou `arquivado_by`;
 - `bc_cliente_set_active` rejeitando não-admin;
 - `bc_staff_directory` filtrando `active = true and atende_clientes = true`, sem filtrar `role = 'colaborador'`;
 - `atendimentos` SELECT para equipe ativa e INSERT ainda restrito ao atendimento próprio/admin;
@@ -89,7 +92,7 @@ Aplicar a mesma migration versionada ao projeto `tpqsmerlxquyrzrjbogj`; marcar p
 
 - [ ] **Step 6: Verify catalog and Security Advisor**
 
-Confirmar policies, signatures/grants, `audit_log` imutável para colaboradora e Security Advisor sem nova vulnerabilidade crítica.
+Confirmar policies, signatures/grants, `audit_log` imutável para colaboradora, cliente arquivado não agendável e Security Advisor sem nova vulnerabilidade crítica.
 
 - [ ] **Step 7: Commit**
 
@@ -322,6 +325,7 @@ Validar com Alice (`colaborador`) e Mel (`admin`) sem criar paciente real:
 - Alice cria/edita apenas agenda própria;
 - Mel aparece como profissional atendente e administra qualquer agenda;
 - Mel consegue arquivar/reativar cliente;
+- cliente arquivado não pode receber novo agendamento por nenhum caminho de colaboradora;
 - financeiro segue invisível à Alice.
 
 - [ ] **Step 3: Verify audit records**
