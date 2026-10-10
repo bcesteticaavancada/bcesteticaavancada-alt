@@ -27,24 +27,27 @@ function block(source, start, end) {
   return source.slice(a, b);
 }
 
-test('home keeps the 12-link drawer shell with BC Gestão', () => {
+test('home keeps the static 11-link drawer shell', () => {
   const nav = block(home, '<nav class="drawer-nav"', '</nav>');
-  assert.equal((nav.match(/<a\b/g) || []).length, 12);
-  assert.match(nav, /href="gestao\/login\/">BC Gestão<\/a>/);
-  assert.ok(nav.indexOf('>Agendamento<') < nav.indexOf('>BC Gestão<'));
-  assert.ok(nav.indexOf('>BC Gestão<') < nav.indexOf('>Contato<'));
+  assert.equal((nav.match(/<a\b/g) || []).length, 11);
   assert.match(home, /class="menu-toggle"[^>]*id="menuToggle"/);
   assert.ok(home.indexOf('class="brand"') < home.indexOf('class="header-cta"'));
   assert.match(styles, /\.menu-toggle\s*\{[^}]*justify-self\s*:\s*end/s);
 });
 
-test('all public section drawers expose BC Gestão in the same menu position', () => {
+test('shared menu script injects BC Gestão between Agendamento and Contato', () => {
+  assert.match(script, /function\s+ensureBCGestaoMenuLink\s*\(/);
+  assert.match(script, /textContent\s*=\s*["']BC Gestão["']/);
+  assert.match(script, /new URL\(["']\.\.\/gestao\/login\/["']\s*,\s*contactLink\.href\)/);
+  assert.match(script, /nav\.insertBefore\(link\s*,\s*contactLink\)/);
+  assert.match(script, /ensureBCGestaoMenuLink\(\)/);
+});
+
+test('all public section drawers keep the same static shell and shared script', () => {
   for (const page of sectionPages) {
     const nav = block(page, '<nav class="drawer-nav"', '</nav>');
-    assert.equal((nav.match(/<a\b/g) || []).length, 12);
-    assert.match(nav, /href="\.\.\/gestao\/login\/">BC Gestão<\/a>/);
-    assert.ok(nav.indexOf('>Agendamento<') < nav.indexOf('>BC Gestão<'));
-    assert.ok(nav.indexOf('>BC Gestão<') < nav.indexOf('>Contato<'));
+    assert.equal((nav.match(/<a\b/g) || []).length, 11);
+    assert.match(page, /<script\s+src="\.\.\/script\.js"><\/script>/);
   }
 });
 
