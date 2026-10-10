@@ -1,4 +1,4 @@
-import { listStaffDirectory, listActiveProcedures } from './agenda-api.js';
+import { listActiveProcedures } from './agenda-api.js';
 import { listAdminReceipts, reverseReceipt } from './finance-receipts-api.js';
 import { listAdminCommissions, setCommission, listAdminBooks, closeBook, reopenBook, recalculateBooks } from './finance-books-api.js';
 import { listAdminPayouts, setPayoutCycle, createPayout, settlePayout, reversePayout } from './finance-payouts-api.js';
@@ -21,8 +21,10 @@ function aggregateBooks(rows = []) {
   return [...map.values()];
 }
 
-export async function initAdminFinance({ client, root = document }) {
-  if (!client?.rpc || !root) throw new Error('Contexto financeiro administrativo inválido.');
+export async function initAdminFinance({ client, profile, root = document, staffMap }) {
+  if (!client?.rpc || !root || profile?.role !== 'admin' || !(staffMap instanceof Map)) {
+    throw new Error('Contexto financeiro administrativo inválido.');
+  }
   const el = (id) => root.getElementById(id);
   const professional = el('adminFinanceProfessional');
   const from = el('adminFinanceFrom');
@@ -32,10 +34,10 @@ export async function initAdminFinance({ client, root = document }) {
   if (!professional || !from || !to) throw new Error('Estrutura financeira administrativa incompleta.');
 
   const period = currentMonth(); if (!from.value) from.value = period.start; if (!to.value) to.value = period.end;
-  let staffMap = new Map(); let procedureMap = new Map(); let bookRows = [];
+  let procedureMap = new Map(); let bookRows = [];
+  const staff = [...staffMap.entries()].map(([user_id, display_name]) => ({ user_id, display_name }));
 
-  function populateLookups(staff, procedures) {
-    staffMap = new Map(staff.map((item) => [item.user_id, item.display_name]));
+  function populateLookups(procedures) {
     procedureMap = new Map(procedures.map((item) => [item.id, item.nome]));
     for (const select of root.querySelectorAll('[data-finance-professional]')) {
       const keepBlank = select.id === 'adminFinanceProfessional';
@@ -150,8 +152,8 @@ export async function initAdminFinance({ client, root = document }) {
   });
 
   refreshButton?.addEventListener('click', refresh); professional.addEventListener('change', refresh); from.addEventListener('change', refresh); to.addEventListener('change', refresh);
-  const [staff, procedures] = await Promise.all([listStaffDirectory({ client }), listActiveProcedures({ client })]);
-  populateLookups(staff, procedures);
+  const procedures = await listActiveProcedures({ client });
+  populateLookups(procedures);
   await refresh();
   return { refresh };
 }
