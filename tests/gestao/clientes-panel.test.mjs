@@ -1,11 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
   renderClientsList,
   renderClientEditor,
   renderClientHistory,
   runFormSubmit,
+  notifyClientsChanged,
 } from '../../gestao/js/clientes-panel.js';
+
+const panelSourceUrl = new URL('../../gestao/js/clientes-panel.js', import.meta.url);
 
 test('lista compartilhada escapa dados e abre cliente sem expor arquivamento à colaboradora', () => {
   const html = renderClientsList([
@@ -76,4 +80,15 @@ test('runFormSubmit preserva campos em falha', async () => {
   assert.equal(resets, 0);
   assert.equal(submit.disabled, false);
   assert.equal(status.dataset.kind, 'error');
+});
+
+test('painel notifica a agenda quando clientes mudam', async () => {
+  let calls = 0;
+  await notifyClientsChanged(async () => { calls += 1; });
+  await notifyClientsChanged(null);
+  assert.equal(calls, 1);
+
+  const source = await readFile(panelSourceUrl, 'utf8');
+  const mutationNotifications = source.match(/await\s+notifyClientsChanged\(onClientsChanged\)/g) || [];
+  assert.ok(mutationNotifications.length >= 3, 'criação, edição e arquivamento/reativação devem atualizar o seletor da agenda');
 });
