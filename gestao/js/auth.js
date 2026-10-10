@@ -61,6 +61,28 @@ export async function signIn(email, password, client = getDefaultClient()) {
   }
 }
 
+export async function requestPasswordReset(email, redirectTo, client = getDefaultClient()) {
+  const cleanEmail = String(email ?? '').trim();
+  const cleanRedirect = String(redirectTo ?? '').trim();
+  if (!cleanEmail) throw new Error('Informe seu e-mail.');
+  if (!cleanRedirect) throw new Error('Destino de recuperação inválido.');
+
+  const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
+    redirectTo: cleanRedirect,
+  });
+  if (error) throw new Error('Não foi possível enviar o e-mail de recuperação agora.');
+  return true;
+}
+
+export async function updatePassword(password, client = getDefaultClient()) {
+  const cleanPassword = String(password ?? '');
+  if (cleanPassword.length < 8) throw new Error('A nova senha precisa ter pelo menos 8 caracteres.');
+
+  const { data, error } = await client.auth.updateUser({ password: cleanPassword });
+  if (error) throw new Error('Não foi possível atualizar a senha. Solicite um novo link e tente novamente.');
+  return data?.user ?? true;
+}
+
 export async function signOut(client = getDefaultClient()) {
   const { error } = await client.auth.signOut();
   if (error) throw error;
