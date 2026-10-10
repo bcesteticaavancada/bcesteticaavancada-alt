@@ -1,164 +1,19 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Área da colaboradora • BC Gestão</title>
-  <meta name="robots" content="noindex,nofollow,noarchive">
-  <link rel="stylesheet" href="../assets/gestao.css">
-</head>
-<body class="bcg-page bcg-dashboard-page">
-  <p id="authStatus" class="bcg-status" role="status" aria-live="polite">Validando acesso da profissional…</p>
-
-  <div id="gestaoApp" class="bcg-dashboard-shell" hidden>
-    <aside class="bcg-sidebar">
-      <a class="bcg-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
-      <nav class="bcg-nav" aria-label="Navegação da colaboradora">
-        <a data-nav aria-current="page" href="#hoje">Hoje</a>
-        <a data-nav href="#proximos">Próximos</a>
-        <a data-nav href="#historico">Histórico autorizado</a>
-      </nav>
-      <div class="bcg-sidebar-note">Acesso restrito à agenda e ao histórico autorizado dos clientes vinculados.</div>
-    </aside>
-
-    <main class="bcg-dashboard-main">
-      <header class="bcg-topbar">
-        <div>
-          <p class="bcg-eyebrow">BC GESTÃO 1.0</p>
-          <h1>Área da <em>colaboradora</em></h1>
-          <p class="bcg-muted">Olá, <strong id="profileName">Profissional</strong></p>
-        </div>
-        <button id="logoutBtn" class="bcg-button" type="button">Sair</button>
-      </header>
-
-      <p id="collaboratorAgendaStatus" class="bcg-status" role="status" aria-live="polite"></p>
-
-      <section id="hoje" class="bcg-section">
-        <div class="bcg-section-head">
-          <div><p class="bcg-eyebrow">AGENDA DE HOJE</p><h2>Seus atendimentos</h2></div>
-          <p>Somente os horários vinculados ao seu perfil autenticado são exibidos.</p>
-        </div>
-        <div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
-      </section>
-
-      <section id="proximos" class="bcg-panel">
-        <p class="bcg-eyebrow">PRÓXIMOS</p>
-        <h2>Próximos atendimentos</h2>
-        <div id="nextAgendaList"><div class="bcg-empty">Carregando próximos horários…</div></div>
-      </section>
-
-      <section id="appointmentDetail" class="bcg-panel bcg-detail-panel" hidden>
-        <div class="bcg-detail-toolbar">
-          <p class="bcg-eyebrow">DETALHE AUTORIZADO</p>
-          <button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button>
-        </div>
-        <div id="appointmentDetailContent"></div>
-
-        <div id="historico" class="bcg-detail-history">
-          <p class="bcg-eyebrow">HISTÓRICO AUTORIZADO</p>
-          <h2>Contexto das sessões anteriores</h2>
-          <div id="historyTimeline"></div>
-        </div>
-
-        <div id="attendanceFormSlot" class="bcg-detail-history" hidden>
-          <p class="bcg-eyebrow">REGISTRO DA SESSÃO</p>
-          <h2>Ficha do atendimento atual</h2>
-          <p class="bcg-muted">Registre somente informações relevantes para a continuidade segura e qualificada do atendimento.</p>
-
-          <form id="attendanceForm" class="bcg-form bcg-form-grid" novalidate>
-            <label class="bcg-field bcg-field-wide">
-              Queixa / objetivo da sessão
-              <textarea class="bcg-textarea" name="queixa_objetivo" rows="3" placeholder="Ex.: sensibilidade, objetivo informado pela cliente"></textarea>
-            </label>
-
-            <label class="bcg-field bcg-field-wide">
-              Observações
-              <textarea class="bcg-textarea" name="observacoes" rows="3" placeholder="Achados e observações relevantes da sessão"></textarea>
-            </label>
-
-            <label class="bcg-field">
-              Reações
-              <textarea class="bcg-textarea" name="reacoes" rows="3" placeholder="Resposta ou reação observada"></textarea>
-            </label>
-
-            <label class="bcg-field">
-              Intercorrências
-              <textarea class="bcg-textarea" name="intercorrencias" rows="3" placeholder="Se não houve, pode deixar em branco"></textarea>
-            </label>
-
-            <label class="bcg-field">
-              Feedback da cliente
-              <textarea class="bcg-textarea" name="feedback_cliente" rows="3" placeholder="Percepção, elogio, incômodo ou relato da cliente"></textarea>
-            </label>
-
-            <label class="bcg-field">
-              Orientações
-              <textarea class="bcg-textarea" name="orientacoes" rows="3" placeholder="Cuidados e orientações transmitidas"></textarea>
-            </label>
-
-            <label class="bcg-field bcg-field-wide">
-              Recomendação para a próxima sessão
-              <textarea class="bcg-textarea" name="recomendacao_proxima_sessao" rows="3" placeholder="Conduta sugerida, prazo ou ponto de atenção"></textarea>
-            </label>
-
-            <div class="bcg-form-actions bcg-field-wide">
-              <button class="bcg-button" type="submit">Registrar atendimento</button>
-              <p class="bcg-status" data-attendance-status role="status" aria-live="polite"></p>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
-    </main>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module">
-    import { requireRole, signOut } from '../js/auth.js';
-    import { createBcGestaoClient } from '../js/supabase-client.js';
-    import { initCollaboratorAgenda } from '../js/colaborador-agenda.js';
-    import { bindAttendanceForm } from '../js/atendimento-form.js';
-    import '../js/shell.js';
-
-    const app = document.getElementById('gestaoApp');
-    const status = document.getElementById('authStatus');
-    const logout = document.getElementById('logoutBtn');
-    const attendanceForm = document.getElementById('attendanceForm');
-    const client = createBcGestaoClient(globalThis.supabase?.createClient);
-    const profile = await requireRole('colaborador', client);
-
-    if (profile) {
-      document.getElementById('profileName').textContent = profile.display_name || 'Profissional';
-      status.hidden = true;
-      app.hidden = false;
-      try {
-        const agenda = await initCollaboratorAgenda({ client, profile, root: document });
-
-        bindAttendanceForm({
-          form: attendanceForm,
-          client,
-          appointmentId: () => agenda.getCurrentAppointment()?.id,
-          onSuccess: async () => {
-            const appointmentId = agenda.getCurrentAppointment()?.id;
-            await agenda.refresh();
-            if (appointmentId) await agenda.openAppointment(appointmentId);
-          },
-        });
-      } catch (error) {
-        status.hidden = false;
-        status.textContent = error?.message || 'Não foi possível iniciar sua agenda.';
-      }
-    }
-
-    logout.addEventListener('click', async () => {
-      logout.disabled = true;
-      try {
-        await signOut(client);
-      } finally {
-        window.location.replace('../login/');
-      }
-    });
-  </script>
-</body>
-</html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Área da colaboradora • BC Gestão</title><meta name="robots" content="noindex,nofollow,noarchive"><link rel="stylesheet" href="../assets/gestao.css"></head>
+<body class="bcg-page bcg-dashboard-page"><p id="authStatus" class="bcg-status">Validando acesso da profissional…</p><div id="gestaoApp" class="bcg-dashboard-shell" hidden>
+<aside class="bcg-sidebar"><a class="bcg-brand" href="../"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a><nav class="bcg-nav"><a data-nav aria-current="page" href="#agenda">Minha agenda</a><a data-nav href="#clientes">Clientes</a></nav><div class="bcg-sidebar-note">Sua agenda é individual. O cadastro e o histórico de clientes pertencem à clínica.</div></aside>
+<main class="bcg-dashboard-main"><header class="bcg-topbar"><div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Área da <em>colaboradora</em></h1><p class="bcg-muted">Olá, <strong id="profileName">Profissional</strong></p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
+<p id="collaboratorAgendaStatus" class="bcg-status"></p>
+<section id="agenda" class="bcg-section"><div class="bcg-section-head"><div><p class="bcg-eyebrow">MINHA AGENDA</p><h2>Seus atendimentos</h2></div><p>Somente seus horários podem ser criados ou alterados por você.</p></div>
+<h3>Hoje</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div><div class="bcg-divider"></div><h3>Próximos atendimentos</h3><div id="nextAgendaList"></div>
+<div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p><form id="collaboratorAppointmentForm" class="bcg-form bcg-form-grid"><label>Cliente<select id="collaboratorAppointmentClient" class="bcg-input" required></select></label><label>Procedimento<select id="collaboratorAppointmentProcedure" class="bcg-input" required></select></label><label>Início<input id="collaboratorAppointmentStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="collaboratorAppointmentEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="collaboratorAppointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="collaboratorAppointmentStatus" class="bcg-status"></span></div></form></section>
+<section id="appointmentDetail" class="bcg-panel bcg-detail-panel" hidden><div class="bcg-detail-toolbar"><p class="bcg-eyebrow">DETALHE DO ATENDIMENTO</p><button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button></div><div id="appointmentDetailContent"></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO DA CLIENTE</p><h2>Atendimentos anteriores na BC</h2><div id="historyTimeline"></div></div>
+<div id="attendanceFormSlot" class="bcg-detail-history" hidden><p class="bcg-eyebrow">REGISTRO DA SESSÃO</p><h2>Ficha do atendimento atual</h2><form id="attendanceForm" class="bcg-form bcg-form-grid" novalidate>
+<label class="bcg-field bcg-field-wide">Queixa / objetivo da sessão<textarea class="bcg-textarea" name="queixa_objetivo" rows="3"></textarea></label><label class="bcg-field bcg-field-wide">Observações<textarea class="bcg-textarea" name="observacoes" rows="3"></textarea></label><label class="bcg-field">Reações<textarea class="bcg-textarea" name="reacoes" rows="3"></textarea></label><label class="bcg-field">Intercorrências<textarea class="bcg-textarea" name="intercorrencias" rows="3"></textarea></label><label class="bcg-field">Feedback da cliente<textarea class="bcg-textarea" name="feedback_cliente" rows="3"></textarea></label><label class="bcg-field">Orientações<textarea class="bcg-textarea" name="orientacoes" rows="3"></textarea></label><label class="bcg-field bcg-field-wide">Recomendação para a próxima sessão<textarea class="bcg-textarea" name="recomendacao_proxima_sessao" rows="3"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar atendimento</button><p class="bcg-status" data-attendance-status></p></div></form></div></section>
+<section id="clientes" class="bcg-panel"><div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e histórico compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome da cliente"></label></div><div class="bcg-subgrid"><article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article></div><div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div></section>
+<footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script type="module">
+import { requireRole, signOut } from '../js/auth.js'; import { createBcGestaoClient } from '../js/supabase-client.js'; import { initCollaboratorAgenda } from '../js/colaborador-agenda.js'; import { initClientesPanel } from '../js/clientes-panel.js'; import { bindAttendanceForm } from '../js/atendimento-form.js'; import '../js/shell.js';
+const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const attendanceForm=document.getElementById('attendanceForm'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('colaborador',client);
+if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';status.hidden=true;app.hidden=false;try{const agenda=await initCollaboratorAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:false});bindAttendanceForm({form:attendanceForm,client,appointmentId:()=>agenda.getCurrentAppointment()?.id,onSuccess:async()=>{const id=agenda.getCurrentAppointment()?.id;await agenda.refresh();if(id)await agenda.openAppointment(id);}});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar sua área.';}}
+logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
+</script></body></html>
