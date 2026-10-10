@@ -9,6 +9,7 @@ import {
   formatClinicDateTime,
   statusLabel,
 } from './agenda-format.js';
+import { canRegisterAttendance } from './atendimento-form.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -131,10 +132,11 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   const detail = el('appointmentDetail');
   const detailContent = el('appointmentDetailContent');
   const historyTimeline = el('historyTimeline');
+  const attendanceFormSlot = el('attendanceFormSlot');
   const agendaStatus = el('collaboratorAgendaStatus');
   const closeButton = el('closeAppointmentDetail');
 
-  if (!todayList || !nextList || !detail || !detailContent || !historyTimeline) {
+  if (!todayList || !nextList || !detail || !detailContent || !historyTimeline || !attendanceFormSlot) {
     throw new Error('Estrutura da agenda da colaboradora incompleta.');
   }
 
@@ -146,6 +148,16 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     if (!agendaStatus) return;
     agendaStatus.textContent = message || '';
     agendaStatus.dataset.kind = kind;
+  }
+
+  function syncAttendanceForm(appointment = null) {
+    const allowed = Boolean(appointment && canRegisterAttendance(appointment.status));
+    attendanceFormSlot.hidden = !allowed;
+    if (allowed) {
+      attendanceFormSlot.dataset.appointmentId = appointment.id;
+    } else {
+      delete attendanceFormSlot.dataset.appointmentId;
+    }
   }
 
   async function loadStaffDirectory() {
@@ -186,6 +198,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     detail.dataset.appointmentId = appointment.id;
     detailContent.innerHTML = renderAppointmentDetail(appointment);
     historyTimeline.innerHTML = '<div class="bcg-empty">Carregando histórico autorizado…</div>';
+    syncAttendanceForm(appointment);
     detail.hidden = false;
 
     try {
@@ -206,6 +219,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     detail.hidden = true;
     detailContent.innerHTML = '';
     historyTimeline.innerHTML = '';
+    syncAttendanceForm(null);
   }
 
   async function handleListClick(event) {
@@ -240,6 +254,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     }
   });
 
+  syncAttendanceForm(null);
   await loadStaffDirectory();
   await refresh();
 
