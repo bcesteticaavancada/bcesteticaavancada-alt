@@ -6,6 +6,19 @@ const home = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
 const script = readFileSync(new URL('../../script.js', import.meta.url), 'utf8');
 const styles = readFileSync(new URL('../../styles.css', import.meta.url), 'utf8');
 
+const sectionPages = [
+  '../../clinica/index.html',
+  '../../equipe/index.html',
+  '../../mel/index.html',
+  '../../procedimentos/index.html',
+  '../../resultados/index.html',
+  '../../protocolos/index.html',
+  '../../ambiente/index.html',
+  '../../valores/index.html',
+  '../../agendamento/index.html',
+  '../../contato/index.html',
+].map((path) => readFileSync(new URL(path, import.meta.url), 'utf8'));
+
 function block(source, start, end) {
   const a = source.indexOf(start);
   const b = source.indexOf(end, a);
@@ -14,12 +27,25 @@ function block(source, start, end) {
   return source.slice(a, b);
 }
 
-test('home keeps the 11-link drawer shell', () => {
+test('home keeps the 12-link drawer shell with BC Gestão', () => {
   const nav = block(home, '<nav class="drawer-nav"', '</nav>');
-  assert.equal((nav.match(/<a\b/g) || []).length, 11);
+  assert.equal((nav.match(/<a\b/g) || []).length, 12);
+  assert.match(nav, /href="gestao\/login\/">BC Gestão<\/a>/);
+  assert.ok(nav.indexOf('>Agendamento<') < nav.indexOf('>BC Gestão<'));
+  assert.ok(nav.indexOf('>BC Gestão<') < nav.indexOf('>Contato<'));
   assert.match(home, /class="menu-toggle"[^>]*id="menuToggle"/);
   assert.ok(home.indexOf('class="brand"') < home.indexOf('class="header-cta"'));
   assert.match(styles, /\.menu-toggle\s*\{[^}]*justify-self\s*:\s*end/s);
+});
+
+test('all public section drawers expose BC Gestão in the same menu position', () => {
+  for (const page of sectionPages) {
+    const nav = block(page, '<nav class="drawer-nav"', '</nav>');
+    assert.equal((nav.match(/<a\b/g) || []).length, 12);
+    assert.match(nav, /href="\.\.\/gestao\/login\/">BC Gestão<\/a>/);
+    assert.ok(nav.indexOf('>Agendamento<') < nav.indexOf('>BC Gestão<'));
+    assert.ok(nav.indexOf('>BC Gestão<') < nav.indexOf('>Contato<'));
+  }
 });
 
 test('home remains presentation-only with one logo and Mel background', () => {
