@@ -6,6 +6,7 @@
   <title>Área da colaboradora • BC Gestão</title>
   <meta name="robots" content="noindex,nofollow,noarchive">
   <link rel="stylesheet" href="../assets/gestao.css">
+  <link rel="stylesheet" href="../assets/finance.css">
 </head>
 <body class="bcg-page bcg-dashboard-page">
 <p id="authStatus" class="bcg-status">Validando acesso da profissional…</p>
@@ -55,6 +56,17 @@
           <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar atendimento</button><p class="bcg-status" data-attendance-status></p></div>
         </form>
       </div>
+      <div class="bcg-detail-history bcg-finance-current">
+        <p class="bcg-eyebrow">RECEBIMENTO DO ATENDIMENTO ATUAL</p><h2>Registrar pagamento</h2>
+        <p class="bcg-muted">O lançamento será vinculado automaticamente ao atendimento que está aberto acima.</p>
+        <form id="currentAppointmentReceiptForm" class="bcg-form bcg-form-grid">
+          <label>Valor recebido<input id="currentAppointmentReceiptValue" class="bcg-input" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
+          <label>Forma de pagamento<select id="currentAppointmentReceiptMethod" class="bcg-input" required><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="cartao_credito">Cartão de crédito</option><option value="cartao_debito">Cartão de débito</option><option value="transferencia">Transferência</option><option value="outro">Outro</option></select></label>
+          <label>Recebido em <span class="bcg-optional">opcional</span><input id="currentAppointmentReceiptAt" class="bcg-input" type="datetime-local"></label>
+          <label>Observação <span class="bcg-optional">opcional</span><textarea id="currentAppointmentReceiptNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
+          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar recebimento</button><span id="currentAppointmentReceiptStatus" class="bcg-status"></span></div>
+        </form>
+      </div>
     </section>
 
     <section id="clientes" class="bcg-panel">
@@ -74,30 +86,17 @@
       </div>
       <p class="bcg-muted">Aqui aparecem somente seus próprios valores. Regras internas de cálculo permanecem reservadas à administração.</p>
       <div class="bcg-metric-grid">
-        <article class="bcg-metric"><span>Recebido no período</span><strong id="collaboratorTotalReceived">R$ 0,00</strong></article>
-        <article class="bcg-metric"><span>Valor apurado em livros</span><strong id="collaboratorTotalEarned">R$ 0,00</strong></article>
-        <article class="bcg-metric"><span>Repasses pagos</span><strong id="collaboratorTotalPaid">R$ 0,00</strong></article>
+        <article class="bcg-metric"><span>Produção recebida</span><strong id="collaboratorTotalReceived">R$ 0,00</strong></article>
+        <article class="bcg-metric"><span>A receber</span><strong id="collaboratorTotalEarned">R$ 0,00</strong></article>
+        <article class="bcg-metric"><span>Pago</span><strong id="collaboratorTotalPaid">R$ 0,00</strong></article>
       </div>
       <p id="collaboratorFinanceStatus" class="bcg-status"></p>
       <div class="bcg-subgrid">
-        <article class="bcg-subpanel">
-          <p class="bcg-eyebrow">REGISTRAR RECEBIMENTO</p><h3>Pagamento de atendimento realizado</h3>
-          <form id="collaboratorReceiptForm" class="bcg-form">
-            <label>Atendimento<select id="collaboratorReceiptAttendance" class="bcg-input" required></select></label>
-            <label>Valor recebido<input id="collaboratorReceiptValue" class="bcg-input" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
-            <label>Forma de pagamento<select id="collaboratorReceiptMethod" class="bcg-input" required><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="cartao_credito">Cartão de crédito</option><option value="cartao_debito">Cartão de débito</option><option value="transferencia">Transferência</option><option value="outro">Outro</option></select></label>
-            <label>Recebido em <span class="bcg-optional">opcional</span><input id="collaboratorReceiptAt" class="bcg-input" type="datetime-local"></label>
-            <label>Observação <span class="bcg-optional">opcional</span><textarea id="collaboratorReceiptNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
-            <button class="bcg-button" type="submit">Registrar recebimento</button>
-          </form>
-        </article>
         <article class="bcg-subpanel"><p class="bcg-eyebrow">MOVIMENTOS</p><h3>Meus recebimentos</h3><div id="collaboratorFinanceReceipts"></div></article>
+        <article class="bcg-subpanel"><p class="bcg-eyebrow">LIVROS SEMANAIS</p><h3>Valores apurados</h3><div id="collaboratorFinanceBooks"></div></article>
       </div>
       <div class="bcg-divider"></div>
-      <div class="bcg-subgrid">
-        <article class="bcg-subpanel"><p class="bcg-eyebrow">LIVROS SEMANAIS</p><h3>Valores apurados</h3><div id="collaboratorFinanceBooks"></div></article>
-        <article class="bcg-subpanel"><p class="bcg-eyebrow">REPASSES</p><h3>Pagamentos da clínica</h3><div id="collaboratorFinancePayouts"></div></article>
-      </div>
+      <article class="bcg-subpanel"><p class="bcg-eyebrow">REPASSES</p><h3>Histórico de pagamentos da clínica</h3><div id="collaboratorFinancePayouts"></div></article>
     </section>
 
     <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
@@ -113,7 +112,7 @@ import { bindAttendanceForm } from '../js/atendimento-form.js';
 import { initCollaboratorFinance } from '../js/colaborador-finance.js';
 import '../js/shell.js';
 const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const attendanceForm=document.getElementById('attendanceForm'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('colaborador',client);
-if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';status.hidden=true;app.hidden=false;try{const agenda=await initCollaboratorAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:false,onClientsChanged:agenda.refreshClients});bindAttendanceForm({form:attendanceForm,client,appointmentId:()=>agenda.getCurrentAppointment()?.id,onSuccess:async()=>{const id=agenda.getCurrentAppointment()?.id;await agenda.refresh();if(id)await agenda.openAppointment(id);}});await initCollaboratorFinance({client,profile,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar sua área.';}}
+if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';status.hidden=true;app.hidden=false;try{const agenda=await initCollaboratorAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:false,onClientsChanged:agenda.refreshClients});bindAttendanceForm({form:attendanceForm,client,appointmentId:()=>agenda.getCurrentAppointment()?.id,onSuccess:async()=>{const id=agenda.getCurrentAppointment()?.id;await agenda.refresh();if(id)await agenda.openAppointment(id);}});await initCollaboratorFinance({client,profile,root:document,getCurrentAppointment:agenda.getCurrentAppointment});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar sua área.';}}
 logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
 </script>
 </body>
