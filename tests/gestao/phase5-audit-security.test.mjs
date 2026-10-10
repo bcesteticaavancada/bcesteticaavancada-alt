@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const hardeningUrl = new URL('../../supabase/migrations/20261010_bc_gestao_phase5_audit_hardening.sql', import.meta.url);
+const auditFollowupUrl = new URL('../../supabase/migrations/20261010_bc_gestao_phase5_audit_hardening_followup.sql', import.meta.url);
 const receiptsUrl = new URL('../../supabase/migrations/20261010_bc_gestao_phase5_receipts_rpc.sql', import.meta.url);
 const booksUrl = new URL('../../supabase/migrations/20261010_bc_gestao_phase5_books_rpc.sql', import.meta.url);
 const payoutsUrl = new URL('../../supabase/migrations/20261010_bc_gestao_phase5_payouts_rpc.sql', import.meta.url);
@@ -23,6 +24,13 @@ test('audit hardening keeps log immutable for authenticated and globally readabl
   assert.match(sql, /revoke\s+insert\s*,\s*update\s*,\s*delete\s*,\s*truncate[\s\S]*on\s+public\.audit_log[\s\S]*from\s+anon\s*,\s*authenticated/);
   assert.match(sql, /grant\s+select\s+on\s+public\.audit_log\s+to\s+authenticated/);
   assert.match(sql, /create\s+policy\s+"?audit_log_admin_select"?[\s\S]*using\s*\(private\.is_bc_admin\(\)\)/);
+});
+
+test('audit follow-up removes inherited anon/authenticated privileges before restoring admin-gated read access', async () => {
+  const sql = await source(auditFollowupUrl);
+  assert.match(sql, /revoke\s+all\s+on\s+table\s+public\.audit_log\s+from\s+anon\s*,\s*authenticated/);
+  assert.match(sql, /grant\s+select\s+on\s+table\s+public\.audit_log\s+to\s+authenticated/);
+  assert.doesNotMatch(sql, /grant\s+(insert|update|delete|truncate|references|trigger)[\s\S]*audit_log[\s\S]*to\s+(anon|authenticated)/);
 });
 
 test('hardening reasserts phase 5 wrapper grants and blocks direct financial table access', async () => {
