@@ -146,6 +146,8 @@ npm run test:gestao
 npm test
 ```
 
+Antes de aplicar migrations ou homologar o banco, a suíte completa do repositório deve estar verde no CI; testes isolados servem apenas para diagnóstico.
+
 A homologação de banco deve usar apenas dados fictícios e, sempre que possível, uma transação com `ROLLBACK`. Não criar ou alterar paciente, agenda ou pagamento real durante testes técnicos.
 
 ## Hospedagem
