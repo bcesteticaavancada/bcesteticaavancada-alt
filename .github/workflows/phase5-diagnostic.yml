@@ -1,0 +1,47 @@
+name: Phase 5 diagnostic
+
+on:
+  push:
+    branches:
+      - feature/bc-gestao-fase5
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  legacy-collaborator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/gestao/auth-routing.test.mjs tests/gestao/colaborador-clientes-integration.test.mjs tests/gestao/colaborador-agenda.test.mjs tests/gestao/routes.test.mjs
+
+  collaborator-finance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/gestao/finance-receipts-api.test.mjs tests/gestao/finance-books-api.test.mjs tests/gestao/finance-payouts-api.test.mjs tests/gestao/phase5-collaborator-finance-ui.test.mjs tests/gestao/colaborador-finance.test.mjs
+
+  admin-finance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/gestao/phase5-admin-finance-ui.test.mjs tests/gestao/admin-finance.test.mjs tests/gestao/admin-audit.test.mjs
+
+  database-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/gestao/phase5-database-contract.test.mjs tests/gestao/phase5-security-contract.test.mjs tests/gestao/phase5-receipts-rpc.test.mjs tests/gestao/phase5-books-rpc.test.mjs tests/gestao/phase5-payouts-rpc.test.mjs tests/gestao/phase5-audit-security.test.mjs tests/gestao/phase5-finance-integration.test.mjs
