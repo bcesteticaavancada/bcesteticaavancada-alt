@@ -102,7 +102,18 @@ export async function runFormSubmit({ form, statusEl, action, resetOnSuccess = f
   }
 }
 
-export async function initClientesPanel({ client, profile, root = document, canArchive = false }) {
+export async function notifyClientsChanged(callback) {
+  if (typeof callback !== 'function') return;
+  await callback();
+}
+
+export async function initClientesPanel({
+  client,
+  profile,
+  root = document,
+  canArchive = false,
+  onClientsChanged = null,
+}) {
   if (!client || !profile?.user_id || !root) throw new Error('Contexto de clientes inválido.');
   const el = (id) => root.getElementById(id);
   const search = el('clientsSearch');
@@ -158,6 +169,7 @@ export async function initClientesPanel({ client, profile, root = document, canA
       });
       if (id) {
         await refreshClients();
+        await notifyClientsChanged(onClientsChanged);
         await openClient(id);
       }
     } catch {
@@ -198,6 +210,7 @@ export async function initClientesPanel({ client, profile, root = document, canA
         }),
       });
       await refreshClients();
+      await notifyClientsChanged(onClientsChanged);
       await openClient(form.dataset.clientId);
     } catch {
       // Editor mantém valores em falha.
@@ -215,6 +228,7 @@ export async function initClientesPanel({ client, profile, root = document, canA
         active: button.dataset.toggleClient === 'true',
       });
       await refreshClients();
+      await notifyClientsChanged(onClientsChanged);
       await openClient(currentClientId);
     } finally {
       button.disabled = false;
