@@ -7,7 +7,7 @@ const agendaSourceUrl = new URL('../../gestao/js/colaborador-agenda.js', import.
 
 test('colaboradora recebe Minha agenda, Clientes globais e somente o próprio financeiro', async () => {
   const html = await readFile(htmlUrl, 'utf8');
-  for (const id of ['collaboratorAppointmentForm','collaboratorAppointmentClient','collaboratorAppointmentProcedure','clientsSearch','clientCreateForm','clientsList','clientEditor','clientHistoryTimeline','financeiro','collaboratorReceiptForm','collaboratorFinanceReceipts','collaboratorFinanceBooks','collaboratorFinancePayouts']) {
+  for (const id of ['collaboratorAppointmentForm','collaboratorAppointmentClient','collaboratorAppointmentProcedure','clientsSearch','clientCreateForm','clientsList','clientEditor','clientHistoryTimeline','financeiro','currentAppointmentReceiptForm','collaboratorFinanceReceipts','collaboratorFinanceBooks','collaboratorFinancePayouts']) {
     assert.match(html,new RegExp(`id=["']${id}["']`));
   }
   assert.match(html,/clientes-panel\.js/);
