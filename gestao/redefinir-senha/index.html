@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Definir nova senha • BC Gestão</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <link rel="stylesheet" href="../assets/gestao.css">
+</head>
+<body class="bcg-page bcg-login-page">
+  <main class="bcg-login-layout">
+    <section class="bcg-login-visual" aria-label="BC Gestão">
+      <div class="bcg-monogram" aria-hidden="true">BC</div>
+      <p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p>
+      <h1>Nova <em>senha</em></h1>
+      <p>Defina uma nova credencial para continuar usando o BC Gestão com acesso individual protegido.</p>
+      <div class="bcg-rule"></div>
+      <small>Use uma senha exclusiva para esta conta</small>
+    </section>
+
+    <section class="bcg-auth-card" aria-labelledby="password-title">
+      <p class="bcg-eyebrow">SEGURANÇA</p>
+      <h2 id="password-title">Definir nova senha</h2>
+      <p class="bcg-muted">A nova senha deve ter pelo menos 8 caracteres. O link recebido por e-mail precisa estar válido para concluir a alteração.</p>
+
+      <form id="passwordForm" class="bcg-form" aria-describedby="password-status" autocomplete="on">
+        <label>Nova senha
+          <input id="newPassword" type="password" name="new-password" autocomplete="new-password" minlength="8" required>
+        </label>
+        <label>Confirmar nova senha
+          <input id="confirmPassword" type="password" name="confirm-password" autocomplete="new-password" minlength="8" required>
+        </label>
+        <button id="passwordSubmit" class="bcg-button" type="submit">Salvar nova senha</button>
+      </form>
+
+      <p id="password-status" class="bcg-status" role="status" aria-live="polite"></p>
+      <a class="bcg-text-link" href="../recuperar-senha/">Solicitar outro link</a>
+      <a class="bcg-text-link" href="../login/">Voltar para o login</a>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { updatePassword, signOut } from '../js/auth.js';
+    import '../js/shell.js';
+
+    const form = document.getElementById('passwordForm');
+    const password = document.getElementById('newPassword');
+    const confirmation = document.getElementById('confirmPassword');
+    const submit = document.getElementById('passwordSubmit');
+    const status = document.getElementById('password-status');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      status.textContent = '';
+
+      if (password.value !== confirmation.value) {
+        status.textContent = 'As senhas precisam ser iguais.';
+        confirmation.select();
+        return;
+      }
+
+      submit.disabled = true;
+      status.textContent = 'Atualizando senha…';
+
+      try {
+        await updatePassword(password.value);
+        password.value = '';
+        confirmation.value = '';
+        await signOut().catch(() => {});
+        window.location.replace('../login/?senha=atualizada');
+      } catch (error) {
+        status.textContent = error?.message || 'Não foi possível atualizar a senha.';
+        submit.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
