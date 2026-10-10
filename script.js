@@ -3,6 +3,24 @@ const drawer=document.getElementById("siteDrawer");
 const overlay=document.getElementById("menuOverlay");
 const closeButton=document.getElementById("drawerClose");
 
+function ensureBCGestaoMenuLink(){
+  if(!drawer)return;
+  const nav=drawer.querySelector(".drawer-nav");
+  if(!nav||nav.querySelector('[data-bc-gestao-link="true"]'))return;
+
+  const contactLink=Array.from(nav.querySelectorAll("a")).find(function(link){
+    return link.textContent.trim()==="Contato";
+  });
+  if(!contactLink)return;
+
+  const link=document.createElement("a");
+  link.textContent="BC Gestão";
+  link.href=new URL("../gestao/login/",contactLink.href).href;
+  link.setAttribute("data-bc-gestao-link","true");
+  nav.insertBefore(link,contactLink);
+}
+ensureBCGestaoMenuLink();
+
 function setMenu(open){
   if(!toggle||!drawer||!overlay)return;
   toggle.classList.toggle("is-open",open);
