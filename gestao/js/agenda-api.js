@@ -68,7 +68,6 @@ export async function listOwnAppointments({ client, userId, fromIso, toIso }) {
   cleanRequired(userId, 'Profissional');
   cleanRequired(fromIso, 'Início do período');
   cleanRequired(toIso, 'Fim do período');
-
   const query = client
     .from('agendamentos')
     .select(APPOINTMENT_SELECT)
@@ -76,7 +75,6 @@ export async function listOwnAppointments({ client, userId, fromIso, toIso }) {
     .gte('inicio', fromIso)
     .lt('inicio', toIso)
     .order('inicio', { ascending: true });
-
   return resolveQuery(query, 'Não foi possível carregar sua agenda.');
 }
 
@@ -84,44 +82,17 @@ export async function listAdminAppointments({ client, fromIso, toIso }) {
   ensureClient(client);
   cleanRequired(fromIso, 'Início do período');
   cleanRequired(toIso, 'Fim do período');
-
   const query = client
     .from('agendamentos')
     .select(APPOINTMENT_SELECT)
     .gte('inicio', fromIso)
     .lt('inicio', toIso)
     .order('inicio', { ascending: true });
-
   return resolveQuery(query, 'Não foi possível carregar a agenda administrativa.');
 }
 
-export async function listAdminClients({ client, search = '' }) {
-  ensureClient(client);
-  let query = client
-    .from('clientes')
-    .select('id,nome,telefone,email,created_at,updated_at')
-    .order('nome', { ascending: true });
-
-  const cleanSearch = String(search ?? '').trim();
-  if (cleanSearch) query = query.ilike('nome', `%${cleanSearch}%`);
-
-  return resolveQuery(query, 'Não foi possível carregar os clientes.');
-}
-
-export async function createClient({ client, nome, telefone, email = null, createdBy }) {
-  ensureClient(client);
-  const payload = {
-    nome: cleanRequired(nome, 'Nome'),
-    telefone: cleanRequired(telefone, 'Telefone'),
-    email: cleanOptional(email),
-    created_by: cleanRequired(createdBy, 'Autoria'),
-  };
-
-  return resolveSingle(
-    client.from('clientes').insert(payload).select('id,nome,telefone,email,created_at'),
-    'Não foi possível cadastrar o cliente.',
-  );
-}
+// Ponte temporária para o painel admin legado durante a migração da Fase 4.
+export { listClients as listAdminClients, createClient } from './clientes-api.js';
 
 export async function listActiveProcedures({ client }) {
   ensureClient(client);
@@ -130,7 +101,6 @@ export async function listActiveProcedures({ client }) {
     .select('id,nome,duracao_padrao,ativo')
     .eq('ativo', true)
     .order('nome', { ascending: true });
-
   return resolveQuery(query, 'Não foi possível carregar os procedimentos.');
 }
 
@@ -139,17 +109,14 @@ export async function createProcedure({ client, nome, duracaoPadrao = null, crea
   const duration = duracaoPadrao === null || duracaoPadrao === '' || duracaoPadrao === undefined
     ? null
     : Number(duracaoPadrao);
-
   if (duration !== null && (!Number.isInteger(duration) || duration <= 0)) {
     throw new Error('Duração padrão inválida.');
   }
-
   const payload = {
     nome: cleanRequired(nome, 'Nome do procedimento'),
     duracao_padrao: duration,
     created_by: cleanRequired(createdBy, 'Autoria'),
   };
-
   return resolveSingle(
     client.from('procedimentos').insert(payload).select('id,nome,duracao_padrao,ativo'),
     'Não foi possível cadastrar o procedimento.',
@@ -175,23 +142,38 @@ export async function createAppointment({
   inicioIso,
   fimIso = null,
   observacao = null,
-  createdBy,
 }) {
   ensureClient(client);
-  const payload = {
-    cliente_id: cleanRequired(clienteId, 'Cliente'),
-    colaboradora_user_id: cleanRequired(colaboradoraUserId, 'Profissional'),
-    procedimento_id: cleanRequired(procedimentoId, 'Procedimento'),
-    inicio: cleanRequired(inicioIso, 'Horário inicial'),
-    fim: fimIso ? String(fimIso).trim() : null,
-    observacao_administrativa: cleanOptional(observacao),
-    created_by: cleanRequired(createdBy, 'Autoria'),
-  };
+  const { data, error } = await client.rpc('bc_agendamento_create', {
+    p_cliente_id: cleanRequired(clienteId, 'Cliente'),
+    p_colaboradora_user_id: cleanRequired(colaboradoraUserId, 'Profissional'),
+    p_procedimento_id: cleanRequired(procedimentoId, 'Procedimento'),
+    p_inicio: cleanRequired(inicioIso, 'Horário inicial'),
+    p_fim: fimIso ? String(fimIso).trim() : null,
+    p_observacao: cleanOptional(observacao),
+  });
+  throwIfError(error, 'Não foi possível criar o agendamento.');
+  return data;
+}
 
-  return resolveSingle(
-    client.from('agendamentos').insert(payload).select(APPOINTMENT_SELECT),
-    'Não foi possível criar o agendamento.',
-  );
+export async function updateAppointment({
+  client,
+  appointmentId,
+  procedimentoId,
+  inicioIso,
+  fimIso = null,
+  observacao = null,
+}) {
+  ensureClient(client);
+  const { data, error } = await client.rpc('bc_agendamento_update', {
+    p_agendamento_id: cleanRequired(appointmentId, 'Agendamento'),
+    p_procedimento_id: cleanRequired(procedimentoId, 'Procedimento'),
+    p_inicio: cleanRequired(inicioIso, 'Horário inicial'),
+    p_fim: fimIso ? String(fimIso).trim() : null,
+    p_observacao: cleanOptional(observacao),
+  });
+  throwIfError(error, 'Não foi possível atualizar o agendamento.');
+  return data;
 }
 
 export async function setAppointmentStatus({ client, appointmentId, status }) {
@@ -211,7 +193,6 @@ export async function listAuthorizedHistory({ client, clienteId }) {
     .select(HISTORY_SELECT)
     .eq('cliente_id', cleanRequired(clienteId, 'Cliente'))
     .order('data_atendimento', { ascending: false });
-
   return resolveQuery(query, 'Não foi possível carregar o histórico autorizado.');
 }
 
@@ -226,15 +207,10 @@ export async function registerAttendance({ client, appointmentId, fields = {} })
     'orientacoes',
     'recomendacao_proxima_sessao',
   ];
-
-  const payload = {
-    p_agendamento_id: cleanRequired(appointmentId, 'Agendamento'),
-  };
-
+  const payload = { p_agendamento_id: cleanRequired(appointmentId, 'Agendamento') };
   for (const field of allowedFields) {
     payload[`p_${field}`] = String(fields[field] ?? '').trim();
   }
-
   const { data, error } = await client.rpc('bc_registrar_atendimento', payload);
   throwIfError(error, 'Não foi possível registrar o atendimento.');
   return data;
