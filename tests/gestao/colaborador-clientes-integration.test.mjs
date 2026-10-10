@@ -5,11 +5,15 @@ import { ownAppointmentPayload } from '../../gestao/js/colaborador-agenda.js';
 const htmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
 const agendaSourceUrl = new URL('../../gestao/js/colaborador-agenda.js', import.meta.url);
 
-test('colaboradora recebe Minha agenda e Clientes globais sem financeiro nem arquivamento', async () => {
+test('colaboradora recebe Minha agenda, Clientes globais e somente o próprio financeiro', async () => {
   const html = await readFile(htmlUrl, 'utf8');
-  for (const id of ['collaboratorAppointmentForm','collaboratorAppointmentClient','collaboratorAppointmentProcedure','clientsSearch','clientCreateForm','clientsList','clientEditor','clientHistoryTimeline']) assert.match(html,new RegExp(`id=["']${id}["']`));
+  for (const id of ['collaboratorAppointmentForm','collaboratorAppointmentClient','collaboratorAppointmentProcedure','clientsSearch','clientCreateForm','clientsList','clientEditor','clientHistoryTimeline','financeiro','collaboratorReceiptForm','collaboratorFinanceReceipts','collaboratorFinanceBooks','collaboratorFinancePayouts']) {
+    assert.match(html,new RegExp(`id=["']${id}["']`));
+  }
   assert.match(html,/clientes-panel\.js/);
-  assert.doesNotMatch(html,/appointmentCollaborator|data-toggle-client|Arquivar cliente|Financeiro|pagamentos?/i);
+  assert.match(html,/colaborador-finance\.js/);
+  assert.doesNotMatch(html,/appointmentCollaborator|data-toggle-client|Arquivar cliente/i);
+  assert.doesNotMatch(html,/adminCommissionForm|adminPayoutCreateForm|adminFinanceReceipts/i);
 });
 
 test('payload de novo agendamento usa sempre o user_id da colaboradora', () => {
