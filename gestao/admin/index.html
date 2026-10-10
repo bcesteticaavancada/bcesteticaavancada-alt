@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel administrativo • BC Gestão</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <link rel="stylesheet" href="../assets/gestao.css">
+</head>
+<body class="bcg-page bcg-dashboard-page">
+  <p id="authStatus" class="bcg-status" role="status" aria-live="polite">Validando acesso administrativo…</p>
+
+  <div id="gestaoApp" class="bcg-dashboard-shell" hidden>
+    <aside class="bcg-sidebar">
+      <a class="bcg-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
+      <nav class="bcg-nav" aria-label="Navegação administrativa">
+        <a data-nav aria-current="page" href="#dashboard">Dashboard</a>
+        <a data-nav href="#agenda">Agenda</a>
+        <a data-nav href="#clientes">Cadastros</a>
+        <a data-nav href="#historico">Histórico</a>
+        <a data-nav href="#financeiro">Financeiro</a>
+      </nav>
+      <div class="bcg-sidebar-note">Sessão protegida por perfil administrativo.</div>
+    </aside>
+
+    <main class="bcg-dashboard-main">
+      <header class="bcg-topbar">
+        <div>
+          <p class="bcg-eyebrow">BC GESTÃO 1.0</p>
+          <h1>Painel <em>administrativo</em></h1>
+          <p class="bcg-muted">Olá, <strong id="profileName">Administradora</strong></p>
+        </div>
+        <button id="logoutBtn" class="bcg-button" type="button">Sair</button>
+      </header>
+
+      <section id="dashboard" class="bcg-section">
+        <div class="bcg-section-head">
+          <div><p class="bcg-eyebrow">VISÃO GERAL</p><h2>Dashboard da Mel</h2></div>
+          <p>A agenda já está operacional. Indicadores financeiros continuam reservados para uma fase posterior.</p>
+        </div>
+        <div class="bcg-metric-grid">
+          <article class="bcg-metric"><span>Agenda</span><strong>Ativa</strong></article>
+          <article class="bcg-metric"><span>Clientes</span><strong>Cadastro ativo</strong></article>
+          <article class="bcg-metric"><span>Procedimentos</span><strong>Cadastro ativo</strong></article>
+          <article class="bcg-metric"><span>Financeiro</span><strong>Próxima fase</strong></article>
+        </div>
+      </section>
+
+      <section id="agenda" class="bcg-panel">
+        <div class="bcg-section-head">
+          <div><p class="bcg-eyebrow">AGENDA</p><h2>Atendimentos do dia</h2></div>
+          <label class="bcg-field bcg-field-compact" for="adminAgendaDate">Data
+            <input id="adminAgendaDate" class="bcg-input" type="date">
+          </label>
+        </div>
+        <p id="adminAgendaStatus" class="bcg-status" role="status" aria-live="polite"></p>
+        <div id="adminAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
+
+        <div class="bcg-divider"></div>
+        <p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
+        <form id="appointmentForm" class="bcg-form bcg-form-grid">
+          <label>Cliente
+            <select id="appointmentClient" class="bcg-input" required></select>
+          </label>
+          <label>Profissional
+            <select id="appointmentCollaborator" class="bcg-input" required></select>
+          </label>
+          <label>Procedimento
+            <select id="appointmentProcedure" class="bcg-input" required></select>
+          </label>
+          <label>Início
+            <input id="appointmentStart" class="bcg-input" type="datetime-local" required>
+          </label>
+          <label>Fim <span class="bcg-optional">opcional</span>
+            <input id="appointmentEnd" class="bcg-input" type="datetime-local">
+          </label>
+          <label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span>
+            <textarea id="appointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea>
+          </label>
+          <div class="bcg-form-actions bcg-field-wide">
+            <button class="bcg-button" type="submit">Criar agendamento</button>
+            <span id="appointmentFormStatus" class="bcg-status" role="status" aria-live="polite"></span>
+          </div>
+        </form>
+      </section>
+
+      <section id="clientes" class="bcg-panel">
+        <p class="bcg-eyebrow">CADASTROS</p>
+        <h2>Clientes e procedimentos</h2>
+        <div class="bcg-subgrid">
+          <article class="bcg-subpanel">
+            <h3>Novo cliente</h3>
+            <form id="clientForm" class="bcg-form">
+              <label>Nome
+                <input id="clientNome" class="bcg-input" type="text" autocomplete="name" required>
+              </label>
+              <label>Telefone
+                <input id="clientTelefone" class="bcg-input" type="tel" autocomplete="tel" required>
+              </label>
+              <label>E-mail <span class="bcg-optional">opcional</span>
+                <input id="clientEmail" class="bcg-input" type="email" autocomplete="email">
+              </label>
+              <button class="bcg-button" type="submit">Cadastrar cliente</button>
+              <span id="clientFormStatus" class="bcg-status" role="status" aria-live="polite"></span>
+            </form>
+            <div id="clientsList"></div>
+          </article>
+
+          <article class="bcg-subpanel">
+            <h3>Novo procedimento</h3>
+            <form id="procedureForm" class="bcg-form">
+              <label>Nome do procedimento
+                <input id="procedureNome" class="bcg-input" type="text" required>
+              </label>
+              <label>Duração padrão em minutos <span class="bcg-optional">opcional</span>
+                <input id="procedureDuration" class="bcg-input" type="number" inputmode="numeric" min="1" step="1">
+              </label>
+              <button class="bcg-button" type="submit">Cadastrar procedimento</button>
+              <span id="procedureFormStatus" class="bcg-status" role="status" aria-live="polite"></span>
+            </form>
+            <div id="proceduresList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="historico" class="bcg-panel">
+        <p class="bcg-eyebrow">HISTÓRICO</p>
+        <h2>Linha do tempo de atendimentos</h2>
+        <div class="bcg-empty">O histórico será exibido em contexto de cliente/atendimento na próxima etapa desta fase.</div>
+      </section>
+
+      <section id="financeiro" class="bcg-panel">
+        <p class="bcg-eyebrow">FINANCEIRO • SOMENTE ADMIN</p>
+        <h2>Recebimentos e contas a receber</h2>
+        <div class="bcg-empty">Módulo propositalmente não ativado nesta fase.</div>
+      </section>
+
+      <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { requireRole, signOut } from '../js/auth.js';
+    import { createBcGestaoClient } from '../js/supabase-client.js';
+    import { initAdminAgenda } from '../js/admin-agenda.js';
+    import '../js/shell.js';
+
+    const app = document.getElementById('gestaoApp');
+    const status = document.getElementById('authStatus');
+    const logout = document.getElementById('logoutBtn');
+    const client = createBcGestaoClient(globalThis.supabase?.createClient);
+    const profile = await requireRole('admin', client);
+
+    if (profile) {
+      document.getElementById('profileName').textContent = profile.display_name || 'Administradora';
+      status.hidden = true;
+      app.hidden = false;
+      try {
+        await initAdminAgenda({ client, profile, root: document });
+      } catch (error) {
+        status.hidden = false;
+        status.textContent = error?.message || 'Não foi possível iniciar a agenda administrativa.';
+      }
+    }
+
+    logout.addEventListener('click', async () => {
+      logout.disabled = true;
+      try {
+        await signOut(client);
+      } finally {
+        window.location.replace('../login/');
+      }
+    });
+  </script>
+</body>
+</html>

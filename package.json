@@ -5,6 +5,7 @@
   "scripts": {
     "test:frontend": "node --test tests/anamnese/*.test.mjs",
     "test:site": "node --test tests/site/*.test.mjs",
-    "test": "npm run test:frontend && npm run test:site"
+    "test:gestao": "node --test tests/gestao/*.test.mjs",
+    "test": "npm run test:frontend && npm run test:site && npm run test:gestao"
   }
 }

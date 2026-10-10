@@ -4,13 +4,17 @@ on:
   push:
     branches:
       - 'work/**'
+      - 'feature/**'
       - main
     paths:
       - '**/*.html'
       - '**/*.css'
       - 'script.js'
       - 'assets/**'
+      - 'gestao/**'
+      - 'supabase/**'
       - 'tests/site/**'
+      - 'tests/gestao/**'
       - 'package.json'
       - '.github/workflows/site-ci.yml'
   pull_request:
@@ -20,7 +24,10 @@ on:
       - '**/*.css'
       - 'script.js'
       - 'assets/**'
+      - 'gestao/**'
+      - 'supabase/**'
       - 'tests/site/**'
+      - 'tests/gestao/**'
       - 'package.json'
       - '.github/workflows/site-ci.yml'
 
@@ -35,4 +42,6 @@ jobs:
       - name: Existing pre-anamnese tests
         run: npm run test:frontend
       - name: Site regression tests
-        run: node --test tests/site/*.test.mjs
+        run: npm run test:site
+      - name: BC Gestão tests
+        run: npm run test:gestao

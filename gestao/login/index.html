@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar • BC Gestão</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <link rel="stylesheet" href="../assets/gestao.css">
+</head>
+<body class="bcg-page bcg-login-page">
+  <main class="bcg-login-layout">
+    <section class="bcg-login-visual" aria-label="BC Gestão">
+      <div class="bcg-monogram" aria-hidden="true">BC</div>
+      <p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p>
+      <h1>BC <em>Gestão</em></h1>
+      <p>Uma área privada para organizar agenda, atendimentos e continuidade do cuidado com acesso individual protegido.</p>
+      <div class="bcg-rule"></div>
+      <small>Acesso exclusivo à equipe autorizada</small>
+    </section>
+    <section class="bcg-auth-card" aria-labelledby="login-title">
+      <p class="bcg-eyebrow">ACESSO INTERNO</p>
+      <h2 id="login-title">Entrar</h2>
+      <p class="bcg-muted">Use seu e-mail e sua senha de acesso ao BC Gestão.</p>
+      <form id="loginForm" class="bcg-form" aria-describedby="login-status" autocomplete="on">
+        <label>E-mail<input id="loginEmail" type="email" name="email" autocomplete="username" inputmode="email" required></label>
+        <label>Senha<input id="loginPassword" type="password" name="password" autocomplete="current-password" required></label>
+        <button id="loginSubmit" class="bcg-button" type="submit">Entrar com segurança</button>
+      </form>
+      <p id="login-status" class="bcg-status" role="status" aria-live="polite"></p>
+      <a class="bcg-text-link" href="../">Voltar para BC Gestão</a>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { signIn, getCurrentProfile } from '../js/auth.js';
+    import { routeForRole } from '../js/routes.js';
+    import '../js/shell.js';
+
+    const form = document.getElementById('loginForm');
+    const email = document.getElementById('loginEmail');
+    const password = document.getElementById('loginPassword');
+    const submit = document.getElementById('loginSubmit');
+    const status = document.getElementById('login-status');
+
+    function goToProfile(profile) {
+      const destination = routeForRole(profile?.role);
+      if (!destination) return false;
+      window.location.replace(destination);
+      return true;
+    }
+
+    try {
+      const existingProfile = await getCurrentProfile();
+      if (existingProfile) goToProfile(existingProfile);
+    } catch {
+      status.textContent = 'Não foi possível validar uma sessão anterior. Você pode entrar novamente.';
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      status.textContent = 'Validando acesso…';
+      submit.disabled = true;
+
+      try {
+        const profile = await signIn(email.value, password.value);
+        password.value = '';
+        if (!goToProfile(profile)) throw new Error('Perfil sem destino autorizado.');
+      } catch (error) {
+        status.textContent = error?.message || 'Não foi possível entrar no BC Gestão.';
+        submit.disabled = false;
+        password.select();
+      }
+    });
+  </script>
+</body>
+</html>
