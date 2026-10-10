@@ -22,7 +22,7 @@ function aggregateBooks(rows = []) {
 }
 
 export async function initAdminFinance({ client, profile, root = document, staffMap }) {
-  if (!client?.rpc || !root || profile?.role !== 'admin' || !(staffMap instanceof Map)) {
+  if (!client?.rpc || !root || !profile || profile.role !== 'admin' || !(staffMap instanceof Map)) {
     throw new Error('Contexto financeiro administrativo inválido.');
   }
   const el = (id) => root.getElementById(id);
