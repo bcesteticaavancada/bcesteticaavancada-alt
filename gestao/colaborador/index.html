@@ -60,7 +60,53 @@
           <div id="historyTimeline"></div>
         </div>
 
-        <div id="attendanceFormSlot"></div>
+        <div id="attendanceFormSlot" class="bcg-detail-history" hidden>
+          <p class="bcg-eyebrow">REGISTRO DA SESSÃO</p>
+          <h2>Ficha do atendimento atual</h2>
+          <p class="bcg-muted">Registre somente informações relevantes para a continuidade segura e qualificada do atendimento.</p>
+
+          <form id="attendanceForm" class="bcg-form bcg-form-grid" novalidate>
+            <label class="bcg-field bcg-field-wide">
+              Queixa / objetivo da sessão
+              <textarea class="bcg-textarea" name="queixa_objetivo" rows="3" placeholder="Ex.: sensibilidade, objetivo informado pela cliente"></textarea>
+            </label>
+
+            <label class="bcg-field bcg-field-wide">
+              Observações
+              <textarea class="bcg-textarea" name="observacoes" rows="3" placeholder="Achados e observações relevantes da sessão"></textarea>
+            </label>
+
+            <label class="bcg-field">
+              Reações
+              <textarea class="bcg-textarea" name="reacoes" rows="3" placeholder="Resposta ou reação observada"></textarea>
+            </label>
+
+            <label class="bcg-field">
+              Intercorrências
+              <textarea class="bcg-textarea" name="intercorrencias" rows="3" placeholder="Se não houve, pode deixar em branco"></textarea>
+            </label>
+
+            <label class="bcg-field">
+              Feedback da cliente
+              <textarea class="bcg-textarea" name="feedback_cliente" rows="3" placeholder="Percepção, elogio, incômodo ou relato da cliente"></textarea>
+            </label>
+
+            <label class="bcg-field">
+              Orientações
+              <textarea class="bcg-textarea" name="orientacoes" rows="3" placeholder="Cuidados e orientações transmitidas"></textarea>
+            </label>
+
+            <label class="bcg-field bcg-field-wide">
+              Recomendação para a próxima sessão
+              <textarea class="bcg-textarea" name="recomendacao_proxima_sessao" rows="3" placeholder="Conduta sugerida, prazo ou ponto de atenção"></textarea>
+            </label>
+
+            <div class="bcg-form-actions bcg-field-wide">
+              <button class="bcg-button" type="submit">Registrar atendimento</button>
+              <p class="bcg-status" data-attendance-status role="status" aria-live="polite"></p>
+            </div>
+          </form>
+        </div>
       </section>
 
       <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
@@ -72,11 +118,13 @@
     import { requireRole, signOut } from '../js/auth.js';
     import { createBcGestaoClient } from '../js/supabase-client.js';
     import { initCollaboratorAgenda } from '../js/colaborador-agenda.js';
+    import { bindAttendanceForm } from '../js/atendimento-form.js';
     import '../js/shell.js';
 
     const app = document.getElementById('gestaoApp');
     const status = document.getElementById('authStatus');
     const logout = document.getElementById('logoutBtn');
+    const attendanceForm = document.getElementById('attendanceForm');
     const client = createBcGestaoClient(globalThis.supabase?.createClient);
     const profile = await requireRole('colaborador', client);
 
@@ -85,7 +133,18 @@
       status.hidden = true;
       app.hidden = false;
       try {
-        await initCollaboratorAgenda({ client, profile, root: document });
+        const agenda = await initCollaboratorAgenda({ client, profile, root: document });
+
+        bindAttendanceForm({
+          form: attendanceForm,
+          client,
+          appointmentId: () => agenda.getCurrentAppointment()?.id,
+          onSuccess: async () => {
+            const appointmentId = agenda.getCurrentAppointment()?.id;
+            await agenda.refresh();
+            if (appointmentId) await agenda.openAppointment(appointmentId);
+          },
+        });
       } catch (error) {
         status.hidden = false;
         status.textContent = error?.message || 'Não foi possível iniciar sua agenda.';
