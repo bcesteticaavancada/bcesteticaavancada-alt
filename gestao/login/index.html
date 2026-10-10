@@ -27,6 +27,7 @@
         <button id="loginSubmit" class="bcg-button" type="submit">Entrar com segurança</button>
       </form>
       <p id="login-status" class="bcg-status" role="status" aria-live="polite"></p>
+      <a class="bcg-text-link" href="../recuperar-senha/">Esqueci minha senha</a>
       <a class="bcg-text-link" href="../">Voltar para BC Gestão</a>
     </section>
   </main>
@@ -42,6 +43,11 @@
     const password = document.getElementById('loginPassword');
     const submit = document.getElementById('loginSubmit');
     const status = document.getElementById('login-status');
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('senha') === 'atualizada') {
+      status.textContent = 'Senha atualizada. Entre com sua nova senha.';
+    }
 
     function goToProfile(profile) {
       const destination = routeForRole(profile?.role);
