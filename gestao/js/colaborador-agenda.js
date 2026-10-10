@@ -232,16 +232,21 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     else delete attendanceFormSlot.dataset.appointmentId;
   }
 
+  async function refreshClients() {
+    const clients = await listClients({ client });
+    replaceOptions(clientSelect, clients, 'Selecione o cliente');
+    return clients;
+  }
+
   async function loadLookups() {
-    const [staff, procedureRows, clients] = await Promise.all([
+    const [staff, procedureRows] = await Promise.all([
       listStaffDirectory({ client }),
       listActiveProcedures({ client }),
-      listClients({ client }),
     ]);
     staffMap = new Map(staff.map((item) => [item.user_id, item.display_name]));
     procedures = procedureRows;
-    replaceOptions(clientSelect, clients, 'Selecione o cliente');
     replaceOptions(procedureSelect, procedures, 'Selecione o procedimento');
+    await refreshClients();
   }
 
   async function refresh() {
@@ -390,6 +395,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
 
   return {
     refresh,
+    refreshClients,
     openAppointment,
     closeDetail,
     getCurrentAppointment: () => appointments.get(currentAppointmentId) || null,
