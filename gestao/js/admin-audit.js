@@ -17,6 +17,16 @@ const ACTION_LABELS = {
   agendamento_updated: 'Agendamento atualizado',
   agendamento_status_changed: 'Status do agendamento alterado',
   atendimento_created: 'Atendimento registrado',
+  recebimento_created: 'Recebimento registrado',
+  recebimento_reversed: 'Recebimento estornado',
+  comissao_updated: 'Comissão atualizada',
+  livro_closed: 'Livro financeiro fechado',
+  livro_reopened: 'Livro financeiro reaberto',
+  livro_recalculated: 'Livro financeiro recalculado',
+  repasse_cycle_updated: 'Ciclo de repasse atualizado',
+  repasse_created: 'Repasse criado',
+  repasse_paid: 'Repasse baixado como pago',
+  repasse_reversed: 'Repasse estornado',
 };
 
 function compactJson(value) {
@@ -65,11 +75,7 @@ export async function initAdminAudit({ client, root = document, staffMap = null 
   async function refresh() {
     setStatus(status, 'Carregando auditoria…');
     try {
-      const rows = await listAuditLog({
-        client,
-        entityType: type.value || null,
-        entityId: id.value || null,
-      });
+      const rows = await listAuditLog({ client, entityType: type.value || null, entityId: id.value || null });
       list.innerHTML = renderAuditLog(rows, names);
       setStatus(status, `${rows.length} evento(s) encontrado(s).`, 'success');
       return rows;
