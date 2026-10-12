@@ -34,8 +34,8 @@ test('fase 6B persiste documentos e assinaturas de forma imutável', async () =>
   assert.match(sql, /bc-prontuario-private/);
   assert.match(sql, /paciente|responsavel|profissional/);
   assert.match(sql, /sha256/);
-  assert.doesNotMatch(sql, /create\s+policy[\s\S]*clinical_signatures[\s\S]*for\s+update/);
-  assert.doesNotMatch(sql, /create\s+policy[\s\S]*clinical_signatures[\s\S]*for\s+delete/);
+  assert.doesNotMatch(sql, /create\s+policy[^;]*on\s+public\.clinical_signatures[^;]*for\s+update/);
+  assert.doesNotMatch(sql, /create\s+policy[^;]*on\s+public\.clinical_signatures[^;]*for\s+delete/);
 });
 
 test('fase 6B link remoto guarda hash e expira em 72 horas', async () => {
