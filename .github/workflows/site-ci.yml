@@ -49,4 +49,4 @@ jobs:
       - name: BC Gestão tests
         run: npm run test:gestao
       - name: Anamnese PDF Edge Function tests
-        run: deno test supabase/functions/generate-anamnese-pdf/pdf_test.ts
+        run: deno test --config supabase/functions/generate-anamnese-pdf/deno.json supabase/functions/generate-anamnese-pdf/pdf_test.ts
