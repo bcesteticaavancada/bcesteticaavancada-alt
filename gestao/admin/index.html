@@ -92,7 +92,21 @@
         </div>
       </section>
 
-      <section id="procedimentos" class="bcg-panel" data-area-panel hidden><p class="bcg-eyebrow">PROCEDIMENTOS</p><h2>Cadastro de procedimentos</h2><div class="bcg-subgrid"><article class="bcg-subpanel"><form id="procedureForm" class="bcg-form"><label>Nome do procedimento<input id="procedureNome" class="bcg-input" type="text" required></label><label>Duração padrão em minutos <span class="bcg-optional">opcional</span><input id="procedureDuration" class="bcg-input" type="number" inputmode="numeric" min="1" step="1"></label><button class="bcg-button" type="submit">Cadastrar procedimento</button><span id="procedureFormStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Ativos</h3><div id="proceduresList"></div></article></div></section>
+      <section id="procedimentos" class="bcg-panel" data-area-panel hidden>
+        <p class="bcg-eyebrow">PROCEDIMENTOS</p><h2>Cadastro de procedimentos</h2>
+        <div class="bcg-subgrid"><article class="bcg-subpanel"><form id="procedureForm" class="bcg-form"><label>Nome do procedimento<input id="procedureNome" class="bcg-input" type="text" required></label><label>Duração padrão em minutos <span class="bcg-optional">opcional</span><input id="procedureDuration" class="bcg-input" type="number" inputmode="numeric" min="1" step="1"></label><button class="bcg-button" type="submit">Cadastrar procedimento</button><span id="procedureFormStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Ativos</h3><div id="proceduresList"></div></article></div>
+        <div class="bcg-divider"></div>
+        <p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h2>Identificação profissional</h2>
+        <p class="bcg-muted">Esses dados são usados no snapshot dos documentos assinados. O sistema não inventa conselho ou registro.</p>
+        <form id="staffClinicalIdentityForm" class="bcg-form bcg-form-grid bcg-editor-card">
+          <label class="bcg-field-wide">Profissional<select id="staffClinicalProfessional" class="bcg-input" required></select></label>
+          <label>Profissão<input class="bcg-input" name="profissao" type="text" autocomplete="organization-title" required></label>
+          <label>Conselho<input class="bcg-input" name="conselho" type="text" placeholder="Ex.: CRBM" required></label>
+          <label>Registro no conselho<input class="bcg-input" name="registro_conselho" type="text" required></label>
+          <p id="staffClinicalIdentityState" class="bcg-muted bcg-field-wide"></p>
+          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar identificação profissional</button><span id="staffClinicalIdentityStatus" class="bcg-status" role="status" aria-live="polite"></span></div>
+        </form>
+      </section>
 
       <section id="auditoria" class="bcg-panel" data-area-panel hidden>
         <div class="bcg-section-head"><div><p class="bcg-eyebrow">AUDITORIA</p><h2>Trilha de alterações</h2></div><p>Somente leitura. Registros gerados automaticamente pelo sistema.</p></div>
@@ -111,9 +125,10 @@
     import { initClientesPanel } from '../js/clientes-panel.js';
     import { initAdminAudit } from '../js/admin-audit.js';
     import { initAdminFinance } from '../js/admin-finance.js';
+    import { initAdminStaffClinicalIdentity } from '../js/admin-staff-profile.js';
     import '../js/shell.js';
     const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('admin',client);
-    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;try{const agenda=await initAdminAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
+    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;try{const agenda=await initAdminAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});await initAdminStaffClinicalIdentity({client,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
     logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
   </script>
 </body>
