@@ -61,7 +61,10 @@ document.addEventListener('keydown', (event) => {
 });
 
 areaLinks.forEach((link) => {
-  link.addEventListener('click', () => selectArea(link.dataset.areaTarget));
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    selectArea(link.dataset.areaTarget);
+  });
 });
 
 const initialArea = window.location.hash.replace('#', '') || areaLinks[0]?.dataset.areaTarget;
