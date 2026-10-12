@@ -34,6 +34,10 @@ function normalizeComponentIds(value) {
   return [...new Set(value.map(cleanText).filter(Boolean))];
 }
 
+function hasDynamicComponentOptions(schema) {
+  return Array.isArray(schema?.component_options) && schema.component_options.length > 0;
+}
+
 export function normalizeProcedureDraft(input = {}) {
   const basePrice = parseMoney(input.base_price);
   const duration = parseDuration(input.suggested_duration);
@@ -46,6 +50,8 @@ export function normalizeProcedureDraft(input = {}) {
     suggested_duration: duration,
     protocol_mode: cleanText(input.protocol_mode || 'simple').toLowerCase(),
     component_version_ids: normalizeComponentIds(input.component_version_ids),
+    specific_schema: input.specific_schema && typeof input.specific_schema === 'object'
+      ? input.specific_schema : {},
   };
 }
 
@@ -70,8 +76,10 @@ export function validateProcedureDraft(input = {}) {
   if (!PROTOCOL_MODES.has(draft.protocol_mode)) {
     errors.protocol_mode = 'Modo de protocolo inválido.';
   }
-  if (draft.protocol_mode === 'compound' && draft.component_version_ids.length === 0) {
-    errors.component_version_ids = 'Protocolos compostos exigem ao menos um componente.';
+  if (draft.protocol_mode === 'compound'
+      && draft.component_version_ids.length === 0
+      && !hasDynamicComponentOptions(draft.specific_schema)) {
+    errors.component_version_ids = 'Protocolos compostos exigem componentes publicados ou opções de componentes da sessão.';
   }
 
   return { valid: Object.keys(errors).length === 0, errors, value: draft };
