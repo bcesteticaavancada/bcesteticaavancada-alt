@@ -77,6 +77,25 @@ test('protocolo composto exige composicao valida', () => {
   assert.equal(valid.valid, true);
 });
 
+test('protocolo de via variável pode declarar opções de componentes da sessão sem IDs artificiais', () => {
+  const valid = validateProcedureDraft({
+    nome: 'Fort Hair™',
+    classe_documental: 'nao_injetavel',
+    price_mode: 'fixed',
+    base_price: 490,
+    suggested_duration: 60,
+    protocol_mode: 'compound',
+    component_version_ids: [],
+    specific_schema: {
+      component_options: [
+        { key: 'led', label: 'LED', classe_documental: 'nao_injetavel' },
+        { key: 'microestimulacao', label: 'Microestimulação invasiva', classe_documental: 'injetavel' },
+      ],
+    },
+  });
+  assert.equal(valid.valid, true);
+});
+
 test('classe de consentimento escala para injetavel quando qualquer componente for injetavel', () => {
   assert.equal(deriveConsentClass({
     procedureVersion: { classe_documental: 'nao_injetavel', protocol_mode: 'simple' },
