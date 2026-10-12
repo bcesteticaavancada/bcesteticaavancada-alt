@@ -7,24 +7,34 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <link rel="stylesheet" href="../assets/gestao.css">
   <link rel="stylesheet" href="../assets/finance.css">
+  <link rel="stylesheet" href="../assets/navigation.css">
 </head>
 <body class="bcg-page bcg-dashboard-page">
 <p id="authStatus" class="bcg-status">Validando acesso da profissional…</p>
 <div id="gestaoApp" class="bcg-dashboard-shell" hidden>
-  <aside class="bcg-sidebar">
-    <a class="bcg-brand" href="../"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
-    <nav class="bcg-nav">
-      <a data-nav aria-current="page" href="#agenda">Minha agenda</a>
-      <a data-nav href="#clientes">Clientes</a>
-      <a data-nav href="#financeiro">Meu financeiro</a>
+  <aside id="gestaoMenu" class="bcg-menu-drawer" aria-hidden="true">
+    <a class="bcg-menu-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
+    <p class="bcg-eyebrow">NAVEGAÇÃO</p>
+    <nav class="bcg-menu-nav" aria-label="Navegação da colaboradora">
+      <button data-nav data-area-target="agenda" aria-current="page" type="button">Agenda</button>
+      <button data-nav data-area-target="clientes" type="button">Clientes</button>
+      <button data-nav data-area-target="financeiro" type="button">Financeiro</button>
     </nav>
-    <div class="bcg-sidebar-note">Sua agenda e seu financeiro são individuais. O cadastro e o histórico de clientes pertencem à clínica.</div>
+    <div class="bcg-menu-note">Sua agenda e seu financeiro são individuais. O cadastro e o histórico de clientes pertencem à clínica.</div>
   </aside>
+  <button id="menuBackdrop" class="bcg-menu-backdrop" type="button" aria-label="Fechar menu" hidden></button>
+
   <main class="bcg-dashboard-main">
-    <header class="bcg-topbar"><div><p class="bcg-eyebrow">BC GESTÃO 1.0</p><h1>Área da <em>colaboradora</em></h1><p class="bcg-muted">Olá, <strong id="profileName">Profissional</strong></p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
+    <header class="bcg-topbar">
+      <div class="bcg-topbar-main">
+        <button id="menuToggle" class="bcg-menu-toggle" type="button" aria-controls="gestaoMenu" aria-expanded="false" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+        <div class="bcg-topbar-copy"><p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p><h1>BC Gestão</h1><p class="bcg-welcome">Bem-vinda, <strong>Colaboradora</strong> <strong id="profileName">Profissional</strong>. Sinta-se em casa.</p></div>
+      </div>
+      <button id="logoutBtn" class="bcg-button" type="button">Sair</button>
+    </header>
     <p id="collaboratorAgendaStatus" class="bcg-status"></p>
 
-    <section id="agenda" class="bcg-section">
+    <section id="agenda" class="bcg-section" data-area-panel>
       <div class="bcg-section-head"><div><p class="bcg-eyebrow">MINHA AGENDA</p><h2>Seus atendimentos</h2></div><p>Somente seus horários podem ser criados ou alterados por você.</p></div>
       <h3>Hoje</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
       <div class="bcg-divider"></div><h3>Próximos atendimentos</h3><div id="nextAgendaList"></div>
@@ -39,7 +49,7 @@
       </form>
     </section>
 
-    <section id="appointmentDetail" class="bcg-panel bcg-detail-panel" hidden>
+    <section id="appointmentDetail" class="bcg-panel bcg-detail-panel" data-area-context="agenda" hidden>
       <div class="bcg-detail-toolbar"><p class="bcg-eyebrow">DETALHE DO ATENDIMENTO</p><button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button></div>
       <div id="appointmentDetailContent"></div>
       <div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO DA CLIENTE</p><h2>Atendimentos anteriores na BC</h2><div id="historyTimeline"></div></div>
@@ -69,7 +79,7 @@
       </div>
     </section>
 
-    <section id="clientes" class="bcg-panel">
+    <section id="clientes" class="bcg-panel" data-area-panel hidden>
       <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e histórico compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome da cliente"></label></div>
       <div class="bcg-subgrid">
         <article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article>
@@ -79,7 +89,7 @@
       <div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div>
     </section>
 
-    <section id="financeiro" class="bcg-panel">
+    <section id="financeiro" class="bcg-panel" data-area-panel hidden>
       <div class="bcg-section-head">
         <div><p class="bcg-eyebrow">MEU FINANCEIRO</p><h2>Produção, valores e repasses</h2></div>
         <div class="bcg-inline-filters"><label>De<input id="collaboratorFinanceFrom" class="bcg-input" type="date"></label><label>Até<input id="collaboratorFinanceTo" class="bcg-input" type="date"></label><button id="collaboratorFinanceRefresh" class="bcg-small-button" type="button">Atualizar</button></div>
