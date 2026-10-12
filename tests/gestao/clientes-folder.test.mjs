@@ -63,6 +63,29 @@ test('pasta abre com cabeçalho, foto/placeholder, linha do tempo e cadastro', (
   assert.doesNotMatch(html, /Arquivar cliente|data-toggle-client/);
 });
 
+test('pasta ativa oferece câmera e galeria e mostra histórico imutável da identificação', () => {
+  const html = renderClientFolder({
+    client: { ...client, foto_identificacao_id: 'p1' },
+    history: [],
+    staffMap,
+    canArchive: false,
+    photoUrl: 'https://signed.example/current.jpg',
+    photoHistory: [
+      { id: 'p1', atual: true, created_at: '2026-10-12T12:00:00Z', url: 'https://signed.example/current.jpg' },
+      { id: 'p0', atual: false, created_at: '2026-10-01T12:00:00Z', url: 'https://signed.example/old.jpg' },
+    ],
+  });
+  assert.match(html, /Tirar foto/i);
+  assert.match(html, /Escolher da galeria/i);
+  assert.match(html, /data-client-photo-input=["']camera["']/);
+  assert.match(html, /capture=["']environment["']/);
+  assert.match(html, /data-client-photo-input=["']gallery["']/);
+  assert.match(html, /Histórico de identificação/i);
+  assert.match(html, /Atual/);
+  assert.match(html, /Anterior/);
+  assert.doesNotMatch(html, /Excluir foto|data-delete-photo/i);
+});
+
 test('admin recebe arquivamento na pasta; colaboradora não', () => {
   const admin = renderClientFolder({ client, history: [], staffMap, canArchive: true, photoUrl: '' });
   const collaborator = renderClientFolder({ client, history: [], staffMap, canArchive: false, photoUrl: '' });
