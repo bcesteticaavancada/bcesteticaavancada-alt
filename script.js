@@ -21,6 +21,22 @@ function ensureBCGestaoMenuLink(){
 }
 ensureBCGestaoMenuLink();
 
+function ensureBCInstallMenuLink(){
+  if(!drawer)return;
+  const nav=drawer.querySelector(".drawer-nav");
+  if(!nav||nav.querySelector('[data-bc-install-link="true"]'))return;
+  const contactLink=Array.from(nav.querySelectorAll("a")).find(function(link){
+    return link.textContent.trim()==="Contato";
+  });
+  if(!contactLink)return;
+  const link=document.createElement("a");
+  link.textContent="Instalar app";
+  link.href=new URL("../instalar/",contactLink.href).href;
+  link.setAttribute("data-bc-install-link","true");
+  nav.insertBefore(link,contactLink);
+}
+ensureBCInstallMenuLink();
+
 function setMenu(open){
   if(!toggle||!drawer||!overlay)return;
   toggle.classList.toggle("is-open",open);
