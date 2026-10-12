@@ -58,11 +58,12 @@ export function renderClientCadastroForm(client, canArchive = false) {
     ? `<button type="button" class="bcg-small-button" data-toggle-client="${active ? 'false' : 'true'}">${active ? 'Arquivar cliente' : 'Reativar cliente'}</button>`
     : '';
   const showGuardian = isMinor(client.data_nascimento) || Boolean(client.responsavel_nome || client.responsavel_cpf);
+  const age = calculateAge(client.data_nascimento);
 
   return `<form class="bcg-form bcg-form-grid bcg-folder-form" data-client-edit-form data-client-id="${escapeHtml(client.id)}">
     <label>Nome completo<input class="bcg-input" name="nome" value="${escapeHtml(client.nome || '')}" required></label>
     <label>CPF<input class="bcg-input" name="cpf" inputmode="numeric" value="${escapeHtml(formatCpf(client.cpf || ''))}" required></label>
-    <label>Data de nascimento<input class="bcg-input" name="data_nascimento" type="date" value="${escapeHtml(client.data_nascimento || '')}" required><small class="bcg-muted" data-client-edit-age>${calculateAge(client.data_nascimento) ?? 'Idade não informada'}${calculateAge(client.data_nascimento) === null ? '' : ' anos'}</small></label>
+    <label>Data de nascimento<input class="bcg-input" name="data_nascimento" type="date" value="${escapeHtml(client.data_nascimento || '')}" required><small class="bcg-muted" data-client-edit-age>${age === null ? 'Idade não informada' : `${age} anos`}</small></label>
     <label>Telefone<input class="bcg-input" name="telefone" type="tel" value="${escapeHtml(client.telefone || '')}" required></label>
     <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" value="${escapeHtml(client.email || '')}"></label>
     <div class="bcg-field-wide bcg-form-section-title"><span>Endereço</span></div>
@@ -78,7 +79,31 @@ export function renderClientCadastroForm(client, canArchive = false) {
   </form>`;
 }
 
-export function renderClientFolder({ client, history = [], staffMap = new Map(), canArchive = false, photoUrl = '' }) {
+function renderPhotoControls(active) {
+  if (!active) return '<p class="bcg-muted">Reative a cliente para registrar uma nova foto.</p>';
+  return `<div class="bcg-photo-actions" data-client-photo-actions>
+    <label class="bcg-small-button bcg-file-button">Tirar foto<input class="bcg-photo-input" type="file" accept="image/*" capture="environment" data-client-photo-input="camera"></label>
+    <label class="bcg-small-button bcg-file-button">Escolher da galeria<input class="bcg-photo-input" type="file" accept="image/*" data-client-photo-input="gallery"></label>
+    <span class="bcg-status" data-client-photo-status role="status" aria-live="polite"></span>
+  </div>`;
+}
+
+function renderPhotoHistory(photoHistory = []) {
+  if (!photoHistory.length) return '<div class="bcg-empty">Nenhuma foto de identificação registrada.</div>';
+  return `<div class="bcg-photo-history">${photoHistory.map((photo) => `<article class="bcg-photo-history-item" data-photo-id="${escapeHtml(photo.id)}">
+    ${photo.url ? `<img src="${escapeHtml(photo.url)}" alt="Foto de identificação ${photo.atual ? 'atual' : 'anterior'}">` : '<div class="bcg-photo-history-placeholder">BC</div>'}
+    <div><strong>${photo.atual ? 'Atual' : 'Anterior'}</strong><span>${escapeHtml(formatClinicDateTime(photo.created_at))}</span></div>
+  </article>`).join('')}</div>`;
+}
+
+export function renderClientFolder({
+  client,
+  history = [],
+  staffMap = new Map(),
+  canArchive = false,
+  photoUrl = '',
+  photoHistory = [],
+}) {
   if (!client?.id) return '<div class="bcg-empty">Selecione uma cliente para abrir a pasta.</div>';
   const age = calculateAge(client.data_nascimento);
   const identity = [age === null ? '' : `${age} anos`, client.telefone || '', client.cpf ? formatCpf(client.cpf) : ''].filter(Boolean).join(' • ');
@@ -88,10 +113,10 @@ export function renderClientFolder({ client, history = [], staffMap = new Map(),
     : '<div class="bcg-folder-photo bcg-folder-photo-placeholder" data-client-photo-placeholder aria-label="Sem foto de identificação">BC</div>';
 
   return `<article class="bcg-client-folder" data-client-folder data-client-id="${escapeHtml(client.id)}">
-    <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">PASTA DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div></header>
+    <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">PASTA DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div>${renderPhotoControls(client.ativo !== false)}</header>
     ${renderClientFolderChecklist(client)}
     <nav class="bcg-folder-tabs" aria-label="Pasta da cliente"><button type="button" class="bcg-folder-tab is-active" data-folder-tab="timeline">Linha do tempo</button><button type="button" class="bcg-folder-tab" data-folder-tab="cadastro">Cadastro</button></nav>
     <section data-folder-panel="timeline"><p class="bcg-eyebrow">LINHA DO TEMPO</p>${renderClientTimeline(history, staffMap)}</section>
-    <section data-folder-panel="cadastro" hidden><p class="bcg-eyebrow">CADASTRO</p>${renderClientCadastroForm(client, canArchive)}</section>
+    <section data-folder-panel="cadastro" hidden><p class="bcg-eyebrow">CADASTRO</p>${renderClientCadastroForm(client, canArchive)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO DE IDENTIFICAÇÃO</p><h3>Fotos preservadas</h3>${renderPhotoHistory(photoHistory)}</section>
   </article>`;
 }
