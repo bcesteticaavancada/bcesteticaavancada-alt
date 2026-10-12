@@ -16,6 +16,15 @@ test('colaboradora recebe Minha agenda, Clientes globais e somente o próprio fi
   assert.doesNotMatch(html,/adminCommissionForm|adminPayoutCreateForm|adminFinanceReceipts/i);
 });
 
+test('cadastro rápido da colaboradora inclui os campos clínicos da fase 6A', async () => {
+  const html = await readFile(htmlUrl, 'utf8');
+  for (const name of ['nome','cpf','data_nascimento','telefone','email','responsavel_nome','responsavel_cpf','responsavel_parentesco','responsavel_telefone']) {
+    assert.match(html,new RegExp(`name=["']${name}["']`));
+  }
+  assert.match(html,/id=["']clientAgePreview["']/);
+  assert.match(html,/id=["']clientGuardianFields["']/);
+});
+
 test('payload de novo agendamento usa sempre o user_id da colaboradora', () => {
   const payload = ownAppointmentPayload({ user_id:'alice-id' }, { clienteId:'c1', procedimentoId:'p1', inicioIso:'I', fimIso:null, observacao:'x' });
   assert.deepEqual(payload,{clienteId:'c1',colaboradoraUserId:'alice-id',procedimentoId:'p1',inicioIso:'I',fimIso:null,observacao:'x'});
