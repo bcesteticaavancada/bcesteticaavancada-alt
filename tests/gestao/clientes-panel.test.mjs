@@ -10,6 +10,8 @@ import {
 } from '../../gestao/js/clientes-panel.js';
 
 const panelSourceUrl = new URL('../../gestao/js/clientes-panel.js', import.meta.url);
+const adminHtmlUrl = new URL('../../gestao/admin/index.html', import.meta.url);
+const collaboratorHtmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
 
 test('lista compartilhada escapa dados e abre cliente sem expor arquivamento à colaboradora', () => {
   const html = renderClientsList([
@@ -20,6 +22,15 @@ test('lista compartilhada escapa dados e abre cliente sem expor arquivamento à 
   assert.doesNotMatch(html, /data-toggle-client|arquivar|reativar/i);
 });
 
+test('lista de clientes exibe idade derivada e identidade operacional sem expor finanças', () => {
+  const html = renderClientsList([
+    { id: 'c1', nome: 'Ana', telefone: '31999999999', cpf: '12345678900', data_nascimento: '1990-10-12', ativo: true },
+  ], false);
+  assert.match(html, /123\.456\.789-00|31999999999/);
+  assert.match(html, /36\s*anos/i);
+  assert.doesNotMatch(html, /comiss|repasse|percentual|valor total/i);
+});
+
 test('admin pode receber controle de arquivar e reativar', () => {
   const active = renderClientEditor({ id: 'c1', nome: 'Ana', telefone: '3199', email: '', ativo: true }, true);
   const archived = renderClientEditor({ id: 'c1', nome: 'Ana', telefone: '3199', email: '', ativo: false }, true);
@@ -27,6 +38,30 @@ test('admin pode receber controle de arquivar e reativar', () => {
   assert.match(active, /Arquivar cliente/);
   assert.match(archived, /data-toggle-client=["']true["']/);
   assert.match(archived, /Reativar cliente/);
+});
+
+test('cadastro rápido contém identidade mínima e bloco de responsável legal nas duas áreas', async () => {
+  const [adminHtml, collaboratorHtml] = await Promise.all([
+    readFile(adminHtmlUrl, 'utf8'),
+    readFile(collaboratorHtmlUrl, 'utf8'),
+  ]);
+  for (const html of [adminHtml, collaboratorHtml]) {
+    for (const name of ['nome', 'cpf', 'data_nascimento', 'telefone', 'email', 'responsavel_nome', 'responsavel_cpf', 'responsavel_parentesco', 'responsavel_telefone']) {
+      assert.match(html, new RegExp(`name=["']${name}["']`));
+    }
+    assert.match(html, /id=["']clientAgePreview["']/);
+    assert.match(html, /id=["']clientGuardianFields["']/);
+  }
+});
+
+test('painel deriva idade, ativa responsável para menor e oferece abertura de prontuário duplicado', async () => {
+  const source = await readFile(panelSourceUrl, 'utf8');
+  assert.match(source, /calculateAge/);
+  assert.match(source, /isMinor/);
+  assert.match(source, /clientGuardianFields/);
+  assert.match(source, /required/);
+  assert.match(source, /findPotentialDuplicates/);
+  assert.match(source, /Abrir prontu[aá]rio existente/i);
 });
 
 test('histórico unificado mostra procedimento, profissional e campos clínicos', () => {
