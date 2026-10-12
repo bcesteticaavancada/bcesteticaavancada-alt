@@ -10,12 +10,23 @@ async function all6bSql() {
   return (await Promise.all(names.map((name) => readFile(new URL(name, migrationsDir), 'utf8')))).join('\n').toLowerCase();
 }
 
+function sqlStatements(sql) {
+  return sql.split(';').map((statement) => statement.trim()).filter(Boolean);
+}
+
 test('anon executa apenas os dois RPCs remotos e não recebe leitura direta clínica', async () => {
   const sql = await all6bSql();
-  assert.match(sql, /grant\s+execute\s+on\s+function\s+public\.bc_anamnese_remote_get[\s\S]*to\s+anon/);
-  assert.match(sql, /grant\s+execute\s+on\s+function\s+public\.bc_anamnese_remote_save[\s\S]*to\s+anon/);
+  const statements = sqlStatements(sql);
+  assert.ok(statements.some((s) => /grant\s+execute\s+on\s+function\s+public\.bc_anamnese_remote_get\(text\)\s+to\s+anon\s*,\s*authenticated/.test(s)));
+  assert.ok(statements.some((s) => /grant\s+execute\s+on\s+function\s+public\.bc_anamnese_remote_save\(text,jsonb,boolean\)\s+to\s+anon\s*,\s*authenticated/.test(s)));
+
   for (const table of ['anamneses_gerais','anamnese_respostas','clinical_alerts','clinical_documents','clinical_signatures']) {
-    assert.doesNotMatch(sql, new RegExp(`grant\\s+(select|insert|update|delete)[\\s\\S]*public\\.${table}[\\s\\S]*to\\s+anon`));
+    const directAnonGrants = statements.filter((s) =>
+      /^grant\s+(select|insert|update|delete)\b/.test(s)
+      && s.includes(`public.${table}`)
+      && /\bto\s+anon\b/.test(s)
+    );
+    assert.deepEqual(directAnonGrants, [], `anon não pode receber DML direto em ${table}`);
   }
 });
 
