@@ -9,6 +9,10 @@ export async function listClinicalDocuments({ client, clienteId }) {
   return unwrap(await client.rpc('bc_clinical_document_list', { p_cliente_id: clienteId })) || [];
 }
 
+export async function listClinicalSignatures({ client, documentId }) {
+  return unwrap(await client.rpc('bc_clinical_signature_list', { p_document_id: documentId })) || [];
+}
+
 export async function registerClinicalSignature({ client, documentId, signerKind, storagePath, sha256 }) {
   return unwrap(await client.rpc('bc_clinical_signature_register', {
     p_document_id: documentId,
@@ -33,8 +37,7 @@ export async function getClinicalDocumentUrl({ client, storagePath, expiresIn = 
 
 export async function uploadClinicalSignature({ client, documentId, signerKind, file }) {
   if (!file) throw new Error('Assinatura inválida.');
-  const ext = file.type === 'image/png' ? 'png' : 'png';
-  const storagePath = `assinaturas/${documentId}/${signerKind}-${crypto.randomUUID()}.${ext}`;
+  const storagePath = `assinaturas/${documentId}/${signerKind}-${crypto.randomUUID()}.png`;
   const result = await client.storage.from(BUCKET).upload(storagePath, file, { upsert: false, contentType: 'image/png' });
   if (result.error) throw result.error;
   return storagePath;
