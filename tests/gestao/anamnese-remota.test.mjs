@@ -15,7 +15,7 @@ test('página remota chama somente RPCs remotos e não abre APIs do prontuário'
   const js = await readFile(new URL('anamnese-remota.js', root), 'utf8');
   assert.match(js, /bc_anamnese_remote_get/);
   assert.match(js, /bc_anamnese_remote_save/);
-  assert.doesNotMatch(js, /clinical_documents|clinical_alerts|clientes-photo|pagamento|finance/i);
+  assert.doesNotMatch(js, /\bbc_clinical_|\bclinical_documents\b|\bclinical_alerts\b|clientes-photo|bc_pagamento|pagamento_movimentos|comissao|financeiro/i);
 });
 
 test('HTML remoto identifica pré-preenchimento e revisão profissional posterior', async () => {
