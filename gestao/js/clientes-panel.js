@@ -14,6 +14,12 @@ import {
   renderClientFolder,
   renderClientTimeline,
 } from './clientes-folder.js';
+import {
+  uploadClientIdPhoto,
+  listClientIdPhotos,
+  getClientIdPhotoUrl,
+  setCurrentClientIdPhoto,
+} from './clientes-photo-api.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -128,6 +134,23 @@ function renderDuplicateChoice(statusEl, candidates, { exactCpf = false } = {}) 
   statusEl.innerHTML = `${escapeHtml(label)} <button type="button" class="bcg-small-button" data-open-duplicate="${escapeHtml(candidate.id)}">Abrir prontuário existente</button>${exactCpf ? '' : ' <button type="button" class="bcg-small-button" data-confirm-duplicate>Cadastrar mesmo assim</button>'}`;
 }
 
+async function loadPhotoPresentation(client, clienteId) {
+  const photos = await listClientIdPhotos({ client, clienteId });
+  const photoHistory = await Promise.all(photos.map(async (photo) => {
+    try {
+      return { ...photo, url: await getClientIdPhotoUrl({ client, storagePath: photo.storage_path }) };
+    } catch {
+      return { ...photo, url: '' };
+    }
+  }));
+  const current = photoHistory.find((photo) => photo.atual) || null;
+  return {
+    photoHistory,
+    currentPhotoId: current?.id || null,
+    photoUrl: current?.url || '',
+  };
+}
+
 export async function runFormSubmit({ form, statusEl, action, resetOnSuccess = false }) {
   const submit = form?.querySelector?.('[type="submit"]');
   if (form?.dataset?.submitting === 'true') return null;
@@ -191,18 +214,21 @@ export async function initClientesPanel({
     timeline.innerHTML = '';
     const legacyHistoryPanel = timeline.closest?.('.bcg-detail-history');
     if (legacyHistoryPanel) legacyHistoryPanel.hidden = true;
-    const [record, history] = await Promise.all([
+    const [record, history, photos] = await Promise.all([
       getClient({ client, clienteId }),
       listClientHistory({ client, clienteId }),
+      loadPhotoPresentation(client, clienteId),
     ]);
+    const folderClient = { ...record, foto_identificacao_id: photos.currentPhotoId };
     editor.innerHTML = renderClientFolder({
-      client: record,
+      client: folderClient,
       history,
       staffMap,
       canArchive,
-      photoUrl: '',
+      photoUrl: photos.photoUrl,
+      photoHistory: photos.photoHistory,
     });
-    return record;
+    return folderClient;
   }
 
   updateGuardianState(createForm);
@@ -314,6 +340,29 @@ export async function initClientesPanel({
       await openClient(currentClientId);
     } finally {
       button.disabled = false;
+    }
+  });
+
+  editor.addEventListener('change', async (event) => {
+    const input = event.target.closest?.('[data-client-photo-input]');
+    if (!input || !currentClientId || !input.files?.[0]) return;
+    const folder = input.closest?.('[data-client-folder]');
+    const statusEl = folder?.querySelector?.('[data-client-photo-status]');
+    input.disabled = true;
+    setStatus(statusEl, 'Enviando foto…');
+    try {
+      const { fotoId } = await uploadClientIdPhoto({
+        client,
+        clienteId: currentClientId,
+        file: input.files[0],
+      });
+      await setCurrentClientIdPhoto({ client, clienteId: currentClientId, fotoId });
+      await openClient(currentClientId);
+    } catch (error) {
+      setStatus(statusEl, error?.message || 'Não foi possível atualizar a foto.', 'error');
+    } finally {
+      input.disabled = false;
+      input.value = '';
     }
   });
 
