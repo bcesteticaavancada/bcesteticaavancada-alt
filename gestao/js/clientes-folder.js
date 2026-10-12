@@ -1,6 +1,14 @@
 import { calculateAge, clientProfileChecklist, formatCpf, isMinor } from './clientes-domain.js';
 import { formatClinicDateTime } from './agenda-format.js';
 
+if (typeof document !== 'undefined' && !document.querySelector('link[data-client-folder-styles]')) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = new URL('../assets/clientes-folder.css', import.meta.url).href;
+  link.dataset.clientFolderStyles = 'true';
+  document.head?.append(link);
+}
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
