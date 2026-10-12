@@ -2,14 +2,18 @@ import {
   listClients,
   getClient,
   createClientV2,
-  updateClient,
+  updateClientV2,
   setClientActive,
   listClientHistory,
   findPotentialDuplicates,
 } from './clientes-api.js';
 import { listStaffDirectory } from './agenda-api.js';
-import { formatClinicDateTime } from './agenda-format.js';
 import { calculateAge, formatCpf, isMinor, normalizeCpf } from './clientes-domain.js';
+import {
+  renderClientCadastroForm,
+  renderClientFolder,
+  renderClientTimeline,
+} from './clientes-folder.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -18,12 +22,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
-}
-
-function field(label, value) {
-  const clean = String(value ?? '').trim();
-  if (!clean) return '';
-  return `<div class="bcg-history-field"><span>${escapeHtml(label)}</span><p>${escapeHtml(clean)}</p></div>`;
 }
 
 function clientAgeLabel(client) {
@@ -47,41 +45,11 @@ export function renderClientsList(clients = [], canArchive = false) {
 }
 
 export function renderClientEditor(client, canArchive = false) {
-  if (!client?.id) return '<div class="bcg-empty">Selecione um cliente para abrir a ficha.</div>';
-  const active = client.ativo !== false;
-  const archiveAction = canArchive
-    ? `<button type="button" class="bcg-small-button" data-toggle-client="${active ? 'false' : 'true'}">${active ? 'Arquivar cliente' : 'Reativar cliente'}</button>`
-    : '';
-  return `<form class="bcg-form bcg-form-grid" data-client-edit-form data-client-id="${escapeHtml(client.id)}">
-    <label>Nome<input class="bcg-input" name="nome" value="${escapeHtml(client.nome || '')}" required></label>
-    <label>Telefone<input class="bcg-input" name="telefone" value="${escapeHtml(client.telefone || '')}" required></label>
-    <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" value="${escapeHtml(client.email || '')}"></label>
-    <div class="bcg-form-actions bcg-field-wide">
-      <button class="bcg-button" type="submit">Salvar alterações</button>
-      ${archiveAction}
-      <span class="bcg-status" data-client-edit-status role="status" aria-live="polite"></span>
-    </div>
-  </form>`;
+  return renderClientCadastroForm(client, canArchive);
 }
 
 export function renderClientHistory(history = [], staffMap = new Map()) {
-  if (!history.length) return '<div class="bcg-empty">Nenhum atendimento registrado para este cliente.</div>';
-  return `<div class="bcg-history-timeline">${history.map((entry) => {
-    const professional = staffMap.get(entry.colaboradora_user_id) || 'Profissional';
-    const procedure = entry.procedimentos?.nome || 'Procedimento';
-    return `<article class="bcg-history-entry">
-      <header><div><strong>${escapeHtml(procedure)}</strong><span>${escapeHtml(professional)}</span></div><time>${escapeHtml(formatClinicDateTime(entry.data_atendimento))}</time></header>
-      <div class="bcg-history-grid">
-        ${field('Queixa / objetivo', entry.queixa_objetivo)}
-        ${field('Observações', entry.observacoes)}
-        ${field('Reações', entry.reacoes)}
-        ${field('Intercorrências', entry.intercorrencias)}
-        ${field('Feedback da cliente', entry.feedback_cliente)}
-        ${field('Orientações', entry.orientacoes)}
-        ${field('Próxima sessão', entry.recomendacao_proxima_sessao)}
-      </div>
-    </article>`;
-  }).join('')}</div>`;
+  return renderClientTimeline(history, staffMap);
 }
 
 function setStatus(element, message, kind = '') {
@@ -92,8 +60,7 @@ function setStatus(element, message, kind = '') {
 }
 
 function formValue(data, name) {
-  const value = data.get(name);
-  return String(value ?? '').trim();
+  return String(data.get(name) ?? '').trim();
 }
 
 function buildCreatePayload(form) {
@@ -111,10 +78,36 @@ function buildCreatePayload(form) {
   };
 }
 
-function updateGuardianState(form) {
+function buildEditPayload(form) {
+  const data = new FormData(form);
+  return {
+    nome: formValue(data, 'nome'),
+    cpf: normalizeCpf(formValue(data, 'cpf')),
+    data_nascimento: formValue(data, 'data_nascimento'),
+    telefone: formValue(data, 'telefone'),
+    email: formValue(data, 'email'),
+    cep: formValue(data, 'cep'),
+    logradouro: formValue(data, 'logradouro'),
+    numero: formValue(data, 'numero'),
+    complemento: formValue(data, 'complemento'),
+    bairro: formValue(data, 'bairro'),
+    cidade: formValue(data, 'cidade'),
+    uf: formValue(data, 'uf').toUpperCase(),
+    responsavel_nome: formValue(data, 'responsavel_nome'),
+    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
+    responsavel_telefone: formValue(data, 'responsavel_telefone'),
+  };
+}
+
+function updateGuardianState(form, { edit = false } = {}) {
   const birth = form?.querySelector?.('[name="data_nascimento"]');
-  const agePreview = form?.querySelector?.('#clientAgePreview') || form?.ownerDocument?.getElementById?.('clientAgePreview');
-  const guardian = form?.querySelector?.('#clientGuardianFields') || form?.ownerDocument?.getElementById?.('clientGuardianFields');
+  const agePreview = edit
+    ? form?.querySelector?.('[data-client-edit-age]')
+    : form?.querySelector?.('#clientAgePreview') || form?.ownerDocument?.getElementById?.('clientAgePreview');
+  const guardian = edit
+    ? form?.querySelector?.('[data-client-edit-guardian]')
+    : form?.querySelector?.('#clientGuardianFields') || form?.ownerDocument?.getElementById?.('clientGuardianFields');
   if (!birth || !guardian) return;
   const age = calculateAge(birth.value);
   if (agePreview) agePreview.textContent = age === null ? 'Idade calculada automaticamente' : `${age} anos`;
@@ -194,14 +187,21 @@ export async function initClientesPanel({
 
   async function openClient(clienteId) {
     currentClientId = clienteId;
-    editor.innerHTML = '<div class="bcg-empty">Carregando ficha…</div>';
-    timeline.innerHTML = '<div class="bcg-empty">Carregando histórico…</div>';
+    editor.innerHTML = '<div class="bcg-empty">Carregando pasta…</div>';
+    timeline.innerHTML = '';
+    const legacyHistoryPanel = timeline.closest?.('.bcg-detail-history');
+    if (legacyHistoryPanel) legacyHistoryPanel.hidden = true;
     const [record, history] = await Promise.all([
       getClient({ client, clienteId }),
       listClientHistory({ client, clienteId }),
     ]);
-    editor.innerHTML = renderClientEditor(record, canArchive);
-    timeline.innerHTML = renderClientHistory(history, staffMap);
+    editor.innerHTML = renderClientFolder({
+      client: record,
+      history,
+      staffMap,
+      canArchive,
+      photoUrl: '',
+    });
     return record;
   }
 
@@ -285,37 +285,21 @@ export async function initClientesPanel({
     const button = event.target.closest?.('[data-open-client]');
     if (!button) return;
     openClient(button.dataset.openClient).catch(() => {
-      editor.innerHTML = '<div class="bcg-empty">Não foi possível abrir o cliente.</div>';
+      editor.innerHTML = '<div class="bcg-empty">Não foi possível abrir a cliente.</div>';
     });
   });
 
-  editor.addEventListener('submit', async (event) => {
-    const form = event.target.closest?.('[data-client-edit-form]');
-    if (!form) return;
-    event.preventDefault();
-    const data = new FormData(form);
-    const statusEl = form.querySelector('[data-client-edit-status]');
-    try {
-      await runFormSubmit({
-        form,
-        statusEl,
-        action: () => updateClient({
-          client,
-          clienteId: form.dataset.clientId,
-          nome: data.get('nome'),
-          telefone: data.get('telefone'),
-          email: data.get('email'),
-        }),
-      });
-      await refreshClients();
-      await notifyClientsChanged(onClientsChanged);
-      await openClient(form.dataset.clientId);
-    } catch {
-      // Editor mantém valores em falha.
-    }
-  });
-
   editor.addEventListener('click', async (event) => {
+    const tab = event.target.closest?.('[data-folder-tab]');
+    if (tab) {
+      const folder = tab.closest?.('[data-client-folder]');
+      folder?.querySelectorAll?.('[data-folder-tab]')?.forEach?.((item) => item.classList.toggle('is-active', item === tab));
+      folder?.querySelectorAll?.('[data-folder-panel]')?.forEach?.((panel) => {
+        panel.hidden = panel.dataset.folderPanel !== tab.dataset.folderTab;
+      });
+      return;
+    }
+
     const button = event.target.closest?.('[data-toggle-client]');
     if (!button || !canArchive || !currentClientId) return;
     button.disabled = true;
@@ -330,6 +314,35 @@ export async function initClientesPanel({
       await openClient(currentClientId);
     } finally {
       button.disabled = false;
+    }
+  });
+
+  editor.addEventListener('input', (event) => {
+    if (event.target?.name !== 'data_nascimento') return;
+    const form = event.target.closest?.('[data-client-edit-form]');
+    updateGuardianState(form, { edit: true });
+  });
+
+  editor.addEventListener('submit', async (event) => {
+    const form = event.target.closest?.('[data-client-edit-form]');
+    if (!form) return;
+    event.preventDefault();
+    const statusEl = form.querySelector('[data-client-edit-status]');
+    try {
+      await runFormSubmit({
+        form,
+        statusEl,
+        action: () => updateClientV2({
+          client,
+          clienteId: form.dataset.clientId,
+          payload: buildEditPayload(form),
+        }),
+      });
+      await refreshClients();
+      await notifyClientsChanged(onClientsChanged);
+      await openClient(form.dataset.clientId);
+    } catch {
+      // Editor mantém valores em falha.
     }
   });
 
