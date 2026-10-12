@@ -10,113 +10,89 @@
 
 Evoluir a área **Clientes** do BC Gestão para uma **Pasta da Cliente / prontuário estético eletrônico completo**, preservando o cadastro único da BC, o histórico clínico compartilhado entre profissionais autorizadas e a segregação do financeiro por profissional.
 
-A nova pasta deve concentrar, de forma cronológica e auditável:
+A Pasta da Cliente deve concentrar, de forma cronológica, versionada e auditável:
 
 - cadastro e identificação;
 - foto de identificação;
 - anamnese geral versionada;
-- módulos de anamnese específicos por procedimento;
+- módulos específicos por procedimento;
 - alertas clínicos;
-- consentimentos e termos;
+- consentimentos/termos;
 - procedimentos e fichas de atendimento;
-- produtos, lotes e equipamentos utilizados;
+- produtos, lotes e equipamentos;
 - fotos clínicas;
-- intercorrências e evoluções pós-procedimento;
+- intercorrências e evoluções;
 - planos de tratamento/pacotes;
 - documentos e PDFs assinados;
-- retornos e agenda;
+- retornos/agenda;
 - financeiro conforme permissão;
-- auditoria de criação, alteração, assinatura, reabertura e exportação.
+- auditoria de ações sensíveis.
 
-O objetivo é que cada cliente seja uma **cliente da BC Estética**, e não de uma profissional específica. Toda profissional ativa autorizada poderá consultar o histórico clínico necessário para continuidade e segurança do atendimento. O financeiro continuará isolado conforme as regras já implementadas na Fase 5.
+A cliente pertence à **BC Estética**, não a uma profissional específica. Toda profissional ativa autorizada pode consultar o histórico clínico compartilhado necessário à continuidade do atendimento. O financeiro permanece isolado segundo as regras da Fase 5.
 
-## 2. Princípios aprovados
+## 2. Decisões de produto aprovadas
 
 1. O cadastro da cliente é único para toda a BC.
-2. O CPF deve ser único quando informado e válido para o cadastro.
-3. A equipe ativa pode visualizar o prontuário clínico compartilhado da cliente.
-4. Uma profissional pode ver procedimentos e fichas realizados por outra profissional.
-5. A profissional só pode criar/editar o próprio registro clínico durante o dia do atendimento.
-6. Após o fim do dia, o registro clínico fica bloqueado para a autora.
-7. Se for necessária correção posterior, a profissional solicita reabertura; a Mel/ADM autoriza; a própria autora faz a correção; tudo fica auditado.
-8. Não há exclusão destrutiva de histórico clínico.
-9. Cada procedimento realizado gera uma ficha de atendimento própria, mesmo que a cliente faça vários procedimentos no mesmo dia.
-10. O prontuário clínico é compartilhado; o financeiro não é.
-11. A Mel/ADM vê o financeiro completo da cliente e o consolidado administrativo.
-12. Cada colaboradora vê apenas o financeiro vinculado aos próprios atendimentos/produção.
-13. Anamnese geral é única por versão e compartilhada por toda a equipe clínica.
-14. Cada procedimento pode exigir módulo específico de anamnese e termo de consentimento próprio.
-15. A anamnese geral deve ser revisada completamente a cada 12 meses ou antes, se houver mudança clínica relevante.
-16. Antes de cada atendimento, deve haver confirmação de mudanças clínicas desde a última anamnese.
-17. Fotos clínicas são privadas por padrão; uso em marketing depende de autorização separada e explícita.
-18. Documentos assinados geram PDF próprio, versionado e preservado.
-19. Assinaturas são feitas na tela de celular/tablet, por paciente/responsável e profissional responsável.
-20. A Biblioteca Clínica define os requisitos de cada procedimento.
-21. Procedimentos gerais podem ser iniciados por qualquer profissional ativa.
-22. Procedimentos restritos têm uma lista explícita de profissionais autorizadas.
-23. Na BC, **Toxina Botulínica/Botox** será procedimento restrito às profissionais cadastradas Mel e Alice, conforme regra interna definida pela clínica.
-24. Restrições de procedimento devem ser garantidas no banco/RPC, não apenas escondidas na interface.
-25. Cortesia, permuta, isenção e ajustes financeiros excepcionais podem ser solicitados pela profissional, mas só produzem efeito após aprovação da Mel.
+2. CPF é único no cadastro quando informado como identificador obrigatório.
+3. Toda profissional ativa pode visualizar o prontuário clínico compartilhado da cliente.
+4. Alice, Kátia, Mel e futuras profissionais ativas podem visualizar procedimentos/fichas feitos por outras profissionais.
+5. A profissional só cria e altera registros clínicos de sua própria autoria.
+6. A autora pode corrigir a própria ficha durante o **mesmo dia clínico** do atendimento.
+7. Depois da virada do dia em `America/Sao_Paulo`, a ficha fica bloqueada para alteração pela autora.
+8. Após o bloqueio, a autora solicita reabertura; a Mel/ADM autoriza; a própria autora corrige; tudo é auditado.
+9. Não há exclusão destrutiva de histórico clínico.
+10. Cada procedimento realizado gera uma ficha própria, mesmo que existam vários procedimentos no mesmo dia.
+11. O prontuário clínico é compartilhado; o financeiro não é.
+12. Mel/ADM vê o financeiro completo da cliente e o consolidado administrativo.
+13. Cada colaboradora vê apenas o financeiro ligado aos próprios atendimentos/produção.
+14. Existe uma **Anamnese Geral** versionada, compartilhada pela equipe clínica.
+15. Cada procedimento pode exigir módulo específico de anamnese e termo próprio.
+16. A Anamnese Geral deve ser revisada completamente a cada 12 meses ou antes se houver mudança clínica relevante.
+17. Antes de cada atendimento há confirmação sobre mudanças clínicas desde a última anamnese.
+18. Fotos clínicas são privadas por padrão; uso em marketing exige autorização separada e explícita.
+19. Anamneses, termos e documentos clínicos assinados geram PDFs próprios e versionados.
+20. Paciente/responsável e profissional assinam na tela de celular/tablet.
+21. Dados profissionais no PDF incluem nome, profissão, conselho e registro, derivados do perfil administrativo.
+22. A Biblioteca Clínica define requisitos de cada procedimento.
+23. Procedimentos gerais podem ser iniciados por qualquer profissional ativa.
+24. Procedimentos restritos têm lista explícita de profissionais autorizadas.
+25. Regra interna inicial: **Toxina Botulínica/Botox** fica restrita a Mel e Alice.
+26. Restrição de procedimento é validada no backend/RPC, não só na interface.
+27. Cortesia, permuta, isenção e ajuste financeiro excepcional podem ser solicitados pela profissional, mas só produzem efeito após aprovação da Mel.
+28. O diretório legado `/admin/` permanece intocado; esta fase pertence ao BC Gestão em `/gestao/...`.
 
-## 3. Escopo funcional
+## 3. Cadastro da cliente
 
-A Fase 6 cobre os seguintes blocos:
+### 3.1 Campos
 
-1. ampliação do cadastro da cliente;
-2. Pasta da Cliente com abas e linha do tempo;
-3. anamnese geral versionada;
-4. módulos específicos por procedimento;
-5. alertas clínicos;
-6. consentimentos e assinaturas;
-7. Biblioteca Clínica de procedimentos;
-8. fichas de atendimento por sessão/procedimento;
-9. fotos clínicas;
-10. produtos, lotes e equipamentos;
-11. intercorrências e evoluções;
-12. planos de tratamento/pacotes;
-13. retornos integrados à agenda;
-14. PDFs clínicos e exportação;
-15. preenchimento remoto seguro;
-16. integração com o financeiro existente;
-17. auditoria e regras de segurança.
-
-## 4. Cadastro da cliente
-
-### 4.1 Campos básicos
-
-Campos da cliente:
-
-- `foto_identificacao`;
-- `nome_completo`;
-- `cpf`;
-- `data_nascimento`;
+- foto de identificação;
+- nome completo;
+- CPF;
+- data de nascimento;
 - idade calculada dinamicamente;
-- `telefone`;
-- `email`;
+- telefone;
+- e-mail;
 - endereço estruturado;
+- responsável legal quando aplicável;
 - status ativa/arquivada;
-- timestamps e autoria de criação/alteração.
+- autoria/timestamps.
 
-### 4.2 Campos obrigatórios no cadastro rápido
+### 3.2 Cadastro rápido
 
-Obrigatórios para criar a cliente:
+Obrigatórios para criar:
 
 - nome completo;
 - CPF;
 - data de nascimento;
 - telefone.
 
-O cadastro pode ser criado rapidamente e completado depois.
+E-mail é opcional. Endereço pode ser completado depois. Complemento do endereço é opcional.
 
-E-mail é opcional. Complemento de endereço é opcional.
+A idade não deve ser salva como número fixo; deve ser calculada a partir da data de nascimento.
 
-### 4.3 Idade
+### 3.3 Endereço
 
-A idade não deve ser persistida como valor fixo. Deve ser calculada a partir de `data_nascimento`, considerando a data atual no fuso da clínica.
-
-### 4.4 Endereço estruturado
-
-Campos previstos:
+Campos:
 
 - CEP;
 - logradouro;
@@ -126,68 +102,58 @@ Campos previstos:
 - cidade;
 - UF.
 
-O sistema pode usar busca por CEP para pré-preenchimento, mantendo edição manual.
+Busca por CEP pode pré-preencher, mantendo edição manual.
 
-### 4.5 Foto de identificação
+### 3.4 Foto de identificação
 
-A foto pode ser adicionada por:
+Permitir:
 
 - câmera do celular/tablet;
-- galeria do dispositivo.
+- galeria.
 
-Quando a foto principal for atualizada, a versão anterior deve permanecer no histórico, sem exclusão destrutiva.
+Ao trocar a foto principal, preservar a anterior no histórico.
 
-### 4.6 Duplicidade
+### 3.5 Duplicidade
 
-CPF deve ter unicidade lógica no cadastro da BC.
+CPF repetido bloqueia novo cadastro e oferece **Abrir prontuário**.
 
-Ao tentar cadastrar CPF existente:
-
-- bloquear duplicidade;
-- informar que a cliente já existe;
-- oferecer ação **Abrir prontuário**.
-
-Quando CPF não estiver disponível, o sistema deve alertar possível duplicidade por combinação de:
+Na ausência de condição confiável pelo CPF, alertar possível duplicidade por:
 
 - nome completo;
-- data de nascimento;
+- nascimento;
 - telefone.
 
-Essa segunda verificação é alerta, não identificação definitiva.
+Esse segundo mecanismo é alerta, não confirmação automática de identidade.
 
-### 4.7 Menores de idade
+### 3.6 Menores de idade
 
-Quando a data de nascimento indicar idade inferior a 18 anos, ativar seção de responsável legal com, no mínimo:
+Se idade < 18 anos, abrir dados do responsável legal:
 
-- nome completo;
+- nome;
 - CPF;
 - vínculo/parentesco;
 - telefone;
 - assinatura quando aplicável.
 
-O prontuário continua pertencendo ao paciente. Ao atingir 18 anos, novos documentos passam a seguir as regras de assinatura do paciente adulto sem apagar documentos anteriores.
+Ao completar 18 anos, novos documentos seguem assinatura do paciente adulto, sem apagar o histórico anterior.
 
-## 5. Pasta da Cliente
+## 4. Pasta da Cliente
 
-Após criar ou abrir uma cliente, o sistema deve exibir uma Pasta da Cliente própria.
+Ao criar/abrir uma cliente, exibir pasta própria.
 
-### 5.1 Cabeçalho
-
-Resumo no topo:
+### 4.1 Cabeçalho
 
 - foto;
 - nome;
 - idade;
 - telefone;
 - alertas clínicos ativos;
-- data da última anamnese;
+- última anamnese;
 - último atendimento;
 - próximo agendamento;
-- plano de tratamento ativo, quando houver.
+- plano de tratamento ativo.
 
-### 5.2 Abas
-
-Estrutura aprovada:
+### 4.2 Abas
 
 - **Cadastro**;
 - **Anamnese**;
@@ -197,25 +163,21 @@ Estrutura aprovada:
 - **Documentos**;
 - **Financeiro**.
 
-### 5.3 Checklist de pendências
+### 4.3 Checklist
 
-Exibir pendências como:
+Mostrar pendências como:
 
-- cadastro básico concluído;
-- endereço pendente/completo;
-- foto pendente/completa;
-- anamnese geral pendente/vigente/vencida;
-- consentimentos exigidos;
-- retorno pendente;
+- cadastro básico;
+- endereço;
+- foto;
+- anamnese geral;
+- consentimentos;
+- retorno;
 - sessão de plano pendente.
 
-O checklist orienta a equipe sem obrigar que tudo seja preenchido no cadastro inicial.
+## 5. Linha do tempo unificada
 
-## 6. Linha do tempo unificada
-
-A tela principal da Pasta da Cliente deve apresentar uma linha do tempo clínica cronológica.
-
-Filtros:
+Tela principal da pasta com filtros:
 
 - Todos;
 - Procedimentos;
@@ -225,82 +187,70 @@ Filtros:
 - Fotos;
 - Intercorrências;
 - Retornos;
-- Planos de tratamento;
+- Planos;
 - Documentos.
 
-Cada item abre o registro correspondente.
+Cada item abre o registro correspondente. Valores financeiros não aparecem na linha clínica.
 
-O financeiro não deve ser misturado na linha do tempo clínica.
+## 6. Anamnese Geral
 
-## 7. Anamnese Geral
+### 6.1 Modelo
 
-### 7.1 Modelo
+A cliente possui uma Anamnese Geral da BC, compartilhada pela equipe clínica ativa.
 
-A cliente possui uma Anamnese Geral da BC, compartilhada por toda a equipe clínica ativa.
+A anamnese é versionada. Nova versão nunca apaga a anterior.
 
-A anamnese é versionada. Uma nova versão não apaga a anterior.
+Cada atendimento mantém referência à versão válida na data do procedimento.
 
-Cada ficha de atendimento deve manter referência à versão da anamnese que estava vigente na data do procedimento.
-
-### 7.2 Seções mínimas
-
-A Anamnese Geral deve conter, de forma condicional e progressiva:
+### 6.2 Seções mínimas
 
 - identificação derivada do cadastro;
 - queixa principal;
 - objetivo estético;
-- histórico de saúde atual e pregresso;
-- doenças e condições relevantes;
+- histórico de saúde atual/pregresso;
+- condições/doenças relevantes;
 - acompanhamento médico quando aplicável;
 - medicamentos e suplementos;
 - alergias e reações anteriores;
 - cirurgias e procedimentos prévios;
 - histórico dermatológico;
-- histórico de cicatrização/queloide quando aplicável;
-- hábitos e estilo de vida;
-- uso de nicotina/tabagismo;
-- consumo de álcool;
+- cicatrização/queloide quando aplicável;
+- hábitos/estilo de vida;
+- nicotina/tabagismo;
+- álcool;
 - exposição solar/fotoproteção;
 - gestação/amamentação quando aplicável;
 - histórico estético;
-- procedimentos anteriores e complicações;
+- procedimentos prévios e complicações;
 - observações livres;
-- declaração de veracidade/atualidade das informações;
-- assinatura do paciente/responsável;
-- assinatura da profissional responsável.
+- declaração de veracidade/atualidade;
+- assinatura paciente/responsável;
+- assinatura da profissional.
 
-O formulário deve usar lógica condicional: respostas negativas seguem o fluxo; respostas positivas abrem detalhamento pertinente.
+Usar lógica condicional: respostas negativas seguem; respostas positivas abrem detalhes.
 
-### 7.3 Confirmação antes de cada atendimento
+### 6.3 Confirmação antes de cada atendimento
 
-Antes de um novo procedimento, apresentar pergunta equivalente a:
-
-> Houve alguma mudança na sua saúde, medicamentos, alergias, cirurgias ou condição clínica desde a última anamnese?
+Perguntar se houve mudança em saúde, medicamentos, alergias, cirurgias ou condição clínica.
 
 Se `não`:
 
 - registrar confirmação;
-- registrar data/hora e profissional responsável;
-- manter a versão vigente.
+- data/hora;
+- profissional;
+- manter versão vigente.
 
 Se `sim`:
 
 - exigir atualização;
-- gerar nova versão;
-- exigir nova assinatura conforme fluxo.
+- criar nova versão;
+- colher novas assinaturas conforme fluxo.
 
-### 7.4 Renovação anual
+### 6.4 Renovação anual
 
-A anamnese geral finalizada vence após 12 meses.
+Após 12 meses, a anamnese passa a `vencida` e exige revisão completa antes dos procedimentos configurados como dependentes de anamnese vigente.
 
-Ao vencer:
-
-- status muda para `Vencida`;
-- nova revisão completa é exigida antes dos procedimentos configurados como dependentes de anamnese vigente.
-
-### 7.5 Estados da anamnese
-
-Estados aprovados:
+### 6.5 Estados
 
 - `nao_iniciada`;
 - `em_preenchimento`;
@@ -310,127 +260,116 @@ Estados aprovados:
 - `vencida`;
 - `substituida`.
 
-## 8. Preenchimento remoto
+## 7. Preenchimento remoto
 
-A Anamnese Geral pode ser iniciada:
+Pode ocorrer:
 
-1. presencialmente em celular/tablet da BC;
-2. remotamente pela cliente antes da consulta.
+1. presencialmente em aparelho da BC;
+2. remotamente antes da consulta.
 
-### 8.1 Link seguro
+### 7.1 Link seguro
 
-O link remoto deve:
+- individual;
+- token aleatório não enumerável;
+- validade de 72 horas;
+- abre somente a ficha em preenchimento;
+- não abre pasta, fotos, histórico ou financeiro;
+- deixa de funcionar ao finalizar/revogar;
+- pode ser regenerado se expirar.
 
-- ser individual;
-- usar token aleatório e não enumerável;
-- expirar em 72 horas;
-- acessar somente a ficha em preenchimento;
-- não conceder acesso à Pasta da Cliente, fotos, histórico ou financeiro;
-- deixar de funcionar após finalização ou invalidação;
-- poder ser regenerado pela equipe quando expirar.
+### 7.2 Pré-preenchimento não finaliza
 
-### 8.2 Pré-preenchimento não é finalização
+Fluxo remoto:
 
-A cliente pode preencher respostas remotamente, porém a ficha deve permanecer em `aguardando_revisao_profissional`.
+`cliente pré-preenche → aguardando revisão profissional → revisão presencial → aguardando assinaturas → assinatura paciente/responsável + assinatura profissional → finalizada`
 
-Na clínica:
+## 8. Alertas clínicos
 
-1. profissional revisa com a cliente;
-2. completa/corrige se necessário;
-3. passa para `aguardando_assinaturas`;
-4. paciente/responsável assina;
-5. profissional assina;
-6. ficha vira `finalizada`.
-
-## 9. Alertas clínicos
-
-### 9.1 Objetivo
-
-Alertas destacam informações relevantes, mas não substituem avaliação profissional e não devem emitir diagnóstico nem autorização automática para executar procedimento.
-
-### 9.2 Tipos
+### 8.1 Origem
 
 - automáticos, derivados da anamnese;
-- manuais, criados pela profissional a partir do atendimento/evolução.
+- manuais, registrados pela profissional.
 
-### 9.3 Níveis visuais
-
-Níveis sugeridos:
+### 8.2 Níveis visuais
 
 - crítico;
 - atenção;
 - informativo.
 
-### 9.4 Exemplos de origem
+### 8.3 Conteúdo
 
-Podem ser criados a partir de dados como:
-
-- alergia informada;
-- uso de medicamento relevante;
-- histórico de reação importante;
-- histórico de herpes;
-- cicatrização alterada;
-- condição clínica informada;
-- intercorrência ainda aberta.
-
-### 9.5 Regras
-
-Cada alerta deve registrar:
+Cada alerta registra:
 
 - origem;
-- texto/descrição;
-- categoria/nível;
+- descrição;
+- nível;
 - autor quando manual;
 - data/hora;
-- status ativo/inativo;
-- motivo de inativação quando aplicável.
+- ativo/inativo;
+- motivo de inativação.
 
-Colaboradoras não excluem alertas antigos. Podem solicitar revisão. A Mel pode inativar, preservando histórico.
+Exemplos de origem: alergia, medicamento relevante, reação prévia, herpes, cicatrização alterada, condição clínica informada ou intercorrência aberta.
 
-### 9.6 Confirmação de leitura
+O sistema **não diagnostica** e não decide automaticamente se um procedimento pode ou não ser realizado.
 
-Antes de iniciar um procedimento, a profissional deve confirmar que revisou os alertas ativos.
+### 8.4 Histórico
 
-Registrar:
+Colaboradora não exclui alerta antigo. Pode solicitar revisão. Mel pode inativar preservando histórico.
 
-- profissional;
-- atendimento/procedimento;
-- data/hora;
-- conjunto de alertas apresentado ou referência ao estado naquele momento.
+### 8.5 Confirmação de leitura
 
-Essa confirmação registra leitura, não aprovação clínica automática.
+Antes de iniciar procedimento, a profissional confirma que revisou alertas ativos.
 
-## 10. Biblioteca Clínica de procedimentos
+Registrar profissional, atendimento, data/hora e referência ao estado dos alertas apresentados.
 
-### 10.1 Conceito
+## 9. Biblioteca Clínica de procedimentos
 
-Cada procedimento possui uma **ficha-mãe configurável**, administrada pela Mel/ADM.
+### 9.1 Ficha-mãe
 
-Ela define como Agenda, Prontuário, Atendimentos, Documentos e Financeiro devem se comportar para aquele procedimento.
+Cada procedimento tem ficha-mãe configurável pela Mel/ADM.
 
-### 10.2 Famílias iniciais
+Ela pode definir:
 
-Biblioteca deve ser preparada com catálogo amplo, mantendo procedimentos não utilizados como inativos.
+- nome/família;
+- ativo/inativo;
+- descrição administrativa;
+- valor padrão;
+- duração sugerida;
+- necessidade de Anamnese Geral vigente;
+- módulo específico;
+- termo próprio;
+- campos obrigatórios/opcionais da ficha;
+- fotos obrigatórias/opcionais;
+- produto/lote exigido;
+- equipamento/parâmetros;
+- orientação pré;
+- orientação pós;
+- sinais de alerta/orientações de contato;
+- retorno obrigatório/recomendado/não necessário;
+- prazo de retorno;
+- acesso geral/restrito;
+- profissionais autorizadas quando restrito.
 
-Famílias iniciais:
+### 9.2 Catálogo inicial
 
-- injetáveis faciais;
+Preparar catálogo amplo, com itens não utilizados como inativos. Famílias iniciais:
+
 - toxina botulínica;
 - preenchimentos;
 - bioestimuladores;
-- skinboosters e correlatos;
-- faciais não injetáveis;
+- skinboosters/correlatos;
+- outros injetáveis estéticos aplicáveis à operação;
 - limpeza de pele;
 - peelings;
 - microagulhamento;
 - dermaplaning;
-- tecnologias/laser/IPL/LED;
+- protocolos faciais não injetáveis;
+- laser/IPL/LED;
 - radiofrequência;
-- ultrassom/HIFU e similares;
-- corporais;
+- ultrassom/HIFU e tecnologias correlatas;
+- procedimentos corporais;
 - criolipólise e tecnologias corporais;
-- intradermoterapia/enzimas quando aplicável à operação da BC;
-- terapias manuais;
+- intradermoterapia/enzimas quando aplicável à operação;
 - drenagem;
 - massagem modeladora;
 - massagem;
@@ -438,436 +377,331 @@ Famílias iniciais:
 - capilar/tricologia estética;
 - outros procedimentos cadastráveis futuramente.
 
-A existência de um item na biblioteca não significa que a BC o ofereça ou que qualquer profissional esteja habilitada a executá-lo. Procedimentos podem permanecer `inativos`.
+A presença no catálogo não significa oferta ativa da BC nem autorização profissional automática.
 
-### 10.3 Configuração da ficha-mãe
+O conteúdo clínico dos templates deve ser construído/validado a partir de referências técnicas e regulatórias adequadas para cada procedimento; a aplicação não deve inventar contraindicações ou condutas.
 
-Cada procedimento pode configurar:
+### 9.3 Geral × restrito
 
-- nome;
-- família;
-- status ativo/inativo;
-- descrição administrativa;
-- valor padrão;
-- duração sugerida;
-- necessidade de anamnese geral vigente;
-- módulo de anamnese específico;
-- termo de consentimento específico;
-- campos obrigatórios da ficha de atendimento;
-- fotos obrigatórias/opcionais;
-- produtos/lotes exigidos;
-- equipamento/parâmetros aplicáveis;
-- orientações pré-procedimento;
-- orientações pós-procedimento;
-- sinais de alerta/orientações de contato;
-- retorno obrigatório/recomendado/não necessário;
-- prazo padrão de retorno;
-- acesso geral ou restrito;
-- profissionais autorizadas quando restrito.
+`geral`: qualquer profissional ativa pode iniciar/registrar.
 
-### 10.4 Procedimentos gerais e restritos
+`restrito`: somente profissionais explicitamente autorizadas podem iniciar/assinar.
 
-Procedimento `geral`:
+Regra interna inicial:
 
-- qualquer profissional ativa pode iniciar e registrar, respeitando demais regras do sistema.
+- **Toxina Botulínica/Botox:** restrito a Mel e Alice.
 
-Procedimento `restrito`:
+Permissão validada no backend/RPC.
 
-- somente profissionais explicitamente autorizadas podem iniciar/assinar.
+## 10. Módulos específicos e termos
 
-Regra interna inicial da BC:
-
-- **Toxina Botulínica/Botox:** acesso restrito a Mel e Alice.
-
-Essa permissão deve ser validada no backend/RPC.
-
-## 11. Módulos específicos de anamnese
-
-Além da Anamnese Geral, cada procedimento pode exigir perguntas adicionais próprias.
-
-Exemplos conceituais:
-
-- toxina botulínica;
-- preenchimento;
-- bioestimulador;
-- peeling;
-- microagulhamento;
-- laser/tecnologias;
-- corporal;
-- massagem/terapias manuais;
-- pós-operatório;
-- capilar.
-
-O módulo específico deve ser versionado junto com sua definição para que um atendimento antigo continue ligado às perguntas e respostas válidas naquela data.
-
-## 12. Consentimentos e termos
-
-### 12.1 Separação documental
-
-A Anamnese Geral não substitui o termo de consentimento do procedimento.
-
-Cada procedimento que exigir consentimento específico deve gerar seu próprio termo.
+Além da Anamnese Geral, um procedimento pode exigir perguntas adicionais próprias e termo de consentimento/responsabilidade próprio.
 
 Exemplo:
 
-- anamnese geral vigente;
-- módulo específico de toxina;
-- termo de consentimento de toxina;
-- ficha de atendimento de toxina.
+`Anamnese Geral vigente → módulo de toxina → termo de toxina → ficha de atendimento de toxina`
 
-### 12.2 Assinaturas
+Templates/perguntas devem ser versionados para que atendimento antigo permaneça ligado à versão válida naquele dia.
 
-Assinatura na tela do celular/tablet, no padrão já utilizado pela pré-anamnese, com acréscimo obrigatório da assinatura da profissional.
+A Anamnese Geral não substitui o consentimento específico do procedimento.
 
-Documento deve conter:
+## 11. Assinaturas
 
-- assinatura do paciente ou responsável legal;
-- assinatura da profissional responsável;
-- nome completo da profissional;
+Assinar na tela de celular/tablet, seguindo a experiência já adotada na pré-anamnese, com assinatura adicional da profissional.
+
+Documento deve guardar:
+
+- assinatura do paciente ou responsável;
+- assinatura da profissional;
+- nome da profissional;
 - profissão;
-- conselho profissional;
+- conselho;
 - número de registro;
 - data/hora;
-- versão do documento;
+- versão;
 - identificador único.
 
-Os dados profissionais vêm do perfil administrativo e não devem ser alteráveis dentro do documento já emitido.
+Dados profissionais vêm do cadastro administrativo e não podem ser alterados dentro de documento emitido.
 
-## 13. PDFs e versionamento documental
+## 12. PDFs e versionamento
 
-### 13.1 Geração
+### 12.1 PDFs próprios
 
-Gerar PDF individual para:
+Gerar PDF para:
 
 - Anamnese Geral finalizada;
 - termo/consentimento finalizado;
 - ficha de atendimento finalizada;
-- documentos clínicos adicionais definidos futuramente.
+- outros documentos clínicos futuros.
 
-### 13.2 Conteúdo da ficha de atendimento em PDF
+A foto de identificação da cliente deve poder constar nos PDFs clínicos, inclusive Anamnese Geral e ficha de atendimento, quando disponível e pertinente ao template.
 
-Quando aplicável:
+### 12.2 Ficha de atendimento em PDF
 
-- identificação e foto da cliente;
+Quando aplicável, incluir:
+
+- identificação/foto;
 - procedimento;
 - data/hora;
-- profissional responsável;
+- profissional;
 - profissão/conselho/registro;
 - queixa/objetivo;
 - avaliação;
 - técnica/produtos/equipamentos;
-- lote/validade/quantidade quando aplicável;
-- região tratada;
-- parâmetros técnicos;
+- lote/validade/quantidade;
+- região;
+- parâmetros;
 - resposta imediata;
-- intercorrências registradas no atendimento;
+- intercorrências do atendimento;
 - orientações;
-- retorno recomendado;
+- retorno;
 - assinatura profissional;
 - referência à anamnese vigente;
-- referência aos termos assinados;
-- código único do documento.
+- referência aos termos;
+- código único.
 
-### 13.3 Imutabilidade e retificação
+### 12.3 Documento finalizado é histórico
 
-PDF finalizado é histórico imutável.
+PDF já emitido não é sobrescrito.
 
-Se a ficha for reaberta, corrigida e finalizada novamente:
+Se houver correção que altere conteúdo de documento já finalizado, gerar nova versão e preservar a anterior.
 
-- o PDF anterior permanece;
-- nova versão é gerada;
-- registrar vínculo `versao_anterior`/`retificacao`;
-- registrar motivo;
-- registrar quem autorizou a reabertura;
-- registrar autora da alteração;
-- registrar data/hora.
+#### Correção no mesmo dia
 
-## 14. Entrega de documentos à cliente
+A autora pode corrigir a própria ficha no mesmo dia sem autorização da Mel.
 
-Equipe autorizada pode entregar um documento individual por:
+Se a ficha já tinha sido finalizada/assinada:
 
-- download no dispositivo;
+- a correção gera nova versão do documento;
+- a versão anterior permanece preservada;
+- assinaturas afetadas devem ser coletadas novamente quando o conteúdo assinado tiver sido alterado;
+- auditoria registra a retificação.
+
+#### Correção depois da virada do dia
+
+Exige:
+
+1. solicitação da autora;
+2. autorização da Mel;
+3. edição pela própria autora;
+4. nova finalização/assinaturas aplicáveis;
+5. nova versão do PDF;
+6. auditoria completa.
+
+## 13. Entrega de documentos
+
+Equipe autorizada pode entregar PDF individual por:
+
+- download;
 - e-mail;
-- compartilhamento via WhatsApp do próprio aparelho.
+- compartilhamento via WhatsApp do dispositivo.
 
 Não criar link público permanente para prontuário.
 
-Registrar auditoria de entrega/geração quando possível:
+Registrar quando possível: documento, profissional, data/hora e canal/finalidade.
 
-- documento;
-- profissional;
-- data/hora;
-- finalidade/canal.
+## 14. Fotos clínicas
 
-## 15. Fotos clínicas
+### 14.1 Categorias
 
-### 15.1 Tipos
+- foto de identificação;
+- foto clínica `antes`;
+- `durante`;
+- `depois`;
+- `evolucao`.
 
-Separar:
+### 14.2 Metadados
 
-1. foto de identificação;
-2. fotos clínicas do procedimento.
-
-Fotos clínicas podem ser classificadas como:
-
-- antes;
-- durante;
-- depois;
-- evolução.
-
-### 15.2 Metadados
-
-Cada foto clínica deve se ligar a:
+Ligar a:
 
 - cliente;
-- procedimento/atendimento;
+- atendimento/procedimento;
 - profissional;
 - data/hora;
 - região corporal/facial;
 - etapa;
-- observação clínica.
+- observação.
 
-### 15.3 Origem
+Permitir câmera + galeria.
 
-Permitir:
-
-- câmera;
-- galeria.
-
-### 15.4 Privacidade e marketing
+### 14.3 Privacidade
 
 Foto clínica é privada no prontuário.
 
-Autorização para prontuário não autoriza marketing.
+Autorização clínica não equivale a autorização de marketing.
 
-Uso em redes sociais, site, publicidade ou material promocional exige autorização específica e explícita, separada do consentimento clínico.
+Uso em site/redes/publicidade depende de autorização específica e explícita, registrada separadamente.
 
-Arquivos clínicos não devem ser armazenados em área pública do GitHub/site.
+## 15. Ficha de atendimento
 
-## 16. Ficha de atendimento
+### 15.1 Uma ficha por procedimento/sessão
 
-### 16.1 Uma ficha por procedimento/sessão
+Mesmo dia pode conter várias fichas independentes.
 
-Cada procedimento realizado gera uma ficha própria.
+Exemplo:
 
-Exemplo no mesmo dia:
+- massagem/Kátia;
+- toxina/Mel;
+- limpeza/Alice.
 
-- massagem com Kátia → ficha de Kátia;
-- toxina com Mel → ficha de Mel;
-- limpeza de pele com Alice → ficha de Alice.
+### 15.2 Origem
 
-Todas ficam na mesma linha do tempo da cliente.
+- agendamento existente;
+- criação direta na Pasta da Cliente.
 
-### 16.2 Origem do atendimento
+Ambos geram o mesmo registro formal.
 
-Duas origens válidas:
+### 15.3 Campos-base
 
-1. agendamento existente;
-2. criação direta pela Pasta da Cliente quando não houve agendamento prévio.
-
-Ambos geram o mesmo tipo de registro formal.
-
-### 16.3 Campos-base
-
-A ficha-base suporta:
-
-- queixa principal do dia;
-- objetivo do atendimento;
-- avaliação da profissional;
-- procedimento executado;
-- região tratada;
-- produtos/equipamentos utilizados;
-- parâmetros técnicos;
+- queixa do dia;
+- objetivo;
+- avaliação profissional;
+- procedimento;
+- região;
+- produtos/equipamentos;
+- parâmetros;
 - resposta imediata;
-- intercorrências durante o procedimento;
-- orientações pós-procedimento;
-- retorno recomendado;
+- intercorrências do ato;
+- orientações;
+- retorno;
 - evolução;
 - reclamação/elogio/feedback;
-- observações adicionais;
-- fotos anexadas;
-- assinatura da profissional.
+- observações;
+- fotos;
+- assinatura profissional.
 
-A ficha-mãe decide quais campos:
+A ficha-mãe decide quais aparecem e quais são obrigatórios.
 
-- aparecem;
-- são obrigatórios;
-- são opcionais;
-- não se aplicam.
-
-### 16.4 Estados
-
-Estados aprovados:
+### 15.4 Estados
 
 - `rascunho`;
 - `em_atendimento`;
 - `finalizada`.
 
-### 16.5 Finalização
+### 15.5 Validação antes de finalizar
 
-Não permitir finalização se faltar requisito obrigatório da ficha-mãe, incluindo quando aplicável:
+Não finalizar se faltar requisito aplicável:
 
-- alerta clínico não revisado;
-- anamnese vencida;
-- módulo específico pendente;
-- termo pendente;
+- leitura de alertas;
+- anamnese vigente;
+- módulo específico;
+- termo;
 - assinatura;
 - produto/lote;
 - foto obrigatória;
 - campo técnico obrigatório.
 
-### 16.6 Janela de edição
+### 15.6 Janela de edição
 
-A autora pode criar/editar sua ficha durante o dia do atendimento.
+A autora pode criar/alterar a ficha durante o dia do atendimento.
 
-Após a mudança de dia no fuso `America/Sao_Paulo`:
+Uma ficha `finalizada` pode ser retificada pela autora no mesmo dia, preservando versão anterior e renovando assinaturas aplicáveis conforme a seção 12.
 
-- ficha fica bloqueada para alteração pela colaboradora;
-- leitura continua disponível.
+Após a virada do dia em `America/Sao_Paulo`, qualquer nova alteração exige o fluxo de reabertura autorizado pela Mel.
 
-### 16.7 Reabertura posterior — Opção A aprovada
+## 16. Produtos e equipamentos
 
-Fluxo:
+Biblioteca administrada pela Mel.
 
-1. autora solicita correção;
-2. Mel/ADM autoriza reabertura temporária;
-3. a própria autora faz a correção;
-4. ficha é finalizada novamente;
-5. nova versão documental é gerada;
-6. auditoria registra todo o fluxo.
+### 16.1 Produtos
 
-A Mel não substitui silenciosamente a autoria clínica da ficha.
-
-## 17. Biblioteca de produtos e equipamentos
-
-A Mel/ADM pode administrar uma biblioteca de produtos e equipamentos.
-
-### 17.1 Produto
-
-Campos conceituais:
+Cadastro conceitual:
 
 - nome comercial;
 - fabricante/marca;
 - categoria;
-- status ativo/inativo;
-- observações administrativas.
+- ativo/inativo;
+- observações.
 
-No atendimento, quando aplicável:
+No atendimento, conforme ficha-mãe:
 
 - lote;
 - validade;
 - quantidade;
-- unidade de medida;
-- região de aplicação;
+- unidade;
+- região;
 - observações.
 
-### 17.2 Equipamento
+### 16.2 Equipamentos
 
-Campos conceituais:
+Cadastro conceitual:
 
 - nome;
 - fabricante/modelo;
 - categoria;
-- status ativo/inativo;
+- ativo/inativo;
 - identificação interna;
 - observações.
 
-No atendimento, permitir registrar parâmetros técnicos definidos pela ficha-mãe.
+Registrar parâmetros técnicos quando definidos pela ficha-mãe.
 
-### 17.3 Rastreabilidade
+### 16.3 Rastreabilidade
 
-Deve ser possível consultar quais clientes/atendimentos usaram determinado lote/produto quando houver necessidade de rastreabilidade.
+Deve ser possível localizar clientes/atendimentos que utilizaram um lote/produto específico.
 
-## 18. Intercorrências e evoluções pós-procedimento
+## 17. Intercorrências e evoluções pós-procedimento
 
-### 18.1 Registro separado
-
-Intercorrência posterior não altera a ficha original.
-
-Criar um registro separado vinculado ao atendimento original.
+Intercorrência posterior é registro separado; não reescreve ficha original.
 
 Campos mínimos:
 
 - atendimento original;
 - data/hora do relato;
-- quem recebeu a informação;
+- quem recebeu;
 - sintomas/queixa;
 - fotos/anexos;
-- avaliação registrada pela profissional;
+- avaliação registrada;
 - conduta/orientações;
-- retorno associado;
+- retorno;
 - evolução;
 - desfecho.
 
-Podem existir vários registros sucessivos para o mesmo caso.
+Pode haver várias evoluções para o mesmo caso.
 
-### 18.2 Estados
-
-Estados aprovados:
+Estados:
 
 - `aberta`;
 - `em_acompanhamento`;
 - `resolvida`;
 - `encaminhada`.
 
-Para `resolvida` ou `encaminhada`, exigir desfecho final.
+`resolvida`/`encaminhada` exigem desfecho.
 
-Enquanto estiver `aberta` ou `em_acompanhamento`, gerar alerta clínico ativo na Pasta da Cliente.
+Enquanto aberta/em acompanhamento, gerar alerta clínico ativo.
 
-## 19. Orientações pré e pós-procedimento
+## 18. Orientações pré e pós-procedimento
 
-Cada ficha-mãe pode armazenar versões de:
+Cada ficha-mãe pode guardar versões de:
 
-- preparo pré-procedimento;
-- cuidados pós-procedimento;
+- preparo pré;
+- cuidados pós;
 - sinais de alerta;
 - quando retornar;
-- quando entrar em contato com a clínica;
-- quando buscar atendimento médico, quando aplicável ao texto aprovado pela clínica.
+- quando contatar a clínica;
+- quando buscar atendimento médico, quando aplicável ao conteúdo validado pela clínica.
 
-Podem ser:
+Podem aparecer na tela, PDF e entrega por WhatsApp/e-mail.
 
-- exibidas para a profissional;
-- incluídas no PDF;
-- entregues por WhatsApp/e-mail.
+Atendimento preserva referência à versão da orientação usada naquele dia.
 
-A ficha do atendimento deve manter referência à versão das orientações válida na data.
+## 19. Retornos e Agenda
 
-## 20. Retornos e Agenda
+Ficha-mãe define:
 
-A ficha-mãe define retorno como:
-
-- obrigatório;
+- retorno obrigatório;
 - recomendado;
-- não necessário.
+- não necessário;
+- prazo sugerido.
 
-Quando aplicável, define prazo sugerido.
+Ao finalizar, oferecer **Agendar retorno** ou **Agendar depois**.
 
-Ao finalizar atendimento:
+Não autoagendar.
 
-- oferecer ação **Agendar retorno**;
-- abrir Agenda já vinculada à cliente e procedimento;
-- permitir `Agendar depois`.
+## 20. Planos de Tratamento / Pacotes
 
-Não criar agendamento automaticamente.
+Plano agrupa várias sessões/procedimentos, mas cada sessão tem ficha própria.
 
-## 21. Planos de Tratamento / Pacotes
-
-### 21.1 Conceito
-
-Permitir agrupar várias sessões/procedimentos em um plano.
-
-Exemplo:
-
-- 4 drenagens;
-- 4 massagens modeladoras;
-- 2 radiofrequências.
-
-Cada sessão continua gerando sua própria ficha de atendimento.
-
-### 21.2 Estados
-
-Estados aprovados:
+Estados:
 
 - `ativo`;
 - `concluido`;
@@ -876,69 +710,59 @@ Estados aprovados:
 
 Pausa/cancelamento exige motivo e preserva sessões realizadas.
 
-### 21.3 Sessões
-
 Mostrar:
 
 - total previsto;
 - concluídas;
 - restantes;
 - próxima sessão;
-- sessão ainda não agendada.
+- sessão não agendada.
 
-Se a próxima sessão não for marcada na hora, deve ser possível reagendar/agendar depois pela Pasta da Cliente ou Agenda.
+Sessão pode ser agendada na hora ou depois pela Pasta/Agenda.
 
-### 21.4 Lembrete operacional
+Se ultrapassar intervalo recomendado, mostrar aviso interno **Sessão pendente há X dias**, sem autoagendamento e sem disparo automático.
 
-Quando ultrapassar o intervalo recomendado, mostrar aviso interno como:
+## 21. Integração financeira
 
-> Sessão pendente há X dias.
+### 21.1 Separação clínica × financeira
 
-O aviso não agenda sozinho e não dispara mensagem automaticamente.
+Ficha clínica e financeiro são conceitos ligados, mas distintos.
 
-## 22. Integração financeira
+A linha clínica não exibe valores.
 
-### 22.1 Separação clínica × financeira
+### 21.2 Mel/ADM
 
-Ficha clínica e valor financeiro são conceitos distintos, embora vinculados ao mesmo atendimento.
+Pode ver:
 
-A linha do tempo clínica não exibe valores financeiros.
-
-### 22.2 Visão da Mel
-
-Mel/ADM pode ver:
-
-- valor total do procedimento/pacote;
-- pagamentos;
-- saldo;
+- valor total de procedimento/pacote;
+- pagamentos/saldo;
 - créditos;
 - permutas;
 - cortesias/isenções aprovadas;
 - movimentos;
-- consolidado total gasto pela cliente;
-- financeiro por profissional e por procedimento;
+- total gasto pela cliente;
+- visão por profissional/procedimento;
 - demais recursos da Fase 5.
 
-### 22.3 Visão da colaboradora
+### 21.3 Colaboradora
 
-Cada profissional vê apenas:
+Vê somente:
 
-- valores ligados aos próprios atendimentos;
-- produção própria;
-- recebimentos próprios autorizados;
+- valores de próprios atendimentos;
+- própria produção;
+- próprios recebimentos autorizados;
 - valores a receber/pagos conforme Fase 5.
 
 Não vê:
 
 - total gasto pela cliente na BC;
-- valores de procedimentos feitos por outras profissionais;
-- percentual de comissão;
-- financeiro geral;
-- consolidado da clínica.
+- valores de outras profissionais;
+- percentuais de comissão;
+- financeiro geral/consolidado.
 
-### 22.4 Exceções financeiras
+### 21.4 Exceções
 
-Situações:
+Tipos:
 
 - cobrança normal;
 - pacote/crédito existente;
@@ -946,149 +770,134 @@ Situações:
 - cortesia;
 - permuta;
 - isenção;
-- ajuste comercial/administrativo.
+- ajuste administrativo/comercial.
 
-Profissional pode solicitar exceção, informando motivo.
+Profissional pode solicitar exceção com motivo.
 
 Cortesia, permuta, isenção e ajuste excepcional só produzem efeito após aprovação da Mel.
 
-Registrar auditoria de solicitação e decisão.
+### 21.5 Pacotes
 
-### 22.5 Pacotes
+Mel vê valor total do pacote.
 
-Pacote possui valor administrativo total visível à Mel.
+Sessões podem ter valor de referência interno para atribuir corretamente a produção de cada profissional.
 
-Cada sessão/procedimento pode ter valor de referência interno para atribuição correta da produção às profissionais.
+Cada profissional vê apenas a parcela ligada ao que executou.
 
-Cada profissional vê somente a parcela financeira relacionada ao que executou.
+## 22. Tela geral de Clientes
 
-## 23. Tela geral de Clientes
-
-Busca instantânea por:
+Busca por:
 
 - nome;
 - CPF;
 - telefone.
 
-Filtros operacionais:
+Filtros:
 
 - ativa/arquivada;
 - anamnese vencida;
-- alerta clínico ativo;
+- alerta ativo;
 - intercorrência em acompanhamento;
-- plano de tratamento ativo;
+- plano ativo;
 - retorno pendente;
-- próxima sessão não agendada.
+- sessão ainda não agendada.
 
-Card da cliente pode mostrar:
+Card pode mostrar foto, nome, idade, telefone, último atendimento, próximo agendamento e indicadores de alerta/pendência.
 
-- foto;
-- nome;
-- idade;
-- telefone;
-- último atendimento;
-- próximo agendamento;
-- indicadores de alerta/pendência.
+## 23. Exportação
 
-## 24. Exportação do prontuário
+### 23.1 Prontuário integral
 
-### 24.1 Exportação integral
+Somente Mel/ADM pode exportar o prontuário integral.
 
-Somente Mel/ADM pode gerar exportação integral do prontuário.
-
-Pacote clínico pode incluir:
+Pode incluir:
 
 - cadastro;
-- anamnese vigente;
-- versões anteriores;
+- anamnese vigente e versões;
 - módulos específicos;
 - consentimentos;
-- fichas de atendimento;
+- fichas;
 - intercorrências/evoluções;
 - fotos clínicas do prontuário;
-- PDFs assinados;
+- PDFs;
 - histórico documental.
 
-### 24.2 Financeiro
+### 23.2 Financeiro
 
-Financeiro fica fora da exportação clínica por padrão.
+Fica fora da exportação clínica por padrão.
 
-A Mel pode optar por gerar demonstrativo financeiro separado quando necessário.
+Mel pode gerar demonstrativo financeiro separado quando necessário.
 
-### 24.3 Colaboradoras
+### 23.3 Colaboradoras
 
-Colaboradoras podem baixar documentos individuais autorizados, mas não exportar a pasta clínica integral.
+Podem baixar/entregar documentos individuais permitidos, mas não exportar a pasta integral.
 
-## 25. Papéis e permissões
+## 24. Papéis e permissões
 
-### 25.1 Profissional ativa
+### 24.1 Profissional ativa
 
 Pode:
 
-- pesquisar e abrir clientes ativas;
-- consultar o prontuário clínico compartilhado;
-- visualizar anamneses, termos, fichas, fotos clínicas, intercorrências e histórico;
+- pesquisar/abrir clientes;
+- ler prontuário clínico compartilhado;
+- ler anamneses, termos, fichas, fotos e intercorrências;
 - criar cliente;
-- editar dados operacionais permitidos do cadastro;
-- criar anamnese/revisão conforme fluxo;
-- criar registros de atendimento próprios;
-- editar registros próprios somente na janela permitida;
-- iniciar procedimentos gerais;
-- iniciar procedimentos restritos somente se autorizada;
+- editar dados permitidos do cadastro;
+- criar/revisar anamnese conforme fluxo;
+- criar fichas próprias;
+- editar ficha própria no mesmo dia;
+- iniciar procedimento geral;
+- iniciar restrito apenas se autorizada;
 - criar alerta manual;
-- criar evolução/intercorrência ligada ao atendimento;
-- baixar/entregar documentos individuais permitidos;
+- registrar intercorrência/evolução;
+- baixar/entregar documento individual;
 - solicitar exceção financeira;
-- consultar apenas o próprio financeiro.
+- consultar próprio financeiro.
 
 Não pode:
 
 - arquivar/reativar cliente;
-- editar silenciosamente ficha de outra profissional;
-- editar sua ficha após bloqueio sem reabertura autorizada;
+- editar ficha de outra profissional;
+- editar após bloqueio sem reabertura;
 - excluir histórico;
-- inativar definitivamente alerta sem fluxo administrativo;
 - configurar Biblioteca Clínica;
-- alterar dados profissionais de cadastro administrativo;
-- aprovar própria cortesia/permuta/isenção excepcional;
-- acessar financeiro de outras profissionais;
+- alterar cadastro profissional administrativo;
+- aprovar própria exceção financeira;
+- ver financeiro de outras;
 - exportar prontuário integral.
 
-### 25.2 Mel — administradora e profissional
+### 24.2 Mel/ADM
 
-Além das permissões clínicas próprias, pode:
+Além das permissões clínicas próprias:
 
-- arquivar/reativar cliente;
-- administrar Biblioteca Clínica;
-- ativar/inativar procedimentos;
-- configurar procedimento geral/restrito;
-- administrar profissionais autorizadas em procedimentos restritos;
-- administrar produtos/equipamentos;
-- autorizar reabertura de ficha bloqueada;
-- inativar alertas preservando histórico;
-- aprovar/recusar exceções financeiras;
-- consultar financeiro completo;
-- exportar prontuário integral;
-- consultar auditoria global.
+- arquiva/reativa cliente;
+- administra Biblioteca Clínica;
+- ativa/inativa procedimentos;
+- configura geral/restrito;
+- administra lista de profissionais autorizadas em restritos;
+- administra produtos/equipamentos;
+- autoriza reabertura após bloqueio;
+- inativa alertas preservando histórico;
+- aprova/recusa exceções financeiras;
+- vê financeiro completo;
+- exporta prontuário integral;
+- vê auditoria global.
 
-A autorização de reabertura não muda a autoria clínica: a correção continua sendo feita pela profissional autora.
+Autorizar reabertura não muda autoria clínica: a autora original faz a correção.
 
-## 26. Auditoria
+## 25. Auditoria
 
-Registrar, no mínimo:
+Registrar ao menos:
 
 - cliente criado/atualizado/arquivado/reativado;
-- possível duplicidade e decisão quando relevante;
-- foto de identificação atualizada;
+- foto atualizada;
 - anamnese iniciada/revisada/finalizada/substituída/vencida;
 - link remoto criado/revogado/expirado;
 - alerta criado/inativado;
-- confirmação de leitura de alertas;
+- leitura de alertas;
 - termo assinado;
-- ficha criada/finalizada;
-- solicitação de reabertura;
-- autorização de reabertura;
-- retificação;
+- ficha criada/finalizada/retificada;
+- solicitação/autorização de reabertura;
 - PDF gerado/versionado;
 - documento entregue/exportado;
 - foto clínica adicionada;
@@ -1098,297 +907,285 @@ Registrar, no mínimo:
 - alteração de Biblioteca Clínica;
 - alteração de autorização de procedimento restrito.
 
-Autor deve derivar de `auth.uid()` quando a ação for autenticada.
+Ações autenticadas derivam autor de `auth.uid()`.
 
-## 27. Storage e privacidade
+## 26. Storage e privacidade
 
-Fotos clínicas, assinaturas e documentos devem ficar em storage privado.
+Fotos, assinaturas e documentos clínicos devem ficar em storage privado.
 
 Requisitos:
 
-- sem URLs públicas permanentes;
-- acesso autenticado e autorizado;
-- caminhos/objetos vinculados ao cliente e documento;
+- sem URL pública permanente;
+- acesso autenticado/autorizado;
+- objetos ligados a cliente/documento;
 - políticas coerentes com RLS/RPC;
-- geração de acesso temporário quando necessário;
-- nenhuma chave `service_role` no frontend ou repositório.
+- acesso temporário quando necessário;
+- `service_role` nunca no frontend/GitHub.
 
-Dados de saúde e documentos clínicos exigem tratamento como informação sensível da operação da clínica.
+## 27. Estrutura de dados conceitual
 
-## 28. Estrutura de dados conceitual
-
-Os nomes finais serão definidos no plano técnico/migrations. Conceitos previstos:
+Nomes finais serão definidos no plano/migrations. Conceitos previstos:
 
 - ampliação de `clientes`;
-- `cliente_enderecos` ou campos estruturados equivalentes;
-- `cliente_fotos_identificacao`;
-- `responsaveis_legais`;
-- `anamneses`;
-- `anamnese_respostas` ou payload versionado validado;
-- `anamnese_confirmacoes`;
-- `anamnese_links_remotos`;
-- `alertas_clinicos`;
-- `alerta_leituras`;
-- `procedimentos` ampliado;
-- `procedimento_config` / ficha-mãe;
-- `procedimento_profissionais_restritos`;
-- `procedimento_modulos_anamnese`;
-- `termo_templates` / versões;
-- `documentos_clinicos`;
-- `documento_assinaturas`;
-- `fotos_clinicas`;
-- `produtos_clinicos`;
-- `equipamentos_clinicos`;
-- `atendimento_produtos`;
-- `atendimento_equipamentos`;
-- `intercorrencias`;
-- `intercorrencia_evolucoes`;
-- `planos_tratamento`;
-- `plano_sessoes`;
-- `excecoes_financeiras` ou entidade equivalente;
+- endereço estruturado;
+- fotos de identificação;
+- responsáveis legais;
+- anamneses/versionamento/respostas;
+- confirmações de atualização clínica;
+- links remotos;
+- alertas/leitura de alertas;
+- ampliação de procedimentos;
+- configuração/ficha-mãe;
+- permissões de procedimentos restritos;
+- módulos específicos;
+- templates/versionamento de termos;
+- documentos clínicos;
+- assinaturas;
+- fotos clínicas;
+- produtos/equipamentos;
+- relações atendimento-produto/equipamento;
+- intercorrências/evoluções;
+- planos/sessões;
+- exceções financeiras;
 - integrações com `atendimentos`, `agendamentos`, `pagamentos`, `pagamento_movimentos`, `audit_log`.
 
-Evitar uma única tabela gigante de prontuário. Preferir entidades pequenas e auditáveis, com referências explícitas entre versões.
+Evitar tabela única gigante de prontuário. Preferir entidades menores, versionáveis e auditáveis.
 
-## 29. Segurança no banco
+## 28. Segurança no banco
 
-Princípios:
-
-1. RLS/RPC são autoridade de acesso.
-2. Frontend não é barreira de segurança.
-3. Profissional autenticada pode ler prontuário clínico compartilhado conforme política da BC.
-4. Escrita clínica deve respeitar autoria e janela de edição.
-5. Reabertura exige autorização administrativa persistida.
-6. Procedimento restrito deve validar permissão no backend.
-7. Financeiro continua segmentado no backend.
-8. Percentual de comissão continua privado.
+1. RLS/RPC são autoridade.
+2. Frontend não substitui segurança.
+3. Equipe ativa pode ler prontuário clínico conforme política da BC.
+4. Escrita clínica respeita autoria e janela de edição.
+5. Reabertura pós-dia exige autorização persistida.
+6. Procedimento restrito valida permissão no backend.
+7. Financeiro permanece segmentado no backend.
+8. Percentual de comissão permanece privado.
 9. Storage privado respeita as mesmas fronteiras.
-10. Funções `SECURITY DEFINER` devem ter `search_path` fixo e grants mínimos, seguindo o padrão já adotado no projeto.
+10. `SECURITY DEFINER` com `search_path` fixo e grants mínimos, seguindo padrão existente.
 
-## 30. Fluxos canônicos
+## 29. Fluxos canônicos
 
-### 30.1 Nova cliente
+### 29.1 Nova cliente
 
-`Clientes → Cadastrar → valida CPF/duplicidade → cria cadastro rápido → abre Pasta da Cliente → checklist de pendências`
+`Clientes → Cadastrar → validar CPF/duplicidade → criar cadastro rápido → abrir Pasta → checklist`
 
-### 30.2 Primeira anamnese presencial
+### 29.2 Anamnese presencial
 
 `Pasta → Anamnese → preencher → revisar → paciente/responsável assina → profissional assina → PDF → Finalizada`
 
-### 30.3 Anamnese remota
+### 29.3 Anamnese remota
 
-`Equipe gera link 72h → cliente pré-preenche → Aguardando revisão → revisão presencial → assinaturas → PDF → Finalizada`
+`Gerar link 72h → pré-preencher → Aguardando revisão → revisão presencial → assinaturas → PDF → Finalizada`
 
-### 30.4 Atendimento via Agenda
+### 29.4 Atendimento pela Agenda
 
-`Agendamento → abrir cliente → revisar alertas → confirmar mudanças clínicas → validar anamnese/termos → Em atendimento → preencher ficha → assinar → Finalizada → PDF → financeiro → retorno opcional`
+`Agendamento → cliente → alertas → confirmação clínica → validar anamnese/termos → Em atendimento → ficha → assinatura → Finalizada → PDF → financeiro → retorno opcional`
 
-### 30.5 Atendimento sem agendamento
+### 29.5 Atendimento direto
 
-`Pasta da Cliente → Adicionar procedimento → mesmas validações clínicas → ficha → PDF → financeiro → retorno opcional`
+`Pasta → Adicionar procedimento → mesmas validações → ficha → PDF → financeiro → retorno opcional`
 
-### 30.6 Dois procedimentos no mesmo dia
+### 29.6 Vários procedimentos no mesmo dia
 
-`Procedimento A → ficha A / autora A`  
-`Procedimento B → ficha B / autora B`
+Cada procedimento gera registro e autoria próprios na mesma linha do tempo.
 
-Ambos aparecem separadamente na mesma linha do tempo.
+### 29.7 Correção no mesmo dia
 
-### 30.7 Correção posterior
+`Autora corrige → se documento já assinado, nova versão/assinaturas aplicáveis → auditoria`
 
-`Ficha bloqueada → autora solicita → Mel autoriza → autora corrige → nova versão/PDF → auditoria`
+### 29.8 Correção depois do dia
 
-### 30.8 Intercorrência posterior
+`Ficha bloqueada → autora solicita → Mel autoriza → autora corrige → nova versão/assinaturas → auditoria`
 
-`Atendimento original → Nova intercorrência → alerta ativo → evoluções sucessivas → Resolvida/Encaminhada → desfecho`
+### 29.9 Intercorrência
 
-### 30.9 Plano de tratamento
+`Atendimento original → nova intercorrência → alerta ativo → evoluções → Resolvida/Encaminhada → desfecho`
 
-`Criar plano → sessões previstas → cada sessão gera ficha própria → agendar agora ou depois → lembrete de pendência → concluir/pausar/cancelar`
+### 29.10 Plano
 
-## 31. Compatibilidade com fases anteriores
+`Criar plano → sessões → cada sessão com ficha própria → agendar agora/depois → lembrete de pendência → concluir/pausar/cancelar`
 
-A Fase 6 deve preservar:
+## 30. Compatibilidade
 
-- login e papéis atuais;
-- menu por áreas aprovado na navegação atual;
-- clientes pertencendo à BC;
+Preservar:
+
+- login/papéis atuais;
+- menu por áreas atual;
+- cliente pertencendo à BC;
 - histórico compartilhado;
 - agenda individual;
 - Mel com visão global;
 - colaboradora com agenda própria;
-- auditoria existente;
+- auditoria;
 - regras financeiras da Fase 5;
 - segregação de comissão/financeiro;
-- diretório `/admin/` legado de pré-anamnese intacto;
-- novo BC Gestão em `/gestao/...`.
+- `/admin/` legado intacto;
+- BC Gestão em `/gestao/...`.
 
-A pré-anamnese antiga pode servir como referência de experiência de assinatura/preenchimento, mas não deve ser confundida com o novo prontuário definitivo do BC Gestão.
+A pré-anamnese antiga é referência de UX de preenchimento/assinatura, não o novo prontuário definitivo.
 
-## 32. Testes críticos — TDD
+## 31. Testes críticos — TDD
 
-Antes da implementação, criar testes RED para os casos críticos.
+Criar testes RED antes da implementação.
 
 ### Cadastro
 
-1. cadastro exige nome, CPF, nascimento e telefone;
-2. idade é calculada pela data de nascimento;
-3. CPF duplicado é bloqueado;
-4. possível duplicidade sem CPF gera alerta;
+1. exige nome, CPF, nascimento e telefone;
+2. idade calculada por nascimento;
+3. CPF duplicado bloqueado;
+4. possível duplicidade gera alerta;
 5. colaboradora cria cliente;
-6. apenas Mel arquiva/reativa.
+6. somente Mel arquiva/reativa.
 
-### Prontuário e permissões
+### Prontuário/permissões
 
-7. Alice consegue ler ficha clínica criada por Kátia;
-8. Kátia consegue ler ficha clínica criada por Alice;
-9. colaboradora não edita ficha de outra profissional;
+7. Alice lê ficha da Kátia;
+8. Kátia lê ficha da Alice;
+9. colaboradora não edita ficha alheia;
 10. autora edita própria ficha no mesmo dia;
-11. autora não edita própria ficha após bloqueio;
-12. reabertura exige autorização da Mel;
-13. após autorização, somente a autora retifica;
-14. retificação preserva versão anterior.
+11. autora retifica ficha finalizada no mesmo dia com nova versão quando necessário;
+12. autora não edita após virada do dia sem autorização;
+13. reabertura pós-dia exige Mel;
+14. após autorização, somente autora retifica;
+15. versão anterior permanece.
 
 ### Anamnese
 
-15. versão antiga permanece preservada;
-16. atualização clínica cria nova versão;
-17. confirmação `sem mudanças` registra data/profissional;
-18. anamnese vence em 12 meses;
-19. link remoto expira em 72h;
-20. link remoto não abre prontuário;
-21. pré-preenchimento remoto não finaliza ficha;
-22. finalização exige assinaturas aplicáveis.
+16. versão anterior preservada;
+17. mudança clínica cria versão nova;
+18. confirmação sem mudanças registra data/profissional;
+19. vence em 12 meses;
+20. link expira em 72h;
+21. link não abre prontuário;
+22. preenchimento remoto não finaliza;
+23. finalização exige assinaturas.
 
 ### Alertas
 
-23. resposta configurada gera alerta automático;
-24. profissional cria alerta manual;
-25. colaboradora não apaga alerta histórico;
-26. procedimento exige confirmação de leitura de alertas;
-27. intercorrência aberta gera alerta ativo.
+24. regra configurada gera alerta automático;
+25. profissional cria alerta manual;
+26. colaboradora não apaga histórico;
+27. procedimento exige confirmação de leitura;
+28. intercorrência aberta gera alerta.
 
 ### Procedimentos
 
-28. procedimento geral pode ser iniciado por profissional ativa;
-29. procedimento restrito bloqueia profissional não autorizada no backend;
-30. toxina permite Mel/Alice conforme configuração inicial e bloqueia profissional não autorizada;
-31. cada procedimento no mesmo dia gera ficha independente;
-32. atendimento pode nascer de agenda;
-33. atendimento pode nascer direto da pasta.
+29. geral pode ser iniciado por profissional ativa;
+30. restrito bloqueia não autorizada no backend;
+31. toxina permite Mel/Alice e bloqueia não autorizada;
+32. dois procedimentos no mesmo dia geram fichas independentes;
+33. atendimento nasce da agenda;
+34. atendimento nasce direto da pasta.
 
-### Ficha e documentos
+### Documentos
 
-34. ficha não finaliza com requisito obrigatório pendente;
-35. ficha finalizada gera PDF;
-36. retificação gera nova versão do PDF;
-37. PDF anterior permanece preservado;
-38. assinatura inclui identidade profissional cadastrada;
-39. foto clínica não vira pública;
-40. autorização clínica de imagem não equivale a autorização de marketing.
+35. ficha não finaliza com requisito obrigatório faltando;
+36. ficha finalizada gera PDF;
+37. retificação gera nova versão;
+38. PDF anterior permanece;
+39. assinatura inclui identificação profissional;
+40. foto clínica não é pública;
+41. autorização clínica de imagem não equivale a marketing.
 
 ### Intercorrências
 
-41. intercorrência posterior não altera ficha original;
-42. várias evoluções podem pertencer à mesma intercorrência;
-43. resolvida/encaminhada exige desfecho;
-44. alerta sai de ativo conforme encerramento/regra aprovada.
+42. intercorrência posterior não altera ficha original;
+43. várias evoluções pertencem ao mesmo caso;
+44. resolvida/encaminhada exige desfecho;
+45. alerta acompanha status aplicável.
 
 ### Planos
 
-45. plano possui sessões próprias;
-46. cada sessão gera ficha individual;
-47. próxima sessão pode ficar sem agendamento;
-48. pode ser agendada depois;
-49. pausa/cancelamento exige motivo;
-50. sessão pendente gera aviso sem autoagendar.
+46. plano tem sessões;
+47. cada sessão tem ficha;
+48. sessão pode ficar sem agendamento;
+49. pode ser agendada depois;
+50. pausa/cancelamento exige motivo;
+51. pendência gera aviso sem autoagendar.
 
 ### Financeiro
 
-51. Mel vê total financeiro da cliente;
-52. colaboradora não vê total financeiro da cliente;
-53. colaboradora vê somente atendimentos financeiros próprios;
-54. cortesia/permuta/isenção solicitada não produz efeito sem aprovação da Mel;
-55. pacote distribui produção por sessão sem expor valor total às outras profissionais;
-56. regras da Fase 5 continuam verdes.
+52. Mel vê total da cliente;
+53. colaboradora não vê total da cliente;
+54. colaboradora vê apenas financeiro próprio;
+55. cortesia/permuta/isenção não produz efeito antes da aprovação da Mel;
+56. pacote distribui produção sem expor total às colaboradoras;
+57. testes da Fase 5 continuam verdes.
 
-### Exportação e auditoria
+### Exportação/auditoria
 
-57. somente Mel exporta prontuário integral;
-58. financeiro não entra na exportação clínica por padrão;
-59. colaboradora baixa documento individual permitido;
-60. ações sensíveis geram `audit_log`.
+58. somente Mel exporta prontuário integral;
+59. financeiro fica fora por padrão;
+60. colaboradora baixa documento individual permitido;
+61. ações sensíveis geram auditoria.
 
-## 33. Implementação por etapas sugeridas
+## 32. Implementação por etapas sugeridas
 
-A implementação deve ser quebrada no plano técnico para reduzir risco. Ordem sugerida:
+O plano técnico deve decompor a entrega, sugerindo inicialmente:
 
-1. fundação de dados da Pasta da Cliente e cadastro ampliado;
-2. UI da Pasta + busca/filtros + linha do tempo;
+1. cadastro ampliado + fundação de dados;
+2. Pasta da Cliente + busca/filtros + linha do tempo;
 3. anamnese geral versionada + alertas;
-4. assinatura + documentos/PDF + storage privado;
-5. Biblioteca Clínica + módulos específicos;
-6. ficha de atendimento e janela de bloqueio/reabertura;
+4. assinatura + PDFs + storage privado;
+5. Biblioteca Clínica + módulos específicos/termos;
+6. ficha de atendimento + bloqueio/reabertura;
 7. fotos clínicas + produtos/equipamentos;
 8. intercorrências/evoluções;
-9. planos de tratamento + retornos;
+9. planos + retornos;
 10. integração financeira/exceções/pacotes;
 11. link remoto 72h;
 12. exportação integral;
-13. hardening RLS/RPC/storage + auditoria completa;
-14. catálogo inicial de procedimentos e templates;
-15. homologação somente com dados fictícios.
+13. hardening RLS/RPC/storage/auditoria;
+14. pesquisa e montagem do catálogo inicial/templates clínicos por família com fontes adequadas;
+15. homologação exclusivamente com dados fictícios.
 
-O plano técnico pode subdividir ainda mais, desde que não altere as decisões de produto desta spec.
+O plano pode subdividir sem alterar as decisões desta spec.
 
-## 34. Fora de escopo desta fase
+## 33. Fora de escopo
 
-Não inclui, salvo nova aprovação:
+Sem nova aprovação, não inclui:
 
-- portal completo da cliente com login próprio;
+- portal completo da cliente com login;
 - diagnóstico automático por IA;
 - recomendação automática de procedimento por IA;
 - decisão automática de contraindicação;
-- envio automático de marketing;
-- mensagens automáticas sem ação/configuração específica futura;
-- alteração do diretório legado `/admin/`;
-- uso de dados/pacientes reais em homologação técnica;
+- marketing automático;
+- mensagens automáticas não configuradas;
+- alteração do `/admin/` legado;
+- paciente real em homologação técnica;
 - armazenamento público de prontuário/fotos.
 
-## 35. Critérios de sucesso
+## 34. Critérios de sucesso
 
-A Fase 6 será considerada funcionalmente concluída quando:
+Concluir quando:
 
-- cliente puder ser cadastrada com os novos dados;
-- pasta única puder ser aberta por toda a equipe ativa autorizada;
-- histórico clínico compartilhado funcionar sem vazamento financeiro;
-- anamnese versionada e alertas funcionarem;
-- procedimentos gerarem fichas independentes;
-- assinaturas e PDFs forem preservados/versionados;
-- fotos e documentos estiverem privados;
-- regras de bloqueio/reabertura forem aplicadas;
-- procedimentos restritos forem protegidos no backend;
+- novo cadastro funcionar;
+- pasta única estiver acessível à equipe clínica autorizada;
+- histórico compartilhado não vazar financeiro;
+- anamnese versionada/alertas funcionarem;
+- cada procedimento gerar ficha independente;
+- assinaturas/PDFs forem preservados e versionados;
+- fotos/documentos forem privados;
+- edição no mesmo dia e bloqueio pós-dia funcionarem;
+- reabertura pós-dia exigir Mel e preservar autoria;
+- procedimentos restritos estiverem protegidos no backend;
 - intercorrências/evoluções funcionarem;
-- planos e retornos funcionarem;
-- financeiro respeitar as regras da Fase 5;
-- exportação integral ficar restrita à Mel;
-- auditoria registrar ações sensíveis;
+- planos/retornos funcionarem;
+- financeiro continuar coerente com a Fase 5;
+- exportação integral for só da Mel;
+- auditoria estiver completa;
 - testes críticos estiverem verdes;
-- homologação fictícia não deixar resíduos indevidos;
-- CI e deploy estiverem verdes.
+- homologação fictícia não deixar resíduos;
+- CI/deploy estiverem verdes.
 
-## 36. Observações finais
+## 35. Observação final
 
-Esta spec consolida as decisões aprovadas em conversa para transformar a área Clientes em um prontuário estético eletrônico robusto e modular.
+Esta spec consolida as decisões aprovadas para transformar Clientes em um prontuário estético eletrônico modular, preservando quatro fronteiras centrais:
 
-Ela deliberadamente separa:
+- **cliente única da BC e histórico clínico compartilhado**;
+- **autoria e versionamento dos registros**;
+- **documentos/fotos protegidos**;
+- **financeiro segregado por permissão**.
 
-- **identidade da cliente**;
-- **histórico clínico compartilhado**;
-- **autoria e imutabilidade das fichas**;
-- **documentos assinados/versionados**;
-- **configuração clínica por procedimento**;
-- **intercorrências/evoluções**;
-- **financeiro segmentado**.
-
-Nenhuma implementação deve alterar a semântica acima sem nova aprovação explícita do usuário.
+Nenhuma implementação deve alterar essa semântica sem nova aprovação explícita.
