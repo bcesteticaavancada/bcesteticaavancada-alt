@@ -1,15 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import {
   canManageProcedureLibrary,
   renderProcedureEditor,
   renderProcedureCards,
+  renderProcedureLibraryShell,
   initProcedurePanel,
 } from '../../gestao/js/procedure-panel.js';
-
-const adminHtmlUrl = new URL('../../gestao/admin/index.html', import.meta.url);
-const collaboratorHtmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
 
 test('capacidade editorial é independente do papel admin', () => {
   assert.equal(canManageProcedureLibrary({ role: 'admin', pode_gerenciar_procedimentos: false }), true);
@@ -37,18 +34,15 @@ test('ações superiores aparecem só para admin', () => {
   assert.doesNotMatch(collaborator, /data-procedure-archive|data-procedure-permissions/);
 });
 
-test('HTML admin troca formulário simples pela Biblioteca Clínica', async () => {
-  const html = await readFile(adminHtmlUrl,'utf8');
-  assert.match(html,/id=["']procedureLibrary["']/);
-  assert.match(html,/procedure-panel\.js/);
-  assert.doesNotMatch(html,/id=["']procedureForm["']/);
+test('shell compartilhado identifica Biblioteca Clínica e gestão administrativa', () => {
+  const admin = renderProcedureLibraryShell({ role:'admin' });
+  const collaborator = renderProcedureLibraryShell({ role:'colaborador', pode_gerenciar_procedimentos:true });
+  assert.match(admin,/Biblioteca Clínica/i);
+  assert.match(admin,/data-procedure-admin-controls/);
+  assert.match(collaborator,/Biblioteca Clínica/i);
+  assert.doesNotMatch(collaborator,/data-procedure-admin-controls/);
 });
 
-test('HTML colaboradora oferece área oculta que só runtime autorizado revela', async () => {
-  const html = await readFile(collaboratorHtmlUrl,'utf8');
-  assert.match(html,/id=["']procedureLibraryNav["'][^>]*hidden/);
-  assert.match(html,/id=["']procedureLibraryArea["'][^>]*hidden/);
-  assert.match(html,/procedure-panel\.js/);
+test('initProcedurePanel é função compartilhada para injeção após autenticação', () => {
+  assert.equal(typeof initProcedurePanel,'function');
 });
-
-test('initProcedurePanel é função compartilhada', () => assert.equal(typeof initProcedurePanel,'function'));
