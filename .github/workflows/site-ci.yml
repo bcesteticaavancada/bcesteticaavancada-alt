@@ -39,9 +39,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Existing pre-anamnese tests
         run: npm run test:frontend
       - name: Site regression tests
         run: npm run test:site
       - name: BC Gestão tests
         run: npm run test:gestao
+      - name: Anamnese PDF Edge Function tests
+        run: deno test supabase/functions/generate-anamnese-pdf/pdf_test.ts
