@@ -20,6 +20,15 @@ test('painel admin expõe agenda geral com filtro, edição e clientes compartil
   assert.doesNotMatch(html,/service_role|secret|sk_[a-z0-9]/i);
 });
 
+test('cadastro rápido admin inclui identidade clínica mínima e responsável legal', async () => {
+  const html = await loadAdminHtml();
+  for (const name of ['nome','cpf','data_nascimento','telefone','email','responsavel_nome','responsavel_cpf','responsavel_parentesco','responsavel_telefone']) {
+    assert.match(html,new RegExp(`name=["']${name}["']`));
+  }
+  assert.match(html,/id=["']clientAgePreview["']/);
+  assert.match(html,/id=["']clientGuardianFields["']/);
+});
+
 test('opções de profissionais incluem Todas, Mel admin e colaboradoras', () => {
   const html = renderProfessionalOptions([
     { user_id:'mel-id', display_name:'Mel' },

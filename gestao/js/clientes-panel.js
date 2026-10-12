@@ -1,13 +1,25 @@
 import {
   listClients,
   getClient,
-  createClient,
-  updateClient,
+  createClientV2,
+  updateClientV2,
   setClientActive,
   listClientHistory,
+  findPotentialDuplicates,
 } from './clientes-api.js';
 import { listStaffDirectory } from './agenda-api.js';
-import { formatClinicDateTime } from './agenda-format.js';
+import { calculateAge, formatCpf, isMinor, normalizeCpf } from './clientes-domain.js';
+import {
+  renderClientCadastroForm,
+  renderClientFolder,
+  renderClientTimeline,
+} from './clientes-folder.js';
+import {
+  uploadClientIdPhoto,
+  listClientIdPhotos,
+  getClientIdPhotoUrl,
+  setCurrentClientIdPhoto,
+} from './clientes-photo-api.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -18,10 +30,9 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function field(label, value) {
-  const clean = String(value ?? '').trim();
-  if (!clean) return '';
-  return `<div class="bcg-history-field"><span>${escapeHtml(label)}</span><p>${escapeHtml(clean)}</p></div>`;
+function clientAgeLabel(client) {
+  const age = calculateAge(client?.data_nascimento);
+  return age === null ? '' : `${age} anos`;
 }
 
 export function renderClientsList(clients = [], canArchive = false) {
@@ -29,50 +40,22 @@ export function renderClientsList(clients = [], canArchive = false) {
   return `<div class="bcg-client-list">${clients.map((client) => {
     const status = client.ativo === false ? '<span class="bcg-chip bcg-status-cancelado">Arquivado</span>' : '';
     const adminHint = canArchive && client.ativo === false ? '<span class="bcg-muted">Disponível para reativação</span>' : '';
+    const age = clientAgeLabel(client);
+    const identity = [client.cpf ? formatCpf(client.cpf) : '', client.telefone || '', age].filter(Boolean).join(' • ');
     return `<article class="bcg-client-card" data-client-id="${escapeHtml(client.id)}">
-      <div><strong>${escapeHtml(client.nome || 'Cliente')}</strong><span>${escapeHtml(client.telefone || '')}</span>${adminHint}</div>
+      <div><strong>${escapeHtml(client.nome || 'Cliente')}</strong><span>${escapeHtml(identity)}</span>${adminHint}</div>
       ${status}
-      <button type="button" class="bcg-small-button" data-open-client="${escapeHtml(client.id)}">Abrir cliente</button>
+      <button type="button" class="bcg-small-button" data-open-client="${escapeHtml(client.id)}">Abrir prontuário</button>
     </article>`;
   }).join('')}</div>`;
 }
 
 export function renderClientEditor(client, canArchive = false) {
-  if (!client?.id) return '<div class="bcg-empty">Selecione um cliente para abrir a ficha.</div>';
-  const active = client.ativo !== false;
-  const archiveAction = canArchive
-    ? `<button type="button" class="bcg-small-button" data-toggle-client="${active ? 'false' : 'true'}">${active ? 'Arquivar cliente' : 'Reativar cliente'}</button>`
-    : '';
-  return `<form class="bcg-form bcg-form-grid" data-client-edit-form data-client-id="${escapeHtml(client.id)}">
-    <label>Nome<input class="bcg-input" name="nome" value="${escapeHtml(client.nome || '')}" required></label>
-    <label>Telefone<input class="bcg-input" name="telefone" value="${escapeHtml(client.telefone || '')}" required></label>
-    <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" value="${escapeHtml(client.email || '')}"></label>
-    <div class="bcg-form-actions bcg-field-wide">
-      <button class="bcg-button" type="submit">Salvar alterações</button>
-      ${archiveAction}
-      <span class="bcg-status" data-client-edit-status role="status" aria-live="polite"></span>
-    </div>
-  </form>`;
+  return renderClientCadastroForm(client, canArchive);
 }
 
 export function renderClientHistory(history = [], staffMap = new Map()) {
-  if (!history.length) return '<div class="bcg-empty">Nenhum atendimento registrado para este cliente.</div>';
-  return `<div class="bcg-history-timeline">${history.map((entry) => {
-    const professional = staffMap.get(entry.colaboradora_user_id) || 'Profissional';
-    const procedure = entry.procedimentos?.nome || 'Procedimento';
-    return `<article class="bcg-history-entry">
-      <header><div><strong>${escapeHtml(procedure)}</strong><span>${escapeHtml(professional)}</span></div><time>${escapeHtml(formatClinicDateTime(entry.data_atendimento))}</time></header>
-      <div class="bcg-history-grid">
-        ${field('Queixa / objetivo', entry.queixa_objetivo)}
-        ${field('Observações', entry.observacoes)}
-        ${field('Reações', entry.reacoes)}
-        ${field('Intercorrências', entry.intercorrencias)}
-        ${field('Feedback da cliente', entry.feedback_cliente)}
-        ${field('Orientações', entry.orientacoes)}
-        ${field('Próxima sessão', entry.recomendacao_proxima_sessao)}
-      </div>
-    </article>`;
-  }).join('')}</div>`;
+  return renderClientTimeline(history, staffMap);
 }
 
 function setStatus(element, message, kind = '') {
@@ -80,6 +63,92 @@ function setStatus(element, message, kind = '') {
   element.textContent = message || '';
   if (!element.dataset) element.dataset = {};
   element.dataset.kind = kind;
+}
+
+function formValue(data, name) {
+  return String(data.get(name) ?? '').trim();
+}
+
+function buildCreatePayload(form) {
+  const data = new FormData(form);
+  return {
+    nome: formValue(data, 'nome'),
+    cpf: normalizeCpf(formValue(data, 'cpf')),
+    data_nascimento: formValue(data, 'data_nascimento'),
+    telefone: formValue(data, 'telefone'),
+    email: formValue(data, 'email'),
+    responsavel_nome: formValue(data, 'responsavel_nome'),
+    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
+    responsavel_telefone: formValue(data, 'responsavel_telefone'),
+  };
+}
+
+function buildEditPayload(form) {
+  const data = new FormData(form);
+  return {
+    nome: formValue(data, 'nome'),
+    cpf: normalizeCpf(formValue(data, 'cpf')),
+    data_nascimento: formValue(data, 'data_nascimento'),
+    telefone: formValue(data, 'telefone'),
+    email: formValue(data, 'email'),
+    cep: formValue(data, 'cep'),
+    logradouro: formValue(data, 'logradouro'),
+    numero: formValue(data, 'numero'),
+    complemento: formValue(data, 'complemento'),
+    bairro: formValue(data, 'bairro'),
+    cidade: formValue(data, 'cidade'),
+    uf: formValue(data, 'uf').toUpperCase(),
+    responsavel_nome: formValue(data, 'responsavel_nome'),
+    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
+    responsavel_telefone: formValue(data, 'responsavel_telefone'),
+  };
+}
+
+function updateGuardianState(form, { edit = false } = {}) {
+  const birth = form?.querySelector?.('[name="data_nascimento"]');
+  const agePreview = edit
+    ? form?.querySelector?.('[data-client-edit-age]')
+    : form?.querySelector?.('#clientAgePreview') || form?.ownerDocument?.getElementById?.('clientAgePreview');
+  const guardian = edit
+    ? form?.querySelector?.('[data-client-edit-guardian]')
+    : form?.querySelector?.('#clientGuardianFields') || form?.ownerDocument?.getElementById?.('clientGuardianFields');
+  if (!birth || !guardian) return;
+  const age = calculateAge(birth.value);
+  if (agePreview) agePreview.textContent = age === null ? 'Idade calculada automaticamente' : `${age} anos`;
+  const minor = isMinor(birth.value);
+  guardian.hidden = !minor;
+  guardian.querySelectorAll?.('input,select')?.forEach?.((input) => {
+    input.required = minor;
+  });
+}
+
+function renderDuplicateChoice(statusEl, candidates, { exactCpf = false } = {}) {
+  if (!statusEl || !candidates?.length) return;
+  const candidate = candidates[0];
+  const label = exactCpf
+    ? 'CPF já cadastrado na BC Estética.'
+    : 'Encontramos um cadastro com nome, nascimento e telefone semelhantes.';
+  statusEl.dataset.kind = 'warning';
+  statusEl.innerHTML = `${escapeHtml(label)} <button type="button" class="bcg-small-button" data-open-duplicate="${escapeHtml(candidate.id)}">Abrir prontuário existente</button>${exactCpf ? '' : ' <button type="button" class="bcg-small-button" data-confirm-duplicate>Cadastrar mesmo assim</button>'}`;
+}
+
+async function loadPhotoPresentation(client, clienteId) {
+  const photos = await listClientIdPhotos({ client, clienteId });
+  const photoHistory = await Promise.all(photos.map(async (photo) => {
+    try {
+      return { ...photo, url: await getClientIdPhotoUrl({ client, storagePath: photo.storage_path }) };
+    } catch {
+      return { ...photo, url: '' };
+    }
+  }));
+  const current = photoHistory.find((photo) => photo.atual) || null;
+  return {
+    photoHistory,
+    currentPhotoId: current?.id || null,
+    photoUrl: current?.url || '',
+  };
 }
 
 export async function runFormSubmit({ form, statusEl, action, resetOnSuccess = false }) {
@@ -141,38 +210,93 @@ export async function initClientesPanel({
 
   async function openClient(clienteId) {
     currentClientId = clienteId;
-    editor.innerHTML = '<div class="bcg-empty">Carregando ficha…</div>';
-    timeline.innerHTML = '<div class="bcg-empty">Carregando histórico…</div>';
-    const [record, history] = await Promise.all([
+    editor.innerHTML = '<div class="bcg-empty">Carregando pasta…</div>';
+    timeline.innerHTML = '';
+    const legacyHistoryPanel = timeline.closest?.('.bcg-detail-history');
+    if (legacyHistoryPanel) legacyHistoryPanel.hidden = true;
+    const [record, history, photos] = await Promise.all([
       getClient({ client, clienteId }),
       listClientHistory({ client, clienteId }),
+      loadPhotoPresentation(client, clienteId),
     ]);
-    editor.innerHTML = renderClientEditor(record, canArchive);
-    timeline.innerHTML = renderClientHistory(history, staffMap);
-    return record;
+    const folderClient = { ...record, foto_identificacao_id: photos.currentPhotoId };
+    editor.innerHTML = renderClientFolder({
+      client: folderClient,
+      history,
+      staffMap,
+      canArchive,
+      photoUrl: photos.photoUrl,
+      photoHistory: photos.photoHistory,
+    });
+    return folderClient;
   }
+
+  updateGuardianState(createForm);
+  createForm.querySelector?.('[name="data_nascimento"]')?.addEventListener?.('change', () => updateGuardianState(createForm));
+  createForm.querySelector?.('[name="data_nascimento"]')?.addEventListener?.('input', () => updateGuardianState(createForm));
+
+  createForm.addEventListener('click', (event) => {
+    const openButton = event.target.closest?.('[data-open-duplicate]');
+    if (openButton) {
+      openClient(openButton.dataset.openDuplicate).catch(() => setStatus(createStatus, 'Não foi possível abrir o prontuário.', 'error'));
+      return;
+    }
+    const confirmButton = event.target.closest?.('[data-confirm-duplicate]');
+    if (confirmButton) {
+      createForm.dataset.duplicateConfirmed = 'true';
+      createForm.requestSubmit?.();
+    }
+  });
 
   createForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = new FormData(createForm);
+    const payload = buildCreatePayload(createForm);
     try {
+      const candidates = await findPotentialDuplicates({
+        client,
+        cpf: payload.cpf,
+        nome: payload.nome,
+        dataNascimento: payload.data_nascimento,
+        telefone: payload.telefone,
+      });
+      const exact = candidates.filter((item) => normalizeCpf(item.cpf) === payload.cpf && payload.cpf);
+      if (exact.length) {
+        renderDuplicateChoice(createStatus, exact, { exactCpf: true });
+        return;
+      }
+      if (candidates.length && createForm.dataset.duplicateConfirmed !== 'true') {
+        renderDuplicateChoice(createStatus, candidates);
+        return;
+      }
+
+      delete createForm.dataset.duplicateConfirmed;
       const id = await runFormSubmit({
         form: createForm,
         statusEl: createStatus,
         resetOnSuccess: true,
-        action: () => createClient({
-          client,
-          nome: data.get('nome'),
-          telefone: data.get('telefone'),
-          email: data.get('email'),
-        }),
+        action: () => createClientV2({ client, payload }),
       });
+      updateGuardianState(createForm);
       if (id) {
         await refreshClients();
         await notifyClientsChanged(onClientsChanged);
         await openClient(id);
       }
-    } catch {
+    } catch (error) {
+      if (/cpf.+cadastrad/i.test(error?.message || '')) {
+        try {
+          const candidates = await findPotentialDuplicates({
+            client,
+            cpf: payload.cpf,
+            nome: payload.nome,
+            dataNascimento: payload.data_nascimento,
+            telefone: payload.telefone,
+          });
+          if (candidates.length) renderDuplicateChoice(createStatus, candidates, { exactCpf: true });
+        } catch {
+          setStatus(createStatus, error?.message || 'CPF já cadastrado.', 'error');
+        }
+      }
       // Campos permanecem preenchidos em falha.
     }
   });
@@ -187,37 +311,21 @@ export async function initClientesPanel({
     const button = event.target.closest?.('[data-open-client]');
     if (!button) return;
     openClient(button.dataset.openClient).catch(() => {
-      editor.innerHTML = '<div class="bcg-empty">Não foi possível abrir o cliente.</div>';
+      editor.innerHTML = '<div class="bcg-empty">Não foi possível abrir a cliente.</div>';
     });
   });
 
-  editor.addEventListener('submit', async (event) => {
-    const form = event.target.closest?.('[data-client-edit-form]');
-    if (!form) return;
-    event.preventDefault();
-    const data = new FormData(form);
-    const statusEl = form.querySelector('[data-client-edit-status]');
-    try {
-      await runFormSubmit({
-        form,
-        statusEl,
-        action: () => updateClient({
-          client,
-          clienteId: form.dataset.clientId,
-          nome: data.get('nome'),
-          telefone: data.get('telefone'),
-          email: data.get('email'),
-        }),
-      });
-      await refreshClients();
-      await notifyClientsChanged(onClientsChanged);
-      await openClient(form.dataset.clientId);
-    } catch {
-      // Editor mantém valores em falha.
-    }
-  });
-
   editor.addEventListener('click', async (event) => {
+    const tab = event.target.closest?.('[data-folder-tab]');
+    if (tab) {
+      const folder = tab.closest?.('[data-client-folder]');
+      folder?.querySelectorAll?.('[data-folder-tab]')?.forEach?.((item) => item.classList.toggle('is-active', item === tab));
+      folder?.querySelectorAll?.('[data-folder-panel]')?.forEach?.((panel) => {
+        panel.hidden = panel.dataset.folderPanel !== tab.dataset.folderTab;
+      });
+      return;
+    }
+
     const button = event.target.closest?.('[data-toggle-client]');
     if (!button || !canArchive || !currentClientId) return;
     button.disabled = true;
@@ -232,6 +340,58 @@ export async function initClientesPanel({
       await openClient(currentClientId);
     } finally {
       button.disabled = false;
+    }
+  });
+
+  editor.addEventListener('change', async (event) => {
+    const input = event.target.closest?.('[data-client-photo-input]');
+    if (!input || !currentClientId || !input.files?.[0]) return;
+    const folder = input.closest?.('[data-client-folder]');
+    const statusEl = folder?.querySelector?.('[data-client-photo-status]');
+    input.disabled = true;
+    setStatus(statusEl, 'Enviando foto…');
+    try {
+      const { fotoId } = await uploadClientIdPhoto({
+        client,
+        clienteId: currentClientId,
+        file: input.files[0],
+      });
+      await setCurrentClientIdPhoto({ client, clienteId: currentClientId, fotoId });
+      await openClient(currentClientId);
+    } catch (error) {
+      setStatus(statusEl, error?.message || 'Não foi possível atualizar a foto.', 'error');
+    } finally {
+      input.disabled = false;
+      input.value = '';
+    }
+  });
+
+  editor.addEventListener('input', (event) => {
+    if (event.target?.name !== 'data_nascimento') return;
+    const form = event.target.closest?.('[data-client-edit-form]');
+    updateGuardianState(form, { edit: true });
+  });
+
+  editor.addEventListener('submit', async (event) => {
+    const form = event.target.closest?.('[data-client-edit-form]');
+    if (!form) return;
+    event.preventDefault();
+    const statusEl = form.querySelector('[data-client-edit-status]');
+    try {
+      await runFormSubmit({
+        form,
+        statusEl,
+        action: () => updateClientV2({
+          client,
+          clienteId: form.dataset.clientId,
+          payload: buildEditPayload(form),
+        }),
+      });
+      await refreshClients();
+      await notifyClientsChanged(onClientsChanged);
+      await openClient(form.dataset.clientId);
+    } catch {
+      // Editor mantém valores em falha.
     }
   });
 
