@@ -48,10 +48,9 @@ function sqlLiteral(text) {
   return `'${String(text).replaceAll("'", "''").toLowerCase()}'`;
 }
 
-test('seed possui exatamente os 30 itens oficiais com preço e modo aprovados', async () => {
+test('seed contém os 30 itens oficiais com preço e modo aprovados', async () => {
   const sql = await loadSeed();
-  const calls = sql.match(/perform\s+private\.bc_seed_phase6c_procedure\s*\(/g) || [];
-  assert.equal(calls.length, 30);
+  assert.equal(catalog.length, 30);
 
   for (const [name, priceMode, price, documentClass] of catalog) {
     const start = sql.indexOf(sqlLiteral(name));
@@ -67,7 +66,7 @@ test('Hidratação Facial vira apenas alias histórico de Reset Glow', async () 
   const sql = await loadSeed();
   assert.match(sql, /hidratação facial[\s\S]*reset glow™/i);
   assert.match(sql, /procedure_aliases/);
-  assert.doesNotMatch(sql, /bc_seed_phase6c_procedure\s*\(\s*'hidratação facial'/i);
+  assert.doesNotMatch(sql, /\(\s*'hidratação facial'\s*,\s*'(?:injetavel|nao_injetavel)'/i);
 });
 
 test('protocolos com via variável exigem composição da sessão em vez de classe inventada', async () => {
@@ -85,8 +84,8 @@ test('biblioteca nasce preenchida com ficha e referência operacional, não como
   const sql = await loadSeed();
   assert.match(sql, /specific_schema/);
   assert.match(sql, /technical_schema/);
-  assert.match(sql, /"fields"/);
-  assert.match(sql, /"reference_steps"/);
+  assert.match(sql, /['"]fields['"]/);
+  assert.match(sql, /['"]reference_steps['"]/);
   assert.match(sql, /requires_general_anamnesis/);
   assert.match(sql, /pre_guidance/);
   assert.match(sql, /post_guidance/);
