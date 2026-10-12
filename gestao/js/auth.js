@@ -28,7 +28,7 @@ export async function getCurrentProfile(client = getDefaultClient()) {
 
   const { data: profile, error: profileError } = await client
     .from('staff_profiles')
-    .select('user_id,display_name,role,active')
+    .select('user_id,display_name,role,active,pode_gerenciar_procedimentos')
     .eq('user_id', user.id)
     .maybeSingle();
 
