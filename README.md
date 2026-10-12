@@ -106,6 +106,20 @@ deno test --config supabase/functions/submit-pre-anamnese/deno.json --allow-env 
 
 A branch da pré-anamnese também possui CI em `.github/workflows/pre-anamnese-ci.yml`, que executa as duas suítes.
 
+## Aplicativo instalável (PWA)
+
+O site pode ser adicionado à tela inicial no Android e iPhone, preservando o acesso público e o login individual do BC Gestão. A página `instalar/` explica a instalação no Safari, Chrome e navegadores de computador compatíveis. O menu do site e a entrada do BC Gestão oferecem o link **Instalar app**.
+
+- `manifest.webmanifest` define a identidade única, a abertura na página inicial, o escopo e os atalhos para navegadores compatíveis.
+- Todas as páginas públicas e do BC Gestão apontam para o mesmo manifesto e para o ícone Apple. O diretório legado `admin/` permanece inalterado.
+- `assets/app/` contém ícones PNG derivados da logo oficial existente; o ícone maskable mantém a marca dentro da área segura circular.
+- `pwa-install.js` oferece o botão de instalação apenas quando o navegador disponibiliza `beforeinstallprompt`. No iPhone, a instalação usa o menu Compartilhar do Safari ou Chrome compatível.
+- Navegação e ícones usam caminhos relativos ao manifesto. O identificador fixo `/bcesteticaavancada-alt/` distingue este app de outros sites da mesma conta GitHub Pages; não alterar esse ID após a instalação. A URL inicial fixa evita capturar parâmetros ou tokens de recuperação de senha.
+- Esta versão requer internet. Não registra service worker nem cria cache offline de páginas, fichas, agenda, autenticação ou financeiro. A instalação não altera as regras de acesso existentes.
+- Atualizações de conteúdo seguem a publicação normal do site. A primeira abertura do app pode exigir um novo login.
+
+Verificação: `npm test`. A instalação final e o comportamento do sistema operacional devem ser conferidos em aparelhos reais; testes de JavaScript não simulam a interface nativa do iOS ou Android.
+
 ## Identidade visual
 
 Logo padrão:
