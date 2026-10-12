@@ -30,7 +30,7 @@ export function buildRemoteAnamneseUrl({ origin, basePath = '/gestao/anamnese-re
   return `${cleanOrigin}${cleanPath}#t=${encodeURIComponent(String(token || ''))}`;
 }
 
-function renderAlerts(alerts = []) {
+export function renderClinicalAlerts(alerts = []) {
   if (!alerts.length) return '<div class="bcg-anamnese-alerts-empty">Nenhum alerta clínico ativo registrado.</div>';
   return `<div class="bcg-anamnese-alerts">${alerts.map((alert) => `
     <article class="bcg-clinical-alert" data-level="${escapeHtml(alert.level || 'informativo')}">
@@ -85,7 +85,7 @@ export function renderAnamnesePanel({ client = {}, state = null, versions = [], 
       <div class="bcg-anamnese-state"><strong>${escapeHtml(versionText)}</strong><span>${escapeHtml(anamneseStatusLabel(status))}</span></div>
     </section>
     ${renderAction(state, client)}
-    <section class="bcg-anamnese-block"><p class="bcg-eyebrow">ALERTAS CLÍNICOS</p>${renderAlerts(alerts)}</section>
+    <section class="bcg-anamnese-block"><p class="bcg-eyebrow">ALERTAS CLÍNICOS</p>${renderClinicalAlerts(alerts)}</section>
     <section class="bcg-anamnese-block"><p class="bcg-eyebrow">VERSÕES</p>${renderVersions(versions)}</section>
     <section class="bcg-anamnese-block"><p class="bcg-eyebrow">DOCUMENTOS</p>${renderDocuments(documents)}</section>
   </div>`;
