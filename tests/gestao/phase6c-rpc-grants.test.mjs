@@ -56,6 +56,6 @@ test('ações superiores continuam admin-only enquanto gestão editorial usa cap
     const start = sql.indexOf(`private.${name}`);
     assert.notEqual(start, -1, `${name} deve existir`);
     const block = sql.slice(start, start + 7000);
-    assert.match(block, /pode_gerenciar_procedimentos|is_bc_admin/);
+    assert.match(block, /bc_can_manage_procedures|pode_gerenciar_procedimentos|is_bc_admin/);
   }
 });
