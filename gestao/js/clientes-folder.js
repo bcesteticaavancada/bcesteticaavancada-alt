@@ -1,12 +1,22 @@
 import { calculateAge, clientProfileChecklist, formatCpf, isMinor } from './clientes-domain.js';
 import { formatClinicDateTime } from './agenda-format.js';
+import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
 
-if (typeof document !== 'undefined' && !document.querySelector('link[data-client-folder-styles]')) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = new URL('../assets/clientes-folder.css', import.meta.url).href;
-  link.dataset.clientFolderStyles = 'true';
-  document.head?.append(link);
+if (typeof document !== 'undefined') {
+  if (!document.querySelector('link[data-client-folder-styles]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = new URL('../assets/clientes-folder.css', import.meta.url).href;
+    link.dataset.clientFolderStyles = 'true';
+    document.head?.append(link);
+  }
+  if (!document.querySelector('link[data-anamnese-styles]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = new URL('../assets/anamnese.css', import.meta.url).href;
+    link.dataset.anamneseStyles = 'true';
+    document.head?.append(link);
+  }
 }
 
 function escapeHtml(value) {
@@ -29,13 +39,16 @@ function checklistItem(label, complete, detail = '') {
   return `<li class="bcg-folder-check-item" data-complete="${complete ? 'true' : 'false'}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(state)}</strong></li>`;
 }
 
-export function renderClientFolderChecklist(client = {}) {
+export function renderClientFolderChecklist(client = {}, anamneseState = null) {
   const state = clientProfileChecklist(client);
+  const anamneseStatus = anamneseState?.status || 'nao_iniciada';
+  const anamneseComplete = anamneseStatus === 'finalizada';
+  const anamneseDetail = anamneseStatus === 'vencida' ? 'Vencida' : anamneseComplete ? 'Concluído' : 'Pendente';
   return `<ul class="bcg-folder-checklist" aria-label="Checklist da pasta">
     ${checklistItem('Cadastro básico', state.cadastroBasico)}
     ${checklistItem('Endereço', state.enderecoCompleto)}
     ${checklistItem('Foto de identificação', state.fotoIdentificacao)}
-    ${checklistItem('Anamnese', state.anamnese !== 'pendente', state.anamnese === 'pendente' ? 'Pendente' : state.anamnese)}
+    ${checklistItem('Anamnese', anamneseComplete, anamneseDetail)}
   </ul>`;
 }
 
@@ -104,6 +117,11 @@ function renderPhotoHistory(photoHistory = []) {
   </article>`).join('')}</div>`;
 }
 
+function renderDocuments(documents = []) {
+  if (!documents.length) return '<div class="bcg-empty">Nenhum documento clínico emitido para esta cliente.</div>';
+  return `<div class="bcg-clinical-documents">${documents.map((doc) => `<article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}"><div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>Anamnese Geral • Versão ${escapeHtml(doc.source_version)}</span></div><span class="bcg-chip">${escapeHtml(doc.status === 'emitido' ? 'PDF emitido' : doc.status || '')}</span>${doc.status === 'emitido' && doc.storage_path ? `<button class="bcg-small-button" type="button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>` : ''}</article>`).join('')}</div>`;
+}
+
 export function renderClientFolder({
   client,
   history = [],
@@ -111,6 +129,10 @@ export function renderClientFolder({
   canArchive = false,
   photoUrl = '',
   photoHistory = [],
+  anamneseState = null,
+  anamneseVersions = [],
+  clinicalAlerts = [],
+  clinicalDocuments = [],
 }) {
   if (!client?.id) return '<div class="bcg-empty">Selecione uma cliente para abrir a pasta.</div>';
   const age = calculateAge(client.data_nascimento);
@@ -122,9 +144,12 @@ export function renderClientFolder({
 
   return `<article class="bcg-client-folder" data-client-folder data-client-id="${escapeHtml(client.id)}">
     <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">PASTA DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div>${renderPhotoControls(client.ativo !== false)}</header>
-    ${renderClientFolderChecklist(client)}
-    <nav class="bcg-folder-tabs" aria-label="Pasta da cliente"><button type="button" class="bcg-folder-tab is-active" data-folder-tab="timeline">Linha do tempo</button><button type="button" class="bcg-folder-tab" data-folder-tab="cadastro">Cadastro</button></nav>
+    ${clinicalAlerts.length ? `<section class="bcg-folder-alert-strip"><p class="bcg-eyebrow">ALERTAS CLÍNICOS ATIVOS</p>${renderClinicalAlerts(clinicalAlerts)}</section>` : ''}
+    ${renderClientFolderChecklist(client, anamneseState)}
+    <nav class="bcg-folder-tabs" aria-label="Pasta da cliente"><button type="button" class="bcg-folder-tab is-active" data-folder-tab="timeline">Linha do tempo</button><button type="button" class="bcg-folder-tab" data-folder-tab="cadastro">Cadastro</button><button type="button" class="bcg-folder-tab" data-folder-tab="anamnese">Anamnese</button><button type="button" class="bcg-folder-tab" data-folder-tab="documentos">Documentos</button></nav>
     <section data-folder-panel="timeline"><p class="bcg-eyebrow">LINHA DO TEMPO</p>${renderClientTimeline(history, staffMap)}</section>
     <section data-folder-panel="cadastro" hidden><p class="bcg-eyebrow">CADASTRO</p>${renderClientCadastroForm(client, canArchive)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO DE IDENTIFICAÇÃO</p><h3>Fotos preservadas</h3>${renderPhotoHistory(photoHistory)}</section>
+    <section data-folder-panel="anamnese" hidden>${renderAnamnesePanel({ client, state: anamneseState, versions: anamneseVersions, alerts: clinicalAlerts, documents: clinicalDocuments })}</section>
+    <section data-folder-panel="documentos" hidden><p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderDocuments(clinicalDocuments)}</section>
   </article>`;
 }
