@@ -17,19 +17,8 @@ const loadPhotoMigration = () => loadMigration('bc_gestao_phase6a_client_photo')
 test('fase 6A amplia clientes de forma forward-safe sem persistir idade', async () => {
   const sql = await loadCoreMigration();
   for (const column of [
-    'cpf text',
-    'data_nascimento date',
-    'cep text',
-    'logradouro text',
-    'numero text',
-    'complemento text',
-    'bairro text',
-    'cidade text',
-    'uf text',
-    'responsavel_nome text',
-    'responsavel_cpf text',
-    'responsavel_parentesco text',
-    'responsavel_telefone text',
+    'cpf text','data_nascimento date','cep text','logradouro text','numero text','complemento text','bairro text','cidade text','uf text',
+    'responsavel_nome text','responsavel_cpf text','responsavel_parentesco text','responsavel_telefone text',
   ]) {
     assert.match(sql, new RegExp(`add\\s+column\\s+if\\s+not\\s+exists\\s+${column.replace(' ', '\\s+')}`));
   }
@@ -109,4 +98,10 @@ test('metadado da foto e troca da atual são autoridade do backend', async () =>
   }
   assert.match(sql, /created_by[\s\S]*v_user_id/);
   assert.match(sql, /substituida_at/);
+});
+
+test('migration corretiva indexa a FK created_by da foto de identificação', async () => {
+  const sql = await loadMigration('bc_gestao_phase6a_photo_created_by_index');
+  assert.match(sql, /create\s+index\s+if\s+not\s+exists\s+cliente_identificacao_fotos_created_by_idx/);
+  assert.match(sql, /on\s+public\.cliente_identificacao_fotos\s*\(\s*created_by\s*\)/);
 });
