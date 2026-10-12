@@ -5,11 +5,20 @@ export function createBcGestaoClient(createClient) {
     throw new Error('Supabase SDK não disponível.');
   }
 
-  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
   });
+
+  if (typeof globalThis !== 'undefined') globalThis.__bcGestaoClient = client;
+  if (typeof document !== 'undefined') {
+    import('./clinical-folder-runtime.js')
+      .then(({ installClinicalFolderRuntime }) => installClinicalFolderRuntime({ client, root: document }))
+      .catch(() => {});
+  }
+
+  return client;
 }
