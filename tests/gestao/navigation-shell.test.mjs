@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 const admin = readFileSync(new URL('../../gestao/admin/index.html', import.meta.url), 'utf8');
 const colaborador = readFileSync(new URL('../../gestao/colaborador/index.html', import.meta.url), 'utf8');
 const shell = readFileSync(new URL('../../gestao/js/shell.js', import.meta.url), 'utf8');
-const css = readFileSync(new URL('../../gestao/assets/gestao.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../gestao/assets/navigation.css', import.meta.url), 'utf8');
 
 test('admin usa menu hamburguer no topo e navega por areas sem sidebar fixa', () => {
   assert.match(admin, /id="menuToggle"/);
