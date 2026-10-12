@@ -80,9 +80,19 @@
     </section>
 
     <section id="clientes" class="bcg-panel" data-area-panel hidden>
-      <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e histórico compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome da cliente"></label></div>
+      <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e prontuário compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome, CPF ou telefone"></label></div>
       <div class="bcg-subgrid">
-        <article class="bcg-subpanel"><h3>Novo cliente</h3><form id="clientCreateForm" class="bcg-form"><label>Nome<input class="bcg-input" name="nome" required></label><label>Telefone<input class="bcg-input" name="telefone" required></label><label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email"></label><button class="bcg-button" type="submit">Cadastrar cliente</button><span id="clientCreateStatus" class="bcg-status"></span></form></article>
+        <article class="bcg-subpanel"><h3>Novo cliente</h3>
+          <form id="clientCreateForm" class="bcg-form">
+            <label>Nome completo<input class="bcg-input" name="nome" autocomplete="name" required></label>
+            <label>CPF<input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off" required></label>
+            <label>Data de nascimento<input class="bcg-input" name="data_nascimento" type="date" required><small id="clientAgePreview" class="bcg-muted">Idade calculada automaticamente</small></label>
+            <label>Telefone<input class="bcg-input" name="telefone" type="tel" autocomplete="tel" required></label>
+            <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" autocomplete="email"></label>
+            <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Obrigatório para cliente menor de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset>
+            <button class="bcg-button" type="submit">Cadastrar cliente</button><div id="clientCreateStatus" class="bcg-status" role="status" aria-live="polite"></div>
+          </form>
+        </article>
         <article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article>
       </div>
       <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div>
