@@ -96,6 +96,6 @@ export function formatProcedurePrice(procedureVersion = {}) {
     currency: 'BRL',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(value).replace(/\u00a0/g, ' ');
   return procedureVersion.price_mode === 'starting_at' ? `A partir de ${formatted}` : formatted;
 }
