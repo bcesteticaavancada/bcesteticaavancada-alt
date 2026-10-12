@@ -145,7 +145,13 @@ Deno.serve(async (req: Request) => {
 
     const signatures = [];
     for (const signature of signaturesResult.data || []) {
-      signatures.push({ ...signature, bytes: await downloadBytes(service, signature.storage_path) });
+      const signatureBytes = await downloadBytes(service, signature.storage_path);
+      if (!signatureBytes) throw new Error('Assinatura privada não encontrada.');
+      const signatureHash = await sha256Hex(signatureBytes);
+      if (signatureHash !== String(signature.sha256 || '').trim().toLowerCase()) {
+        throw new Error('Integridade da assinatura inválida.');
+      }
+      signatures.push({ ...signature, bytes: signatureBytes });
     }
 
     const photoBytes = await downloadBytes(service, photoResult.data?.storage_path);
