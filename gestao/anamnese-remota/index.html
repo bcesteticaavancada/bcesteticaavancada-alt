@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anamnese Geral • BC Estética</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <link rel="stylesheet" href="../assets/gestao.css">
+  <link rel="stylesheet" href="./anamnese-remota.css">
+</head>
+<body class="bcg-page bcg-remote-anamnese-page">
+  <main class="bcg-remote-shell">
+    <header class="bcg-remote-brand">
+      <span class="bcg-brand-mark" aria-hidden="true">BC</span>
+      <div><p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p><h1>Anamnese Geral</h1></div>
+    </header>
+
+    <section class="bcg-remote-card" aria-labelledby="remote-title">
+      <p class="bcg-eyebrow">PRÉ-PREENCHIMENTO SEGURO</p>
+      <h2 id="remote-title">Informações para sua avaliação profissional</h2>
+      <p>Este formulário organiza informações importantes antes do atendimento. O preenchimento remoto <strong>não finaliza</strong> o prontuário e não substitui a revisão presencial com a profissional da BC Estética.</p>
+      <p class="bcg-muted">O link é individual, temporário e dá acesso somente a esta Anamnese Geral em preenchimento.</p>
+      <p id="remoteStatus" class="bcg-status" role="status" aria-live="polite">Validando seu link…</p>
+      <div id="remoteApp" hidden></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./anamnese-remota.js"></script>
+</body>
+</html>
