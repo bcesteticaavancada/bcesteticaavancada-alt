@@ -14,6 +14,7 @@ const migrations=[
   'supabase/migrations/20261013172000_bc_gestao_phase6d_equipment.sql',
   'supabase/migrations/20261013173000_bc_gestao_phase6d_intercurrences.sql',
   'supabase/migrations/20261013174000_bc_gestao_phase6d_treatment_integration.sql',
+  'supabase/migrations/20261013175000_bc_gestao_phase6d_security_hardening.sql',
 ];
 
 test('browser 6D nunca expõe service role nem usa URL pública de Storage',async()=>{
@@ -33,7 +34,7 @@ test('tabelas clínicas 6D permanecem RPC-only para authenticated',async()=>{
 });
 
 test('Storage de foto é privado, escopado e recusa upload após freeze',async()=>{
-  const text=await read(migrations[0]);
+  const text=[await read(migrations[0]),await read(migrations[5])].join('\n');
   assert.match(text,/bucket_id\s*=\s*'bc-prontuario-private'/i);
   assert.match(text,/\(storage\.foldername\(name\)\)\[1\]\s*=\s*'fotos-clinicas'/i);
   assert.match(text,/t\.cliente_id::text\s*=\s*\(storage\.foldername\(name\)\)\[2\]/i);
