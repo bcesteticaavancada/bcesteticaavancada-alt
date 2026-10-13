@@ -18,6 +18,12 @@ test('página remota chama somente RPCs remotos e não abre APIs do prontuário'
   assert.doesNotMatch(js, /\bbc_clinical_|\bclinical_documents\b|\bclinical_alerts\b|clientes-photo|bc_pagamento|pagamento_movimentos|comissao|financeiro/i);
 });
 
+test('formulário remoto respeita opções específicas definidas pela pergunta', async () => {
+  const js = await readFile(new URL('anamnese-remota.js', root), 'utf8');
+  assert.match(js, /choiceOptionsForQuestion/);
+  assert.match(js, /choiceOptionsForQuestion\(question\)/);
+});
+
 test('HTML remoto identifica pré-preenchimento e revisão profissional posterior', async () => {
   const html = await readFile(new URL('index.html', root), 'utf8');
   assert.match(html, /Anamnese Geral/i);
