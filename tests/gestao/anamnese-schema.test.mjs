@@ -42,6 +42,22 @@ test('tipo de pele usa opções próprias e não o conjunto binário genérico',
   assert.equal(choiceOptionsForQuestion(pele).some((option) => ['sim', 'nao', 'nao_se_aplica'].includes(option.value)), false);
 });
 
+test('momento da exposição solar usa faixas de tempo e não respostas binárias', async () => {
+  const { ANAMNESE_TEMPLATE_V1, choiceOptionsForQuestion } = await loadSchema();
+  const exposicao = ANAMNESE_TEMPLATE_V1.sections
+    .flatMap((section) => section.questions)
+    .find((question) => question.key === 'exposicao_solar_faixa');
+  assert.ok(exposicao, 'pergunta exposicao_solar_faixa deve existir');
+  assert.deepEqual(choiceOptionsForQuestion(exposicao), [
+    { value: 'ultimos_7_dias', label: 'Últimos 7 dias' },
+    { value: '8_15_dias', label: '8–15 dias' },
+    { value: '16_30_dias', label: '16–30 dias' },
+    { value: 'mais_de_30_dias', label: 'Mais de 30 dias' },
+    { value: 'nao_se_aplica', label: 'Não se aplica' },
+  ]);
+  assert.equal(choiceOptionsForQuestion(exposicao).some((option) => ['sim', 'nao', 'nao_sei', 'prefiro_conversar'].includes(option.value)), false);
+});
+
 test('copy do template não decide indicação ou contraindicação', async () => {
   const { ANAMNESE_TEMPLATE_V1 } = await loadSchema();
   const text = JSON.stringify(ANAMNESE_TEMPLATE_V1).toLowerCase();
