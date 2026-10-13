@@ -31,12 +31,13 @@ test('A Clinica preserves official identity and location facts', () => {
   assert.match(html, /Menos achismo\. Mais ciência\./);
 });
 
-test('A Clinica keeps all four real environment images', () => {
+test('A Clinica keeps the reception and the four approved room images', () => {
   for (const image of [
     '03-recepcao-bc-estetica.jpg',
-    '04-sala-massagem.jpg',
-    '05-sala-procedimentos.jpg',
-    '06-sala-atendimento.jpg',
+    'sala-de-estetica-facial.webp',
+    'sala-de-estetica-avancada.webp',
+    'sala-de-massagem.webp',
+    'tres-salas.webp',
   ]) {
     assert.match(html, new RegExp(image.replace('.', '\\.')));
   }

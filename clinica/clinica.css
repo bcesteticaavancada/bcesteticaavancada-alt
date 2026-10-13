@@ -1,0 +1,67 @@
+/* A Clínica — salas com as artes completas, sem recortar logo ou texto. */
+.clinic-spaces{
+  width:min(1180px,92%);
+  margin:auto;
+}
+.clinic-spaces-intro{
+  max-width:800px;
+  margin-bottom:36px;
+}
+.clinic-room-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:24px;
+  align-items:start;
+}
+.clinic-room-card{
+  min-width:0;
+  margin:0;
+}
+.cinematic-frame.clinic-room-media{
+  aspect-ratio:1122/1402;
+  border-radius:8px;
+}
+.clinic-room-media img{
+  width:100%;
+  height:100%;
+  aspect-ratio:auto;
+  object-fit:contain;
+  border-radius:0;
+  box-shadow:none;
+}
+.clinic-room-media::after{
+  display:none;
+}
+.clinic-room-card figcaption{
+  padding:20px 0 0;
+}
+.clinic-room-card h3{
+  margin:0 0 10px;
+  font:500 clamp(24px,2.5vw,32px)/1.15 var(--serif);
+}
+.clinic-room-card p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.75;
+}
+.clinic-overview figcaption{
+  margin-top:14px;
+  color:var(--gold2);
+  font-size:13px;
+  text-align:center;
+}
+.clinic-spaces-link{
+  margin-top:32px;
+}
+@media(max-width:959px){
+  .clinic-room-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:639px){
+  .clinic-room-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:36px;
+  }
+}
