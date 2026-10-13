@@ -55,7 +55,13 @@ function renderDocuments(documents = []) {
     <article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}">
       <div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>Anamnese Geral • Versão ${escapeHtml(doc.source_version)}</span></div>
       <span class="bcg-chip">${escapeHtml(doc.status === 'emitido' ? 'PDF emitido' : doc.status || '')}</span>
-      ${doc.status === 'emitido' && doc.storage_path ? `<button type="button" class="bcg-small-button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>` : ''}
+      ${doc.status === 'emitido' && doc.storage_path
+        ? `<button type="button" class="bcg-small-button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>`
+        : doc.status === 'erro_pdf'
+          ? `<button type="button" class="bcg-small-button" data-generate-clinical-document="${escapeHtml(doc.id)}" data-document-type="${escapeHtml(doc.document_type || 'anamnese_geral')}">Tentar gerar PDF</button>`
+          : doc.status === 'pronto_para_pdf'
+            ? `<button type="button" class="bcg-small-button" data-generate-clinical-document="${escapeHtml(doc.id)}" data-document-type="${escapeHtml(doc.document_type || 'anamnese_geral')}">Gerar PDF</button>`
+            : ''}
     </article>`).join('')}</div>`;
 }
 
