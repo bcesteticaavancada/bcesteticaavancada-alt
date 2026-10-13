@@ -73,7 +73,9 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-  const link = event.target.closest?.('[data-area-target]');
+  const link = typeof event.target?.closest === 'function'
+    ? event.target.closest('[data-nav][data-area-target]')
+    : null;
   if (!link) return;
   event.preventDefault();
   selectArea(link.dataset.areaTarget);
