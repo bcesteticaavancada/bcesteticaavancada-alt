@@ -22,6 +22,26 @@ test('render da anamnese mostra status, versão e CTA sem decisão clínica auto
   assert.doesNotMatch(html.toLowerCase(), /procedimento liberado|procedimento contraindicado|diagnóstico automático/);
 });
 
+test('documento da anamnese em erro_pdf oferece retry sem refazer a ficha', async () => {
+  const { renderAnamnesePanel } = await load();
+  const html = renderAnamnesePanel({
+    client: { id: 'c1', nome: 'Cliente Teste' },
+    state: { id: 'a1', version: 1, status: 'finalizada' },
+    versions: [{ id: 'a1', version: 1, status: 'finalizada' }],
+    alerts: [],
+    documents: [{
+      id: 'd1',
+      document_type: 'anamnese_geral',
+      document_code: 'BC-ANM-TESTE',
+      source_version: 1,
+      status: 'erro_pdf',
+      storage_path: null,
+    }],
+  });
+  assert.match(html, /data-generate-clinical-document="d1"/);
+  assert.match(html, /Tentar gerar PDF/i);
+});
+
 test('construtor de link remoto usa fragmento e nunca query string para token', async () => {
   const { buildRemoteAnamneseUrl } = await load();
   const url = buildRemoteAnamneseUrl({ origin: 'https://bc.example', basePath: '/gestao/anamnese-remota/', token: 'abc 123' });
