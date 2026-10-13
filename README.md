@@ -135,7 +135,7 @@ A pré-anamnese e a área administrativa devem reutilizar a identidade BC e não
 - `script.js` — navegação e elementos compartilhados
 - `procedimentos/` — Vídeos (endereço mantido)
 - `resultados/` — resultados
-- `protocolos/` — catálogo de 30 procedimentos e protocolos, sem preços; artes ilustrativas dos itens 1 a 8 em WebP responsivo
+- `protocolos/` — catálogo de 30 procedimentos e protocolos, sem preços; artes ilustrativas dos itens 1 a 14 em WebP responsivo
 - `ambiente/` — ambiente da clínica
 - `assets/portfolio/` — portfólio visual
 
