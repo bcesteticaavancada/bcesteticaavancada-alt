@@ -52,17 +52,18 @@ test('protocolo composto mostra componentes reais e escala documental visualment
   assert.match(html,/data-treatment-component/);
 });
 
-test('wizard possui etapas saúde, alertas, consentimento, ficha e finalização', () => {
-  const treatment={id:'t1',status:'rascunho',procedure_version:{nome:'Limpeza de pele',specific_schema:{fields:[]}},gate_reasons:['anamnese_invalida','consentimento_pendente']};
+test('wizard possui etapas 6C e cards 6D dentro da mesma sessão', () => {
+  const treatment={id:'t1',cliente_id:'c1',status:'rascunho',procedure_version:{nome:'Limpeza de pele',specific_schema:{fields:[]},requires_photo:true,requires_product_lot:false,requires_equipment:false},gate_reasons:['anamnese_invalida','consentimento_pendente'],finalization_gate_reasons:['fotos_pendentes'],phase6d_summary:{}};
   const html=renderTreatmentWizard({step:'clinical',treatment,consent:{document_id:'d1',title:'Termo de Responsabilidade',body:'Texto institucional',procedure_name:'Limpeza de pele',status:'rascunho'}});
-  for(const text of ['Saúde hoje','Alertas clínicos','Consentimento','Ficha do atendimento','Finalizar']) assert.match(html,new RegExp(text,'i'));
+  for(const text of ['Saúde hoje','Alertas clínicos','Consentimento','Ficha do atendimento','Fotos clínicas','Produtos e lotes','Equipamentos','Intercorrências','Finalizar']) assert.match(html,new RegExp(text,'i'));
+  assert.match(html,/data-treatment-6d-slot/);
   assert.match(html,/Texto institucional/);
 });
 
-test('checklist traduz gates sem transformar mudança de saúde em contraindicação automática', () => {
+test('checklist de início traduz apenas gates 6C sem exigir dados do fim da sessão', () => {
   const html=renderTreatmentGateChecklist(['anamnese_invalida','saude_nao_confirmada','alertas_nao_revisados','profissional_nao_autorizada','consentimento_pendente','modulo_especifico_incompleto']);
   for(const text of ['Anamnese','Saúde','Alertas','Profissional','Consentimento','Ficha específica']) assert.match(html,new RegExp(text,'i'));
-  assert.doesNotMatch(html,/contraindicado|liberado automaticamente/i);
+  assert.doesNotMatch(html,/Fotos clínicas|Produtos e lotes|Equipamentos|intercorrencia_aberta|contraindicado|liberado automaticamente/i);
 });
 
 test('controller compartilhado existe para hidratar a pasta',()=>assert.equal(typeof initTreatmentController,'function'));
