@@ -1,5 +1,6 @@
 import { listAdminAppointments,listActiveProcedures,listStaffDirectory,createAppointment,updateAppointment,setAppointmentStatus } from './agenda-api.js';
 import { listClients } from './clientes-api.js';
+import { initProcedurePanel } from './procedure-panel.js';
 import { CLINIC_TIME_ZONE,clinicDayRange,clinicLocalDateTimeToIso,formatClinicDateTime,statusLabel } from './agenda-format.js';
 
 export function escapeHtml(value){return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
@@ -28,5 +29,6 @@ export async function initAdminAgenda({client,profile,root=document}){
   appointmentForm.addEventListener('submit',async(event)=>{event.preventDefault();const start=el('appointmentStart').value;const end=el('appointmentEnd').value;try{await withSubmitState(appointmentForm,el('appointmentFormStatus'),()=>createAppointment({client,clienteId:clientSelect.value,colaboradoraUserId:collaboratorSelect.value,procedimentoId:procedureSelect.value,inicioIso:clinicLocalDateTimeToIso(start),fimIso:end?clinicLocalDateTimeToIso(end):null,observacao:el('appointmentNote').value}));appointmentForm.reset();await refreshAgenda();}catch{}});
   editForm.addEventListener('submit',async(event)=>{event.preventDefault();try{await withSubmitState(editForm,el('adminAppointmentEditStatus'),()=>updateAppointment({client,appointmentId:editForm.dataset.appointmentId,procedimentoId:editProcedure.value,inicioIso:clinicLocalDateTimeToIso(editStart.value),fimIso:editEnd.value?clinicLocalDateTimeToIso(editEnd.value):null,observacao:editNote.value}));editForm.hidden=true;await refreshAgenda();}catch{}});el('adminAppointmentEditCancel')?.addEventListener('click',()=>{editForm.hidden=true;});
   agendaList.addEventListener('click',async(event)=>{const editButton=event.target.closest?.('[data-admin-edit]');if(editButton){try{openEdit(editButton.dataset.adminEdit);}catch(error){setMessage(agendaStatus,error?.message||'Não foi possível editar.','error');}return;}const button=event.target.closest?.('[data-admin-status]');if(!button)return;const id=button.closest('[data-appointment-id]')?.dataset?.appointmentId;if(!id)return;button.disabled=true;try{await setAppointmentStatus({client,appointmentId:id,status:button.dataset.adminStatus});await refreshAgenda();}catch(error){setMessage(agendaStatus,error?.message||'Não foi possível atualizar o status.','error');button.disabled=false;}});
-  return {refreshAgenda,refreshClients,refreshProcedures,refreshCollaborators,getStaffMap:staffMap,showMyAgenda:()=>{professionalFilter.value=profile.user_id;return renderCurrentAgenda();}};
+  const procedurePanel=await initProcedurePanel({client,profile,root});
+  return {refreshAgenda,refreshClients,refreshProcedures,refreshCollaborators,getStaffMap:staffMap,procedurePanel,showMyAgenda:()=>{professionalFilter.value=profile.user_id;return renderCurrentAgenda();}};
 }
