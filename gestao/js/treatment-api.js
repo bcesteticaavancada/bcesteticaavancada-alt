@@ -25,7 +25,12 @@ export async function listClientTreatments({client,clienteId}){ return call(clie
 export async function updateTreatmentDraft({client,treatmentId,patch={}}){ return call(client,'bc_treatment_update_draft',{p_treatment_id:required(treatmentId,'Atendimento'),p_patch:sanitizePatch(patch)}); }
 export async function confirmTreatmentHealthChange({client,treatmentId,changed,details=null}){ return call(client,'bc_treatment_confirm_health',{p_treatment_id:required(treatmentId,'Atendimento'),p_changed:Boolean(changed),p_details:cleanOptional(details)}); }
 export async function confirmTreatmentAlertReview({client,treatmentId}){ return call(client,'bc_treatment_confirm_alerts',{p_treatment_id:required(treatmentId,'Atendimento')}); }
-export async function prepareTreatmentConsent({client,treatmentId}){ return call(client,'bc_treatment_prepare_consent',{p_treatment_id:required(treatmentId,'Atendimento')}); }
+export async function prepareTreatmentConsent({client,treatmentId}){
+  const id=required(treatmentId,'Atendimento');
+  const treatment=await getTreatment({client,treatmentId:id});
+  if(treatment?.consent?.document_id) return treatment.consent;
+  return call(client,'bc_treatment_prepare_consent',{p_treatment_id:id});
+}
 export async function markTreatmentReady({client,treatmentId}){ return call(client,'bc_treatment_mark_ready',{p_treatment_id:required(treatmentId,'Atendimento')}); }
 export async function startTreatment({client,treatmentId}){ return call(client,'bc_treatment_start',{p_treatment_id:required(treatmentId,'Atendimento')}); }
 export async function finalizeTreatment({client,treatmentId}){ return call(client,'bc_treatment_finalize',{p_treatment_id:required(treatmentId,'Atendimento')}); }
