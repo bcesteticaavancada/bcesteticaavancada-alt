@@ -28,7 +28,7 @@ const LEGACY_OPTION_LABELS = {
 };
 
 export function choiceOptionsForQuestion(question = {}) {
-  return Array.isArray(question.options) && question.options.length ? question.options : YES_NO_OPTIONS;
+  return Array.isArray(question.options) && question.options.length ? question.options : [];
 }
 
 export function choiceLabelForQuestion(question = {}, value = '') {
