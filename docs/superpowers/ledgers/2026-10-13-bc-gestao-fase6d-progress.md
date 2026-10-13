@@ -12,7 +12,7 @@ Pre-flight Task 2→5: product/lot usage tables are consumed by central gates/sn
 Pre-flight Task 3→5: equipment usage/schema are consumed by central gates/snapshot; interface names match plan.
 Pre-flight Task 4→5: intercurrence state/confirmation are consumed by central gates/snapshot; interface names match plan.
 Pre-flight Tasks 1–4→6: four domain APIs are consumed by the mobile 6D controller; interface names match plan.
-Pre-flight Task 5→6: gate reasons and `phase6d_summary` are consumed by UI; interface names match plan.
+Pre-flight Task 5→6: finalization gate reasons and `phase6d_summary` are consumed by UI; interface names refined below.
 Pre-flight Task 5→7: frozen 6D snapshot arrays are consumed by PDF renderer; stable keys are `photos`, `product_usages`, `equipment_usages`, `intercurrences`.
 Pre-flight Tasks 1–7→8: security and rollout tests consume the complete implementation; no conflict found.
 
@@ -28,3 +28,10 @@ Task 3 RED: equipment contract/API tests failed before implementation. First GRE
 Task 3 RED refinement: corrected the static assertion and added a new test requiring distinct schema validation; the new test failed against the current implementation as intended.
 Task 3 GREEN: added `private.bc_validate_equipment_schema(jsonb)` and made runtime value validation call it; equipment catalog save now validates schema structure without requiring session values, while session usage still enforces required fields/types/options/min/max. Equipment snapshots remain server-made.
 Task 3: complete through commit `99825538`; Site CI #504 run `38437617264` has frontend/site/BC Gestão/anamnese PDF/clinical PDF steps all PASS.
+
+Task 4 RED: contract test failed before the intercurrence migration existed; API test failed before the JS module existed.
+Task 4 GREEN: structured event + append-only evolution tables, immutable evolution trigger, own-session draft editing, post-session evolution by active clinical staff, atomic status synchronization, ordered open-ID confirmation snapshot and audit events are implemented. Frontend wrappers validate enums and sanitize draft patches.
+Task 4: complete through commit `8bcb1e98`; Site CI #509 run `38437937168` → success across frontend/site/BC Gestão and both PDF suites.
+
+Task 5 pre-flight ruling: the original 6C `bc_treatment_gate()` is a PRE-START gate used by both `mark_ready` and `start`. Adding `depois`, product-use, equipment-use and end-of-session intercurrence requirements there would make required procedures impossible to start. Therefore 6D finalization requirements will live in a separate `private.bc_treatment_finalization_gate(uuid)`, returned by `bc_treatment_get` as `finalization_gate_reasons` and enforced by `bc_treatment_finalize_impl`. The existing `gate_reasons` and all 6C start behavior remain unchanged. This is a correctness refinement of the plan consistent with the approved requirement that 6D requirements block FINALIZATION, not treatment start.
+Task 5 pre-flight security finding: 6C finalization creates `pending_document_id` while treatment remains `em_atendimento`; Tasks 1–3 mutation RPCs currently gate only on status. Task 5 must add DB-level guards preventing photo/product/equipment mutation once a pending snapshot/document exists.
