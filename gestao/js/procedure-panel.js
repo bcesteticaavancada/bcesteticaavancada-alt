@@ -96,7 +96,22 @@ function ensureArea(root, profile) {
     const footer = main.querySelector?.('.bcg-footer');
     main.insertBefore(area, footer || null);
   }
-  area.innerHTML = renderProcedureLibraryShell(profile);
+
+  let host = area.querySelector?.('[data-procedure-library-host]');
+  if (!host) {
+    host = root.createElement('div');
+    host.dataset.procedureLibraryHost = '';
+    area.insertBefore(host, area.firstChild || null);
+  }
+  host.innerHTML = renderProcedureLibraryShell(profile);
+
+  const legacyForm = area.querySelector?.('#procedureForm');
+  legacyForm?.closest?.('.bcg-subgrid')?.remove();
+  Array.from(area.children || []).forEach((node) => {
+    const text = String(node.textContent || '').trim();
+    if ((node.matches?.('.bcg-eyebrow') && text === 'PROCEDIMENTOS')
+      || (node.matches?.('h2') && text === 'Cadastro de procedimentos')) node.remove();
+  });
 
   const nav = root.querySelector?.('.bcg-menu-nav');
   if (nav && !nav.querySelector?.('[data-area-target="procedimentos"]')) {
