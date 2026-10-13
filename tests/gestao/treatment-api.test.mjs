@@ -47,13 +47,30 @@ test('confirmações de saúde e alertas derivam autoria no backend', async()=>{
   assert.deepEqual(m.calls[1],['bc_treatment_confirm_alerts',{p_treatment_id:'t1'}]);
 });
 
-test('consentimento e transições enviam somente treatment id', async()=>{
-  const m=mockClient();
-  await prepareTreatmentConsent({client:m.client,treatmentId:'t1'});
-  await markTreatmentReady({client:m.client,treatmentId:'t1'});
-  await startTreatment({client:m.client,treatmentId:'t1'});
-  assert.deepEqual(m.calls.map(x=>x[0]),['bc_treatment_prepare_consent','bc_treatment_mark_ready','bc_treatment_start']);
-  for(const call of m.calls) assert.deepEqual(call[1],{p_treatment_id:'t1'});
+test('consentimento existente é lido sem tentar preparar novamente', async()=>{
+  const calls=[];
+  const client={async rpc(name,payload={}){
+    calls.push([name,payload]);
+    if(name==='bc_treatment_get') return {data:{id:'t1',status:'em_atendimento',consent:{document_id:'d1',status:'finalizado'}},error:null};
+    return {data:null,error:new Error('prepare não deveria ser chamado')};
+  }};
+  const result=await prepareTreatmentConsent({client,treatmentId:'t1'});
+  assert.equal(result.document_id,'d1');
+  assert.deepEqual(calls,[['bc_treatment_get',{p_treatment_id:'t1'}]]);
+});
+
+test('consentimento ausente é preparado e transições enviam somente treatment id', async()=>{
+  const calls=[];
+  const client={async rpc(name,payload={}){
+    calls.push([name,payload]);
+    if(name==='bc_treatment_get') return {data:{id:'t1',status:'rascunho',consent:null},error:null};
+    return {data:'ok',error:null};
+  }};
+  await prepareTreatmentConsent({client,treatmentId:'t1'});
+  await markTreatmentReady({client,treatmentId:'t1'});
+  await startTreatment({client,treatmentId:'t1'});
+  assert.deepEqual(calls.map(x=>x[0]),['bc_treatment_get','bc_treatment_prepare_consent','bc_treatment_mark_ready','bc_treatment_start']);
+  for(const call of calls) assert.deepEqual(call[1],{p_treatment_id:'t1'});
 });
 
 test('finalização é em duas etapas para assinar o snapshot final', async()=>{
