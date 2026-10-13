@@ -26,7 +26,7 @@ test('gate de produto/lote exige snapshot completo e equipamento exige uso valid
   assert.match(text,/lot_code_snapshot\s+is\s+not\s+null/i);
   assert.match(text,/expires_on_snapshot\s+is\s+not\s+null/i);
   assert.match(text,/quantity\s*>\s*0/i);
-  assert.match(text,/nullif\s*\(\s*trim\s*\(\s*unit\s*\)/i);
+  assert.match(text,/nullif\s*\(\s*trim\s*\(\s*(?:u\.)?unit\s*\)/i);
   assert.match(text,/requires_equipment/i);
   assert.match(text,/clinical_treatment_equipment_usages/i);
 });
@@ -34,7 +34,8 @@ test('gate de produto/lote exige snapshot completo e equipamento exige uso valid
 test('confirmação de intercorrências só vale para o conjunto atual ordenado',async()=>{
   const text=await sql();
   assert.match(text,/array_agg\s*\(\s*i\.id\s+order\s+by\s+i\.id\s*\)/i);
-  assert.match(text,/open_intercurrence_ids\s*=\s*v_open_ids|coalesce\s*\(\s*c\.open_intercurrence_ids[^;]*v_open_ids/is);
+  assert.match(text,/select\s+c\.open_intercurrence_ids\s+into\s+v_confirmed_ids/is);
+  assert.match(text,/v_confirmed_ids\s+is\s+null\s+or\s+not\s*\(\s*v_confirmed_ids\s*=\s*v_open_ids\s*\)/i);
 });
 
 test('finalização rejeita pendências 6D e congela arrays 6D no snapshot',async()=>{
@@ -51,7 +52,7 @@ test('finalização rejeita pendências 6D e congela arrays 6D no snapshot',asyn
 test('foto/produto/equipamento ficam congelados assim que existe documento pendente',async()=>{
   const text=await sql();
   assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_phase6d_frozen_mutation_guard/i);
-  assert.match(text,/pending_document_id\s+is\s+not\s+null/i);
+  assert.match(text,/v_pending\s+is\s+not\s+null|pending_document_id\s+is\s+not\s+null/i);
   for(const table of ['clinical_treatment_photos','clinical_treatment_product_usages','clinical_treatment_equipment_usages']){
     assert.match(text,new RegExp(`before\\s+insert\\s+or\\s+update\\s+or\\s+delete\\s+on\\s+public\\.${table}`,'i'));
   }
