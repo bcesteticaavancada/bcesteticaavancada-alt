@@ -24,12 +24,20 @@ test('validador backend limita tipos e rejeita chaves/valores incompatíveis',as
   const text=await sql();
   assert.match(text,/private\.bc_validate_equipment_parameters\s*\(\s*jsonb\s*,\s*jsonb\s*\)/i);
   for(const type of ['number','text','select','boolean']) assert.match(text,new RegExp(`'${type}'`,'i'));
-  assert.match(text,/jsonb_object_keys\(p_values\)/i);
+  assert.match(text,/jsonb_object_keys\s*\(\s*coalesce\s*\(\s*p_values/i);
   assert.match(text,/jsonb_typeof/i);
   assert.match(text,/required/i);
   assert.match(text,/options/i);
   assert.match(text,/min/i);
   assert.match(text,/max/i);
+});
+
+test('schema do equipamento é validado sem exigir valores de uma sessão',async()=>{
+  const text=await sql();
+  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_validate_equipment_schema\s*\(\s*p_schema\s+jsonb\s*\)/i);
+  assert.match(text,/perform\s+private\.bc_validate_equipment_schema\s*\(\s*v_schema\s*\)/i);
+  assert.match(text,/perform\s+private\.bc_validate_equipment_schema\s*\(\s*p_schema\s*\)/i);
+  assert.doesNotMatch(text,/bc_validate_equipment_parameters\s*\(\s*v_schema\s*,\s*'\{\}'::jsonb\s*\)/i);
 });
 
 test('catálogo e usos são RLS/RPC-only e mutações exigem permissão adequada',async()=>{
