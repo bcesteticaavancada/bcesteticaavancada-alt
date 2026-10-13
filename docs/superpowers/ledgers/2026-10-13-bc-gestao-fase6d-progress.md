@@ -19,3 +19,12 @@ Pre-flight Tasks 1–7→8: security and rollout tests consume the complete impl
 Task 1 RED: `phase6d-photos-contract.test.mjs` failed because the photo migration did not exist; Site CI #490 failed specifically in BC Gestão tests while prior suites remained green.
 Task 1 GREEN: migration + `treatment-photos-api.js` satisfy private Storage pathing, MIME/8 MiB limits, logical voiding, RPC-only metadata mutation, signed URLs and no public URL/delete path.
 Task 1: complete (commits `14e0ab1..980f6fa`; targeted tests 7/7 PASS; Site CI #493 run `38436254381` → success).
+
+Task 2 RED: product/lot contract and frontend API tests failed before their migration/module existed.
+Task 2 GREEN: server-made snapshots, product↔lot integrity, expiry enforcement in `America/Sao_Paulo`, positive quantity/unit, manager-only catalogs, own-editable-session usage mutation and RPC-only APIs are implemented.
+Task 2: complete (commits `a4a35d7..fd022f3`; Site CI #498 run `38436823414` → success including both PDF suites).
+
+Task 3 RED: equipment contract/API tests failed before implementation. First GREEN attempt surfaced one over-specific static regex; logs showed behavior used safer `jsonb_object_keys(coalesce(p_values,...))`. During review a real design bug was also found: catalog save reused runtime-required-value validation, which would reject schemas containing required fields.
+Task 3 RED refinement: corrected the static assertion and added a new test requiring distinct schema validation; the new test failed against the current implementation as intended.
+Task 3 GREEN: added `private.bc_validate_equipment_schema(jsonb)` and made runtime value validation call it; equipment catalog save now validates schema structure without requiring session values, while session usage still enforces required fields/types/options/min/max. Equipment snapshots remain server-made.
+Task 3: complete through commit `99825538`; Site CI #504 run `38437617264` has frontend/site/BC Gestão/anamnese PDF/clinical PDF steps all PASS.
