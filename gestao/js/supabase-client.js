@@ -18,6 +18,9 @@ export function createBcGestaoClient(createClient) {
     import('./clinical-folder-runtime.js')
       .then(({ installClinicalFolderRuntime }) => installClinicalFolderRuntime({ client, root: document }))
       .catch(() => {});
+    import('./clinical-document-generation-runtime.js')
+      .then(({ installClinicalDocumentGenerationRuntime }) => installClinicalDocumentGenerationRuntime({ client, root: document }))
+      .catch(() => {});
     import('./agenda-treatment-bridge.js')
       .then(({ installAgendaTreatmentBridge }) => installAgendaTreatmentBridge({ client, root: document }))
       .catch(() => {});
