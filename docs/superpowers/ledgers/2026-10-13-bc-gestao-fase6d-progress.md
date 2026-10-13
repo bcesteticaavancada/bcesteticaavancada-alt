@@ -15,3 +15,7 @@ Pre-flight Tasks 1–4→6: four domain APIs are consumed by the mobile 6D contr
 Pre-flight Task 5→6: gate reasons and `phase6d_summary` are consumed by UI; interface names match plan.
 Pre-flight Task 5→7: frozen 6D snapshot arrays are consumed by PDF renderer; stable keys are `photos`, `product_usages`, `equipment_usages`, `intercurrences`.
 Pre-flight Tasks 1–7→8: security and rollout tests consume the complete implementation; no conflict found.
+
+Task 1 RED: `phase6d-photos-contract.test.mjs` failed because the photo migration did not exist; Site CI #490 failed specifically in BC Gestão tests while prior suites remained green.
+Task 1 GREEN: migration + `treatment-photos-api.js` satisfy private Storage pathing, MIME/8 MiB limits, logical voiding, RPC-only metadata mutation, signed URLs and no public URL/delete path.
+Task 1: complete (commits `14e0ab1..980f6fa`; targeted tests 7/7 PASS; Site CI #493 run `38436254381` → success).
