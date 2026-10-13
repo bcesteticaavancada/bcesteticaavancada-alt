@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { degrees, PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 type AnyRecord = Record<string, unknown>;
 
@@ -20,6 +20,16 @@ export type AnamnesePdfSnapshot = {
   signatures: SignatureSnapshot[];
   photoBytes?: Uint8Array | null;
   photoMimeType?: string | null;
+};
+
+type PhotoDrawPlacement = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  visibleWidth: number;
+  visibleHeight: number;
 };
 
 const LABELS: Record<string, string> = {
@@ -158,6 +168,117 @@ function wrap(text: string, maxWidth: number, font: any, size: number): string[]
   return lines;
 }
 
+export function readJpegExifOrientation(bytes: Uint8Array | null | undefined): number {
+  if (!bytes || bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return 1;
+
+  let offset = 2;
+  while (offset + 4 <= bytes.length) {
+    if (bytes[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+
+    const marker = bytes[offset + 1];
+    offset += 2;
+    if (marker === 0xd8 || marker === 0x01) continue;
+    if (marker === 0xd9 || marker === 0xda) break;
+    if (offset + 2 > bytes.length) break;
+
+    const segmentLength = (bytes[offset] << 8) | bytes[offset + 1];
+    if (segmentLength < 2 || offset + segmentLength > bytes.length) break;
+
+    if (marker === 0xe1 && segmentLength >= 10) {
+      const exifStart = offset + 2;
+      const segmentEnd = offset + segmentLength;
+      const isExif =
+        bytes[exifStart] === 0x45 && bytes[exifStart + 1] === 0x78 &&
+        bytes[exifStart + 2] === 0x69 && bytes[exifStart + 3] === 0x66 &&
+        bytes[exifStart + 4] === 0x00 && bytes[exifStart + 5] === 0x00;
+
+      if (isExif) {
+        const tiffStart = exifStart + 6;
+        if (tiffStart + 8 <= segmentEnd) {
+          const littleEndian = bytes[tiffStart] === 0x49 && bytes[tiffStart + 1] === 0x49;
+          const bigEndian = bytes[tiffStart] === 0x4d && bytes[tiffStart + 1] === 0x4d;
+          if (littleEndian || bigEndian) {
+            const read16 = (index: number) => littleEndian
+              ? bytes[index] | (bytes[index + 1] << 8)
+              : (bytes[index] << 8) | bytes[index + 1];
+            const read32 = (index: number) => littleEndian
+              ? (bytes[index] | (bytes[index + 1] << 8) | (bytes[index + 2] << 16) | (bytes[index + 3] << 24)) >>> 0
+              : (((bytes[index] << 24) >>> 0) | (bytes[index + 1] << 16) | (bytes[index + 2] << 8) | bytes[index + 3]) >>> 0;
+
+            if (read16(tiffStart + 2) === 42) {
+              const ifdStart = tiffStart + read32(tiffStart + 4);
+              if (ifdStart + 2 <= segmentEnd) {
+                const entryCount = read16(ifdStart);
+                for (let index = 0; index < entryCount; index += 1) {
+                  const entry = ifdStart + 2 + index * 12;
+                  if (entry + 12 > segmentEnd) break;
+                  if (read16(entry) !== 0x0112) continue;
+                  const type = read16(entry + 2);
+                  const count = read32(entry + 4);
+                  if (type === 3 && count >= 1) {
+                    const orientation = read16(entry + 8);
+                    if (orientation >= 1 && orientation <= 8) return orientation;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    offset += segmentLength;
+  }
+
+  return 1;
+}
+
+export function photoDrawPlacement({
+  imageWidth,
+  imageHeight,
+  orientation,
+  boxX,
+  boxY,
+  boxWidth,
+  boxHeight,
+}: {
+  imageWidth: number;
+  imageHeight: number;
+  orientation: number;
+  boxX: number;
+  boxY: number;
+  boxWidth: number;
+  boxHeight: number;
+}): PhotoDrawPlacement {
+  const safeImageWidth = Math.max(1, imageWidth);
+  const safeImageHeight = Math.max(1, imageHeight);
+  const rotation = orientation === 3 ? 180 : orientation === 5 || orientation === 6 ? -90 : orientation === 7 || orientation === 8 ? 90 : 0;
+  const quarterTurn = Math.abs(rotation) === 90;
+  const naturalVisibleWidth = quarterTurn ? safeImageHeight : safeImageWidth;
+  const naturalVisibleHeight = quarterTurn ? safeImageWidth : safeImageHeight;
+  const scale = Math.min(boxWidth / naturalVisibleWidth, boxHeight / naturalVisibleHeight);
+  const width = safeImageWidth * scale;
+  const height = safeImageHeight * scale;
+  const visibleWidth = quarterTurn ? height : width;
+  const visibleHeight = quarterTurn ? width : height;
+  const left = boxX + (boxWidth - visibleWidth) / 2;
+  const bottom = boxY + (boxHeight - visibleHeight) / 2;
+
+  if (rotation === -90) {
+    return { x: left, y: bottom + visibleHeight, width, height, rotation, visibleWidth, visibleHeight };
+  }
+  if (rotation === 90) {
+    return { x: left + visibleWidth, y: bottom, width, height, rotation, visibleWidth, visibleHeight };
+  }
+  if (rotation === 180) {
+    return { x: left + visibleWidth, y: bottom + visibleHeight, width, height, rotation, visibleWidth, visibleHeight };
+  }
+  return { x: left, y: bottom, width, height, rotation, visibleWidth, visibleHeight };
+}
+
 export async function buildAnamnesePdf(snapshot: AnamnesePdfSnapshot): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
@@ -234,10 +355,29 @@ export async function buildAnamnesePdf(snapshot: AnamnesePdfSnapshot): Promise<U
       if (snapshot.photoMimeType === 'image/png') image = await pdf.embedPng(snapshot.photoBytes);
       else if (snapshot.photoMimeType === 'image/jpeg' || snapshot.photoMimeType === 'image/jpg') image = await pdf.embedJpg(snapshot.photoBytes);
       if (image) {
-        ensure(150);
-        const dimensions = image.scaleToFit(110, 130);
-        page.drawImage(image, { x: pageSize[0] - margin - dimensions.width, y: y - dimensions.height, width: dimensions.width, height: dimensions.height });
-        y -= dimensions.height + 8;
+        const boxWidth = 110;
+        const boxHeight = 130;
+        ensure(boxHeight + 20);
+        const orientation = snapshot.photoMimeType === 'image/jpeg' || snapshot.photoMimeType === 'image/jpg'
+          ? readJpegExifOrientation(snapshot.photoBytes)
+          : 1;
+        const placement = photoDrawPlacement({
+          imageWidth: image.width,
+          imageHeight: image.height,
+          orientation,
+          boxX: pageSize[0] - margin - boxWidth,
+          boxY: y - boxHeight,
+          boxWidth,
+          boxHeight,
+        });
+        page.drawImage(image, {
+          x: placement.x,
+          y: placement.y,
+          width: placement.width,
+          height: placement.height,
+          rotate: degrees(placement.rotation),
+        });
+        y -= boxHeight + 8;
       }
     } catch {
       line('Foto de identificação disponível no prontuário, mas não incorporada a este PDF.', 8.5, regular, muted);
