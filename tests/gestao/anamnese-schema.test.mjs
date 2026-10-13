@@ -24,6 +24,24 @@ test('perguntas condicionais só aparecem quando a resposta gatilho exige detalh
   assert.equal(withDetails.some((q) => q.key === 'alergias_detalhes'), true);
 });
 
+test('tipo de pele usa opções próprias e não o conjunto binário genérico', async () => {
+  const { ANAMNESE_TEMPLATE_V1, choiceOptionsForQuestion } = await loadSchema();
+  assert.equal(typeof choiceOptionsForQuestion, 'function');
+  const pele = ANAMNESE_TEMPLATE_V1.sections
+    .flatMap((section) => section.questions)
+    .find((question) => question.key === 'pele_tipo');
+  assert.ok(pele, 'pergunta pele_tipo deve existir');
+  assert.deepEqual(choiceOptionsForQuestion(pele), [
+    { value: 'seca', label: 'Seca' },
+    { value: 'oleosa', label: 'Oleosa' },
+    { value: 'mista', label: 'Mista' },
+    { value: 'sensivel', label: 'Sensível' },
+    { value: 'normal', label: 'Normal' },
+    { value: 'nao_sei', label: 'Não sei' },
+  ]);
+  assert.equal(choiceOptionsForQuestion(pele).some((option) => ['sim', 'nao', 'nao_se_aplica'].includes(option.value)), false);
+});
+
 test('copy do template não decide indicação ou contraindicação', async () => {
   const { ANAMNESE_TEMPLATE_V1 } = await loadSchema();
   const text = JSON.stringify(ANAMNESE_TEMPLATE_V1).toLowerCase();
