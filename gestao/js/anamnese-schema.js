@@ -48,7 +48,17 @@ export const ANAMNESE_TEMPLATE_V1 = {
       q('pele_condicoes_detalhes', 'Detalhe as condições atuais da pele.', { type: 'textarea', showWhen: { key: 'pele_condicoes_atuais', truthy: true } }),
       q('hiperpigmentacao_pos_inflamatoria', 'Já apresentou manchas após inflamações ou procedimentos?', { type: 'choice' }),
       q('exposicao_solar_recente', 'Teve exposição solar intensa recentemente?', { type: 'choice', required: true }),
-      q('exposicao_solar_faixa', 'Quando ocorreu a exposição mais recente?', { type: 'choice', showWhen: conditional('exposicao_solar_recente') }),
+      q('exposicao_solar_faixa', 'Quando ocorreu a exposição mais recente?', {
+        type: 'choice',
+        showWhen: conditional('exposicao_solar_recente'),
+        options: [
+          { value: 'ultimos_7_dias', label: 'Últimos 7 dias' },
+          { value: '8_15_dias', label: '8–15 dias' },
+          { value: '16_30_dias', label: '16–30 dias' },
+          { value: 'mais_de_30_dias', label: 'Mais de 30 dias' },
+          { value: 'nao_se_aplica', label: 'Não se aplica' },
+        ],
+      }),
       q('usa_fotoprotecao', 'Usa protetor solar/fotoproteção?', { type: 'choice', required: true }),
     ] },
     { id: 'saude', title: 'Saúde e acompanhamento', questions: [
