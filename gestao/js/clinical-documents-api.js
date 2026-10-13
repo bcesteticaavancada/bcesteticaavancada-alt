@@ -64,6 +64,12 @@ export async function generateAnamnesePdf({ client, documentId }) {
   return unwrap(await client.functions.invoke('generate-anamnese-pdf', { body: { documentId } }));
 }
 
+export async function generateClinicalPdf({ client, documentId }) {
+  return unwrap(await client.functions.invoke('generate-clinical-pdf', {
+    body: { documentId: cleanRequired(documentId, 'Documento') },
+  }));
+}
+
 export async function getClinicalDocumentUrl({ client, storagePath, expiresIn = 300 }) {
   const data = unwrap(await client.storage.from(BUCKET).createSignedUrl(storagePath, expiresIn));
   return data?.signedUrl || data?.signedURL || null;
