@@ -56,6 +56,18 @@ test('respostas de campos condicionais ocultos são anuladas antes de salvar', (
   assert.equal(answers.pele_tipo, 'oleosa');
 });
 
+test('fluxos interno e remoto sanitizam respostas antes de persistir', async () => {
+  const [controller, remote] = await Promise.all([
+    readFile(new URL('../../gestao/js/anamnese-controller.js', import.meta.url), 'utf8'),
+    readFile(new URL('../../gestao/anamnese-remota/anamnese-remota.js', import.meta.url), 'utf8'),
+  ]);
+  for (const source of [controller, remote]) {
+    assert.match(source, /sanitizeAnamneseAnswers/);
+  }
+  assert.match(controller, /sanitizeAnamneseAnswers\(draft\.answers,\s*ANAMNESE_TEMPLATE_V1\)/);
+  assert.match(remote, /sanitizeAnamneseAnswers\(answers,\s*ANAMNESE_TEMPLATE_V1\)/);
+});
+
 test('PDF institucional traduz códigos de escolha para rótulos humanos', async () => {
   const source = await readFile(new URL('../../supabase/functions/generate-anamnese-pdf/pdf.ts', import.meta.url), 'utf8');
   assert.match(source, /displayAnswerValue|answerLabel|CHOICE_LABELS/);
