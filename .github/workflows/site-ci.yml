@@ -54,3 +54,5 @@ jobs:
         run: npm run test:gestao
       - name: Anamnese PDF Edge Function tests
         run: deno test --config supabase/functions/generate-anamnese-pdf/deno.json supabase/functions/generate-anamnese-pdf/pdf_test.ts
+      - name: Clinical PDF Edge Function tests
+        run: deno test --config supabase/functions/generate-clinical-pdf/deno.json supabase/functions/generate-clinical-pdf/pdf_test.ts
