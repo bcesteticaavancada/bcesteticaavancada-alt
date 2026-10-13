@@ -20,6 +20,7 @@ import {
   uploadClinicalSignature,
 } from './clinical-documents-api.js';
 import { ANAMNESE_TEMPLATE_V1, getVisibleQuestions } from './anamnese-schema.js';
+import { sanitizeAnamneseAnswers } from './anamnese-domain.js';
 import {
   buildRemoteAnamneseUrl,
   renderAnamneseReview,
@@ -109,7 +110,7 @@ export function initAnamneseController({ client, root, getClientRecord, getClini
 
   async function startWizard(anamneseId, mode) {
     const data = await getAnamneseForEdit({ client, anamneseId });
-    draft = { id: anamneseId, answers: { ...(data.answers || {}) }, step: 0, mode };
+    draft = { id: anamneseId, answers: sanitizeAnamneseAnswers({ ...(data.answers || {}) }, ANAMNESE_TEMPLATE_V1), step: 0, mode };
     panel().innerHTML = renderAnamneseWizard({ answers: draft.answers, step: draft.step });
   }
 
@@ -170,6 +171,7 @@ export function initAnamneseController({ client, root, getClientRecord, getClini
     if (event.target.closest?.('[data-anamnese-review-confirm]') && draft) {
       try {
         setStatus(panel(), 'Salvando revisão…');
+        draft.answers = sanitizeAnamneseAnswers(draft.answers, ANAMNESE_TEMPLATE_V1);
         await saveAnamneseAnswers({ client, anamneseId: draft.id, answers: draft.answers });
         if (draft.mode === 'review') await markAnamneseReviewed({ client, anamneseId: draft.id });
         else await submitAnamneseForReview({ client, anamneseId: draft.id });
@@ -239,6 +241,7 @@ export function initAnamneseController({ client, root, getClientRecord, getClini
     if (!form || !draft) return;
     event.preventDefault();
     collectStepAnswers(form, draft.step, draft.answers);
+    draft.answers = sanitizeAnamneseAnswers(draft.answers, ANAMNESE_TEMPLATE_V1);
     try {
       await saveAnamneseAnswers({ client, anamneseId: draft.id, answers: draft.answers });
       if (draft.step < ANAMNESE_TEMPLATE_V1.sections.length - 1) { draft.step += 1; renderCurrentStep(); }
