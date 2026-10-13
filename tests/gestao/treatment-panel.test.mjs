@@ -54,7 +54,7 @@ test('protocolo composto mostra componentes reais e escala documental visualment
 
 test('wizard possui etapas saúde, alertas, consentimento, ficha e finalização', () => {
   const treatment={id:'t1',status:'rascunho',procedure_version:{nome:'Limpeza de pele',specific_schema:{fields:[]}},gate_reasons:['anamnese_invalida','consentimento_pendente']};
-  const html=renderTreatmentWizard({step:'clinical',treatment,consent:{title:'Termo de Responsabilidade',body:'Texto institucional'}});
+  const html=renderTreatmentWizard({step:'clinical',treatment,consent:{document_id:'d1',title:'Termo de Responsabilidade',body:'Texto institucional',procedure_name:'Limpeza de pele',status:'rascunho'}});
   for(const text of ['Saúde hoje','Alertas clínicos','Consentimento','Ficha do atendimento','Finalizar']) assert.match(html,new RegExp(text,'i'));
   assert.match(html,/Texto institucional/);
 });
