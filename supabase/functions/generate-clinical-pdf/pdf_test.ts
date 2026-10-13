@@ -1,5 +1,5 @@
-import { assert, assertEquals } from 'jsr:@std/assert@1';
-import { buildClinicalPdf } from './pdf.ts';
+import { assert, assertEquals, assertStringIncludes } from 'jsr:@std/assert@1';
+import { buildClinicalPdf, buildTreatment6dSections } from './pdf.ts';
 
 const document = {
   document_code: 'BC-DOC-TESTE',
@@ -41,7 +41,22 @@ Deno.test('gera PDF institucional válido para consentimento de procedimento', a
   assertEquals(new TextDecoder().decode(bytes.slice(0, 4)), '%PDF');
 });
 
-Deno.test('gera PDF institucional válido para ficha final de atendimento', async () => {
+Deno.test('modelo textual 6D registra rastreabilidade sem path/URL/bytes de foto', () => {
+  const sections = buildTreatment6dSections({
+    photos:[
+      {id:'ph1',kind:'antes',region:'Face',view:'frontal',caption:'Referência inicial',captured_at:'2026-10-12T10:00:00-03:00',storage_path:'fotos-clinicas/privado.jpg'},
+      {id:'ph2',kind:'depois',region:'Face',view:'frontal',captured_at:'2026-10-12T11:00:00-03:00'},
+    ],
+    product_usages:[{product_name_snapshot:'Produto Teste',manufacturer_snapshot:'Fabricante Teste',lot_code_snapshot:'LOT-123',expires_on_snapshot:'2027-12-31',quantity:1.5,unit:'mL'}],
+    equipment_usages:[{equipment_name_snapshot:'Equipamento Teste',manufacturer_snapshot:'Marca',model_snapshot:'Modelo X',parameter_values:{potencia:10,modo:'A'}}],
+    intercurrences:[{moment:'durante',severity:'moderada',description:'Descrição sintética',action_taken:'Conduta registrada',status:'acompanhamento',updates:[{evolution:'Evolução sintética',status_after:'acompanhamento'}]}],
+  });
+  const text=sections.map((s)=>`${s.title}\n${s.lines.join('\n')}`).join('\n');
+  for(const expected of ['Fotos clínicas','Antes','Depois','Produto Teste','LOT-123','31/12/2027','Equipamento Teste','potencia: 10','Descrição sintética','Evolução sintética','acompanhamento']) assertStringIncludes(text,expected);
+  assert(!/storage_path|fotos-clinicas|https?:\/\/|signedurl|bytes/i.test(text));
+});
+
+Deno.test('gera PDF institucional válido para ficha final de atendimento com 6D', async () => {
   const bytes = await buildClinicalPdf({
     document: { ...document, document_type: 'treatment_record' },
     client,
@@ -65,6 +80,10 @@ Deno.test('gera PDF institucional válido para ficha final de atendimento', asyn
         },
         procedure_version: { nome: 'Skinbooster', version: 1, classe_documental: 'injetavel' },
         components: [],
+        photos:[{id:'ph1',kind:'antes',region:'Face',view:'frontal',captured_at:'2026-10-12T19:00:00-03:00'}],
+        product_usages:[{product_name_snapshot:'Produto Teste',lot_code_snapshot:'LOT-123',expires_on_snapshot:'2027-12-31',quantity:1,unit:'mL'}],
+        equipment_usages:[{equipment_name_snapshot:'Equipamento Teste',parameter_values:{potencia:10}}],
+        intercurrences:[],
       },
     },
   });
