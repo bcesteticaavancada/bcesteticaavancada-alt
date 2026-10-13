@@ -9,6 +9,7 @@
   <link rel="canonical" href="https://bcesteticaavancada.github.io/bcesteticaavancada-alt/clinica/">
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="../editorial.css">
+  <link rel="stylesheet" href="clinica.css">
   <link rel="manifest" href="../manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/app/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -38,7 +39,7 @@
     <a href="../clinica/">A Clínica</a>
     <a href="../equipe/">Nossa Equipe</a>
     <a href="../mel/">Mel</a>
-    <a href="../procedimentos/">Procedimentos</a>
+    <a href="../procedimentos/">Vídeos</a>
     <a href="../resultados/">Resultados</a>
     <a href="../protocolos/">Protocolos</a>
     <a href="../ambiente/">Ambiente</a>
@@ -95,17 +96,23 @@
 
   <section class="editorial-section dark">
     <div class="editorial-split reverse">
-      <figure class="editorial-portrait">
-        <div class="cinematic-frame">
-          <img src="../assets/05-sala-procedimentos.jpg" alt="Sala de procedimentos da BC Estética Avançada" loading="lazy">
+      <figure class="editorial-portrait clinic-overview">
+        <div class="cinematic-frame clinic-room-media">
+          <img
+            src="../assets/tres-salas.webp"
+            srcset="../assets/tres-salas-560.webp 560w, ../assets/tres-salas.webp 1122w"
+            sizes="(max-width: 800px) 90vw, (max-width: 1280px) 40vw, 510px"
+            alt="As três salas da BC Estética Avançada: massagem, estética avançada e estética facial"
+            width="1122" height="1402" loading="lazy" decoding="async">
         </div>
+        <figcaption>Três salas, uma experiência de cuidado.</figcaption>
       </figure>
 
       <div class="cinematic-copy">
         <div class="eyebrow">A experiência BC</div>
         <h2>Ciência, planejamento e <em>presença.</em></h2>
         <p>A jornada proposta pela BC parte da avaliação e da conversa sobre objetivos. O planejamento vem antes da decisão sobre possibilidades de tratamento.</p>
-        <p>O ambiente faz parte desse cuidado: organização, conforto e uma linguagem visual de luxo discreto ajudam a construir confiança sem transformar a clínica em um catálogo agressivo.</p>
+        <p>O ambiente faz parte desse cuidado: salas organizadas, conforto e atenção aos detalhes para que você se sinta acolhido em cada etapa.</p>
         <div class="meta-list">
           <div class="meta-row"><strong>01</strong><span>Conhecimento técnico como base da comunicação</span></div>
           <div class="meta-row"><strong>02</strong><span>Avaliação individual antes do planejamento</span></div>
@@ -115,24 +122,60 @@
     </div>
   </section>
 
-  <section class="editorial-section">
-    <div class="editorial-split">
-      <div class="cinematic-copy">
+  <section class="editorial-section" aria-labelledby="clinic-rooms-title">
+    <div class="clinic-spaces">
+      <div class="cinematic-copy clinic-spaces-intro">
         <div class="eyebrow">O espaço</div>
-        <h2>O ambiente também faz parte do <em>cuidado.</em></h2>
-        <p>Recepção, salas de atendimento, procedimentos e massagem compõem a experiência física da BC. A direção visual registrada para a marca valoriza off-white, bege e nude, marrom sofisticado, preto pontual e dourado como detalhe.</p>
-        <p>O objetivo é transmitir limpeza, confiança, acolhimento e sofisticação sem excessos.</p>
-        <a class="btn gold" href="../ambiente/">Conhecer o ambiente</a>
+        <h2 id="clinic-rooms-title">O ambiente também faz parte do <em>cuidado.</em></h2>
+        <p>Da recepção às salas de estética facial, estética avançada e massagem, cada espaço da BC acolhe uma etapa da sua jornada de cuidado.</p>
+        <p>Conheça nossas salas e encontre conforto, privacidade e atenção em cada detalhe.</p>
       </div>
 
-      <div class="editorial-split" style="width:100%;grid-template-columns:1fr 1fr;gap:14px;align-items:start">
-        <figure class="cinematic-frame" style="margin:0">
-          <img src="../assets/04-sala-massagem.jpg" alt="Sala de massagem da BC Estética Avançada" loading="lazy">
+      <div class="clinic-room-grid">
+        <figure class="clinic-room-card">
+          <div class="cinematic-frame clinic-room-media">
+            <img
+              src="../assets/sala-de-estetica-facial.webp"
+              srcset="../assets/sala-de-estetica-facial-560.webp 560w, ../assets/sala-de-estetica-facial.webp 1122w"
+              sizes="(max-width: 639px) 90vw, (max-width: 959px) 44vw, (max-width: 1280px) 29vw, 378px"
+              alt="Sala de Estética Facial da BC, com maca e equipamentos para o cuidado da pele"
+              width="1122" height="1402" loading="lazy" decoding="async">
+          </div>
+          <figcaption>
+            <h3>Sala de Estética Facial</h3>
+            <p>Um espaço dedicado ao cuidado da pele, com conforto e atenção à sua individualidade.</p>
+          </figcaption>
         </figure>
-        <figure class="cinematic-frame" style="margin:0;margin-top:48px">
-          <img src="../assets/06-sala-atendimento.jpg" alt="Sala de atendimento da BC Estética Avançada" loading="lazy">
+        <figure class="clinic-room-card">
+          <div class="cinematic-frame clinic-room-media">
+            <img
+              src="../assets/sala-de-estetica-avancada.webp"
+              srcset="../assets/sala-de-estetica-avancada-560.webp 560w, ../assets/sala-de-estetica-avancada.webp 1122w"
+              sizes="(max-width: 639px) 90vw, (max-width: 959px) 44vw, (max-width: 1280px) 29vw, 378px"
+              alt="Sala de Estética Avançada da BC, com cadeira de atendimento e equipamentos"
+              width="1122" height="1402" loading="lazy" decoding="async">
+          </div>
+          <figcaption>
+            <h3>Sala de Estética Avançada</h3>
+            <p>Avaliação, planejamento e atendimento personalizado em um ambiente acolhedor.</p>
+          </figcaption>
+        </figure>
+        <figure class="clinic-room-card">
+          <div class="cinematic-frame clinic-room-media">
+            <img
+              src="../assets/sala-de-massagem.webp"
+              srcset="../assets/sala-de-massagem-560.webp 560w, ../assets/sala-de-massagem.webp 1122w"
+              sizes="(max-width: 639px) 90vw, (max-width: 959px) 44vw, (max-width: 1280px) 29vw, 378px"
+              alt="Sala de Massagem da BC, com maca, toalhas e iluminação aconchegante"
+              width="1122" height="1402" loading="lazy" decoding="async">
+          </div>
+          <figcaption>
+            <h3>Sala de Massagem</h3>
+            <p>Um convite para desacelerar, relaxar e dedicar um tempo ao seu bem-estar.</p>
+          </figcaption>
         </figure>
       </div>
+      <a class="btn gold clinic-spaces-link" href="../ambiente/">Conhecer o ambiente</a>
     </div>
   </section>
 

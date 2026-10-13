@@ -18,7 +18,7 @@ function expectNativeShell(html) {
   assert.equal((html.slice(start, end).match(/<a\b/g) || []).length, 11);
 }
 
-test('Procedimentos publica apenas apresentações com mídia real enquanto o catálogo textual fica fora da página pública', () => {
+test('Vídeos preserva as quatro apresentações com mídia real', () => {
   expectNativeShell(procedimentos);
   assert.doesNotMatch(procedimentos, /class="treatment-collection/);
   assert.doesNotMatch(procedimentos, /class="treatment-entry/);
@@ -54,8 +54,8 @@ test('Resultados preserves the five real portfolio assets inside a numbered edit
 test('Protocolos presents the documented authorial protocol names without publishing provisional prices', () => {
   expectNativeShell(protocolos);
   for (const name of [
-    'Refine 3D', 'Reset Glow', 'Melasma OFF', 'ACNE OFF', 'Protocolo Mônaco',
-    'Skin Reset', 'Face Reset', 'Fort Hair', 'Fort Hair Plus'
+    'Fort Hair', 'Fort Hair Plus', 'Fort Brow', 'Sculpt Cryo',
+    'Reset Glow', 'Monaco Glow', 'Skin Reset', 'Face Reset'
   ]) assert.match(protocolos, new RegExp(name));
   assert.match(protocolos, /Harmonização Invisível/);
   assert.doesNotMatch(protocolos, /R\$\s*\d/);
