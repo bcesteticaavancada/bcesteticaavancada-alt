@@ -5,9 +5,18 @@ yearTargets.forEach((node) => { node.textContent = String(currentYear); });
 const menuToggle = document.getElementById('menuToggle');
 const menuDrawer = document.getElementById('gestaoMenu');
 const menuBackdrop = document.getElementById('menuBackdrop');
-const areaLinks = Array.from(document.querySelectorAll('[data-area-target]'));
-const areaPanels = Array.from(document.querySelectorAll('[data-area-panel]'));
-const areaContexts = Array.from(document.querySelectorAll('[data-area-context]'));
+
+function getAreaLinks() {
+  return Array.from(document.querySelectorAll('[data-area-target]'));
+}
+
+function getAreaPanels() {
+  return Array.from(document.querySelectorAll('[data-area-panel]'));
+}
+
+function getAreaContexts() {
+  return Array.from(document.querySelectorAll('[data-area-context]'));
+}
 
 function setMenuOpen(open) {
   if (!menuToggle || !menuDrawer || !menuBackdrop) return;
@@ -23,6 +32,9 @@ function closeMenu() {
 }
 
 function selectArea(area, { updateHash = true } = {}) {
+  const areaLinks = getAreaLinks();
+  const areaPanels = getAreaPanels();
+  const areaContexts = getAreaContexts();
   if (!areaLinks.length || !areaPanels.length) return;
 
   const fallback = areaLinks[0]?.dataset.areaTarget;
@@ -60,12 +72,18 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeMenu();
 });
 
-areaLinks.forEach((link) => {
-  link.addEventListener('click', (event) => {
-    event.preventDefault();
-    selectArea(link.dataset.areaTarget);
-  });
+document.addEventListener('click', (event) => {
+  const link = event.target.closest?.('[data-area-target]');
+  if (!link) return;
+  event.preventDefault();
+  selectArea(link.dataset.areaTarget);
 });
 
-const initialArea = window.location.hash.replace('#', '') || areaLinks[0]?.dataset.areaTarget;
+window.addEventListener('hashchange', () => {
+  const target = window.location.hash.replace('#', '');
+  if (target) selectArea(target, { updateHash: false });
+});
+
+const initialLinks = getAreaLinks();
+const initialArea = window.location.hash.replace('#', '') || initialLinks[0]?.dataset.areaTarget;
 selectArea(initialArea, { updateHash: false });
