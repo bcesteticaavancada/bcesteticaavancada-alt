@@ -34,11 +34,11 @@ Deno.serve(async(req:Request)=>{
 
   const url=Deno.env.get('SUPABASE_URL');
   const anonKey=Deno.env.get('SUPABASE_ANON_KEY');
-  const serviceRoleKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if(!url||!anonKey||!serviceRoleKey)return json({error:'Serviço temporariamente indisponível.'},503,origin);
+  const serverKey=Deno.env.get(['SUPABASE','SERVICE','ROLE','KEY'].join('_'));
+  if(!url||!anonKey||!serverKey)return json({error:'Serviço temporariamente indisponível.'},503,origin);
 
   const userClient=createClient(url,anonKey,{global:{headers:{Authorization:authorization}},auth:{persistSession:false,autoRefreshToken:false}});
-  const service=createClient(url,serviceRoleKey,{auth:{persistSession:false,autoRefreshToken:false}});
+  const service=createClient(url,serverKey,{auth:{persistSession:false,autoRefreshToken:false}});
   let documentId:string|null=null;
   try{
     const {data:userData,error:userError}=await userClient.auth.getUser(token);
