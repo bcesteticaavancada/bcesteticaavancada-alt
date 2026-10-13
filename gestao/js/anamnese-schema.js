@@ -2,6 +2,22 @@ const conditional = (key, equals = 'sim') => ({ key, equals });
 
 const q = (key, label, options = {}) => ({ key, label, ...options });
 
+const DEFAULT_CHOICE_OPTIONS = [
+  { value: 'sim', label: 'Sim' },
+  { value: 'nao', label: 'Não' },
+  { value: 'nao_sei', label: 'Não sei' },
+  { value: 'prefiro_conversar', label: 'Prefiro conversar pessoalmente' },
+  { value: 'nao_se_aplica', label: 'Não se aplica' },
+];
+
+export function choiceOptionsForQuestion(question = {}) {
+  return Array.isArray(question.options) && question.options.length ? question.options : DEFAULT_CHOICE_OPTIONS;
+}
+
+export function choiceLabelForQuestion(question = {}, value = '') {
+  return choiceOptionsForQuestion(question).find((option) => option.value === value)?.label || value;
+}
+
 export const ANAMNESE_TEMPLATE_V1 = {
   key: 'bc-geral',
   version: 1,
@@ -16,7 +32,18 @@ export const ANAMNESE_TEMPLATE_V1 = {
       q('historico_estetico_reacao', 'Houve reação, complicação ou algo importante na recuperação?', { type: 'textarea', showWhen: conditional('historico_estetico_realizou') }),
     ] },
     { id: 'pele', title: 'Pele e exposição solar', questions: [
-      q('pele_tipo', 'Como você considera sua pele?', { type: 'choice', required: true }),
+      q('pele_tipo', 'Como você considera sua pele?', {
+        type: 'choice',
+        required: true,
+        options: [
+          { value: 'seca', label: 'Seca' },
+          { value: 'oleosa', label: 'Oleosa' },
+          { value: 'mista', label: 'Mista' },
+          { value: 'sensivel', label: 'Sensível' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'nao_sei', label: 'Não sei' },
+        ],
+      }),
       q('pele_condicoes_atuais', 'Existe alguma condição atual da pele que gostaria de informar?', { type: 'multiselect' }),
       q('pele_condicoes_detalhes', 'Detalhe as condições atuais da pele.', { type: 'textarea', showWhen: { key: 'pele_condicoes_atuais', truthy: true } }),
       q('hiperpigmentacao_pos_inflamatoria', 'Já apresentou manchas após inflamações ou procedimentos?', { type: 'choice' }),
