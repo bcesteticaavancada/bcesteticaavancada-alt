@@ -15,9 +15,20 @@ function documentLabel(doc = {}) {
   return 'Anamnese Geral';
 }
 
-function renderDocuments(documents = []) {
+export function renderClinicalDocuments(documents = []) {
   if (!documents.length) return '<div class="bcg-empty">Nenhum documento clínico emitido para esta cliente.</div>';
-  return `<div class="bcg-clinical-documents">${documents.map((doc) => `<article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}"><div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>${escapeHtml(documentLabel(doc))} • Versão ${escapeHtml(doc.source_version)}</span></div><span class="bcg-chip">${escapeHtml(doc.status === 'emitido' ? 'PDF emitido' : doc.status || '')}</span>${doc.status === 'emitido' && doc.storage_path ? `<button class="bcg-small-button" type="button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>` : ''}</article>`).join('')}</div>`;
+  return `<div class="bcg-clinical-documents">${documents.map((doc) => {
+    let action = '';
+    if (doc.status === 'emitido' && doc.storage_path) {
+      action = `<button class="bcg-small-button" type="button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>`;
+    } else if (doc.status === 'pronto_para_pdf') {
+      action = `<button class="bcg-small-button" type="button" data-generate-clinical-document="${escapeHtml(doc.id)}" data-document-type="${escapeHtml(doc.document_type || '')}">Gerar PDF</button>`;
+    } else if (doc.status === 'erro_pdf') {
+      action = `<button class="bcg-small-button" type="button" data-generate-clinical-document="${escapeHtml(doc.id)}" data-document-type="${escapeHtml(doc.document_type || '')}">Tentar gerar PDF</button>`;
+    }
+    const statusLabel = doc.status === 'emitido' ? 'PDF emitido' : doc.status === 'gerando_pdf' ? 'Gerando PDF' : (doc.status || '');
+    return `<article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}"><div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>${escapeHtml(documentLabel(doc))} • Versão ${escapeHtml(doc.source_version)}</span></div><span class="bcg-chip">${escapeHtml(statusLabel)}</span>${action}</article>`;
+  }).join('')}</div>`;
 }
 
 function updateChecklist(folder, state) {
@@ -84,7 +95,7 @@ async function hydrateFolder({ client, folder, force = false }) {
 
     const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
     if (documentsPanel) {
-      documentsPanel.innerHTML = `<p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderDocuments(bundle.documents)}`;
+      documentsPanel.innerHTML = `<p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderClinicalDocuments(bundle.documents)}`;
     }
 
     const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
