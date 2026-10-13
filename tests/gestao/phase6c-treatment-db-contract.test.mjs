@@ -86,7 +86,7 @@ test('tabelas 6C usam RLS e browser escreve somente por wrappers autenticados',a
  const sql=await loadMigration();
  for(const table of ['clinical_treatments','clinical_treatment_components','clinical_treatment_health_confirmations','clinical_treatment_alert_reviews','clinical_treatment_versions','clinical_treatment_reopen_grants']){
    assert.match(sql,new RegExp(`alter table public\\.${table} enable row level security`));
-   assert.match(sql,new RegExp(`revoke all on public\\.${table} from anon, authenticated`));
+   assert.match(sql,new RegExp(`revoke all on public\\.${table} from anon,\\s*authenticated`));
  }
  for(const fn of ['bc_treatment_create','bc_treatment_get','bc_treatment_list_client','bc_treatment_update_draft','bc_treatment_confirm_health','bc_treatment_confirm_alerts','bc_treatment_prepare_consent','bc_treatment_mark_ready','bc_treatment_start','bc_treatment_finalize','bc_treatment_complete_finalize','bc_treatment_correct_same_day','bc_treatment_create_reopen_grant','bc_treatment_correct_reopened']){
    assert.match(sql,new RegExp(`create or replace function public\\.${fn}[\\s\\S]{0,700}security invoker`));
