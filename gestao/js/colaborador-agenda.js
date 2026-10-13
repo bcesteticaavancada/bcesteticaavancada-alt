@@ -8,6 +8,7 @@ import {
   setAppointmentStatus,
 } from './agenda-api.js';
 import { listClients } from './clientes-api.js';
+import { initProcedurePanel } from './procedure-panel.js';
 import {
   clinicDayRange,
   clinicLocalDateTimeToIso,
@@ -392,12 +393,14 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   syncAttendanceForm(null);
   await loadLookups();
   await refresh();
+  const procedurePanel = await initProcedurePanel({ client, profile, root });
 
   return {
     refresh,
     refreshClients,
     openAppointment,
     closeDetail,
+    procedurePanel,
     getCurrentAppointment: () => appointments.get(currentAppointmentId) || null,
   };
 }
