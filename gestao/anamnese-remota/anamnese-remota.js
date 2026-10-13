@@ -1,6 +1,6 @@
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '../js/config.js';
 import { ANAMNESE_TEMPLATE_V1, choiceLabelForQuestion, choiceOptionsForQuestion, getVisibleQuestions } from '../js/anamnese-schema.js';
-import { validateAnamneseAnswers, buildAnamneseSummary } from '../js/anamnese-domain.js';
+import { validateAnamneseAnswers, buildAnamneseSummary, sanitizeAnamneseAnswers } from '../js/anamnese-domain.js';
 
 const statusEl = document.getElementById('remoteStatus');
 const app = document.getElementById('remoteApp');
@@ -61,10 +61,12 @@ function collect(form) {
     else if (question.type === 'multiselect') answers[question.key] = String(field.value || '').split(',').map((item) => item.trim()).filter(Boolean);
     else answers[question.key] = String(field.value || '').trim();
   }
+  answers = sanitizeAnamneseAnswers(answers, ANAMNESE_TEMPLATE_V1);
   return Object.fromEntries([...data.entries()]);
 }
 
 async function save(submit = false) {
+  answers = sanitizeAnamneseAnswers(answers, ANAMNESE_TEMPLATE_V1);
   const { data, error } = await db.rpc('bc_anamnese_remote_save', {
     p_token: token,
     p_answers: answers,
@@ -98,6 +100,7 @@ function renderStep() {
 }
 
 function renderReview() {
+  answers = sanitizeAnamneseAnswers(answers, ANAMNESE_TEMPLATE_V1);
   const validation = validateAnamneseAnswers({ answers, template: ANAMNESE_TEMPLATE_V1 });
   const summary = buildAnamneseSummary({ answers, template: ANAMNESE_TEMPLATE_V1 });
   app.innerHTML = `<div class="bcg-remote-review"><p class="bcg-eyebrow">REVISÃO</p><h3>Confira suas informações</h3>${summary.map((section) => `<section><h4>${escapeHtml(section.title)}</h4>${section.items.map((item) => `<div class="bcg-remote-review-row"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(reviewValue(item))}</strong></div>`).join('')}</section>`).join('')}<div class="bcg-remote-actions"><button type="button" class="bcg-small-button" id="reviewBack">Voltar</button>${validation.valid ? '<button type="button" class="bcg-button" id="remoteSubmit">Confirmar e enviar para revisão</button>' : ''}</div>${validation.valid ? '' : `<p class="bcg-status" data-kind="warning">Há ${validation.missing.length} campo(s) obrigatório(s) pendente(s).</p>`}</div>`;
@@ -118,7 +121,7 @@ async function init() {
     const { data, error } = await db.rpc('bc_anamnese_remote_get', { p_token: token });
     if (error) throw error;
     record = data;
-    answers = data?.answers || {};
+    answers = sanitizeAnamneseAnswers(data?.answers || {}, ANAMNESE_TEMPLATE_V1);
     app.hidden = false;
     setStatus('Link validado. Você pode preencher com tranquilidade.', 'success');
     renderStep();
