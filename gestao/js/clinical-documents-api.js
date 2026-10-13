@@ -16,6 +16,30 @@ function cleanList(value) {
   return [...new Set(value.map((item) => String(item ?? '').trim()).filter(Boolean))];
 }
 
+function cleanFilenamePart(value, fallback = '') {
+  const clean = String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9]/g, '');
+  return clean || fallback;
+}
+
+export function buildClinicalPdfDownloadFilename(patientName, dateValue = new Date().toISOString()) {
+  const words = String(patientName ?? '').trim().split(/\s+/).filter(Boolean);
+  const first = cleanFilenamePart(words[0], 'Paciente');
+  const last = words.length > 1 ? cleanFilenamePart(words.at(-1)) : '';
+  const parsed = new Date(dateValue || Date.now());
+  const date = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  const parts = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `BC_${first}${last ? `_${last}` : ''}_${values.day}_${values.month}_${values.year}.pdf`;
+}
+
 export async function listClinicalDocuments({ client, clienteId }) {
   return unwrap(await client.rpc('bc_clinical_document_list', { p_cliente_id: clienteId })) || [];
 }
@@ -70,8 +94,9 @@ export async function generateClinicalPdf({ client, documentId }) {
   }));
 }
 
-export async function getClinicalDocumentUrl({ client, storagePath, expiresIn = 300 }) {
-  const data = unwrap(await client.storage.from(BUCKET).createSignedUrl(storagePath, expiresIn));
+export async function getClinicalDocumentUrl({ client, storagePath, expiresIn = 300, downloadFilename = null }) {
+  const options = downloadFilename ? { download: cleanRequired(downloadFilename, 'Nome do arquivo') } : undefined;
+  const data = unwrap(await client.storage.from(BUCKET).createSignedUrl(storagePath, expiresIn, options));
   return data?.signedUrl || data?.signedURL || null;
 }
 

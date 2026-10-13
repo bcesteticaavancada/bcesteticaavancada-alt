@@ -11,6 +11,7 @@ import {
 } from './anamnese-api.js';
 import { listClinicalAlerts } from './clinical-alerts-api.js';
 import {
+  buildClinicalPdfDownloadFilename,
   finalizeAnamneseDocument,
   generateAnamnesePdf,
   getClinicalDocumentUrl,
@@ -230,9 +231,27 @@ export function initAnamneseController({ client, root, getClientRecord, getClini
       const doc = (bundle.documents || []).find((item) => item.id === download.dataset.downloadClinicalDocument);
       if (!doc?.storage_path) return;
       try {
-        const url = await getClinicalDocumentUrl({ client, storagePath: doc.storage_path });
-        if (url) window.open(url, '_blank', 'noopener,noreferrer');
-      } catch (error) { setStatus(panel(), error?.message || 'Não foi possível abrir o PDF.', 'error'); }
+        const downloadFilename = buildClinicalPdfDownloadFilename(
+          getClientRecord?.()?.nome,
+          doc.generated_at || doc.created_at,
+        );
+        const url = await getClinicalDocumentUrl({
+          client,
+          storagePath: doc.storage_path,
+          downloadFilename,
+        });
+        if (url) {
+          const ownerDocument = panel().ownerDocument || document;
+          const link = ownerDocument.createElement('a');
+          link.href = url;
+          link.download = downloadFilename;
+          link.rel = 'noopener';
+          link.style.display = 'none';
+          (ownerDocument.body || panel()).appendChild(link);
+          link.click();
+          link.remove();
+        }
+      } catch (error) { setStatus(panel(), error?.message || 'Não foi possível baixar o PDF.', 'error'); }
     }
   });
 
