@@ -6,15 +6,36 @@ async function loadDocs() {
   catch (error) { assert.fail(`clinical-documents-api.js deve existir: ${error?.code || error}`); }
 }
 
-test('documento clínico usa URL assinada curta e nunca getPublicUrl', async () => {
+test('documento clínico usa URL assinada de download com nome explícito', async () => {
   const { getClinicalDocumentUrl } = await loadDocs();
   const calls = [];
   const client = {
-    storage: { from: (bucket) => ({ createSignedUrl: async (path, expiresIn) => { calls.push({ bucket, path, expiresIn }); return { data: { signedUrl: 'https://signed.example' }, error: null }; } }) },
+    storage: { from: (bucket) => ({ createSignedUrl: async (path, expiresIn, options) => { calls.push({ bucket, path, expiresIn, options }); return { data: { signedUrl: 'https://signed.example' }, error: null }; } }) },
   };
-  const url = await getClinicalDocumentUrl({ client, storagePath: 'documentos/anamnese/doc.pdf' });
+  const url = await getClinicalDocumentUrl({
+    client,
+    storagePath: 'documentos/anamnese/doc.pdf',
+    downloadFilename: 'BC_Fernando_Faria_13_10_2026.pdf',
+  });
   assert.equal(url, 'https://signed.example');
-  assert.deepEqual(calls[0], { bucket: 'bc-prontuario-private', path: 'documentos/anamnese/doc.pdf', expiresIn: 300 });
+  assert.deepEqual(calls[0], {
+    bucket: 'bc-prontuario-private',
+    path: 'documentos/anamnese/doc.pdf',
+    expiresIn: 300,
+    options: { download: 'BC_Fernando_Faria_13_10_2026.pdf' },
+  });
+});
+
+test('nome de download clínico segue BC_nome_sobrenome_dia_mes_ano.pdf', async () => {
+  const { buildClinicalPdfDownloadFilename } = await loadDocs();
+  assert.equal(
+    buildClinicalPdfDownloadFilename('Fernando Victor Barbosa de Faria', '2026-10-13T12:00:00.000Z'),
+    'BC_Fernando_Faria_13_10_2026.pdf',
+  );
+  assert.equal(
+    buildClinicalPdfDownloadFilename('Álice da Rocha', '2026-10-13T12:00:00.000Z'),
+    'BC_Alice_Rocha_13_10_2026.pdf',
+  );
 });
 
 test('PDF é solicitado à Edge Function apenas por documentId', async () => {
