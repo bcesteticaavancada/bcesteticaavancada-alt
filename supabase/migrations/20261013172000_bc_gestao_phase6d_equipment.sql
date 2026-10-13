@@ -35,12 +35,47 @@ alter table public.clinical_treatment_equipment_usages enable row level security
 revoke all on public.clinical_equipment from anon,authenticated;
 revoke all on public.clinical_treatment_equipment_usages from anon,authenticated;
 
+-- Valida a definição do aparelho sem exigir os valores que só existem no atendimento.
+create or replace function private.bc_validate_equipment_schema(p_schema jsonb)
+returns boolean language plpgsql immutable set search_path=''
+as $$declare f jsonb; k text; t text; seen text[]:='{}'::text[]; v_min numeric; v_max numeric;
+begin
+  if jsonb_typeof(coalesce(p_schema,'{}'::jsonb))<>'object' then raise exception 'Schema de parâmetros inválido.' using errcode='22023'; end if;
+  if jsonb_typeof(coalesce(p_schema->'fields','[]'::jsonb))<>'array' then raise exception 'Campos do schema devem ser uma lista.' using errcode='22023'; end if;
+  for f in select value from jsonb_array_elements(coalesce(p_schema->'fields','[]'::jsonb)) loop
+    if jsonb_typeof(f)<>'object' then raise exception 'Cada campo do equipamento deve ser um objeto.' using errcode='22023'; end if;
+    k:=nullif(trim(f->>'key'),''); t:=f->>'type';
+    if k is null then raise exception 'Campo do equipamento sem key.' using errcode='22023'; end if;
+    if k=any(seen) then raise exception 'Key de parâmetro duplicada: %',k using errcode='22023'; end if;
+    seen:=array_append(seen,k);
+    if t not in ('number','text','select','boolean') then raise exception 'Tipo de parâmetro não suportado: %',t using errcode='22023'; end if;
+    if f ? 'required' and jsonb_typeof(f->'required')<>'boolean' then raise exception 'required deve ser booleano em %.',k using errcode='22023'; end if;
+    if t='select' then
+      if jsonb_typeof(coalesce(f->'options','[]'::jsonb))<>'array' or jsonb_array_length(coalesce(f->'options','[]'::jsonb))=0 then
+        raise exception 'Select % exige opções.',k using errcode='22023';
+      end if;
+      if exists(select 1 from jsonb_array_elements(coalesce(f->'options','[]'::jsonb)) o where jsonb_typeof(o)<>'string' or nullif(trim(o#>>'{}'),'') is null) then
+        raise exception 'Opções de % devem ser textos não vazios.',k using errcode='22023';
+      end if;
+    end if;
+    if t='number' then
+      if f ? 'min' and jsonb_typeof(f->'min')<>'number' then raise exception 'min de % deve ser numérico.',k using errcode='22023'; end if;
+      if f ? 'max' and jsonb_typeof(f->'max')<>'number' then raise exception 'max de % deve ser numérico.',k using errcode='22023'; end if;
+      if f ? 'step' and (jsonb_typeof(f->'step')<>'number' or (f->>'step')::numeric<=0) then raise exception 'step de % deve ser numérico e positivo.',k using errcode='22023'; end if;
+      if f ? 'min' then v_min:=(f->>'min')::numeric; else v_min:=null; end if;
+      if f ? 'max' then v_max:=(f->>'max')::numeric; else v_max:=null; end if;
+      if v_min is not null and v_max is not null and v_min>v_max then raise exception 'min não pode superar max em %.',k using errcode='22023'; end if;
+    end if;
+  end loop;
+  return true;
+end;$$;
+revoke all on function private.bc_validate_equipment_schema(jsonb) from public;
+
 create or replace function private.bc_validate_equipment_parameters(p_schema jsonb,p_values jsonb)
 returns boolean language plpgsql immutable set search_path=''
 as $$declare f jsonb; k text; t text; v jsonb; n numeric;
 begin
-  if jsonb_typeof(coalesce(p_schema,'{}'::jsonb))<>'object' then raise exception 'Schema de parâmetros inválido.' using errcode='22023'; end if;
-  if jsonb_typeof(coalesce(p_schema->'fields','[]'::jsonb))<>'array' then raise exception 'Campos do schema devem ser uma lista.' using errcode='22023'; end if;
+  perform private.bc_validate_equipment_schema(p_schema);
   if jsonb_typeof(coalesce(p_values,'{}'::jsonb))<>'object' then raise exception 'Valores de parâmetros devem ser um objeto.' using errcode='22023'; end if;
   for k in select jsonb_object_keys(coalesce(p_values,'{}'::jsonb)) loop
     if not exists(select 1 from jsonb_array_elements(coalesce(p_schema->'fields','[]'::jsonb)) x where x->>'key'=k) then
@@ -48,10 +83,7 @@ begin
     end if;
   end loop;
   for f in select value from jsonb_array_elements(coalesce(p_schema->'fields','[]'::jsonb)) loop
-    k:=nullif(trim(f->>'key'),''); t:=f->>'type';
-    if k is null then raise exception 'Campo do equipamento sem key.' using errcode='22023'; end if;
-    if t not in ('number','text','select','boolean') then raise exception 'Tipo de parâmetro não suportado: %',t using errcode='22023'; end if;
-    v:=p_values->k;
+    k:=nullif(trim(f->>'key'),''); t:=f->>'type'; v:=p_values->k;
     if coalesce((f->>'required')::boolean,false) and (v is null or v='null'::jsonb or (t in ('text','select') and nullif(trim(p_values->>k),'') is null)) then
       raise exception 'Parâmetro obrigatório ausente: %',k using errcode='22023';
     end if;
@@ -65,10 +97,8 @@ begin
       if jsonb_typeof(v)<>'boolean' then raise exception 'Parâmetro % deve ser booleano.',k using errcode='22023'; end if;
     elsif t in ('text','select') then
       if jsonb_typeof(v)<>'string' then raise exception 'Parâmetro % deve ser texto.',k using errcode='22023'; end if;
-      if t='select' then
-        if jsonb_typeof(coalesce(f->'options','[]'::jsonb))<>'array' or not (coalesce(f->'options','[]'::jsonb) @> jsonb_build_array(p_values->>k)) then
-          raise exception 'Opção inválida para parâmetro %.',k using errcode='22023';
-        end if;
+      if t='select' and not (coalesce(f->'options','[]'::jsonb) @> jsonb_build_array(p_values->>k)) then
+        raise exception 'Opção inválida para parâmetro %.',k using errcode='22023';
       end if;
     end if;
   end loop;
@@ -92,7 +122,7 @@ begin
   if v_user is null or not private.bc_can_manage_procedures() then raise exception 'Sem permissão para gerenciar equipamentos.' using errcode='42501'; end if;
   v_name:=nullif(trim(p_payload->>'name'),''); if v_name is null then raise exception 'Nome do equipamento é obrigatório.' using errcode='22023'; end if;
   v_schema:=coalesce(p_payload->'parameter_schema','{"fields":[]}'::jsonb);
-  perform private.bc_validate_equipment_parameters(v_schema,'{}'::jsonb);
+  perform private.bc_validate_equipment_schema(v_schema);
   v_active:=coalesce((p_payload->>'active')::boolean,true);
   if p_equipment_id is null then
     insert into public.clinical_equipment(name,manufacturer,model,internal_code,serial_number,parameter_schema,active,created_by)
