@@ -20,6 +20,8 @@ export type ClinicalPdfSnapshot = {
   treatmentVersion?: AnyRecord | null;
 };
 
+export type Treatment6dSection = { title: string; lines: string[] };
+
 function asText(value: unknown): string {
   if (value === null || value === undefined) return '';
   if (Array.isArray(value)) return value.map(asText).filter(Boolean).join(', ');
@@ -83,6 +85,63 @@ function renderObjectEntries(
   return Object.entries(record)
     .filter(([key, value]) => !skip.has(key) && value !== null && value !== undefined && asText(value).trim())
     .map(([key, value]) => [humanize(key), asText(value)]);
+}
+
+export function buildTreatment6dSections(snapshot: AnyRecord | null | undefined): Treatment6dSection[] {
+  const source = snapshot && typeof snapshot === 'object' ? snapshot : {};
+  const photos = Array.isArray(source.photos) ? source.photos as AnyRecord[] : [];
+  const products = Array.isArray(source.product_usages) ? source.product_usages as AnyRecord[] : [];
+  const equipment = Array.isArray(source.equipment_usages) ? source.equipment_usages as AnyRecord[] : [];
+  const intercurrences = Array.isArray(source.intercurrences) ? source.intercurrences as AnyRecord[] : [];
+  const sections: Treatment6dSection[] = [];
+
+  if (photos.length) {
+    const count = (kind: string) => photos.filter((p) => String(p.kind || '') === kind).length;
+    const lines = [`Antes: ${count('antes')} • Depois: ${count('depois')} • Adicional: ${count('adicional')}`];
+    for (const photo of photos) {
+      const kind = humanize(String(photo.kind || 'foto'));
+      const detail = [photo.region, photo.view, photo.caption].map(asText).filter(Boolean).join(' • ');
+      lines.push(`${kind}${detail ? ` • ${detail}` : ''}${photo.captured_at ? ` • ${formatDate(photo.captured_at)}` : ''}`);
+    }
+    sections.push({ title:'Fotos clínicas', lines });
+  }
+
+  if (products.length) {
+    const lines = products.map((item) => {
+      const identity = [item.product_name_snapshot, item.manufacturer_snapshot].map(asText).filter(Boolean).join(' • ');
+      const lot = item.lot_code_snapshot ? `Lote ${asText(item.lot_code_snapshot)}` : 'Lote —';
+      const expiry = item.expires_on_snapshot ? `Validade ${formatDate(item.expires_on_snapshot)}` : 'Validade —';
+      const amount = `${asText(item.quantity)} ${asText(item.unit)}`.trim();
+      return [identity,lot,expiry,amount].filter(Boolean).join(' • ');
+    });
+    sections.push({ title:'Produtos e lotes', lines });
+  }
+
+  if (equipment.length) {
+    const lines: string[] = [];
+    for (const item of equipment) {
+      const identity = [item.equipment_name_snapshot,item.manufacturer_snapshot,item.model_snapshot,item.internal_code_snapshot].map(asText).filter(Boolean).join(' • ');
+      lines.push(identity || 'Equipamento registrado');
+      const values = item.parameter_values && typeof item.parameter_values === 'object' ? item.parameter_values as AnyRecord : {};
+      const params = Object.entries(values).map(([key,value]) => `${key}: ${asText(value)}`).join(' • ');
+      if (params) lines.push(`Parâmetros: ${params}`);
+    }
+    sections.push({ title:'Equipamentos e parâmetros', lines });
+  }
+
+  if (intercurrences.length) {
+    const lines: string[] = [];
+    for (const item of intercurrences) {
+      lines.push(`${humanize(String(item.severity || ''))} • ${humanize(String(item.moment || ''))} • Status: ${asText(item.status) || '—'}`);
+      lines.push(`Descrição: ${asText(item.description) || '—'}`);
+      lines.push(`Conduta registrada: ${asText(item.action_taken) || '—'}`);
+      const updates = Array.isArray(item.updates) ? item.updates as AnyRecord[] : [];
+      for (const update of updates) lines.push(`Evolução: ${asText(update.evolution) || '—'} • Status: ${asText(update.status_after) || '—'}`);
+    }
+    sections.push({ title:'Intercorrências e evoluções', lines });
+  }
+
+  return sections;
 }
 
 export async function buildClinicalPdf(snapshot: ClinicalPdfSnapshot): Promise<Uint8Array> {
@@ -198,6 +257,17 @@ export async function buildClinicalPdf(snapshot: ClinicalPdfSnapshot): Promise<U
       section('Dados técnicos registrados');
       for (const [label, value] of renderObjectEntries(technical)) { paragraph(label, 8.8, bold, gold); paragraph(value, 9.4); y -= 2; }
     }
+
+    const phase6dSections = buildTreatment6dSections(snap);
+    if (phase6dSections.length) {
+      divider();
+      for (const block of phase6dSections) {
+        section(block.title);
+        for (const entry of block.lines) paragraph(entry, 9.2);
+        y -= 3;
+      }
+    }
+
     divider();
     section('Referências do prontuário');
     pair('Anamnese Geral vinculada', treatment.anamnese_id ? 'Sim' : 'Não registrada nesta versão');
