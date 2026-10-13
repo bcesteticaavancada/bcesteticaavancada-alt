@@ -1,4 +1,4 @@
-import { ANAMNESE_TEMPLATE_V1, getVisibleQuestions } from './anamnese-schema.js';
+import { ANAMNESE_TEMPLATE_V1, choiceLabelForQuestion, choiceOptionsForQuestion, getVisibleQuestions } from './anamnese-schema.js';
 import { buildAnamneseSummary, validateAnamneseAnswers } from './anamnese-domain.js';
 
 function escapeHtml(value) {
@@ -100,9 +100,20 @@ function inputForQuestion(question, value) {
   if (question.type === 'checkbox') return `<label class="bcg-consent-check"><input type="checkbox" name="${name}" value="true" ${normalized === true ? 'checked' : ''}${required}><span>${label}</span></label>`;
   if (question.type === 'multiselect') return `<label>${label}<input class="bcg-input" name="${name}" value="${escapeHtml(Array.isArray(normalized) ? normalized.join(', ') : normalized)}" placeholder="Separe itens por vírgula"${required}></label>`;
   if (question.type === 'choice') {
-    return `<label>${label}<select class="bcg-input" name="${name}"${required}><option value="">Selecione</option>${['sim','nao','nao_sei','prefiro_conversar','nao_se_aplica'].map((option) => `<option value="${option}" ${normalized === option ? 'selected' : ''}>${option === 'sim' ? 'Sim' : option === 'nao' ? 'Não' : option === 'nao_sei' ? 'Não sei' : option === 'nao_se_aplica' ? 'Não se aplica' : 'Prefiro conversar pessoalmente'}</option>`).join('')}</select></label>`;
+    return `<label>${label}<select class="bcg-input" name="${name}"${required}><option value="">Selecione</option>${choiceOptionsForQuestion(question).map((option) => `<option value="${escapeHtml(option.value)}" ${normalized === option.value ? 'selected' : ''}>${escapeHtml(option.label)}</option>`).join('')}</select></label>`;
   }
   return `<label>${label}<input class="bcg-input" name="${name}" value="${escapeHtml(normalized)}"${required}></label>`;
+}
+
+function questionForKey(template, key) {
+  return (template?.sections || []).flatMap((section) => section.questions || []).find((question) => question.key === key);
+}
+
+function reviewValue(item, template) {
+  if (Array.isArray(item.value)) return item.value.join(', ');
+  const question = questionForKey(template, item.key);
+  if (question?.type === 'choice') return choiceLabelForQuestion(question, String(item.value));
+  return item.value;
 }
 
 export function renderAnamneseWizard({ answers = {}, step = 0, template = ANAMNESE_TEMPLATE_V1, mode = 'edit' } = {}) {
@@ -123,5 +134,5 @@ export function renderAnamneseWizard({ answers = {}, step = 0, template = ANAMNE
 export function renderAnamneseReview({ answers = {}, template = ANAMNESE_TEMPLATE_V1 } = {}) {
   const validation = validateAnamneseAnswers({ answers, template });
   const summary = buildAnamneseSummary({ answers, template });
-  return `<div class="bcg-anamnese-review"><p class="bcg-eyebrow">REVISÃO</p><h3>Confira as informações antes de continuar</h3>${summary.map((section) => `<section><h4>${escapeHtml(section.title)}</h4>${section.items.map((item) => `<div class="bcg-review-row"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(Array.isArray(item.value) ? item.value.join(', ') : item.value)}</strong></div>`).join('')}</section>`).join('')}${validation.valid ? '<p class="bcg-status" data-kind="success">Informações prontas para revisão profissional.</p>' : `<p class="bcg-status" data-kind="warning">Há ${validation.missing.length} campo(s) obrigatório(s) pendente(s).</p>`}</div>`;
+  return `<div class="bcg-anamnese-review"><p class="bcg-eyebrow">REVISÃO</p><h3>Confira as informações antes de continuar</h3>${summary.map((section) => `<section><h4>${escapeHtml(section.title)}</h4>${section.items.map((item) => `<div class="bcg-review-row"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(reviewValue(item, template))}</strong></div>`).join('')}</section>`).join('')}${validation.valid ? '<p class="bcg-status" data-kind="success">Informações prontas para revisão profissional.</p>' : `<p class="bcg-status" data-kind="warning">Há ${validation.missing.length} campo(s) obrigatório(s) pendente(s).</p>`}</div>`;
 }

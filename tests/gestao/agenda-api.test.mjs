@@ -6,7 +6,6 @@ import {
   listAdminClients,
   createClient,
   listActiveProcedures,
-  createProcedure,
   listActiveCollaborators,
   createAppointment,
   updateAppointment,
@@ -109,15 +108,11 @@ test('ponte legada de clientes já usa API segura e filtro de ativos', async () 
   ]);
 });
 
-test('procedimentos: lista apenas ativos e cria duração opcional', async () => {
+test('agenda apenas lista procedimentos ativos; criação saiu para a Biblioteca Clínica', async () => {
   const listMock = makeClient();
   await listActiveProcedures({ client: listMock.client });
   assert.ok(hasCall(listMock.queries[0].calls, 'eq', 'ativo', true));
-
-  const createMock = makeClient({ queryResult: { data: { id: 'p1' }, error: null } });
-  await createProcedure({ client: createMock.client, nome: 'Limpeza de pele', duracaoPadrao: 60, createdBy: 'admin-1' });
-  const insert = createMock.queries[0].calls.find((call) => call[0] === 'insert');
-  assert.deepEqual(insert[1], { nome: 'Limpeza de pele', duracao_padrao: 60, created_by: 'admin-1' });
+  assert.equal(listMock.queries[0].calls.some((call) => call[0] === 'insert'), false);
 });
 
 test('diretório clínico usa RPC mínima', async () => {

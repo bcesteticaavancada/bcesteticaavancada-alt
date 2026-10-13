@@ -51,15 +51,17 @@ test('linha do tempo mostra procedimento, profissional e conteúdo clínico sem 
   assert.doesNotMatch(html, /R\$|comiss|repasse|percentual|valor total/i);
 });
 
-test('pasta abre com cabeçalho, foto/placeholder, linha do tempo e cadastro', () => {
+test('pasta abre com as cinco abas clínicas sem financeiro', () => {
   const html = renderClientFolder({ client, history, staffMap, canArchive: false, photoUrl: '' });
   assert.match(html, /Cliente Teste/);
   assert.match(html, /36\s*anos/i);
   assert.match(html, /data-client-photo-placeholder/);
-  assert.match(html, /data-folder-tab=["']timeline["']/);
-  assert.match(html, /data-folder-tab=["']cadastro["']/);
-  assert.match(html, /Linha do tempo/i);
-  assert.match(html, /Cadastro/i);
+  for (const tab of ['timeline','cadastro','anamnese','atendimentos','documentos']) {
+    assert.match(html, new RegExp(`data-folder-tab=["']${tab}["']`));
+    assert.match(html, new RegExp(`data-folder-panel=["']${tab}["']`));
+  }
+  assert.match(html, /Atendimentos/i);
+  assert.doesNotMatch(html, /Financeiro|Comiss|Repasse/i);
   assert.doesNotMatch(html, /Arquivar cliente|data-toggle-client/);
 });
 

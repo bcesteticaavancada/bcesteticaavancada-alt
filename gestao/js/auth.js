@@ -22,34 +22,34 @@ function defaultRedirect(url) {
 export async function getCurrentProfile(client = getDefaultClient()) {
   const { data, error } = await client.auth.getSession();
   if (error) throw error;
-
   const user = data?.session?.user;
   if (!user?.id) return null;
-
   const { data: profile, error: profileError } = await client
     .from('staff_profiles')
-    .select('user_id,display_name,role,active')
+    .select('user_id,display_name,role,active,pode_gerenciar_procedimentos')
     .eq('user_id', user.id)
     .maybeSingle();
-
   if (profileError) throw profileError;
-  if (!profile) return null;
-  if (profile.user_id !== user.id) return null;
-  if (profile.active !== true) return null;
-  if (!VALID_ROLES.has(profile.role)) return null;
+  if (!profile || profile.user_id !== user.id || profile.active !== true || !VALID_ROLES.has(profile.role)) return null;
   return profile;
+}
+
+async function bootstrapRoleFeatures({ client, profile }) {
+  if (typeof document === 'undefined') return;
+  if (profile?.role !== 'admin' && profile?.pode_gerenciar_procedimentos !== true) return;
+  try {
+    const { initProcedurePanel } = await import('./procedure-panel.js');
+    await initProcedurePanel({ client, profile, root: document });
+  } catch (error) {
+    console.warn?.('BC Gestão: Biblioteca Clínica não pôde ser inicializada.', error?.message || 'erro');
+  }
 }
 
 export async function signIn(email, password, client = getDefaultClient()) {
   const cleanEmail = String(email ?? '').trim();
   if (!cleanEmail || !password) throw new Error('Informe e-mail e senha.');
-
-  const { error } = await client.auth.signInWithPassword({
-    email: cleanEmail,
-    password,
-  });
+  const { error } = await client.auth.signInWithPassword({ email: cleanEmail, password });
   if (error) throw new Error('E-mail ou senha inválidos.');
-
   try {
     const profile = await getCurrentProfile(client);
     if (!profile) throw new Error('Conta sem acesso ao BC Gestão.');
@@ -66,10 +66,7 @@ export async function requestPasswordReset(email, redirectTo, client = getDefaul
   const cleanRedirect = String(redirectTo ?? '').trim();
   if (!cleanEmail) throw new Error('Informe seu e-mail.');
   if (!cleanRedirect) throw new Error('Destino de recuperação inválido.');
-
-  const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
-    redirectTo: cleanRedirect,
-  });
+  const { error } = await client.auth.resetPasswordForEmail(cleanEmail, { redirectTo: cleanRedirect });
   if (error) throw new Error('Não foi possível enviar o e-mail de recuperação agora.');
   return true;
 }
@@ -77,7 +74,6 @@ export async function requestPasswordReset(email, redirectTo, client = getDefaul
 export async function updatePassword(password, client = getDefaultClient()) {
   const cleanPassword = String(password ?? '');
   if (cleanPassword.length < 8) throw new Error('A nova senha precisa ter pelo menos 8 caracteres.');
-
   const { data, error } = await client.auth.updateUser({ password: cleanPassword });
   if (error) throw new Error('Não foi possível atualizar a senha. Solicite um novo link e tente novamente.');
   return data?.user ?? true;
@@ -91,24 +87,14 @@ export async function signOut(client = getDefaultClient()) {
 export async function requireRole(role, client = getDefaultClient(), redirect = defaultRedirect) {
   const expectedRole = typeof role === 'string' ? role.trim().toLowerCase() : '';
   let profile = null;
-
   if (VALID_ROLES.has(expectedRole)) {
-    try {
-      profile = await getCurrentProfile(client);
-    } catch {
-      profile = null;
-    }
+    try { profile = await getCurrentProfile(client); } catch { profile = null; }
   }
-
   if (!profile || profile.role !== expectedRole) {
-    try {
-      await client.auth.signOut();
-    } catch {
-      // Fail closed even when sign-out itself cannot be completed.
-    }
+    try { await client.auth.signOut(); } catch {}
     redirect('../login/');
     return null;
   }
-
+  await bootstrapRoleFeatures({ client, profile });
   return profile;
 }

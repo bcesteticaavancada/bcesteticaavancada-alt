@@ -1,6 +1,7 @@
 import { getClient } from './clientes-api.js';
 import { loadClientClinicalBundle, initAnamneseController } from './anamnese-controller.js';
 import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
+import { renderTreatmentPanel, initTreatmentController } from './treatment-panel.js';
 
 const INSTALL_KEY = '__bcClinicalFolderRuntimeInstalled';
 
@@ -8,9 +9,26 @@ function escapeHtml(value) {
   return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 }
 
-function renderDocuments(documents = []) {
+function documentLabel(doc = {}) {
+  if (doc.document_type === 'consentimento_procedimento') return 'Consentimento do procedimento';
+  if (doc.document_type === 'treatment_record') return 'Ficha de atendimento';
+  return 'Anamnese Geral';
+}
+
+export function renderClinicalDocuments(documents = []) {
   if (!documents.length) return '<div class="bcg-empty">Nenhum documento clínico emitido para esta cliente.</div>';
-  return `<div class="bcg-clinical-documents">${documents.map((doc) => `<article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}"><div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>Anamnese Geral • Versão ${escapeHtml(doc.source_version)}</span></div><span class="bcg-chip">${escapeHtml(doc.status === 'emitido' ? 'PDF emitido' : doc.status || '')}</span>${doc.status === 'emitido' && doc.storage_path ? `<button class="bcg-small-button" type="button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>` : ''}</article>`).join('')}</div>`;
+  return `<div class="bcg-clinical-documents">${documents.map((doc) => {
+    let action = '';
+    if (doc.status === 'emitido' && doc.storage_path) {
+      action = `<button class="bcg-small-button" type="button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>`;
+    } else if (doc.status === 'pronto_para_pdf') {
+      action = `<button class="bcg-small-button" type="button" data-generate-clinical-document="${escapeHtml(doc.id)}" data-document-type="${escapeHtml(doc.document_type || '')}">Gerar PDF</button>`;
+    } else if (doc.status === 'erro_pdf') {
+      action = `<button class="bcg-small-button" type="button" data-generate-clinical-document="${escapeHtml(doc.id)}" data-document-type="${escapeHtml(doc.document_type || '')}">Tentar gerar PDF</button>`;
+    }
+    const statusLabel = doc.status === 'emitido' ? 'PDF emitido' : doc.status === 'gerando_pdf' ? 'Gerando PDF' : (doc.status || '');
+    return `<article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}"><div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>${escapeHtml(documentLabel(doc))} • Versão ${escapeHtml(doc.source_version)}</span></div><span class="bcg-chip">${escapeHtml(statusLabel)}</span>${action}</article>`;
+  }).join('')}</div>`;
 }
 
 function updateChecklist(folder, state) {
@@ -34,6 +52,19 @@ function updateAlertStrip(folder, alerts) {
   section.dataset.clinicalAlertStrip = '';
   section.innerHTML = `<p class="bcg-eyebrow">ALERTAS CLÍNICOS ATIVOS</p>${renderClinicalAlerts(alerts)}`;
   checklist.before(section);
+}
+
+function renderTreatmentTimelineSummary(treatments = []) {
+  if (!treatments.length) return '';
+  return `<section data-treatment-timeline-summary><p class="bcg-eyebrow">ATENDIMENTOS CLÍNICOS 6C</p><div class="bcg-history-timeline">${treatments.map((item) => `<article class="bcg-history-entry"><header><div><strong>${escapeHtml(item.procedure_name || 'Procedimento')}</strong><span>${escapeHtml(item.status || '')}</span></div><time>${escapeHtml(String(item.treatment_date || '').split('-').reverse().join('/'))}</time></header><div class="bcg-history-grid">${item.objetivo ? `<div class="bcg-history-field"><span>Objetivo</span><p>${escapeHtml(item.objetivo)}</p></div>` : ''}${item.orientacoes ? `<div class="bcg-history-field"><span>Orientações</span><p>${escapeHtml(item.orientacoes)}</p></div>` : ''}</div></article>`).join('')}</div><div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO LEGADO</p></section>`;
+}
+
+function updateTimeline(folder, treatments = []) {
+  const panel = folder.querySelector?.('[data-folder-panel="timeline"]');
+  if (!panel) return;
+  panel.querySelector?.('[data-treatment-timeline-summary]')?.remove?.();
+  if (!treatments.length) return;
+  panel.insertAdjacentHTML?.('afterbegin', renderTreatmentTimelineSummary(treatments));
 }
 
 async function hydrateFolder({ client, folder, force = false }) {
@@ -64,7 +95,22 @@ async function hydrateFolder({ client, folder, force = false }) {
 
     const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
     if (documentsPanel) {
-      documentsPanel.innerHTML = `<p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderDocuments(bundle.documents)}`;
+      documentsPanel.innerHTML = `<p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderClinicalDocuments(bundle.documents)}`;
+    }
+
+    const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
+    if (treatmentsPanel && !folder.__bcTreatmentController) {
+      treatmentsPanel.innerHTML = renderTreatmentPanel({ client: clientRecord });
+      folder.__bcTreatmentController = initTreatmentController({
+        client,
+        root: treatmentsPanel,
+        getClientRecord: () => folder.__bcClientRecord,
+        refreshFolder: () => hydrateFolder({ client, folder, force: true }),
+      });
+    }
+    if (folder.__bcTreatmentController) {
+      const treatmentBundle = await folder.__bcTreatmentController.hydrate();
+      updateTimeline(folder, treatmentBundle?.treatments || []);
     }
 
     updateChecklist(folder, bundle.state);
@@ -83,6 +129,8 @@ async function hydrateFolder({ client, folder, force = false }) {
   } catch (error) {
     const anamnesePanel = folder.querySelector?.('[data-folder-panel="anamnese"]');
     if (anamnesePanel) anamnesePanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar a Anamnese Geral.')}</div>`;
+    const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
+    if (treatmentsPanel) treatmentsPanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os atendimentos clínicos.')}</div>`;
   } finally {
     delete folder.dataset.clinicalHydrating;
   }

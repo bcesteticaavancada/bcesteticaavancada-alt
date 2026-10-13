@@ -73,6 +73,25 @@ const LABELS: Record<string, string> = {
   declaracao_dados: 'Declaração de tratamento de dados para atendimento',
 };
 
+const CHOICE_LABELS: Record<string, string> = {
+  sim: 'Sim',
+  nao: 'Não',
+  nao_sei: 'Não sei',
+  prefiro_conversar: 'Prefiro conversar pessoalmente',
+  prefiro_nao_informar: 'Prefiro não informar',
+  nao_se_aplica: 'Não se aplica',
+  as_vezes: 'Às vezes',
+  seca: 'Seca',
+  oleosa: 'Oleosa',
+  mista: 'Mista',
+  sensivel: 'Sensível',
+  normal: 'Normal',
+  ultimos_7_dias: 'Últimos 7 dias',
+  '8_15_dias': '8–15 dias',
+  '16_30_dias': '16–30 dias',
+  mais_de_30_dias: 'Mais de 30 dias',
+};
+
 function asText(value: unknown): string {
   if (value === null || value === undefined) return '';
   if (Array.isArray(value)) return value.map(asText).filter(Boolean).join(', ');
@@ -85,9 +104,21 @@ function asText(value: unknown): string {
   return String(value);
 }
 
+function displayAnswerValue(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (Array.isArray(value)) return value.map(displayAnswerValue).filter(Boolean).join(', ');
+  if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
+  if (typeof value === 'string') return CHOICE_LABELS[value] || value;
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    if ('value' in obj && Object.keys(obj).length === 1) return displayAnswerValue(obj.value);
+    return Object.entries(obj).map(([key, item]) => `${key}: ${displayAnswerValue(item)}`).join(' • ');
+  }
+  return String(value);
+}
+
 function answerValue(answer: AnyRecord): string {
-  const raw = answer.answer_json;
-  return asText(raw);
+  return displayAnswerValue(answer.answer_json);
 }
 
 function formatDate(value: unknown): string {

@@ -1,6 +1,6 @@
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '../js/config.js';
-import { ANAMNESE_TEMPLATE_V1, getVisibleQuestions } from '../js/anamnese-schema.js';
-import { validateAnamneseAnswers, buildAnamneseSummary } from '../js/anamnese-domain.js';
+import { ANAMNESE_TEMPLATE_V1, choiceLabelForQuestion, choiceOptionsForQuestion, getVisibleQuestions } from '../js/anamnese-schema.js';
+import { validateAnamneseAnswers, buildAnamneseSummary, sanitizeAnamneseAnswers } from '../js/anamnese-domain.js';
 
 const statusEl = document.getElementById('remoteStatus');
 const app = document.getElementById('remoteApp');
@@ -23,8 +23,15 @@ function setStatus(message, kind = '') {
   statusEl.dataset.kind = kind;
 }
 
-function optionLabel(value) {
-  return ({ sim:'Sim', nao:'Não', nao_sei:'Não sei', prefiro_conversar:'Prefiro conversar pessoalmente', nao_se_aplica:'Não se aplica' })[value] || value;
+function questionForKey(key) {
+  return ANAMNESE_TEMPLATE_V1.sections.flatMap((section) => section.questions || []).find((question) => question.key === key);
+}
+
+function reviewValue(item) {
+  if (Array.isArray(item.value)) return item.value.join(', ');
+  const question = questionForKey(item.key);
+  if (question?.type === 'choice') return choiceLabelForQuestion(question, String(item.value));
+  return item.value;
 }
 
 function renderInput(question) {
@@ -34,7 +41,7 @@ function renderInput(question) {
   const name = escapeHtml(question.key);
   if (question.type === 'textarea') return `<label>${label}<textarea class="bcg-input bcg-textarea" name="${name}" rows="3"${required}>${escapeHtml(value)}</textarea></label>`;
   if (question.type === 'checkbox') return `<label class="bcg-remote-consent"><input type="checkbox" name="${name}" ${value === true ? 'checked' : ''}${required}><span>${label}</span></label>`;
-  if (question.type === 'choice') return `<label>${label}<select class="bcg-input" name="${name}"${required}><option value="">Selecione</option>${['sim','nao','nao_sei','prefiro_conversar','nao_se_aplica'].map((item) => `<option value="${item}" ${value === item ? 'selected' : ''}>${optionLabel(item)}</option>`).join('')}</select></label>`;
+  if (question.type === 'choice') return `<label>${label}<select class="bcg-input" name="${name}"${required}><option value="">Selecione</option>${choiceOptionsForQuestion(question).map((item) => `<option value="${escapeHtml(item.value)}" ${value === item.value ? 'selected' : ''}>${escapeHtml(item.label)}</option>`).join('')}</select></label>`;
   if (question.type === 'multiselect') return `<label>${label}<input class="bcg-input" name="${name}" data-multi="true" value="${escapeHtml(Array.isArray(value) ? value.join(', ') : value)}" placeholder="Separe itens por vírgula"${required}></label>`;
   return `<label>${label}<input class="bcg-input" name="${name}" value="${escapeHtml(value)}"${required}></label>`;
 }
@@ -54,10 +61,12 @@ function collect(form) {
     else if (question.type === 'multiselect') answers[question.key] = String(field.value || '').split(',').map((item) => item.trim()).filter(Boolean);
     else answers[question.key] = String(field.value || '').trim();
   }
+  answers = sanitizeAnamneseAnswers(answers, ANAMNESE_TEMPLATE_V1);
   return Object.fromEntries([...data.entries()]);
 }
 
 async function save(submit = false) {
+  answers = sanitizeAnamneseAnswers(answers, ANAMNESE_TEMPLATE_V1);
   const { data, error } = await db.rpc('bc_anamnese_remote_save', {
     p_token: token,
     p_answers: answers,
@@ -91,9 +100,10 @@ function renderStep() {
 }
 
 function renderReview() {
+  answers = sanitizeAnamneseAnswers(answers, ANAMNESE_TEMPLATE_V1);
   const validation = validateAnamneseAnswers({ answers, template: ANAMNESE_TEMPLATE_V1 });
   const summary = buildAnamneseSummary({ answers, template: ANAMNESE_TEMPLATE_V1 });
-  app.innerHTML = `<div class="bcg-remote-review"><p class="bcg-eyebrow">REVISÃO</p><h3>Confira suas informações</h3>${summary.map((section) => `<section><h4>${escapeHtml(section.title)}</h4>${section.items.map((item) => `<div class="bcg-remote-review-row"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(Array.isArray(item.value) ? item.value.join(', ') : optionLabel(String(item.value)))}</strong></div>`).join('')}</section>`).join('')}<div class="bcg-remote-actions"><button type="button" class="bcg-small-button" id="reviewBack">Voltar</button>${validation.valid ? '<button type="button" class="bcg-button" id="remoteSubmit">Confirmar e enviar para revisão</button>' : ''}</div>${validation.valid ? '' : `<p class="bcg-status" data-kind="warning">Há ${validation.missing.length} campo(s) obrigatório(s) pendente(s).</p>`}</div>`;
+  app.innerHTML = `<div class="bcg-remote-review"><p class="bcg-eyebrow">REVISÃO</p><h3>Confira suas informações</h3>${summary.map((section) => `<section><h4>${escapeHtml(section.title)}</h4>${section.items.map((item) => `<div class="bcg-remote-review-row"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(reviewValue(item))}</strong></div>`).join('')}</section>`).join('')}<div class="bcg-remote-actions"><button type="button" class="bcg-small-button" id="reviewBack">Voltar</button>${validation.valid ? '<button type="button" class="bcg-button" id="remoteSubmit">Confirmar e enviar para revisão</button>' : ''}</div>${validation.valid ? '' : `<p class="bcg-status" data-kind="warning">Há ${validation.missing.length} campo(s) obrigatório(s) pendente(s).</p>`}</div>`;
   document.getElementById('reviewBack')?.addEventListener('click', () => { step = ANAMNESE_TEMPLATE_V1.sections.length - 1; renderStep(); });
   document.getElementById('remoteSubmit')?.addEventListener('click', async () => {
     setStatus('Enviando sua anamnese para a BC Estética…');
@@ -111,7 +121,7 @@ async function init() {
     const { data, error } = await db.rpc('bc_anamnese_remote_get', { p_token: token });
     if (error) throw error;
     record = data;
-    answers = data?.answers || {};
+    answers = sanitizeAnamneseAnswers(data?.answers || {}, ANAMNESE_TEMPLATE_V1);
     app.hidden = false;
     setStatus('Link validado. Você pode preencher com tranquilidade.', 'success');
     renderStep();
