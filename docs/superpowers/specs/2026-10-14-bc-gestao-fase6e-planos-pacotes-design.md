@@ -27,11 +27,12 @@ A Biblioteca Clínica continua sendo a fonte canônica dos procedimentos. Um pla
 8. **Pacotes podem ser mistos.** Ex.: Botox Full Face + Limpeza de Pele + Drenagem + aplicação de Enzimas.
 9. **Pacote pode ser reutilizável ou personalizado.** Pode existir como modelo da BC ou como plano específico de uma cliente.
 10. **Venda pode ter desconto negociado.** O sistema mostra valor cheio, percentual de desconto, motivo e valor final.
-11. **Colaboradora pode conceder qualquer percentual no momento da venda.** Não bloquear a conclusão da venda esperando aprovação prévia.
+11. **Colaboradora pode conceder qualquer percentual entre 0% e 100% no momento da venda.** Não bloquear a conclusão da venda esperando aprovação prévia.
 12. **Desconto aplicado por colaboradora vai para revisão posterior da Mel.** A revisão não desfaz automaticamente pagamento/venda já realizada.
-13. **Sessão só consome saldo quando o atendimento correspondente é finalizado.** Agendamento, criação de encaixe ou abertura de ficha não devem consumir saldo.
-14. **Sem exclusão destrutiva.** Plano, composição, venda, desconto e consumo de sessão precisam manter histórico auditável.
-15. **Não quebrar Fase 5 nem 6A–6D.** A 6E.1 deve reutilizar financeiro, agenda, Central da Cliente, Biblioteca Clínica e `clinical_treatments` existentes.
+13. **Combo criado por colaboradora também pode ser usado antes da revisão posterior da Mel.** A revisão é administrativa e preserva autoria/estado, não um bloqueio prévio de operação.
+14. **Sessão só consome saldo quando o atendimento correspondente é finalizado.** Agendamento, criação de encaixe ou abertura de ficha não devem consumir saldo.
+15. **Sem exclusão destrutiva.** Plano, composição, venda, desconto e consumo de sessão precisam manter histórico auditável.
+16. **Não quebrar Fase 5 nem 6A–6D.** A 6E.1 deve reutilizar financeiro, agenda, Central da Cliente, Biblioteca Clínica e `clinical_treatments` existentes.
 
 ## 3. Escopo desta entrega
 
@@ -43,12 +44,13 @@ A Biblioteca Clínica continua sendo a fonte canônica dos procedimentos. Um pla
 - quantidade por item;
 - valor cheio calculado automaticamente;
 - desconto percentual padrão opcional no modelo;
+- revisão administrativa posterior dos modelos criados/alterados por colaboradoras;
 - venda/atribuição de plano a uma cliente;
 - desconto negociado específico da venda;
 - revisão posterior de descontos pela Mel;
 - saldo contratado, realizado e restante por procedimento dentro do plano;
 - vínculo de sessão clínica finalizada ao item do plano;
-- entrada “Sessão de plano/pacote” dentro do atendimento da cliente;
+- entrada `Sessão de plano/pacote` dentro do atendimento da cliente;
 - seleção somente entre itens com saldo disponível e procedimento executável pela profissional;
 - resumo do plano ativo na Central da Cliente;
 - histórico e auditoria das ações sensíveis.
@@ -115,11 +117,13 @@ Tabela conceitual `treatment_plan_templates`:
 - `description text null`
 - `status text not null` (`ativo`, `inativo`)
 - `default_discount_percent numeric null`
+- `review_status text not null` (`pendente_revisao`, `revisado_ok`, `revisado_atencao`)
+- `reviewed_by uuid null`
+- `reviewed_at timestamptz null`
+- `review_note text null`
 - `created_by uuid not null`
 - `created_at timestamptz not null`
 - `updated_at timestamptz not null`
-- `reviewed_by uuid null`
-- `reviewed_at timestamptz null`
 
 Composição `treatment_plan_template_items`:
 
@@ -134,7 +138,7 @@ Composição `treatment_plan_template_items`:
 
 Equipe autenticada/autorizada da BC pode criar modelo de pacote.
 
-Criação por colaboradora não deve ser bloqueada esperando aprovação prévia. O sistema registra autoria. A Mel mantém visão administrativa para revisar posteriormente composição e condições comerciais.
+Criação por colaboradora não deve ser bloqueada esperando aprovação prévia. O sistema registra autoria e marca a revisão administrativa correspondente como pendente. A Mel mantém visão administrativa para revisar posteriormente composição e condições comerciais. Enquanto aguarda revisão, o combo continua utilizável; a revisão serve para governança e acompanhamento, não para travar o atendimento.
 
 ### 5.4 Edição
 
@@ -185,7 +189,7 @@ Motivos iniciais sugeridos:
 - `fidelizacao`;
 - `outro`.
 
-Percentual deve ser numericamente válido e não produzir valor final negativo.
+Percentual deve estar entre `0` e `100`, inclusive. `100%` representa gratuidade integral quando a operação decidir concedê-la. O backend nunca aceita percentual que gere valor final negativo.
 
 ## 7. Revisão posterior de desconto pela Mel
 
@@ -199,10 +203,10 @@ Estados propostos para revisão:
 
 Regras:
 
-- colaboradora pode conceder qualquer percentual permitido pelo backend no momento da venda;
+- colaboradora pode conceder qualquer percentual entre 0% e 100% no momento da venda;
 - a venda não fica travada esperando Mel;
 - Mel visualiza descontos pendentes em painel administrativo;
-- Mel pode marcar como OK ou como “atenção” e registrar nota administrativa;
+- Mel pode marcar como OK ou como `atenção` e registrar nota administrativa;
 - revisão não altera retroativamente o valor já cobrado;
 - revisão não apaga nem substitui percentual original;
 - eventual bloqueio futuro de uma colaboradora para descontos fica reservado para evolução posterior, fora da primeira 6E.1.
@@ -344,7 +348,7 @@ A área Procedimentos continua sendo a administração da Biblioteca Clínica e 
 - **Procedimentos/Protocolos** — catálogo clínico existente;
 - **Planos e Pacotes** — construtor de combos reutilizáveis.
 
-Não criar uma segunda tabela de “procedimentos de pacote”.
+Não criar uma segunda tabela de `procedimentos de pacote`.
 
 Botão de novo pacote:
 
@@ -379,10 +383,11 @@ Pode:
 
 - consultar modelos ativos;
 - criar novo modelo de pacote;
+- usar modelo ainda pendente de revisão administrativa;
 - montar plano personalizado para cliente;
 - selecionar procedimentos existentes;
 - definir quantidades;
-- aplicar percentual de desconto;
+- aplicar percentual de desconto entre 0% e 100%;
 - registrar motivo do desconto;
 - usar sessão disponível no atendimento quando puder executar o procedimento.
 
@@ -391,13 +396,14 @@ Não pode:
 - alterar histórico financeiro de outra profissional;
 - apagar consumo já registrado;
 - alterar venda histórica sem fluxo auditado;
-- marcar a própria revisão administrativa de desconto como se fosse Mel.
+- marcar a própria revisão administrativa de desconto/modelo como se fosse Mel.
 
 ### Mel/Admin
 
 Além das ações acima, pode:
 
 - revisar descontos;
+- revisar modelos criados/alterados por colaboradoras;
 - marcar `revisado_ok` / `revisado_atencao`;
 - inativar modelos;
 - visualizar valores administrativos completos;
@@ -408,6 +414,7 @@ Além das ações acima, pode:
 Eventos mínimos:
 
 - modelo criado/alterado/inativado;
+- modelo revisado;
 - plano atribuído à cliente;
 - desconto aplicado;
 - desconto revisado;
@@ -424,7 +431,7 @@ Backend deve ser autoridade para:
 
 - cálculo do valor cheio;
 - cálculo do valor final;
-- validade do percentual;
+- faixa do percentual (`0..100`);
 - procedimentos ativos/existentes;
 - quantidade contratada;
 - saldo disponível;
@@ -446,7 +453,8 @@ Priorizar cards, não tabelas largas.
 - valor cheio;
 - desconto padrão;
 - valor de referência;
-- status.
+- status;
+- revisão administrativa (`pendente`, `ok`, `atenção`).
 
 ### Card do plano da cliente
 
@@ -490,9 +498,12 @@ O `clinical_treatment` deve carregar referência opcional ao item/uso do plano, 
 - pacote misto;
 - valores calculados por quantidade;
 - desconto zero;
+- desconto de 100%;
+- rejeição de desconto abaixo de 0% ou acima de 100%;
 - desconto negociado;
 - desconto por colaboradora entra em revisão pendente;
-- Mel revisa sem alterar valor histórico;
+- modelo criado por colaboradora entra em revisão pendente sem bloquear uso;
+- Mel revisa modelo/desconto sem alterar histórico;
 - modelo editado não altera venda antiga;
 - plano personalizado sem template;
 - seleção de sessão com saldo;
@@ -514,7 +525,7 @@ Usar apenas dados sintéticos e preferir transação com `ROLLBACK` para fluxo i
 
 Cenário mínimo:
 
-`criar modelo misto → atribuir a cliente fictícia → aplicar desconto → criar atendimento de um item → finalizar → consumir 1 sessão → conferir saldo → revisar desconto como admin → rollback → verificar zero resíduos`
+`criar modelo misto → atribuir a cliente fictícia → aplicar desconto → criar atendimento de um item → finalizar → consumir 1 sessão → conferir saldo → revisar modelo/desconto como admin → rollback → verificar zero resíduos`
 
 ## 20. Critérios de aceite
 
@@ -524,17 +535,18 @@ A 6E.1 está pronta quando:
 2. procedimento novo continua entrando pela Biblioteca Clínica, sem cadastro paralelo;
 3. pacote pode misturar procedimentos e quantidades;
 4. valor cheio é calculado automaticamente;
-5. desconto percentual pode ser definido no modelo e/ou venda;
+5. desconto percentual de 0% a 100% pode ser definido no modelo e/ou venda;
 6. colaboradora pode conceder desconto sem esperar aprovação prévia;
-7. Mel consegue revisar posteriormente sem reescrever a venda;
-8. plano pode ser modelo reutilizável ou personalizado por cliente;
-9. Central mostra saldo de sessões;
-10. atendimento pode partir de uma sessão do plano;
-11. sessão finalizada consome saldo uma única vez;
-12. todas as regras clínicas do procedimento continuam valendo;
-13. financeiro mantém segregação da Fase 5;
-14. nenhuma alteração é feita no `/admin/` legado;
-15. regressão completa, advisors e homologação sintética passam antes do rollout.
+7. combo criado por colaboradora pode ser usado e fica sinalizado para revisão posterior da Mel;
+8. Mel consegue revisar posteriormente sem reescrever composição/venda histórica;
+9. plano pode ser modelo reutilizável ou personalizado por cliente;
+10. Central mostra saldo de sessões;
+11. atendimento pode partir de uma sessão do plano;
+12. sessão finalizada consome saldo uma única vez;
+13. todas as regras clínicas do procedimento continuam valendo;
+14. financeiro mantém segregação da Fase 5;
+15. nenhuma alteração é feita no `/admin/` legado;
+16. regressão completa, advisors e homologação sintética passam antes do rollout.
 
 ## 21. Continuação da Fase 6E
 
