@@ -2,6 +2,7 @@ import { getClient } from './clientes-api.js';
 import { loadClientClinicalBundle, initAnamneseController } from './anamnese-controller.js';
 import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
 import { renderTreatmentPanel, initTreatmentController } from './treatment-panel.js';
+import { initClientDocumentsPanel } from './client-documents-panel.js';
 
 const INSTALL_KEY = '__bcClinicalFolderRuntimeInstalled';
 
@@ -15,6 +16,8 @@ function documentLabel(doc = {}) {
   return 'Anamnese Geral';
 }
 
+// Compatibilidade 6C: Anamnese e testes antigos continuam usando este renderer.
+// A aba Documentos da Pasta usa o módulo unificado client-documents-panel.js.
 export function renderClinicalDocuments(documents = []) {
   if (!documents.length) return '<div class="bcg-empty">Nenhum documento clínico emitido para esta cliente.</div>';
   return `<div class="bcg-clinical-documents">${documents.map((doc) => {
@@ -94,9 +97,14 @@ async function hydrateFolder({ client, folder, force = false }) {
     }
 
     const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
-    if (documentsPanel) {
-      documentsPanel.innerHTML = `<p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderClinicalDocuments(bundle.documents)}`;
+    if (documentsPanel && !folder.__bcDocumentsController) {
+      folder.__bcDocumentsController = initClientDocumentsPanel({
+        client,
+        root: documentsPanel,
+        getClientRecord: () => folder.__bcClientRecord,
+      });
     }
+    if (folder.__bcDocumentsController) await folder.__bcDocumentsController.hydrate();
 
     const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
     if (treatmentsPanel && !folder.__bcTreatmentController) {
@@ -131,6 +139,8 @@ async function hydrateFolder({ client, folder, force = false }) {
     if (anamnesePanel) anamnesePanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar a Anamnese Geral.')}</div>`;
     const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
     if (treatmentsPanel) treatmentsPanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os atendimentos clínicos.')}</div>`;
+    const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
+    if (documentsPanel && !folder.__bcDocumentsController) documentsPanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os documentos.')}</div>`;
   } finally {
     delete folder.dataset.clinicalHydrating;
   }
