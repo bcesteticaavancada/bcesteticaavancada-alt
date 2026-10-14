@@ -135,6 +135,16 @@ function renderDocuments(documents = []) {
   return `<div class="bcg-clinical-documents">${documents.map((doc) => `<article class="bcg-document-card" data-document-id="${escapeHtml(doc.id)}"><div><strong>${escapeHtml(doc.document_code || 'Documento clínico')}</strong><span>${escapeHtml(documentLabel(doc))} • Versão ${escapeHtml(doc.source_version)}</span></div><span class="bcg-chip">${escapeHtml(doc.status === 'emitido' ? 'PDF emitido' : doc.status || '')}</span>${doc.status === 'emitido' && doc.storage_path ? `<button class="bcg-small-button" type="button" data-download-clinical-document="${escapeHtml(doc.id)}">Baixar PDF</button>` : ''}</article>`).join('')}</div>`;
 }
 
+function renderHeaderActions(active) {
+  const disabled = active ? '' : ' disabled';
+  return `<div class="bcg-folder-actions" aria-label="Ações rápidas da cliente">
+    <button type="button" class="bcg-button" data-client-new-treatment${disabled}>+ Novo atendimento</button>
+    <button type="button" class="bcg-small-button" data-client-schedule${disabled}>Agendar</button>
+    <button type="button" class="bcg-small-button" data-client-upload-document${disabled}>Anexar documento</button>
+    <button type="button" class="bcg-small-button" data-client-edit-cadastro>Editar cadastro</button>
+  </div>`;
+}
+
 export function renderClientFolder({
   client,
   history = [],
@@ -148,22 +158,35 @@ export function renderClientFolder({
   clinicalDocuments = [],
 }) {
   if (!client?.id) return '<div class="bcg-empty">Selecione uma cliente para abrir a pasta.</div>';
+  const active = client.ativo !== false;
   const age = calculateAge(client.data_nascimento);
   const identity = [age === null ? '' : `${age} anos`, client.telefone || '', client.cpf ? formatCpf(client.cpf) : ''].filter(Boolean).join(' • ');
-  const status = client.ativo === false ? '<span class="bcg-chip bcg-status-cancelado">Arquivada</span>' : '<span class="bcg-chip">Ativa</span>';
+  const status = active ? '<span class="bcg-chip">Ativa</span>' : '<span class="bcg-chip bcg-status-cancelado">Arquivada</span>';
   const photo = photoUrl
     ? `<img class="bcg-folder-photo" src="${escapeHtml(photoUrl)}" alt="Foto de identificação de ${escapeHtml(client.nome || 'cliente')}">`
     : '<div class="bcg-folder-photo bcg-folder-photo-placeholder" data-client-photo-placeholder aria-label="Sem foto de identificação">BC</div>';
+  const alerts = clinicalAlerts.length
+    ? `<section class="bcg-folder-alert-strip" data-clinical-alert-strip><p class="bcg-eyebrow">ALERTAS CLÍNICOS ATIVOS</p>${renderClinicalAlerts(clinicalAlerts)}</section>`
+    : '';
 
   return `<article class="bcg-client-folder" data-client-folder data-client-id="${escapeHtml(client.id)}">
-    <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">PASTA DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div>${renderPhotoControls(client.ativo !== false)}</header>
-    ${clinicalAlerts.length ? `<section class="bcg-folder-alert-strip"><p class="bcg-eyebrow">ALERTAS CLÍNICOS ATIVOS</p>${renderClinicalAlerts(clinicalAlerts)}</section>` : ''}
-    ${renderClientFolderChecklist(client, anamneseState)}
-    <nav class="bcg-folder-tabs" aria-label="Pasta da cliente"><button type="button" class="bcg-folder-tab is-active" data-folder-tab="timeline">Linha do tempo</button><button type="button" class="bcg-folder-tab" data-folder-tab="cadastro">Cadastro</button><button type="button" class="bcg-folder-tab" data-folder-tab="anamnese">Anamnese</button><button type="button" class="bcg-folder-tab" data-folder-tab="atendimentos">Atendimentos</button><button type="button" class="bcg-folder-tab" data-folder-tab="documentos">Documentos</button></nav>
-    <section data-folder-panel="timeline"><p class="bcg-eyebrow">LINHA DO TEMPO</p>${renderClientTimeline(history, staffMap)}</section>
-    <section data-folder-panel="cadastro" hidden><p class="bcg-eyebrow">CADASTRO</p>${renderClientCadastroForm(client, canArchive)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO DE IDENTIFICAÇÃO</p><h3>Fotos preservadas</h3>${renderPhotoHistory(photoHistory)}</section>
+    <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">CENTRAL DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div>${renderHeaderActions(active)}</header>
+    <nav class="bcg-folder-tabs" aria-label="Central da cliente">
+      <button type="button" class="bcg-folder-tab is-active" data-folder-tab="resumo">Resumo</button>
+      <button type="button" class="bcg-folder-tab" data-folder-tab="atendimentos">Atendimentos</button>
+      <button type="button" class="bcg-folder-tab" data-folder-tab="anamnese">Anamnese e Alertas</button>
+      <button type="button" class="bcg-folder-tab" data-folder-tab="fotos">Fotos</button>
+      <button type="button" class="bcg-folder-tab" data-folder-tab="documentos">Documentos</button>
+      <button type="button" hidden aria-hidden="true" data-folder-tab="timeline" tabindex="-1">Linha do tempo</button>
+      <button type="button" hidden aria-hidden="true" data-folder-tab="cadastro" tabindex="-1">Cadastro</button>
+    </nav>
+    <section data-folder-panel="resumo">${alerts}${renderClientFolderChecklist(client, anamneseState)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO RECENTE</p>${renderClientTimeline(history, staffMap)}</section>
+    <section data-folder-panel="atendimentos" hidden><div class="bcg-empty">Abra esta área para carregar os atendimentos clínicos…</div></section>
     <section data-folder-panel="anamnese" hidden>${renderAnamnesePanel({ client, state: anamneseState, versions: anamneseVersions, alerts: clinicalAlerts, documents: clinicalDocuments })}</section>
-    <section data-folder-panel="atendimentos" hidden><div class="bcg-empty">Carregando atendimentos clínicos…</div></section>
-    <section data-folder-panel="documentos" hidden><p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h3>PDFs da Pasta da Cliente</h3><p class="bcg-muted">Documentos privados, versionados e acessíveis somente à equipe autorizada.</p>${renderDocuments(clinicalDocuments)}</section>
+    <section data-folder-panel="fotos" hidden><p class="bcg-eyebrow">FOTOS</p><h3>Identificação da cliente</h3>${renderPhotoControls(active)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO DE IDENTIFICAÇÃO</p><h3>Fotos preservadas</h3>${renderPhotoHistory(photoHistory)}<div data-client-clinical-photos-slot></div></section>
+    <section data-folder-panel="documentos" hidden><p class="bcg-eyebrow">DOCUMENTOS</p><h3>Pasta documental</h3><p class="bcg-muted">Abra esta área para carregar documentos privados.</p>${renderDocuments(clinicalDocuments)}</section>
+    <section data-folder-panel="timeline" hidden aria-hidden="true"></section>
+    <section data-folder-panel="cadastro" hidden aria-hidden="true"></section>
+    <section class="bcg-client-cadastro-panel" data-client-cadastro-panel hidden><div class="bcg-folder-secondary-head"><div><p class="bcg-eyebrow">CADASTRO</p><h3>Dados da cliente</h3></div><button type="button" class="bcg-small-button" data-client-close-cadastro>Fechar</button></div>${renderClientCadastroForm(client, canArchive)}</section>
   </article>`;
 }

@@ -12,6 +12,8 @@ import {
   startTreatment,
   finalizeTreatment,
   completeTreatmentFinalization,
+  getExternalConsent,
+  linkExternalConsent,
 } from './treatment-api.js';
 import {
   listClinicalSignatures,
@@ -19,6 +21,7 @@ import {
   uploadClinicalSignature,
   finalizeProcedureConsent,
 } from './clinical-documents-api.js';
+import { getTreatmentReport, saveTreatmentReport } from './treatment-report-api.js';
 import { createSignaturePad, sha256Blob } from './signature-pad.js';
 import { isMinor } from './clientes-domain.js';
 import { renderTreatment6dCards, initTreatment6dController } from './treatment-6d-panel.js';
@@ -30,6 +33,14 @@ const GATE_LABELS = {
   profissional_nao_autorizada: 'Profissional autorizada',
   consentimento_pendente: 'Consentimento finalizado',
   modulo_especifico_incompleto: 'Ficha específica completa',
+};
+
+const FINALIZATION_GATE_LABELS = {
+  fotos_pendentes: 'Fotos clínicas pendentes',
+  produto_lote_pendente: 'Produto / lote pendente',
+  equipamento_pendente: 'Equipamento pendente',
+  intercorrencia_aberta_nao_confirmada: 'Intercorrência aberta sem confirmação',
+  parecer_pendente: 'Parecer clínico pendente',
 };
 
 const STATUS_LABELS = {
@@ -92,6 +103,12 @@ export function renderTreatmentGateChecklist(reasons = []) {
   return `<ul class="bcg-treatment-gates" aria-label="Checklist para iniciar atendimento">${Object.entries(GATE_LABELS).map(([key,label]) => `<li data-gate="${escapeHtml(key)}" data-complete="${pending.has(key) ? 'false' : 'true'}"><span>${escapeHtml(label)}</span><strong>${pending.has(key) ? 'Pendente' : 'OK'}</strong></li>`).join('')}</ul>`;
 }
 
+function renderFinalizationGates(reasons = []) {
+  const keys = Array.isArray(reasons) ? reasons : [];
+  if (!keys.length) return '<p class="bcg-status" data-kind="success">Requisitos de finalização completos.</p>';
+  return `<div class="bcg-treatment-finalization-gates" aria-label="Pendências para finalizar">${keys.map((key) => `<p class="bcg-status" data-kind="warning" data-finalization-gate="${escapeHtml(key)}">${escapeHtml(FINALIZATION_GATE_LABELS[key] || key)}</p>`).join('')}</div>`;
+}
+
 function renderProcedureStep({ procedures = [], appointmentId = null, selectedProcedureId = '', selectedComponentKeys = [] } = {}) {
   const executable = procedures.filter((item) => item.ativo !== false && item.archived_at == null && item.can_execute !== false);
   const procedure = selectedProcedure(procedures, selectedProcedureId);
@@ -99,14 +116,28 @@ function renderProcedureStep({ procedures = [], appointmentId = null, selectedPr
   return `<section class="bcg-treatment-wizard" data-treatment-wizard="procedure"><p class="bcg-eyebrow">NOVO ATENDIMENTO</p><h3>Escolha o procedimento</h3>${appointmentId ? '<p class="bcg-chip">Agendamento vinculado</p>' : '<p class="bcg-muted">Atendimento direto / walk-in</p>'}<form class="bcg-form" data-treatment-create-form data-appointment-id="${escapeHtml(appointmentId || '')}"><label>Procedimento<select class="bcg-input" name="procedure_id" data-treatment-procedure-select required><option value="">Selecione</option>${executable.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selectedProcedureId ? ' selected' : ''}>${escapeHtml(item.nome)}</option>`).join('')}</select></label>${procedure ? `${renderDynamicComponents(procedure, selectedComponentKeys)}<p class="bcg-treatment-derived-class"><strong>Classe documental desta sessão:</strong> ${resultClass === 'injetavel' ? 'Injetável / invasivo' : 'Não injetável'}</p>${procedure.current_version?.protocol_mode === 'compound' ? '<p class="bcg-muted">Selecione os componentes realmente previstos para esta sessão. O backend recalcula a classe e o TCLE.</p>' : ''}` : ''}<div class="bcg-form-actions"><button class="bcg-button" type="submit" data-treatment-create>Continuar</button><button class="bcg-small-button" type="button" data-treatment-cancel>Cancelar</button><span class="bcg-status" data-treatment-status></span></div></form></section>`;
 }
 
-function renderConsentSection({ consent = null, signatures = [], clientRecord = {} } = {}) {
-  if (!consent?.document_id) return `<section class="bcg-treatment-stage"><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>Consentimento do procedimento</h4><p class="bcg-muted">O sistema seleciona automaticamente o termo básico ou o TCLE completo conforme a classe real da sessão.</p><button type="button" class="bcg-small-button" data-treatment-consent-prepare>Preparar consentimento</button></section>`;
+function renderPendingExternalConsent(pendingExternalConsent) {
+  if (!pendingExternalConsent?.fileId) return '';
+  return `<div class="bcg-treatment-supplement" data-treatment-external-consent-pending><strong>TCLE externo para revisar</strong><p>${escapeHtml(pendingExternalConsent.title || 'Documento externo selecionado')}</p><p class="bcg-muted">O arquivo ainda não satisfaz o consentimento. A profissional responsável deve revisar a compatibilidade com este atendimento antes de vinculá-lo.</p><button type="button" class="bcg-small-button" data-treatment-external-consent-link="${escapeHtml(pendingExternalConsent.fileId)}">Revisar e vincular</button></div>`;
+}
+
+function renderConsentSection({ consent = null, signatures = [], clientRecord = {}, externalConsent = null, pendingExternalConsent = null } = {}) {
+  if (externalConsent?.client_file_id) {
+    const consentClass = externalConsent.consent_class === 'injetavel' ? 'Injetável / invasivo' : 'Não injetável';
+    return `<section class="bcg-treatment-stage" data-treatment-external-consent-reviewed><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>TCLE externo revisado</h4><p><strong>${escapeHtml(externalConsent.file_title || 'TCLE externo')}</strong></p><p class="bcg-status" data-kind="success">Documento externo revisado e vinculado a este atendimento.</p><p class="bcg-muted">Classe documental conferida: ${escapeHtml(consentClass)}${externalConsent.reviewed_at ? ` • Revisado em ${escapeHtml(formatDate(externalConsent.reviewed_at))}` : ''}.</p></section>`;
+  }
+
+  const pending = renderPendingExternalConsent(pendingExternalConsent);
+  if (!consent?.document_id) {
+    return `<section class="bcg-treatment-stage"><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>Consentimento do procedimento</h4>${pending}<p class="bcg-muted">A cliente pode assinar na tela pela BC ou apresentar um TCLE externo. O sistema seleciona automaticamente o termo conforme a classe real da sessão.</p><button type="button" class="bcg-small-button" data-treatment-consent-prepare>Preparar consentimento para assinatura na tela</button></section>`;
+  }
+
   const minor = isMinor(clientRecord?.data_nascimento);
   const subjectKind = minor ? 'responsavel' : 'paciente';
   const subjectDone = signatures.some((item) => item.signer_kind === subjectKind);
   const professionalDone = signatures.some((item) => item.signer_kind === 'profissional');
   const finalized = consent.status === 'finalizado' || consent.reused === true;
-  return `<section class="bcg-treatment-stage" data-treatment-consent-stage data-document-id="${escapeHtml(consent.document_id)}"><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>${escapeHtml(consent.title || 'Consentimento do procedimento')}</h4><p><strong>${escapeHtml(consent.procedure_name || '')}</strong></p>${consent.body ? `<div class="bcg-treatment-consent-copy">${escapeHtml(consent.body).replaceAll('\n','<br>')}</div>` : '<p class="bcg-muted">Termo institucional preparado e vinculado a esta sessão.</p>'}${consent.supplement ? `<div class="bcg-treatment-supplement"><strong>Complemento específico</strong><p>${escapeHtml(consent.supplement)}</p></div>` : ''}${finalized ? '<p class="bcg-status" data-kind="success">Consentimento finalizado.</p>' : `<div class="bcg-signature-grid">${subjectDone ? '<section><strong>Cliente / responsável</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Cliente / responsável</strong><canvas data-treatment-signature-canvas="subject" aria-label="Assinatura da cliente ou responsável"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="subject">Limpar</button></section>'}${professionalDone ? '<section><strong>Profissional</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Profissional</strong><canvas data-treatment-signature-canvas="professional" aria-label="Assinatura profissional"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="professional">Limpar</button></section>'}</div><button type="button" class="bcg-button" data-treatment-consent-sign>Registrar assinaturas</button>`}</section>`;
+  return `<section class="bcg-treatment-stage" data-treatment-consent-stage data-document-id="${escapeHtml(consent.document_id)}"><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>${escapeHtml(consent.title || 'Consentimento do procedimento')}</h4>${pending}<p><strong>${escapeHtml(consent.procedure_name || '')}</strong></p>${consent.body ? `<div class="bcg-treatment-consent-copy">${escapeHtml(consent.body).replaceAll('\n','<br>')}</div>` : '<p class="bcg-muted">Termo institucional preparado e vinculado a esta sessão.</p>'}${consent.supplement ? `<div class="bcg-treatment-supplement"><strong>Complemento específico</strong><p>${escapeHtml(consent.supplement)}</p></div>` : ''}${finalized ? '<p class="bcg-status" data-kind="success">Consentimento finalizado.</p>' : `<div class="bcg-signature-grid">${subjectDone ? '<section><strong>Cliente / responsável</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Cliente / responsável</strong><canvas data-treatment-signature-canvas="subject" aria-label="Assinatura da cliente ou responsável"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="subject">Limpar</button></section>'}${professionalDone ? '<section><strong>Profissional</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Profissional</strong><canvas data-treatment-signature-canvas="professional" aria-label="Assinatura profissional"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="professional">Limpar</button></section>'}</div><button type="button" class="bcg-button" data-treatment-consent-sign>Registrar assinaturas</button>`}</section>`;
 }
 
 function renderSpecificFields(treatment = {}) {
@@ -123,17 +154,25 @@ function renderSpecificFields(treatment = {}) {
   }).join('');
 }
 
+function renderTreatmentReport({ treatment = {}, report = null } = {}) {
+  const readonly = treatment.status !== 'em_atendimento' || Boolean(treatment.pending_document_id);
+  const data = report || {};
+  return `<section class="bcg-treatment-stage" data-treatment-report-stage><p class="bcg-eyebrow">RELATÓRIO / PARECER</p><h4>Relatório / Parecer do Atendimento</h4><p class="bcg-muted">Registre o fechamento clínico desta sessão. O conteúdo é congelado junto à versão final da ficha.</p><form class="bcg-form bcg-form-grid" data-treatment-report-form data-readonly="${readonly ? 'true' : 'false'}"><label class="bcg-field-wide">Descrição da sessão<textarea class="bcg-input" name="descricao_sessao" rows="3" required${readonly ? ' disabled' : ''}>${escapeHtml(data.descricao_sessao || '')}</textarea></label><label class="bcg-field-wide">Resposta observada<textarea class="bcg-input" name="resposta_observada" rows="3" required${readonly ? ' disabled' : ''}>${escapeHtml(data.resposta_observada || '')}</textarea></label><label class="bcg-field-wide">Orientações<textarea class="bcg-input" name="orientacoes" rows="3" required${readonly ? ' disabled' : ''}>${escapeHtml(data.orientacoes || '')}</textarea></label><label class="bcg-toggle"><input type="checkbox" name="retorno_necessario"${data.retorno_necessario ? ' checked' : ''}${readonly ? ' disabled' : ''}> Retorno necessário</label><label>Retorno sugerido em<input class="bcg-input" type="date" name="retorno_sugerido_em" value="${escapeHtml(data.retorno_sugerido_em || '')}"${readonly ? ' disabled' : ''}></label><label class="bcg-field-wide">Observações<textarea class="bcg-input" name="observacoes" rows="2"${readonly ? ' disabled' : ''}>${escapeHtml(data.observacoes || '')}</textarea></label>${readonly && data.retorno_sugerido_em ? `<p class="bcg-field-wide"><strong>Retorno sugerido:</strong> ${escapeHtml(formatDate(data.retorno_sugerido_em))}</p>` : ''}<div class="bcg-form-actions bcg-field-wide">${readonly ? '<span class="bcg-status" data-kind="success">Parecer congelado nesta etapa do atendimento.</span>' : '<button class="bcg-small-button" type="submit">Salvar parecer</button><span class="bcg-status" data-treatment-status></span>'}</div></form></section>`;
+}
+
 function renderFinalSignature(treatment = {}, signatures = []) {
   if (!treatment.pending_document_id) return '';
   const done = signatures.some((item) => item.signer_kind === 'profissional');
   return `<section class="bcg-treatment-stage" data-treatment-final-signature data-document-id="${escapeHtml(treatment.pending_document_id)}"><p class="bcg-eyebrow">ASSINATURA FINAL</p><h4>Ficha do atendimento</h4><p>A assinatura profissional confirma o conteúdo final desta versão da ficha.</p>${done ? '<p class="bcg-status" data-kind="success">Assinatura profissional registrada.</p>' : '<canvas data-treatment-signature-canvas="final" aria-label="Assinatura profissional da ficha final"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="final">Limpar</button>'}<button type="button" class="bcg-button" data-treatment-final-sign${done ? '' : ' data-needs-pad="true"'}>Concluir finalização</button></section>`;
 }
 
-function renderClinicalStep({ treatment = {}, consent = null, consentSignatures = [], finalSignatures = [], clientRecord = {} } = {}) {
+function renderClinicalStep({ treatment = {}, consent = null, consentSignatures = [], finalSignatures = [], clientRecord = {}, report = null, externalConsent = null, pendingExternalConsent = null } = {}) {
   const status = treatment.status || 'rascunho';
   const readonly = status === 'finalizado' || treatment.pending_document_id ? ' disabled' : '';
   const startingAt = treatment.price_mode_snapshot === 'starting_at';
-  return `<section class="bcg-treatment-wizard" data-treatment-wizard="clinical" data-treatment-id="${escapeHtml(treatment.id || '')}"><div class="bcg-treatment-head"><div><p class="bcg-eyebrow">ATENDIMENTO CLÍNICO</p><h3>${escapeHtml(treatment.procedure_version?.nome || 'Procedimento')}</h3></div><span class="bcg-chip">${escapeHtml(STATUS_LABELS[status] || status)}</span></div>${renderTreatmentGateChecklist(treatment.gate_reasons || [])}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">SAÚDE HOJE</p><h4>Houve mudança desde a última avaliação?</h4><form class="bcg-form" data-treatment-health-form><label><input type="radio" name="changed" value="false" required> Não</label><label><input type="radio" name="changed" value="true" required> Sim</label><label class="bcg-field-wide">Se sim, descreva<textarea class="bcg-input" name="details" rows="2"></textarea></label><button class="bcg-small-button" type="submit"${readonly}>Confirmar saúde hoje</button></form></section><section class="bcg-treatment-stage"><p class="bcg-eyebrow">ALERTAS CLÍNICOS</p><h4>Revisão antes do procedimento</h4><p class="bcg-muted">O sistema copia os alertas ativos do prontuário no momento da confirmação. Mudança de saúde não é contraindicação automática: exige avaliação profissional.</p><button type="button" class="bcg-small-button" data-treatment-alerts-confirm${readonly}>Confirmar revisão dos alertas</button></section>${renderConsentSection({consent,signatures:consentSignatures,clientRecord})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FICHA DO ATENDIMENTO</p><h4>Registro técnico da sessão</h4><form class="bcg-form bcg-form-grid" data-treatment-draft-form><label class="bcg-field-wide">Queixa / condição do dia<textarea class="bcg-input" name="queixa_dia" rows="2"${readonly}>${escapeHtml(treatment.queixa_dia || '')}</textarea></label><label class="bcg-field-wide">Objetivo da sessão<textarea class="bcg-input" name="objetivo" rows="2" required${readonly}>${escapeHtml(treatment.objetivo || '')}</textarea></label><label>Área / região<input class="bcg-input" name="regiao" value="${escapeHtml(treatment.regiao || '')}" required${readonly}></label><label class="bcg-field-wide">Avaliação profissional<textarea class="bcg-input" name="avaliacao_profissional" rows="2"${readonly}>${escapeHtml(treatment.avaliacao_profissional || '')}</textarea></label>${renderSpecificFields(treatment)}${startingAt ? `<label>Valor final da sessão<input class="bcg-input" type="number" step="0.01" min="0.01" name="final_price" value="${escapeHtml(treatment.final_price ?? '')}" required${readonly}></label>` : ''}<label class="bcg-field-wide">Resposta imediata<textarea class="bcg-input" name="resposta_imediata" rows="2"${readonly}>${escapeHtml(treatment.resposta_imediata || '')}</textarea></label><label class="bcg-field-wide">Orientações<textarea class="bcg-input" name="orientacoes" rows="2"${readonly}>${escapeHtml(treatment.orientacoes || '')}</textarea></label><label class="bcg-field-wide">Retorno / evolução<textarea class="bcg-input" name="retorno" rows="2"${readonly}>${escapeHtml(treatment.retorno || '')}</textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-small-button" type="submit"${readonly}>Salvar ficha</button><span class="bcg-status" data-treatment-status></span></div></form></section><div data-treatment-6d-slot>${renderTreatment6dCards({treatment})}</div><section class="bcg-treatment-stage"><p class="bcg-eyebrow">FINALIZAR</p><h4>Fluxo do atendimento</h4><div class="bcg-form-actions">${status === 'rascunho' ? '<button type="button" class="bcg-small-button" data-treatment-ready>Verificar e deixar pronto</button>' : ''}${status === 'pronto_para_iniciar' ? '<button type="button" class="bcg-button" data-treatment-start>Iniciar atendimento</button>' : ''}${status === 'em_atendimento' && !treatment.pending_document_id ? '<button type="button" class="bcg-button" data-treatment-finalize>Preparar finalização</button>' : ''}${status === 'finalizado' ? '<span class="bcg-status" data-kind="success">Atendimento finalizado e versionado.</span>' : ''}<button type="button" class="bcg-small-button" data-treatment-close>Voltar ao histórico</button></div></section>${renderFinalSignature(treatment,finalSignatures)}</section>`;
+  const finalizationReasons = Array.isArray(treatment.finalization_gate_reasons) ? treatment.finalization_gate_reasons : [];
+  const finalizeDisabled = finalizationReasons.length ? ' disabled' : '';
+  return `<section class="bcg-treatment-wizard" data-treatment-wizard="clinical" data-treatment-id="${escapeHtml(treatment.id || '')}"><div class="bcg-treatment-head"><div><p class="bcg-eyebrow">ATENDIMENTO CLÍNICO</p><h3>${escapeHtml(treatment.procedure_version?.nome || 'Procedimento')}</h3></div><span class="bcg-chip">${escapeHtml(STATUS_LABELS[status] || status)}</span></div>${renderTreatmentGateChecklist(treatment.gate_reasons || [])}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">SAÚDE HOJE</p><h4>Houve mudança desde a última avaliação?</h4><form class="bcg-form" data-treatment-health-form><label><input type="radio" name="changed" value="false" required> Não</label><label><input type="radio" name="changed" value="true" required> Sim</label><label class="bcg-field-wide">Se sim, descreva<textarea class="bcg-input" name="details" rows="2"></textarea></label><button class="bcg-small-button" type="submit"${readonly}>Confirmar saúde hoje</button></form></section><section class="bcg-treatment-stage"><p class="bcg-eyebrow">ALERTAS CLÍNICOS</p><h4>Revisão antes do procedimento</h4><p class="bcg-muted">O sistema copia os alertas ativos do prontuário no momento da confirmação. Mudança de saúde não é contraindicação automática: exige avaliação profissional.</p><button type="button" class="bcg-small-button" data-treatment-alerts-confirm${readonly}>Confirmar revisão dos alertas</button></section>${renderConsentSection({consent,signatures:consentSignatures,clientRecord,externalConsent,pendingExternalConsent})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FICHA DO ATENDIMENTO</p><h4>Registro técnico da sessão</h4><form class="bcg-form bcg-form-grid" data-treatment-draft-form><label class="bcg-field-wide">Queixa / condição do dia<textarea class="bcg-input" name="queixa_dia" rows="2"${readonly}>${escapeHtml(treatment.queixa_dia || '')}</textarea></label><label class="bcg-field-wide">Objetivo da sessão<textarea class="bcg-input" name="objetivo" rows="2" required${readonly}>${escapeHtml(treatment.objetivo || '')}</textarea></label><label>Área / região<input class="bcg-input" name="regiao" value="${escapeHtml(treatment.regiao || '')}" required${readonly}></label><label class="bcg-field-wide">Avaliação profissional<textarea class="bcg-input" name="avaliacao_profissional" rows="2"${readonly}>${escapeHtml(treatment.avaliacao_profissional || '')}</textarea></label>${renderSpecificFields(treatment)}${startingAt ? `<label>Valor final da sessão<input class="bcg-input" type="number" step="0.01" min="0.01" name="final_price" value="${escapeHtml(treatment.final_price ?? '')}" required${readonly}></label>` : ''}<label class="bcg-field-wide">Resposta imediata<textarea class="bcg-input" name="resposta_imediata" rows="2"${readonly}>${escapeHtml(treatment.resposta_imediata || '')}</textarea></label><label class="bcg-field-wide">Orientações<textarea class="bcg-input" name="orientacoes" rows="2"${readonly}>${escapeHtml(treatment.orientacoes || '')}</textarea></label><label class="bcg-field-wide">Retorno / evolução<textarea class="bcg-input" name="retorno" rows="2"${readonly}>${escapeHtml(treatment.retorno || '')}</textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-small-button" type="submit"${readonly}>Salvar ficha</button><span class="bcg-status" data-treatment-status></span></div></form></section><div data-treatment-6d-slot>${renderTreatment6dCards({treatment})}</div>${renderTreatmentReport({treatment,report})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FINALIZAR</p><h4>Fluxo do atendimento</h4>${status === 'em_atendimento' ? renderFinalizationGates(finalizationReasons) : ''}<div class="bcg-form-actions">${status === 'rascunho' ? '<button type="button" class="bcg-small-button" data-treatment-ready>Verificar e deixar pronto</button>' : ''}${status === 'pronto_para_iniciar' ? '<button type="button" class="bcg-button" data-treatment-start>Iniciar atendimento</button>' : ''}${status === 'em_atendimento' && !treatment.pending_document_id ? `<button type="button" class="bcg-button" data-treatment-finalize${finalizeDisabled}>Preparar finalização</button>` : ''}${status === 'finalizado' ? '<span class="bcg-status" data-kind="success">Atendimento finalizado e versionado.</span>' : ''}<button type="button" class="bcg-small-button" data-treatment-close>Voltar ao histórico</button></div></section>${renderFinalSignature(treatment,finalSignatures)}</section>`;
 }
 
 export function renderTreatmentWizard(options = {}) {
@@ -169,6 +208,18 @@ function collectDraft(form) {
   return patch;
 }
 
+function collectReport(form) {
+  const value = (name) => String(form.elements?.[name]?.value ?? '').trim();
+  return {
+    descricao_sessao:value('descricao_sessao'),
+    resposta_observada:value('resposta_observada'),
+    orientacoes:value('orientacoes'),
+    retorno_necessario:Boolean(form.elements?.retorno_necessario?.checked),
+    retorno_sugerido_em:value('retorno_sugerido_em'),
+    observacoes:value('observacoes'),
+  };
+}
+
 async function saveSignaturePad({ client, documentId, signerKind, pad }) {
   if (!pad?.isValid?.()) throw new Error('Faça uma assinatura completa antes de continuar.');
   const blob = await pad.toBlob();
@@ -183,6 +234,8 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
   let treatments = [];
   let staffMap = new Map();
   let activeTreatment = null;
+  let report = null;
+  let externalConsent = null;
   let consent = null;
   let consentSignatures = [];
   let finalSignatures = [];
@@ -222,17 +275,22 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
 
   async function openTreatment(id) {
     activeTreatment = await getTreatment({ client, treatmentId:id });
+    [report, externalConsent] = await Promise.all([
+      getTreatmentReport({ client, treatmentId:id }),
+      getExternalConsent({ client, treatmentId:id }),
+    ]);
     consent = null;
     consentSignatures = [];
     finalSignatures = [];
-    if (activeTreatment.consent_document_id) {
+    if (activeTreatment.consent_document_id && !externalConsent) {
       consent = await prepareTreatmentConsent({ client, treatmentId:id });
       consentSignatures = await listClinicalSignatures({ client, documentId:activeTreatment.consent_document_id });
     }
     if (activeTreatment.pending_document_id) {
       finalSignatures = await listClinicalSignatures({ client, documentId:activeTreatment.pending_document_id });
     }
-    workspace().innerHTML = renderTreatmentWizard({ step:'clinical', treatment:activeTreatment, consent, consentSignatures, finalSignatures, clientRecord:clientRecord() });
+    const pendingExternalConsent = externalConsent ? null : (folder()?.__bcPendingExternalConsent || null);
+    workspace().innerHTML = renderTreatmentWizard({ step:'clinical', treatment:activeTreatment, report, consent, consentSignatures, finalSignatures, clientRecord:clientRecord(), externalConsent, pendingExternalConsent });
     mountPads();
     await phase6dController?.loadTreatment(activeTreatment);
   }
@@ -274,6 +332,24 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     if (event.target.closest?.('[data-treatment-cancel],[data-treatment-close]')) { workspace().innerHTML=''; return; }
     const open = event.target.closest?.('[data-treatment-open]');
     if (open) { await openTreatment(open.dataset.treatmentOpen); return; }
+    const externalLinkButton = event.target.closest?.('[data-treatment-external-consent-link]');
+    if (externalLinkButton && activeTreatment) {
+      externalLinkButton.disabled = true;
+      try {
+        await linkExternalConsent({
+          client,
+          treatmentId:activeTreatment.id,
+          clientFileId:externalLinkButton.dataset.treatmentExternalConsentLink,
+        });
+        folder().__bcPendingExternalConsent = null;
+        await reloadTreatment();
+      } catch (error) {
+        setStatus(workspace(),error?.message || 'Não foi possível revisar e vincular o TCLE externo.','error');
+      } finally {
+        externalLinkButton.disabled = false;
+      }
+      return;
+    }
     if (event.target.closest?.('[data-treatment-alerts-confirm]') && activeTreatment) {
       try { await confirmTreatmentAlertReview({client,treatmentId:activeTreatment.id}); await reloadTreatment(); }
       catch (error) { setStatus(workspace(),error?.message || 'Não foi possível confirmar alertas.','error'); }
@@ -357,6 +433,21 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
       event.preventDefault();
       try { await updateTreatmentDraft({client,treatmentId:activeTreatment.id,patch:collectDraft(draftForm)}); await reloadTreatment(); }
       catch (error) { setStatus(draftForm,error?.message || 'Não foi possível salvar a ficha.','error'); }
+      return;
+    }
+    const reportForm = event.target.closest?.('[data-treatment-report-form]');
+    if (reportForm && activeTreatment) {
+      event.preventDefault();
+      const submit=reportForm.querySelector?.('button[type="submit"]');
+      try {
+        if(submit)submit.disabled=true;
+        await saveTreatmentReport({client,treatmentId:activeTreatment.id,payload:collectReport(reportForm)});
+        await reloadTreatment();
+      } catch (error) {
+        setStatus(reportForm,error?.message || 'Não foi possível salvar o parecer clínico.','error');
+      } finally {
+        if(submit)submit.disabled=false;
+      }
     }
   });
 
