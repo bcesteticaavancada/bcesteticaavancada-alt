@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertStringIncludes } from 'jsr:@std/assert@1';
-import { buildClinicalPdf, buildTreatment6dSections } from './pdf.ts';
+import { buildClinicalPdf, buildTreatment6dSections, buildTreatmentReportSection } from './pdf.ts';
 
 const document = {
   document_code: 'BC-DOC-TESTE',
@@ -56,7 +56,28 @@ Deno.test('modelo textual 6D registra rastreabilidade sem path/URL/bytes de foto
   assert(!/storage_path|fotos-clinicas|https?:\/\/|signedurl|bytes/i.test(text));
 });
 
-Deno.test('gera PDF institucional válido para ficha final de atendimento com 6D', async () => {
+Deno.test('seção do parecer reúne contexto clínico sem bytes ou URLs externas',()=>{
+  const section=buildTreatmentReportSection({
+    treatment:{treatment_date:'2026-10-12',anamnese_id:'an1',consent_document_id:'cons1'},
+    procedure_version:{nome:'Skinbooster'},
+    professional:{name:'Profissional Teste',profissao:'Biomédica Esteta',conselho:'CRBM',registro:'00000'},
+    report:{
+      descricao_sessao:'Sessão descrita de forma estruturada.',
+      resposta_observada:'Resposta clínica observada.',
+      orientacoes:'Orientações individualizadas.',
+      retorno_necessario:true,
+      retorno_sugerido_em:'2026-10-28',
+      observacoes:'Observação complementar.',
+      storage_path:'arquivos-clientes/nunca-incluir.pdf',
+    },
+  });
+  assertEquals(section.title,'Relatório / Parecer do Atendimento');
+  const text=section.lines.join('\n');
+  for(const expected of ['Skinbooster','Profissional Teste','12/10/2026','Sessão descrita','Resposta clínica','Orientações individualizadas','Retorno necessário: Sim','28/10/2026','Observação complementar','Anamnese Geral vinculada: Sim','Consentimento vinculado: Sim'])assertStringIncludes(text,expected);
+  assert(!/storage_path|arquivos-clientes|https?:\/\/|signedurl|bytes/i.test(text));
+});
+
+Deno.test('gera PDF institucional válido para ficha final de atendimento com 6D e parecer', async () => {
   const bytes = await buildClinicalPdf({
     document: { ...document, document_type: 'treatment_record' },
     client,
@@ -79,7 +100,9 @@ Deno.test('gera PDF institucional válido para ficha final de atendimento com 6D
           consent_document_id: 'consent-ref',
         },
         procedure_version: { nome: 'Skinbooster', version: 1, classe_documental: 'injetavel' },
+        professional:{name:'Profissional Teste',profissao:'Biomédica Esteta',conselho:'CRBM',registro:'00000'},
         components: [],
+        report:{descricao_sessao:'Sessão estruturada',resposta_observada:'Resposta observada',orientacoes:'Orientações finais',retorno_necessario:true,retorno_sugerido_em:'2026-10-28',observacoes:'Sem observações adicionais'},
         photos:[{id:'ph1',kind:'antes',region:'Face',view:'frontal',captured_at:'2026-10-12T19:00:00-03:00'}],
         product_usages:[{product_name_snapshot:'Produto Teste',lot_code_snapshot:'LOT-123',expires_on_snapshot:'2027-12-31',quantity:1,unit:'mL'}],
         equipment_usages:[{equipment_name_snapshot:'Equipamento Teste',parameter_values:{potencia:10}}],
