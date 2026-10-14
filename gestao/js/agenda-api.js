@@ -6,6 +6,10 @@ const APPOINTMENT_SELECT = `
   inicio,
   fim,
   status,
+  origem,
+  public_booking_name,
+  public_booking_phone,
+  public_booking_phone_normalized,
   observacao_administrativa,
   clientes(id,nome,telefone,email),
   procedimentos(id,nome,duracao_padrao)
