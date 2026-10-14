@@ -4,8 +4,10 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const pageUrl = new URL('../../protocolos/index.html', import.meta.url);
 const cssUrl = new URL('../../protocolos/protocolos.css', import.meta.url);
+const jsUrl = new URL('../../protocolos/protocolos.js', import.meta.url);
 const html = readFileSync(pageUrl, 'utf8');
 const css = readFileSync(cssUrl, 'utf8');
+const js = existsSync(jsUrl) ? readFileSync(jsUrl, 'utf8') : '';
 
 const canonical = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/protocolos/';
 const videoSlugs = [
@@ -114,4 +116,15 @@ test('Protocolos 2.0 CSS provides responsive rails, compact cards and motion saf
   assert.match(css, /:focus-visible/);
   assert.match(css, /min-width\s*:\s*0/i);
   assert.match(css, /@media\s*\([^)]*prefers-reduced-motion\s*:\s*reduce[^)]*\)/i);
+});
+
+test('Protocolos video module progressively hydrates only approved ready media', () => {
+  assert.equal(existsSync(jsUrl), true, 'protocolos.js should exist');
+  assert.match(html, /<script[^>]*type="module"[^>]*src="protocolos\.js"|<script[^>]*src="protocolos\.js"[^>]*type="module"/i);
+  assert.match(js, /export function hydrateProtocolVideo/);
+  assert.match(js, /export function canAutoplayProtocolVideo/);
+  assert.match(js, /export function initProtocolVideos/);
+  assert.match(js, /IntersectionObserver/);
+  assert.match(js, /prefers-reduced-motion:\s*reduce/);
+  assert.doesNotMatch(js, /from\s+['"][^.'"]/i);
 });
