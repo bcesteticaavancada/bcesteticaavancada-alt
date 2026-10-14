@@ -4,7 +4,7 @@
 
 **Goal:** Entregar uma agenda pública integrada em tempo real ao BC Gestão, com calendário mensal do mês atual, reserva instantânea segura, WhatsApp pós-confirmação e controle interno de disponibilidade, bloqueios e inativações por profissional.
 
-**Architecture:** O BC Gestão continua sendo a única fonte de verdade dos compromissos. O banco centraliza cálculo de conflito e autorização; a equipe autenticada usa RPCs internos, enquanto o site público fala somente com uma Supabase Edge Function que devolve DTOs sanitizados e chama RPCs restritos ao backend. A reserva pública nasce como `origem = 'site'` com snapshot de nome/WhatsApp e só é vinculada a um prontuário após confirmação interna de identidade.
+**Architecture:** O BC Gestão continua sendo a única fonte de verdade dos compromissos. O banco centraliza conflito, autorização e cálculo de disponibilidade; a equipe autenticada usa RPCs internos, enquanto o site público fala somente com uma Supabase Edge Function que devolve DTOs sanitizados e chama RPCs restritos ao backend. A reserva pública nasce como `origem = 'site'` com snapshot de nome/WhatsApp e só é vinculada a um prontuário após confirmação interna de identidade.
 
 **Tech Stack:** HTML/CSS/ES modules sem bundler, Node.js `node:test`, Supabase Postgres/RLS/RPC, Supabase Edge Functions em TypeScript, GitHub Pages, `@supabase/supabase-js` 2.x.
 
@@ -18,13 +18,15 @@
 - Grade pública: início de slots a cada 15 minutos; término derivado de `procedimentos.duracao_padrao`.
 - Reserva pública pede somente nome + WhatsApp; não coletar CPF, nascimento ou dados clínicos nessa etapa.
 - Não auto-vincular uma reserva pública a prontuário por coincidência de nome ou telefone.
-- `service_role`/secret nunca entra no navegador, GitHub Pages, arquivo público ou resposta HTTP.
+- Secret/service role nunca entra no navegador, GitHub Pages, arquivo público ou resposta HTTP.
+- Para a nova Edge Function pública, usar `verify_jwt=false`; segredo elevado fica somente no ambiente da função. Se o browser enviar publishable key, usar somente `apikey`, nunca `Authorization: Bearer sb_publishable_...`.
 - `/agendamento/` continua sendo pré-anamnese e não deve ser convertido em agenda.
 - `/admin/` legado da pré-anamnese permanece intocado.
 - Testes e homologação usam apenas dados fictícios; nunca criar/alterar paciente, agenda ou financeiro real em validações automáticas.
 - Bloqueios e inativações nunca cancelam, apagam ou remanejam compromissos existentes automaticamente.
 - Motivos de inativação são internos e nunca saem para a API pública.
-- Todo write de agenda, interno ou público, passa pelo mesmo gate transacional de conflito.
+- Todo write de agenda, interno ou público, passa pelo mesmo lock e pela mesma checagem de sobreposição.
+- A disponibilidade pública (`professional_availability_days`) governa o que o site oferece; ela não transforma a agenda interna em uma agenda fechada. A equipe pode criar encaixe interno fora de uma janela pública, desde que não haja conflito, bloqueio explícito ou inativação.
 
 ## Review Focus
 
@@ -41,7 +43,7 @@
 ### Banco / Supabase
 
 - Create via CLI: `supabase/migrations/<timestamp>_bc_gestao_public_agenda_schema.sql` — campos de origem/snapshot, tabelas de disponibilidade, bloqueios, inativações e rate limit.
-- Create via CLI: `supabase/migrations/<timestamp>_bc_gestao_public_agenda_engine.sql` — cálculo de slots, gate transacional, RPCs internos/públicos restritos e vínculo de cliente.
+- Create via CLI: `supabase/migrations/<timestamp>_bc_gestao_public_agenda_engine.sql` — cálculo de slots, lock/conflito, RPCs internos/públicos restritos e vínculo de cliente.
 - Modify through new migration only: existing `bc_agendamento_create`, `bc_agendamento_update`, `bc_registrar_atendimento`/gates correlatos — sem editar migrations históricas.
 
 ### BC Gestão frontend
@@ -65,7 +67,7 @@
 
 ### Site público
 
-- Create: `assets/js/bc-public-config.js` — número WhatsApp e endpoint/chave publishable necessários ao frontend público; nunca secrets.
+- Create: `assets/js/bc-public-config.js` — número WhatsApp, endpoint da função e, se necessário, publishable key pública; nunca secrets.
 - Create: `agenda/index.html` — página pública de agenda.
 - Create: `agenda/agenda.css` — visual mobile-first do calendário.
 - Create: `agenda/js/api.js` — cliente HTTP da Edge Function.
@@ -176,7 +178,8 @@ git commit -m "feat: add public agenda schedule schema"
 - Consumes: schema da Task 1, `procedimentos.duracao_padrao`, `access_mode`, `procedure_professional_permissions`.
 - Produces:
   - `private.bc_schedule_slots(p_professional_user_id uuid, p_procedimento_id uuid, p_local_date date) returns jsonb`
-  - `private.bc_schedule_assert_slot(...) returns void`
+  - `private.bc_agendamento_lock_and_assert_no_conflict(p_professional_user_id uuid, p_inicio timestamptz, p_fim timestamptz, p_ignore_agendamento_id uuid default null) returns void`
+  - `private.bc_schedule_assert_public_slot(p_professional_user_id uuid, p_procedimento_id uuid, p_inicio timestamptz, p_fim timestamptz) returns void`
   - `public.bc_schedule_month_get(p_professional_user_id uuid, p_month date) returns jsonb`
   - `public.bc_schedule_day_upsert(...) returns uuid`
   - `public.bc_schedule_days_apply(...) returns integer`
@@ -194,14 +197,20 @@ Assertions devem fixar:
 ```js
 assert.match(sql, /pg_advisory_xact_lock/);
 assert.match(sql, /America\/Sao_Paulo/);
-assert.match(sql, /15\s*minute|15 minutes|15 \*/i);
+assert.match(sql, /bc_agendamento_lock_and_assert_no_conflict/);
+assert.match(sql, /bc_schedule_assert_public_slot/);
 assert.match(sql, /bc_public_agenda_book/);
 assert.match(sql, /slot_unavailable/);
 assert.match(sql, /revoke execute[^;]*bc_public_agenda_book[^;]*from public/i);
 assert.match(sql, /grant execute[^;]*bc_public_agenda_book[^;]*to service_role/i);
 ```
 
-Adicionar checks para `fim is null` derivado por `duracao_padrao`, cancelado/faltou não ocupando futuro, e `cliente_id is null` bloqueando início de atendimento formal.
+Adicionar checks para:
+
+- `fim is null` derivado por `duracao_padrao`;
+- cancelado/faltou não ocupando disponibilidade futura;
+- `cliente_id is null` bloqueando início de atendimento formal;
+- criação interna sem linha em `professional_availability_days` continuar permitida se não houver sobreposição, bloqueio explícito ou inativação.
 
 - [ ] **Step 2: Run and verify failure**
 
@@ -217,13 +226,13 @@ Expected: arquivo timestampado único.
 
 - [ ] **Step 4: Implement `private.bc_schedule_slots(...)`**
 
-Regras obrigatórias:
+Regras obrigatórias para **oferta pública**:
 
 - data calculada em `America/Sao_Paulo`;
 - profissional precisa estar ativa e `atende_clientes`;
 - procedimento precisa estar ativo, publicado/operacional e `duracao_padrao > 0`;
 - procedimento restrito exige permissão ativa em `procedure_professional_permissions`;
-- linha diária `enabled=true` define a janela;
+- linha diária `enabled=true` define a janela pública;
 - inativação vigente zera os slots;
 - blocks removem sobreposições;
 - `agendado` ocupa; `cancelado` e `faltou` liberam; compromissos históricos não geram slot retroativo;
@@ -231,25 +240,40 @@ Regras obrigatórias:
 - início precisa estar no futuro usando relógio do banco;
 - o intervalo completo deve caber antes de `end_time`.
 
-- [ ] **Step 5: Implement `private.bc_schedule_assert_slot(...)` with transaction lock**
+- [ ] **Step 5: Implement the shared transaction lock/conflict helper**
 
-Antes de validar/insert/update:
+`private.bc_agendamento_lock_and_assert_no_conflict(...)` deve:
 
-- adquirir `pg_advisory_xact_lock` por chave derivada de `professional_user_id + local_date`;
-- recalcular o slot dentro da mesma transação;
-- se indisponível, `raise exception 'slot_unavailable'` com código estável;
-- compartilhar essa rotina entre criação interna, remarcação interna e reserva pública.
+- adquirir `pg_advisory_xact_lock` por chave derivada de `professional_user_id + data clínica`;
+- verificar sobreposição contra compromissos ativos da profissional;
+- derivar término de legado `fim=null` pela duração do procedimento quando necessário;
+- aceitar `p_ignore_agendamento_id` em remarcação;
+- emitir erro estável de conflito.
 
-- [ ] **Step 6: Harden existing internal create/update**
+Esse helper é compartilhado por criação interna, remarcação interna e reserva pública.
+
+- [ ] **Step 6: Implement the public-slot assertion**
+
+`private.bc_schedule_assert_public_slot(...)` chama o lock/conflito compartilhado e, adicionalmente, exige:
+
+- dia explicitamente publicado como disponível;
+- intervalo dentro da janela publicada;
+- ausência de block;
+- ausência de inativação;
+- alinhamento de 15 minutos e horário futuro.
+
+- [ ] **Step 7: Harden existing internal create/update without turning public availability into a hard wall**
 
 Preservar assinaturas públicas existentes de `bc_agendamento_create` e `bc_agendamento_update`, mas fazer as implementações privadas:
 
 - derivarem `fim` quando omitido;
-- recusarem sobreposição por `bc_schedule_assert_slot`;
-- manterem a regra de colaboradora só agendar na própria agenda;
+- usarem o lock/checagem de sobreposição compartilhado;
+- rejeitarem bloqueio explícito e inativação vigente;
+- **não exigirem** uma linha `professional_availability_days` para permitir encaixe interno autorizado;
+- manterem colaboradora só agendando na própria agenda;
 - manterem admin podendo escolher profissional.
 
-- [ ] **Step 7: Implement schedule-management RPCs**
+- [ ] **Step 8: Implement schedule-management RPCs**
 
 Autorização:
 
@@ -257,17 +281,17 @@ Autorização:
 - colaboradora: somente `auth.uid()`;
 - bulk apply retorna quantidade de datas alteradas;
 - inativação retorna também `affected_appointments` para o aviso de revisão;
-- remoção de bloqueio/inativação é auditável; não fazer delete destrutivo de histórico de inativação.
+- remoção de bloqueio e reativação são auditáveis; histórico de inativação não é destruído.
 
-- [ ] **Step 8: Implement public service-role RPCs**
+- [ ] **Step 9: Implement public service-role RPCs**
 
-`bc_public_agenda_*` devem retornar apenas DTOs mínimos e validar o mês civil corrente no banco. `bc_public_agenda_book` recebe payload sanitizado + `p_network_hash`, aplica rate limit 10/10min, usa o mesmo gate e grava `origem='site'`, snapshot de nome/telefone, `cliente_id=null`, `created_by=null`.
+`bc_public_agenda_*` devem retornar apenas DTOs mínimos e validar o mês civil corrente no banco. `bc_public_agenda_book` recebe payload sanitizado + `p_network_hash`, aplica rate limit 10/10min, usa `bc_schedule_assert_public_slot` e grava `origem='site'`, snapshot de nome/telefone, `cliente_id=null`, `created_by=null`.
 
-- [ ] **Step 9: Add explicit clinical guard**
+- [ ] **Step 10: Add explicit clinical guard**
 
 Antes de criar/abrir atendimento formal a partir de agendamento, se `agendamentos.cliente_id is null`, devolver erro de domínio claro equivalente a `Cadastro da cliente precisa ser vinculado antes do atendimento.`.
 
-- [ ] **Step 10: Run focused and existing agenda tests**
+- [ ] **Step 11: Run focused and existing agenda tests**
 
 Run:
 
@@ -278,7 +302,7 @@ node --test tests/gestao/agenda-api.test.mjs tests/gestao/treatment-api.test.mjs
 
 Expected: PASS.
 
-- [ ] **Step 11: Commit**
+- [ ] **Step 12: Commit**
 
 ```bash
 git add supabase/migrations/*_bc_gestao_public_agenda_engine.sql tests/gestao/public-agenda-engine.test.mjs
@@ -309,7 +333,7 @@ git commit -m "feat: add transactional agenda availability engine"
 
 - [ ] **Step 1: Write failing wrapper tests**
 
-Testar nomes exatos dos RPCs e payload mínimo; nenhum wrapper aceita `created_by`, `actor_user_id` ou profissional arbitrária em rotas onde o backend deriva identidade.
+Testar nomes exatos dos RPCs e payload mínimo; nenhum wrapper aceita `created_by` ou `actor_user_id` enviados pelo frontend.
 
 - [ ] **Step 2: Run focused tests and verify failure**
 
@@ -434,7 +458,7 @@ Ao trocar profissional/mês, carregar DTO mensal. Salvar dia/bulk/block/inativa�
 
 - [ ] **Step 5: Wire it after `initAdminAgenda`**
 
-O bootstrap admin passa `agenda.getStaffMap()`/refresh de diretório ao módulo de schedule sem duplicar carregamento de equipe desnecessariamente.
+O bootstrap admin passa o diretório já carregado ao módulo de schedule sem duplicar consultas desnecessárias.
 
 - [ ] **Step 6: Make admin appointment cards public-booking aware**
 
@@ -472,7 +496,7 @@ git commit -m "feat: add admin availability management"
 
 Provar:
 
-- o módulo nunca envia outro `professionalUserId` além de `profile.user_id`;
+- o módulo usa sempre `profile.user_id` como alvo da própria agenda;
 - calendário navega meses futuros;
 - colaboradora cria bloqueio/inativação só da própria agenda;
 - reserva `site` sem cliente mostra `Cadastro pendente`;
@@ -491,7 +515,7 @@ Dentro de `#agenda`, adicionar `Minha disponibilidade` com o mesmo calendário, 
 
 - [ ] **Step 4: Implement `initCollaboratorSchedule`**
 
-Derivar sempre o alvo de `profile.user_id`; o backend continua sendo a autoridade.
+Derivar sempre o alvo de `profile.user_id`; o backend continua sendo a autoridade e recusa tentativa forjada.
 
 - [ ] **Step 5: Update collaborator appointment rendering/detail**
 
@@ -559,24 +583,32 @@ Expected: FAIL.
 
 - [ ] **Step 3: Implement `domain.js` and `validation.ts`**
 
-Manter helpers puros sem dependência de Deno quando possível; `validation.ts` pode compor esses helpers para a runtime da função.
+Manter helpers puros sem dependência de Deno quando possível; `validation.ts` compõe esses helpers para a runtime da função.
 
-- [ ] **Step 4: Implement `index.ts`**
+- [ ] **Step 4: Implement `index.ts` as a deliberately public endpoint**
 
-Seguir o padrão de CORS da Edge Function existente:
+Seguir CORS do projeto e a documentação atual do Supabase:
 
+- função implantada com `verify_jwt=false`;
 - permitir produção GitHub Pages e localhost de desenvolvimento;
 - `OPTIONS` 204;
 - somente `POST`;
 - `Cache-Control: no-store` para book/slots;
-- criar Supabase client com `SUPABASE_SERVICE_ROLE_KEY` somente dentro da função;
-- nunca devolver erro bruto SQL ao navegador.
+- segredo de banco vem de `SUPABASE_SECRET_KEYS['default']` no ambiente da Edge Function; não usar secret no browser;
+- criar client admin somente dentro da função;
+- nunca devolver erro SQL bruto.
 
-- [ ] **Step 5: Implement network-hash rate-limit input**
+Se o projeto ainda não tiver secret key nova configurada, criar/configurar uma secret key de backend antes do deploy; não introduzir nova dependência em legacy `service_role` para esta função.
+
+- [ ] **Step 5: Define browser key semantics correctly**
+
+A função é pública por desenho e sua segurança vem de validação + rate limit + superfície RPC mínima. Se o frontend enviar `BC_GESTAO_PUBLISHABLE_KEY`, enviar em `apikey`; não tratá-la como segredo nem como autorização do usuário, e nunca colocá-la em `Authorization: Bearer`.
+
+- [ ] **Step 6: Implement network-hash rate-limit input**
 
 Derivar hash de `x-forwarded-for` + secret `PUBLIC_AGENDA_RATE_LIMIT_SALT`; não persistir IP bruto; passar somente o hash ao RPC de booking.
 
-- [ ] **Step 6: Map stable domain errors to public copy**
+- [ ] **Step 7: Map stable domain errors to public copy**
 
 `slot_unavailable` -> 409 com `Esse horário acabou de ser reservado. Escolha outro horário disponível.`
 
@@ -584,13 +616,13 @@ Rate limit -> 429 com `Muitas tentativas em pouco tempo. Aguarde alguns minutos 
 
 Demais falhas -> mensagem genérica + WhatsApp.
 
-- [ ] **Step 7: Run tests**
+- [ ] **Step 8: Run tests**
 
 Run: `node --test tests/site/public-agenda-domain.test.mjs`
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add supabase/functions/public-agenda tests/site/public-agenda-domain.test.mjs
@@ -638,13 +670,13 @@ Exportar somente valores públicos necessários:
 
 - `BC_WHATSAPP_NUMBER` centralizado;
 - `PUBLIC_AGENDA_FUNCTION_URL`;
-- publishable key do projeto BC Gestão, se necessária ao endpoint.
+- `BC_GESTAO_PUBLISHABLE_KEY` somente se a chamada optar por enviar header `apikey`.
 
-Nunca incluir service role/secret.
+Nunca incluir secret/service key.
 
 - [ ] **Step 4: Implement `agenda/js/api.js`**
 
-Um único `post(actionPayload)` com tratamento de 409/429/5xx e funções `getCatalog`, `getProfessionals`, `getMonth`, `getSlots`, `book`.
+Um único `post(actionPayload)` com tratamento de 409/429/5xx e funções `getCatalog`, `getProfessionals`, `getMonth`, `getSlots`, `book`. Se houver publishable key configurada, enviar como `apikey`, sem header Bearer.
 
 - [ ] **Step 5: Implement current-month calendar**
 
@@ -763,6 +795,7 @@ Run:
 supabase --version
 supabase db --help
 supabase migration --help
+supabase functions --help
 ```
 
 Não adivinhar flags.
@@ -784,39 +817,43 @@ Casos:
 - colaboradora recebe 42501 ao tentar outra profissional;
 - usuário não autenticado não executa RPC interno.
 
-- [ ] **Step 6: Prove public privacy contract**
+- [ ] **Step 6: Prove internal special-slot compatibility**
+
+Em dia sem `professional_availability_days`, um encaixe interno fictício sem conflito/block/inativação deve poder ser criado. O mesmo dia deve continuar sem vagas no site público até a equipe publicar disponibilidade.
+
+- [ ] **Step 7: Prove public privacy contract**
 
 Inspecionar respostas `catalog/professionals/month/slots/book` e afirmar ausência de `cliente_id`, telefone de terceiros, observações, `reason`, `internal_note`, prontuário e financeiro.
 
-- [ ] **Step 7: Prove Review Focus #1 — timezone/month rollover**
+- [ ] **Step 8: Prove Review Focus #1 — timezone/month rollover**
 
 Com clock controlado/test data, validar último instante de um mês e primeiro instante do mês seguinte em `America/Sao_Paulo`; o backend rejeita mês que não seja o corrente.
 
-- [ ] **Step 8: Prove Review Focus #2 — legacy `fim = null`**
+- [ ] **Step 9: Prove Review Focus #2 — legacy `fim = null`**
 
 Criar compromisso fictício legado com `fim=null` e procedimento com duração; tentativa sobreposta deve falhar pelo intervalo derivado.
 
-- [ ] **Step 9: Prove Review Focus #3 — public booking without client**
+- [ ] **Step 10: Prove Review Focus #3 — public booking without client**
 
 Criar reserva fictícia `origem=site`; confirmar que aparece na agenda e que tentativa de abrir atendimento formal falha até `bc_agendamento_link_cliente` vincular uma cliente fictícia.
 
-- [ ] **Step 10: Prove Review Focus #4 — concurrency**
+- [ ] **Step 11: Prove Review Focus #4 — concurrency**
 
-Disparar duas transações concorrentes para o mesmo `professional + slot`, incluindo cenário uma pública e uma interna. Assertar exatamente um agendamento ativo sobre o intervalo e erro `slot_unavailable` na perdedora.
+Disparar duas transações concorrentes para o mesmo `professional + slot`, incluindo cenário uma pública e uma interna. Assertar exatamente um agendamento ativo sobre o intervalo e erro `slot_unavailable`/conflito estável na perdedora.
 
-- [ ] **Step 11: Prove Review Focus #5 — open-ended inactivation**
+- [ ] **Step 12: Prove Review Focus #5 — open-ended inactivation**
 
 Criar inativação fictícia com `planned_ends_on=null` sobre período que contenha agendamento já existente. Confirmar que novas vagas somem, o compromisso existente permanece e o retorno interno informa `affected_appointments >= 1`.
 
-- [ ] **Step 12: Verify Edge Function locally/staging**
+- [ ] **Step 13: Verify Edge Function deployment/auth model**
 
-Testar CORS de produção/localhost, OPTIONS, 405, payload inválido 422, conflito 409, rate limit 429 e falha genérica sem SQL bruto.
+Antes de deploy, confirmar pela CLI atual como aplicar `verify_jwt=false`. Confirmar `SUPABASE_SECRET_KEYS` disponível no ambiente da função e que nenhum secret foi commitado. Testar CORS de produção/localhost, OPTIONS, 405, payload inválido 422, conflito 409, rate limit 429 e falha genérica sem SQL bruto.
 
-- [ ] **Step 13: Fill `public-agenda-verification.md`**
+- [ ] **Step 14: Fill `public-agenda-verification.md`**
 
 Registrar comandos, ambiente, resultados, advisors, checks de segurança e decisão `GO/NO-GO`. Não registrar secrets, IPs, dados reais ou chaves privadas.
 
-- [ ] **Step 14: Activate in safe order**
+- [ ] **Step 15: Activate in safe order**
 
 1. migrations;
 2. telas internas de disponibilidade;
@@ -826,7 +863,7 @@ Registrar comandos, ambiente, resultados, advisors, checks de segurança e decis
 6. somente depois trocar CTAs da Home;
 7. observar erros/logs nas primeiras reservas.
 
-- [ ] **Step 15: Commit verification evidence**
+- [ ] **Step 16: Commit verification evidence**
 
 ```bash
 git add docs/bc-gestao/public-agenda-verification.md
@@ -846,6 +883,7 @@ git commit -m "docs: verify public agenda rollout"
 - Bloqueios, bulk apply e inativação com motivos privados: Tasks 1–6.
 - Reserva `site` sem auto-vínculo clínico: Tasks 1–3, 6.
 - Proteção contra dupla reserva: Tasks 2 e 10.
+- Encaixe interno sem exigir publicação pública do dia: Tasks 2 e 10.
 - Segurança/RLS/Edge Function sanitizada: Tasks 1–2, 7, 10.
 - Home + `/agenda/`: Tasks 8–9.
 - Preservação de `/agendamento/` e `/admin/` legado: Global Constraints + Task 9.
@@ -856,7 +894,8 @@ git commit -m "docs: verify public agenda rollout"
 - `professionalUserId` é o nome frontend; RPCs usam `p_professional_user_id`.
 - Mês civil trafega como `YYYY-MM`; datas civis como `YYYY-MM-DD`; horários públicos como `HH:MM`; timestamps internos como ISO/timestamptz.
 - `linkPublicAppointment()` sempre recebe `appointmentId + clienteId`; não recebe nome/telefone para decidir identidade.
-- `bc_public_agenda_book` é o único write público e é chamado apenas pela Edge Function com role de backend.
+- `bc_public_agenda_book` é o único write público e é chamado apenas pela Edge Function com credencial secreta de backend.
+- O lock/checagem de sobreposição é compartilhado; a validação de janela pública é um gate adicional exclusivo da reserva pública.
 
 ### Proportion / YAGNI
 
