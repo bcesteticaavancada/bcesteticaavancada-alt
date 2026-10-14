@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 const migrationUrl=new URL('../../supabase/migrations/20261014012000_bc_gestao_quick_visit.sql',import.meta.url);
+const requestKeyMigrationUrl=new URL('../../supabase/migrations/20261014012100_bc_gestao_quick_visit_request_key.sql',import.meta.url);
 async function sql(){return (await readFile(migrationUrl,'utf8')).toLowerCase();}
+async function requestKeySql(){return (await readFile(requestKeyMigrationUrl,'utf8')).toLowerCase();}
 
 test('quick visit possui idempotência persistente por request_key',async()=>{
   const text=await sql();
@@ -12,7 +14,16 @@ test('quick visit possui idempotência persistente por request_key',async()=>{
   assert.match(text,/appointment_id/);
   assert.match(text,/treatment_id/);
   assert.match(text,/pg_advisory_xact_lock[\s\S]*p_request_key/i);
-  assert.match(text,/select[\s\S]+from\s+public\.quick_visit_requests[\s\S]+request_key\s*=\s*p_request_key/i);
+  assert.match(text,/from\s+public\.quick_visit_requests[\s\S]*?where\s+request_key\s*=\s*p_request_key/i);
+});
+
+test('agendamento também guarda request_key com índice único parcial e vínculo ao encaixe',async()=>{
+  const text=await requestKeySql();
+  assert.match(text,/alter\s+table\s+public\.agendamentos[\s\S]*add\s+column\s+if\s+not\s+exists\s+request_key\s+uuid/i);
+  assert.match(text,/create\s+unique\s+index\s+if\s+not\s+exists\s+agendamentos_request_key_uidx[\s\S]*on\s+public\.agendamentos\s*\(\s*request_key\s*\)[\s\S]*where\s+request_key\s+is\s+not\s+null/i);
+  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_quick_visit_request_link/i);
+  assert.match(text,/update\s+public\.agendamentos[\s\S]*set\s+request_key\s*=\s*new\.request_key[\s\S]*where\s+id\s*=\s*new\.appointment_id/i);
+  assert.match(text,/create\s+trigger\s+bc_quick_visit_request_link[\s\S]*before\s+insert\s+on\s+public\.quick_visit_requests/i);
 });
 
 test('quick visit valida ator, cliente, profissional e autorização do procedimento',async()=>{
@@ -33,7 +44,7 @@ test('conflito de agenda é serializado e cobre criação normal e encaixe',asyn
   assert.match(text,/before\s+insert\s+or\s+update\s+on\s+public\.agendamentos/i);
   assert.match(text,/pg_advisory_xact_lock/i);
   assert.match(text,/a\.inicio\s*<\s*v_new_end/i);
-  assert.match(text,/v_existing_end\s*>\s*new\.inicio|coalesce\s*\(\s*a\.fim[\s\S]*>\s*new\.inicio/i);
+  assert.match(text,/coalesce\s*\(\s*a\.fim\s*,[\s\S]*?\)\s*>\s*new\.inicio/i);
   assert.match(text,/hor[aá]rio[^;]*indispon[ií]vel/i);
 });
 
@@ -51,8 +62,8 @@ test('helper de tratamento permite admin preparar encaixe para profissional sem 
   assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_treatment_create_for_professional_impl/i);
   assert.match(text,/profissional_user_id[\s\S]*p_profissional_user_id/i);
   assert.match(text,/created_by[\s\S]*v_user/i);
-  assert.match(text,/agendamento[^;]*colaboradora_user_id[^;]*p_profissional_user_id/i);
-  assert.match(text,/private\.bc_treatment_create_impl[\s\S]*bc_treatment_create_for_professional_impl/i);
+  assert.match(text,/a\.colaboradora_user_id\s*<>\s*p_profissional_user_id/i);
+  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_treatment_create_impl[\s\S]*?return\s+private\.bc_treatment_create_for_professional_impl/i);
 });
 
 test('wrapper público é invoker, authenticated-only e request table não é exposta',async()=>{
