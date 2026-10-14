@@ -2,14 +2,23 @@
 
 Pasta principal das imagens e mídias dos cards de procedimentos.
 
-## Subpastas
-- `facial/` — procedimentos faciais
-- `corporal/` — procedimentos corporais
+## Organização existente
+- `facial/` — procedimentos faciais já organizados nessa categoria
+- `corporal/` — procedimentos corporais já organizados nessa categoria
 - `bem-estar/` — bem-estar
 - `autorais/` — protocolos autorais
-- `videos/` — vídeos aprovados para a vitrine Protocolos 2.0
-- `posters/` — posters WebP dos vídeos
-- `familias/` — imagens próprias das famílias de tratamentos, quando disponíveis
+- `catalogo/` — imagens do catálogo histórico e referências visuais
+- `miniaturas/` — miniaturas já existentes no projeto
+
+## Mídias da Protocolos 2.0
+
+Vídeos e posters aprovados usados pela vitrine da página de Protocolos ficam **diretamente em `assets/procedimentos/`**, sem criar subpastas extras só para `videos` ou `posters`.
+
+Exemplo aprovado atual:
+- `botox.mp4` — vídeo final de Toxina Botulínica
+- `botox.webp` — poster WebP correspondente
+
+Para novas mídias, prefira o mesmo padrão simples de nomes: `<tema>.mp4` e `<tema>.webp`, sempre em minúsculas, sem acentos e com hífens quando necessário.
 
 ## Padrão para imagens
 Preferência por **WebP**, nomes em minúsculas, sem acentos e com hífens.
