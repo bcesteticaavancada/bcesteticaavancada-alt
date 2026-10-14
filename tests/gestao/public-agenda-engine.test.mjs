@@ -53,7 +53,12 @@ test('RPCs públicos são service-role-only e reserva nasce sem prontuário', as
   assert.match(sql, /origem[^;]*'site'/i);
   assert.match(sql, /cliente_id[^;]*null/i);
   assert.match(sql, /created_by[^;]*null/i);
-  assert.match(sql, /10[^;]*10\s*minute|10\s*minute[^;]*10/i);
+});
+
+test('rate limit público mantém janela e teto como contratos independentes', async () => {
+  const sql = await engineSql();
+  assert.match(sql, /interval\s*'10\s+minutes?'/i);
+  assert.match(sql, /v_attempts\s*>=\s*10/i);
 });
 
 test('mês público é validado no banco e atendimento exige cliente vinculada', async () => {
