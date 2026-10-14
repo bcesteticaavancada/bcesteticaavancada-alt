@@ -4,6 +4,15 @@ function cleanList(value){return Array.isArray(value)?[...new Set(value.map((ite
 function ensureClient(client){if(!client||typeof client.rpc!=='function')throw new Error('Cliente Supabase indisponível.');}
 function fail(error,fallback){if(error)throw error instanceof Error?error:new Error(error?.message||fallback);}
 
+export async function listQuickVisitProcedureOptions({client,profissionalUserId}={}){
+  ensureClient(client);
+  const {data,error}=await client.rpc('bc_quick_visit_procedure_options',{
+    p_profissional_user_id:required(profissionalUserId,'Profissional'),
+  });
+  fail(error,'Não foi possível validar os procedimentos da profissional.');
+  return Array.isArray(data)?data:[];
+}
+
 export async function createQuickVisit({
   client,
   requestKey,
