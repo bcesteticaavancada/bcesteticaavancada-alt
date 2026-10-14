@@ -63,7 +63,8 @@ test('rate limit público mantém janela e teto como contratos independentes', a
 
 test('mês público é validado no banco e atendimento exige cliente vinculada', async () => {
   const sql = await engineSql();
-  assert.match(sql, /date_trunc\s*\(\s*'month'[^)]*america\/sao_paulo/i);
+  assert.match(sql, /date_trunc\s*\(\s*'month'/i);
+  assert.match(sql, /now\s*\(\s*\)\s+at\s+time\s+zone\s+'america\/sao_paulo'/i);
   assert.match(sql, /cliente_id\s+is\s+null/i);
   assert.match(sql, /cadastro da cliente precisa ser vinculado antes do atendimento/i);
 });
