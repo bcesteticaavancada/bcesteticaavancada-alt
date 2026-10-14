@@ -51,10 +51,12 @@ test('gate de início usa helper canônico; arquivo solto não basta',async()=>{
   assert.doesNotMatch(text,/client_files[\s\S]*reasons\s*:=\s*array_remove[^;]*consentimento_pendente/i);
 });
 
-test('versão final congela referência do TCLE externo sem bytes nem URL de storage',async()=>{
+test('versão final revalida o consentimento e congela referência do TCLE externo sem bytes nem URL de storage',async()=>{
   const text=await sql();
   assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_external_consent_snapshot_trigger/i);
   assert.match(text,/before\s+insert\s+on\s+public\.clinical_treatment_versions/i);
+  assert.match(text,/not\s+private\.bc_treatment_consent_satisfied\s*\(\s*new\.treatment_id\s*\)/i);
+  assert.match(text,/consentimento[\s\S]*n[aã]o[\s\S]*v[aá]lido/i);
   assert.match(text,/external_consent/);
   for(const token of ['client_file_id','procedure_version_id','consent_template_version_id','consent_class','reviewed_by','reviewed_at','sha256'])assert.match(text,new RegExp(token,'i'));
   const triggerBlock=text.slice(text.indexOf('bc_external_consent_snapshot_trigger'),text.indexOf('create or replace function private.bc_treatment_consent_satisfied'));
