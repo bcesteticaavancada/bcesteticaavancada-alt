@@ -17,7 +17,7 @@ function documentLabel(doc = {}) {
 }
 
 // Compatibilidade 6C: Anamnese e testes antigos continuam usando este renderer.
-// A aba Documentos da Pasta usa o módulo unificado client-documents-panel.js.
+// A aba Documentos da Central usa o módulo unificado client-documents-panel.js.
 export function renderClinicalDocuments(documents = []) {
   if (!documents.length) return '<div class="bcg-empty">Nenhum documento clínico emitido para esta cliente.</div>';
   return `<div class="bcg-clinical-documents">${documents.map((doc) => {
@@ -59,70 +59,50 @@ function updateAlertStrip(folder, alerts) {
 
 function renderTreatmentTimelineSummary(treatments = []) {
   if (!treatments.length) return '';
-  return `<section data-treatment-timeline-summary><p class="bcg-eyebrow">ATENDIMENTOS CLÍNICOS 6C</p><div class="bcg-history-timeline">${treatments.map((item) => `<article class="bcg-history-entry"><header><div><strong>${escapeHtml(item.procedure_name || 'Procedimento')}</strong><span>${escapeHtml(item.status || '')}</span></div><time>${escapeHtml(String(item.treatment_date || '').split('-').reverse().join('/'))}</time></header><div class="bcg-history-grid">${item.objetivo ? `<div class="bcg-history-field"><span>Objetivo</span><p>${escapeHtml(item.objetivo)}</p></div>` : ''}${item.orientacoes ? `<div class="bcg-history-field"><span>Orientações</span><p>${escapeHtml(item.orientacoes)}</p></div>` : ''}</div></article>`).join('')}</div><div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO LEGADO</p></section>`;
+  return `<section data-treatment-timeline-summary><p class="bcg-eyebrow">ATENDIMENTOS CLÍNICOS</p><div class="bcg-history-timeline">${treatments.map((item) => `<article class="bcg-history-entry"><header><div><strong>${escapeHtml(item.procedure_name || 'Procedimento')}</strong><span>${escapeHtml(item.status || '')}</span></div><time>${escapeHtml(String(item.treatment_date || '').split('-').reverse().join('/'))}</time></header><div class="bcg-history-grid">${item.objetivo ? `<div class="bcg-history-field"><span>Objetivo</span><p>${escapeHtml(item.objetivo)}</p></div>` : ''}${item.orientacoes ? `<div class="bcg-history-field"><span>Orientações</span><p>${escapeHtml(item.orientacoes)}</p></div>` : ''}</div></article>`).join('')}</div><div class="bcg-divider"></div></section>`;
 }
 
 function updateTimeline(folder, treatments = []) {
-  const panel = folder.querySelector?.('[data-folder-panel="timeline"]');
+  const panel = folder.querySelector?.('[data-folder-panel="resumo"]');
   if (!panel) return;
   panel.querySelector?.('[data-treatment-timeline-summary]')?.remove?.();
   if (!treatments.length) return;
-  panel.insertAdjacentHTML?.('afterbegin', renderTreatmentTimelineSummary(treatments));
+  panel.insertAdjacentHTML?.('beforeend', renderTreatmentTimelineSummary(treatments));
 }
 
-async function hydrateFolder({ client, folder, force = false }) {
+async function hydrateFolder({ client, folder, force = false, section = 'resumo' }) {
   if (!folder?.isConnected || !folder.dataset.clientId) return;
-  if (folder.dataset.clinicalHydrating === 'true') return;
-  if (!force && folder.dataset.clinicalHydrated === 'true') return;
+  if (folder.dataset.clinicalHydrating === 'true') {
+    folder.__bcPendingClinicalSection = section;
+    return;
+  }
   folder.dataset.clinicalHydrating = 'true';
   const clienteId = folder.dataset.clientId;
   try {
-    const [clientRecord, bundle] = await Promise.all([
-      getClient({ client, clienteId }),
-      loadClientClinicalBundle({ client, clienteId }),
-    ]);
-    if (!folder.isConnected || folder.dataset.clientId !== clienteId) return;
-    folder.__bcClientRecord = clientRecord;
-    folder.__bcClinicalBundle = bundle;
+    let clientRecord = folder.__bcClientRecord;
+    let bundle = folder.__bcClinicalBundle;
+    if (force || !clientRecord || !bundle) {
+      [clientRecord, bundle] = await Promise.all([
+        getClient({ client, clienteId }),
+        loadClientClinicalBundle({ client, clienteId }),
+      ]);
+      if (!folder.isConnected || folder.dataset.clientId !== clienteId) return;
+      folder.__bcClientRecord = clientRecord;
+      folder.__bcClinicalBundle = bundle;
 
-    const anamnesePanel = folder.querySelector?.('[data-folder-panel="anamnese"]');
-    if (anamnesePanel) {
-      anamnesePanel.innerHTML = renderAnamnesePanel({
-        client: clientRecord,
-        state: bundle.state,
-        versions: bundle.versions,
-        alerts: bundle.alerts,
-        documents: bundle.documents,
-      });
+      const anamnesePanel = folder.querySelector?.('[data-folder-panel="anamnese"]');
+      if (anamnesePanel) {
+        anamnesePanel.innerHTML = renderAnamnesePanel({
+          client: clientRecord,
+          state: bundle.state,
+          versions: bundle.versions,
+          alerts: bundle.alerts,
+          documents: bundle.documents,
+        });
+      }
+      updateChecklist(folder, bundle.state);
+      updateAlertStrip(folder, bundle.alerts);
     }
-
-    const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
-    if (documentsPanel && !folder.__bcDocumentsController) {
-      folder.__bcDocumentsController = initClientDocumentsPanel({
-        client,
-        root: documentsPanel,
-        getClientRecord: () => folder.__bcClientRecord,
-      });
-    }
-    if (folder.__bcDocumentsController) await folder.__bcDocumentsController.hydrate();
-
-    const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
-    if (treatmentsPanel && !folder.__bcTreatmentController) {
-      treatmentsPanel.innerHTML = renderTreatmentPanel({ client: clientRecord });
-      folder.__bcTreatmentController = initTreatmentController({
-        client,
-        root: treatmentsPanel,
-        getClientRecord: () => folder.__bcClientRecord,
-        refreshFolder: () => hydrateFolder({ client, folder, force: true }),
-      });
-    }
-    if (folder.__bcTreatmentController) {
-      const treatmentBundle = await folder.__bcTreatmentController.hydrate();
-      updateTimeline(folder, treatmentBundle?.treatments || []);
-    }
-
-    updateChecklist(folder, bundle.state);
-    updateAlertStrip(folder, bundle.alerts);
 
     if (!folder.__bcAnamneseController) {
       folder.__bcAnamneseController = initAnamneseController({
@@ -130,19 +110,58 @@ async function hydrateFolder({ client, folder, force = false }) {
         root: folder,
         getClientRecord: () => folder.__bcClientRecord,
         getClinicalBundle: () => folder.__bcClinicalBundle,
-        refresh: () => hydrateFolder({ client, folder, force: true }),
+        refresh: () => hydrateFolder({ client, folder, force: true, section: 'anamnese' }),
       });
     }
+
+    if (section === 'documentos') {
+      const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
+      if (documentsPanel && !folder.__bcDocumentsController) {
+        folder.__bcDocumentsController = initClientDocumentsPanel({
+          client,
+          root: documentsPanel,
+          getClientRecord: () => folder.__bcClientRecord,
+        });
+      }
+      if (folder.__bcDocumentsController) await folder.__bcDocumentsController.hydrate();
+    }
+
+    if (section === 'atendimentos') {
+      const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
+      if (treatmentsPanel && !folder.__bcTreatmentController) {
+        treatmentsPanel.innerHTML = renderTreatmentPanel({ client: clientRecord });
+        folder.__bcTreatmentController = initTreatmentController({
+          client,
+          root: treatmentsPanel,
+          getClientRecord: () => folder.__bcClientRecord,
+          refreshFolder: () => hydrateFolder({ client, folder, force: true, section: 'atendimentos' }),
+        });
+      }
+      if (folder.__bcTreatmentController) {
+        const treatmentBundle = await folder.__bcTreatmentController.hydrate();
+        updateTimeline(folder, treatmentBundle?.treatments || []);
+      }
+    }
+
     folder.dataset.clinicalHydrated = 'true';
   } catch (error) {
-    const anamnesePanel = folder.querySelector?.('[data-folder-panel="anamnese"]');
-    if (anamnesePanel) anamnesePanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar a Anamnese Geral.')}</div>`;
-    const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
-    if (treatmentsPanel) treatmentsPanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os atendimentos clínicos.')}</div>`;
-    const documentsPanel = folder.querySelector?.('[data-folder-panel="documentos"]');
-    if (documentsPanel && !folder.__bcDocumentsController) documentsPanel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os documentos.')}</div>`;
+    if (section === 'anamnese') {
+      const panel = folder.querySelector?.('[data-folder-panel="anamnese"]');
+      if (panel) panel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar a Anamnese Geral.')}</div>`;
+    }
+    if (section === 'atendimentos') {
+      const panel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
+      if (panel) panel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os atendimentos clínicos.')}</div>`;
+    }
+    if (section === 'documentos') {
+      const panel = folder.querySelector?.('[data-folder-panel="documentos"]');
+      if (panel && !folder.__bcDocumentsController) panel.innerHTML = `<div class="bcg-empty">${escapeHtml(error?.message || 'Não foi possível carregar os documentos.')}</div>`;
+    }
   } finally {
     delete folder.dataset.clinicalHydrating;
+    const pending = folder.__bcPendingClinicalSection;
+    delete folder.__bcPendingClinicalSection;
+    if (pending && pending !== section) hydrateFolder({ client, folder, section: pending }).catch(() => {});
   }
 }
 
@@ -154,10 +173,59 @@ function foldersFromNode(node) {
   return result;
 }
 
+function dispatchFolderEvent(folder, name, detail = {}) {
+  const EventCtor = folder?.ownerDocument?.defaultView?.CustomEvent || globalThis.CustomEvent;
+  if (typeof EventCtor !== 'function') return;
+  folder.dispatchEvent(new EventCtor(name, { bubbles: true, detail }));
+}
+
 export function installClinicalFolderRuntime({ client, root = document } = {}) {
   if (!client || !root || globalThis[INSTALL_KEY]) return globalThis[INSTALL_KEY] || null;
-  const hydrate = (folder) => hydrateFolder({ client, folder }).catch(() => {});
+  const hydrate = (folder) => hydrateFolder({ client, folder, section: 'resumo' }).catch(() => {});
   root.querySelectorAll?.('[data-client-folder]')?.forEach?.(hydrate);
+
+  const onClick = (event) => {
+    const folder = event.target.closest?.('[data-client-folder]');
+    if (!folder) return;
+
+    const tab = event.target.closest?.('[data-folder-tab]');
+    if (tab && !tab.hidden) {
+      dispatchFolderEvent(folder, 'bc:folder-tab-change', { tab: tab.dataset.folderTab });
+      return;
+    }
+
+    if (event.target.closest?.('[data-client-upload-document]')) {
+      folder.querySelector?.('[data-folder-tab="documentos"]')?.click?.();
+      return;
+    }
+    if (event.target.closest?.('[data-client-edit-cadastro]')) {
+      const panel = folder.querySelector?.('[data-client-cadastro-panel]');
+      if (panel) panel.hidden = false;
+      return;
+    }
+    if (event.target.closest?.('[data-client-close-cadastro]')) {
+      const panel = folder.querySelector?.('[data-client-cadastro-panel]');
+      if (panel) panel.hidden = true;
+      return;
+    }
+    if (event.target.closest?.('[data-client-schedule]')) {
+      dispatchFolderEvent(folder, 'bc:client-schedule', { clienteId: folder.dataset.clientId });
+      return;
+    }
+    if (event.target.closest?.('[data-client-new-treatment]')) {
+      dispatchFolderEvent(folder, 'bc:client-new-treatment', { clienteId: folder.dataset.clientId });
+    }
+  };
+
+  const onTabChange = (event) => {
+    const folder = event.target.closest?.('[data-client-folder]') || event.target;
+    const section = String(event.detail?.tab || 'resumo');
+    if (!folder?.matches?.('[data-client-folder]')) return;
+    hydrateFolder({ client, folder, section }).catch(() => {});
+  };
+
+  root.addEventListener?.('click', onClick);
+  root.addEventListener?.('bc:folder-tab-change', onTabChange);
 
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
@@ -165,7 +233,16 @@ export function installClinicalFolderRuntime({ client, root = document } = {}) {
     }
   });
   observer.observe(root.documentElement || root, { childList: true, subtree: true });
-  const runtime = { observer, hydrateFolder: (folder, force = true) => hydrateFolder({ client, folder, force }) };
+  const runtime = {
+    observer,
+    hydrateFolder: (folder, force = true, section = 'resumo') => hydrateFolder({ client, folder, force, section }),
+    destroy() {
+      observer.disconnect();
+      root.removeEventListener?.('click', onClick);
+      root.removeEventListener?.('bc:folder-tab-change', onTabChange);
+      delete globalThis[INSTALL_KEY];
+    },
+  };
   globalThis[INSTALL_KEY] = runtime;
   return runtime;
 }
