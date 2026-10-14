@@ -4,8 +4,10 @@ import {readFile} from 'node:fs/promises';
 
 const migrationUrl=new URL('../../supabase/migrations/20261014012000_bc_gestao_quick_visit.sql',import.meta.url);
 const requestKeyMigrationUrl=new URL('../../supabase/migrations/20261014012100_bc_gestao_quick_visit_request_key.sql',import.meta.url);
+const optionsMigrationUrl=new URL('../../supabase/migrations/20261014012200_bc_gestao_quick_visit_options.sql',import.meta.url);
 async function sql(){return (await readFile(migrationUrl,'utf8')).toLowerCase();}
 async function requestKeySql(){return (await readFile(requestKeyMigrationUrl,'utf8')).toLowerCase();}
+async function optionsSql(){return (await readFile(optionsMigrationUrl,'utf8')).toLowerCase();}
 
 test('quick visit possui idempotência persistente por request_key',async()=>{
   const text=await sql();
@@ -24,6 +26,20 @@ test('agendamento também guarda request_key com índice único parcial e víncu
   assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_quick_visit_request_link/i);
   assert.match(text,/update\s+public\.agendamentos[\s\S]*set\s+request_key\s*=\s*new\.request_key[\s\S]*where\s+id\s*=\s*new\.appointment_id/i);
   assert.match(text,/create\s+trigger\s+bc_quick_visit_request_link[\s\S]*before\s+insert\s+on\s+public\.quick_visit_requests/i);
+});
+
+test('opções do encaixe calculam can_execute para a profissional selecionada no backend',async()=>{
+  const text=await optionsSql();
+  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_quick_visit_procedure_options_impl/i);
+  assert.match(text,/p_profissional_user_id\s+uuid/i);
+  assert.match(text,/private\.is_bc_active_staff\s*\(\s*\)/i);
+  assert.match(text,/private\.is_bc_admin\s*\(\s*\)/i);
+  assert.match(text,/staff_profiles[\s\S]*p_profissional_user_id[\s\S]*active[\s\S]*atende_clientes/i);
+  assert.match(text,/private\.bc_treatment_can_execute_version\s*\(\s*p\.current_version_id\s*,\s*p_profissional_user_id\s*\)/i);
+  assert.match(text,/create\s+or\s+replace\s+function\s+public\.bc_quick_visit_procedure_options/i);
+  assert.match(text,/security\s+invoker/i);
+  assert.match(text,/revoke\s+execute[\s\S]*bc_quick_visit_procedure_options[\s\S]*from\s+anon/i);
+  assert.match(text,/grant\s+execute[\s\S]*bc_quick_visit_procedure_options[\s\S]*to\s+authenticated/i);
 });
 
 test('quick visit valida ator, cliente, profissional e autorização do procedimento',async()=>{
