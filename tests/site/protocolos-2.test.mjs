@@ -6,10 +6,14 @@ const pageUrl = new URL('../../protocolos/index.html', import.meta.url);
 const cssUrl = new URL('../../protocolos/protocolos.css', import.meta.url);
 const jsUrl = new URL('../../protocolos/protocolos.js', import.meta.url);
 const mediaReadmeUrl = new URL('../../assets/procedimentos/README.md', import.meta.url);
+const rootReadmeUrl = new URL('../../README.md', import.meta.url);
+const workflowUrl = new URL('../../.github/workflows/site-ci.yml', import.meta.url);
 const html = readFileSync(pageUrl, 'utf8');
 const css = readFileSync(cssUrl, 'utf8');
 const js = existsSync(jsUrl) ? readFileSync(jsUrl, 'utf8') : '';
 const mediaReadme = readFileSync(mediaReadmeUrl, 'utf8');
+const rootReadme = readFileSync(rootReadmeUrl, 'utf8');
+const workflow = readFileSync(workflowUrl, 'utf8');
 
 const canonical = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/protocolos/';
 const videoSlugs = [
@@ -156,4 +160,30 @@ test('procedure media library documents ready and pending policy', () => {
   assert.match(mediaReadme, /data-video-state/i);
   assert.match(mediaReadme, /ready/i);
   assert.match(mediaReadme, /pending/i);
+});
+
+test('Protocolos keeps semantic SEO text and accessible media', () => {
+  for (const term of ['toxina botulínica', 'bioestimulador', 'faciais', 'corporais', 'Belo Horizonte', 'avaliação']) {
+    assert.match(html, new RegExp(term, 'i'));
+  }
+
+  const mainMatch = html.match(/<main\b[\s\S]*?<\/main>/i);
+  assert.ok(mainMatch, 'main content must exist');
+  const images = [...mainMatch[0].matchAll(/<img\b[^>]*>/gi)].map((match) => match[0]);
+  assert.ok(images.length > 0);
+  for (const image of images) assert.match(image, /\balt="[^"]+"/i);
+
+  const videos = [...mainMatch[0].matchAll(/<video\b[^>]*>/gi)].map((match) => match[0]);
+  for (const video of videos) assert.match(video, /\bplaysinline\b/i);
+});
+
+test('project documentation describes Protocolos 2.0 instead of the old 30-card catalogue', () => {
+  assert.match(rootReadme, /Protocolos 2\.0/i);
+  assert.match(rootReadme, /7 temas/i);
+  assert.match(rootReadme, /Assinaturas BC/i);
+  assert.doesNotMatch(rootReadme, /catálogo de 30 procedimentos/i);
+});
+
+test('Site CI watches page-specific JavaScript modules', () => {
+  assert.match(workflow, /['"]\*\*\/\*\.js['"]/);
 });
