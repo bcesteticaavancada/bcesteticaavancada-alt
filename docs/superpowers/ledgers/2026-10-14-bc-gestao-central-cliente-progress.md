@@ -15,3 +15,16 @@ Pre-flight shared interfaces:
 - Task 2/3 → Task 9: `client_files` categoria `tcle_externo` alimenta vínculo externo; compatível.
 - Task 9 → gates existentes: helper `private.bc_treatment_consent_satisfied(uuid)` deve preservar consentimentos internos e aceitar externo revisado; compatível com a spec.
 - Task 1 é independente das demais e pode ser publicada tecnicamente antes, mas rollout final permanece na Task 10.
+
+## Task 1 — TCLE específico de Bioestimulador
+
+Status: GREEN na branch; não aplicado em produção.
+
+- RED commit: `f2bad1f23ef6a8bb9b6fdd414a837e5789f3e366`.
+- RED Site CI #532 (`38509446899`): 407 testes antigos passaram e somente os 5 testes novos falharam por ENOENT da migration esperada.
+- GREEN commit: `11d63bab8c99d351550b65809cfdc9bd75152c72`.
+- GREEN Site CI #533 (`38509669243`): success, incluindo BC Gestão, site e os dois geradores de PDF.
+- GREEN Pre-anamnese CI #274 (`38509668957`): success.
+- Migration criada: `supabase/migrations/20261014010000_bc_gestao_bioestimulador_consent.sql`.
+- Versão anterior permanece histórica; nova versão copia flags clínicas atuais e altera apenas o complemento específico.
+- Ruling: não aplicar migration no Supabase produtivo antes do gate de publicação da Task 10.
