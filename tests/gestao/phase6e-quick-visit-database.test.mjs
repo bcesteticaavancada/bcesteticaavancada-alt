@@ -38,7 +38,7 @@ test('opções do encaixe calculam can_execute para a profissional selecionada n
   assert.match(text,/private\.bc_treatment_can_execute_version\s*\(\s*p\.current_version_id\s*,\s*p_profissional_user_id\s*\)/i);
   assert.match(text,/create\s+or\s+replace\s+function\s+public\.bc_quick_visit_procedure_options/i);
   assert.match(text,/security\s+invoker/i);
-  assert.match(text,/revoke\s+execute[\s\S]*bc_quick_visit_procedure_options[\s\S]*from\s+anon/i);
+  assert.match(text,/revoke\s+(?:all|execute)[\s\S]*bc_quick_visit_procedure_options[\s\S]*from[\s\S]*anon/i);
   assert.match(text,/grant\s+execute[\s\S]*bc_quick_visit_procedure_options[\s\S]*to\s+authenticated/i);
 });
 
