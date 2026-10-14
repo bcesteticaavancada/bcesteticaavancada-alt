@@ -9,8 +9,7 @@ on:
     paths:
       - '**/*.html'
       - '**/*.css'
-      - 'script.js'
-      - 'pwa-install.js'
+      - '**/*.js'
       - 'manifest.webmanifest'
       - 'assets/**'
       - 'gestao/**'
@@ -24,8 +23,7 @@ on:
     paths:
       - '**/*.html'
       - '**/*.css'
-      - 'script.js'
-      - 'pwa-install.js'
+      - '**/*.js'
       - 'manifest.webmanifest'
       - 'assets/**'
       - 'gestao/**'

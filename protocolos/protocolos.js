@@ -1,32 +1,77 @@
-// The complete catalogue remains usable without JavaScript.
-(() => {
-  const cards = [...document.querySelectorAll('.care-card')];
-  const controls = document.querySelector('.care-filters');
-  const status = document.querySelector('.filter-status');
-  const specificHeading = document.querySelector('.specific-heading');
-  if (!cards.length || !controls) return;
-  const buttons = [...controls.querySelectorAll('button')];
-  controls.hidden = false;
-  function filter(category, announce = true) {
-    cards.forEach(card => { card.hidden = category !== 'all' && card.dataset.category !== category; });
-    buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === category)));
-    specificHeading.hidden = !document.querySelector('.care-grid--specific .care-card:not([hidden])');
-    const count = cards.filter(card => !card.hidden).length;
-    if (announce) status.textContent = `${count} ${count === 1 ? 'grupo de cuidados disponível' : 'grupos de cuidados disponíveis'}.`;
+export function hydrateProtocolVideo(video) {
+  if (!video || video.dataset.hydrated === 'true') return;
+
+  let changed = false;
+  video.querySelectorAll('source[data-src]').forEach((source) => {
+    const src = source.dataset.src;
+    if (!src) return;
+    source.src = src;
+    source.removeAttribute('data-src');
+    changed = true;
+  });
+
+  if (!changed) return;
+  video.dataset.hydrated = 'true';
+  video.load();
+}
+
+export function canAutoplayProtocolVideo(reducedMotion, video) {
+  return Boolean(video && !reducedMotion && video.muted);
+}
+
+export function initProtocolVideos(root = document) {
+  const cards = [...root.querySelectorAll('[data-protocol-video][data-video-state="ready"]')];
+  if (!cards.length) return;
+
+  const reducedMotion = typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const hydrateCard = (card) => {
+    const video = card.querySelector('video');
+    if (video) hydrateProtocolVideo(video);
+    return video;
+  };
+
+  if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+    cards.forEach(hydrateCard);
+    return;
   }
-  buttons.forEach(button => button.addEventListener('click', () => filter(button.dataset.filter)));
-  function revealHash() {
-    let id;
-    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
-    const target = document.getElementById(id);
-    if (!target) return;
-    const card = target.closest('.care-card');
-    if (!card) return;
-    filter('all', false);
-    const details = target.closest('details');
-    if (details) details.open = true;
-    requestAnimationFrame(() => target.scrollIntoView({block: 'start'}));
+
+  const preloadObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      hydrateCard(entry.target);
+      preloadObserver.unobserve(entry.target);
+    });
+  }, { rootMargin: '300px 0px' });
+
+  const playbackObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target.querySelector('video');
+      if (!video) return;
+
+      if (entry.isIntersecting
+        && entry.intersectionRatio >= 0.55
+        && canAutoplayProtocolVideo(reducedMotion, video)) {
+        const playback = video.play();
+        if (playback && typeof playback.catch === 'function') playback.catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: [0, 0.55, 1] });
+
+  cards.forEach((card) => {
+    preloadObserver.observe(card);
+    playbackObserver.observe(card);
+  });
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initProtocolVideos(), { once: true });
+  } else {
+    initProtocolVideos();
   }
-  window.addEventListener('hashchange', revealHash);
-  revealHash();
-})();
+}
