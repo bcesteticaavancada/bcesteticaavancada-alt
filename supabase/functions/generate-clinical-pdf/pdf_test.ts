@@ -77,6 +77,17 @@ Deno.test('seção do parecer reúne contexto clínico sem bytes ou URLs externa
   assert(!/storage_path|arquivos-clientes|https?:\/\/|signedurl|bytes/i.test(text));
 });
 
+Deno.test('seção do parecer reconhece TCLE externo congelado como consentimento vinculado',()=>{
+  const section=buildTreatmentReportSection({
+    treatment:{treatment_date:'2026-10-12',anamnese_id:'an1',consent_document_id:null},
+    procedure_version:{nome:'Bioestimulador'},
+    professional:{name:'Profissional Teste'},
+    report:{descricao_sessao:'Sessão',resposta_observada:'Resposta',orientacoes:'Orientações',retorno_necessario:false},
+    external_consent:{client_file_id:'file1',sha256:'0'.repeat(64),consent_class:'injetavel'},
+  });
+  assertStringIncludes(section.lines.join('\n'),'Consentimento vinculado: Sim');
+});
+
 Deno.test('gera PDF institucional válido para ficha final de atendimento com 6D e parecer', async () => {
   const bytes = await buildClinicalPdf({
     document: { ...document, document_type: 'treatment_record' },
