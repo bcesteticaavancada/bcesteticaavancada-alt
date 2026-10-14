@@ -8,7 +8,9 @@ import {
   setAppointmentStatus,
 } from './agenda-api.js';
 import { listClients } from './clientes-api.js';
+import { linkPublicAppointment } from './schedule-api.js';
 import { initProcedurePanel } from './procedure-panel.js';
+import { initCollaboratorSchedule } from './colaborador-schedule.js';
 import {
   clinicDayRange,
   clinicLocalDateTimeToIso,
@@ -74,25 +76,40 @@ export function ownAppointmentPayload(profile, values) {
   };
 }
 
+export function canOpenClinicalAppointment(appointment) {
+  return Boolean(appointment?.cliente_id);
+}
+
+export async function linkPendingPublicBooking({ client, appointmentId, clienteId }) {
+  return linkPublicAppointment({ client, appointmentId, clienteId });
+}
+
 export function renderCollaboratorAppointments(appointments = []) {
   if (!appointments.length) {
     return '<div class="bcg-empty">Nenhum atendimento encontrado neste período.</div>';
   }
 
   return `<div class="bcg-agenda-list">${appointments.map((appointment) => {
-    const clientName = appointment.clientes?.nome || 'Cliente';
+    const pendingSite = appointment.origem === 'site' && !appointment.cliente_id;
+    const clientName = appointment.clientes?.nome || appointment.public_booking_name || 'Cliente';
+    const phone = pendingSite ? appointment.public_booking_phone : '';
     const procedureName = appointment.procedimentos?.nome || 'Procedimento';
     const status = appointment.status || 'agendado';
+    const chips = [
+      `<span class="bcg-chip ${statusClass(status)}">${escapeHtml(statusLabel(status))}</span>`,
+      appointment.origem === 'site' ? '<span class="bcg-chip">Site</span>' : '',
+      pendingSite ? '<span class="bcg-chip bcg-status-pending">Cadastro pendente</span>' : '',
+    ].join('');
     return `
       <article class="bcg-appointment-card bcg-collaborator-card" data-appointment-id="${escapeHtml(appointment.id)}">
         <div class="bcg-appointment-time">${escapeHtml(appointmentTime(appointment.inicio))}</div>
         <div class="bcg-appointment-main">
           <strong>${escapeHtml(clientName)}</strong>
-          <span>${escapeHtml(procedureName)}</span>
+          <span>${escapeHtml([procedureName, phone].filter(Boolean).join(' • '))}</span>
         </div>
-        <span class="bcg-chip ${statusClass(status)}">${escapeHtml(statusLabel(status))}</span>
+        <div class="bcg-appointment-chips">${chips}</div>
         <div class="bcg-actions">
-          <button type="button" class="bcg-small-button" data-open-appointment="${escapeHtml(appointment.id)}">Abrir atendimento</button>
+          <button type="button" class="bcg-small-button" data-open-appointment="${escapeHtml(appointment.id)}">${pendingSite ? 'Vincular cliente' : 'Abrir atendimento'}</button>
         </div>
       </article>`;
   }).join('')}</div>`;
@@ -131,10 +148,31 @@ export function renderAuthorizedHistory(history = [], staffMap = new Map()) {
   }).join('')}</div>`;
 }
 
-function renderAppointmentDetail(appointment, procedures = []) {
+export function renderAppointmentDetail(appointment, procedures = [], clients = []) {
+  const pendingSite = appointment.origem === 'site' && !appointment.cliente_id;
   const client = appointment.clientes || {};
   const procedure = appointment.procedimentos || {};
   const status = appointment.status || 'agendado';
+
+  if (pendingSite) {
+    const name = appointment.public_booking_name || 'Cliente do site';
+    const phone = appointment.public_booking_phone || '';
+    return `
+      <div class="bcg-detail-head">
+        <div><p class="bcg-eyebrow">RESERVA DO SITE</p><h3>${escapeHtml(name)}</h3><p>${escapeHtml(procedure.nome || 'Procedimento')} • ${escapeHtml(formatClinicDateTime(appointment.inicio))}</p></div>
+        <div class="bcg-appointment-chips"><span class="bcg-chip">Site</span><span class="bcg-chip bcg-status-pending">Cadastro pendente</span></div>
+      </div>
+      <div class="bcg-detail-meta">${phone ? `<div><span>WhatsApp informado</span><strong>${escapeHtml(phone)}</strong></div>` : ''}</div>
+      <article class="bcg-editor-card bcg-link-public-booking">
+        <p class="bcg-eyebrow">VINCULAR CADASTRO</p>
+        <p>A ficha clínica está bloqueada até esta reserva ser vinculada explicitamente a um cadastro oficial da clínica.</p>
+        <form class="bcg-form" data-public-booking-link data-appointment-id="${escapeHtml(appointment.id)}">
+          <label>Cliente cadastrado<select class="bcg-input" name="cliente_id" required><option value="">Selecione o cadastro correto</option>${clients.map((item) => option(item.nome, item.id)).join('')}</select></label>
+          <div class="bcg-form-actions"><button class="bcg-button" type="submit">Vincular cliente</button><span class="bcg-status" data-public-booking-link-status></span></div>
+        </form>
+      </article>`;
+  }
+
   const edit = status === 'agendado' ? `
     <form class="bcg-form bcg-form-grid bcg-appointment-edit" data-own-appointment-edit data-appointment-id="${escapeHtml(appointment.id)}">
       <label>Procedimento
@@ -142,28 +180,15 @@ function renderAppointmentDetail(appointment, procedures = []) {
           ${procedures.map((item) => option(item.nome, item.id, item.id === appointment.procedimento_id)).join('')}
         </select>
       </label>
-      <label>Início
-        <input class="bcg-input" name="inicio" type="datetime-local" value="${escapeHtml(localInputValue(appointment.inicio))}" required>
-      </label>
-      <label>Fim <span class="bcg-optional">opcional</span>
-        <input class="bcg-input" name="fim" type="datetime-local" value="${escapeHtml(localInputValue(appointment.fim))}">
-      </label>
-      <label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span>
-        <textarea class="bcg-input bcg-textarea" name="observacao" rows="2">${escapeHtml(appointment.observacao_administrativa || '')}</textarea>
-      </label>
-      <div class="bcg-form-actions bcg-field-wide">
-        <button class="bcg-button" type="submit">Salvar horário</button>
-        <span class="bcg-status" data-own-appointment-status></span>
-      </div>
+      <label>Início<input class="bcg-input" name="inicio" type="datetime-local" value="${escapeHtml(localInputValue(appointment.inicio))}" required></label>
+      <label>Fim <span class="bcg-optional">opcional</span><input class="bcg-input" name="fim" type="datetime-local" value="${escapeHtml(localInputValue(appointment.fim))}"></label>
+      <label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea class="bcg-input bcg-textarea" name="observacao" rows="2">${escapeHtml(appointment.observacao_administrativa || '')}</textarea></label>
+      <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar horário</button><span class="bcg-status" data-own-appointment-status></span></div>
     </form>` : '';
 
   return `
     <div class="bcg-detail-head">
-      <div>
-        <p class="bcg-eyebrow">ATENDIMENTO</p>
-        <h3>${escapeHtml(client.nome || 'Cliente')}</h3>
-        <p>${escapeHtml(procedure.nome || 'Procedimento')} • ${escapeHtml(formatClinicDateTime(appointment.inicio))}</p>
-      </div>
+      <div><p class="bcg-eyebrow">ATENDIMENTO</p><h3>${escapeHtml(client.nome || 'Cliente')}</h3><p>${escapeHtml(procedure.nome || 'Procedimento')} • ${escapeHtml(formatClinicDateTime(appointment.inicio))}</p></div>
       <span class="bcg-chip ${statusClass(status)}">${escapeHtml(statusLabel(status))}</span>
     </div>
     <div class="bcg-detail-meta">
@@ -171,12 +196,7 @@ function renderAppointmentDetail(appointment, procedures = []) {
       ${client.email ? `<div><span>E-mail</span><strong>${escapeHtml(client.email)}</strong></div>` : ''}
     </div>
     ${edit}
-    ${status === 'agendado' ? `
-      <div class="bcg-actions bcg-detail-actions">
-        <button type="button" class="bcg-small-button" data-collab-status="faltou">Marcar falta</button>
-        <button type="button" class="bcg-small-button" data-collab-status="cancelado">Cancelar</button>
-      </div>` : ''}
-  `;
+    ${status === 'agendado' ? `<div class="bcg-actions bcg-detail-actions"><button type="button" class="bcg-small-button" data-collab-status="faltou">Marcar falta</button><button type="button" class="bcg-small-button" data-collab-status="cancelado">Cancelar</button></div>` : ''}`;
 }
 
 function futureRange(today) {
@@ -184,10 +204,7 @@ function futureRange(today) {
   const start = new Date(startIso);
   const endSeed = new Date(start.getTime() + (14 * 24 * 60 * 60 * 1000));
   const endRange = clinicDayRange(endSeed);
-  return {
-    fromIso: startIso,
-    toIso: endRange.toIso,
-  };
+  return { fromIso: startIso, toIso: endRange.toIso };
 }
 
 function replaceOptions(select, items, emptyText) {
@@ -224,17 +241,18 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   let appointments = new Map();
   let staffMap = new Map();
   let procedures = [];
+  let clients = [];
   let currentAppointmentId = null;
 
   function syncAttendanceForm(appointment = null) {
-    const allowed = Boolean(appointment && canRegisterAttendance(appointment.status));
+    const allowed = Boolean(appointment && canOpenClinicalAppointment(appointment) && canRegisterAttendance(appointment.status));
     attendanceFormSlot.hidden = !allowed;
     if (allowed) attendanceFormSlot.dataset.appointmentId = appointment.id;
     else delete attendanceFormSlot.dataset.appointmentId;
   }
 
   async function refreshClients() {
-    const clients = await listClients({ client });
+    clients = await listClients({ client });
     replaceOptions(clientSelect, clients, 'Selecione o cliente');
     return clients;
   }
@@ -278,17 +296,21 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
 
     currentAppointmentId = appointment.id;
     detail.dataset.appointmentId = appointment.id;
-    detailContent.innerHTML = renderAppointmentDetail(appointment, procedures);
-    historyTimeline.innerHTML = '<div class="bcg-empty">Carregando histórico da cliente…</div>';
+    detailContent.innerHTML = renderAppointmentDetail(appointment, procedures, clients);
     syncAttendanceForm(appointment);
     detail.hidden = false;
 
-    try {
-      const history = await listAuthorizedHistory({ client, clienteId: appointment.cliente_id });
-      historyTimeline.innerHTML = renderAuthorizedHistory(history, staffMap);
-    } catch (error) {
-      historyTimeline.innerHTML = '<div class="bcg-empty">Não foi possível carregar o histórico da cliente.</div>';
-      setStatus(agendaStatus, error?.message || 'Erro ao carregar histórico.', 'error');
+    if (!canOpenClinicalAppointment(appointment)) {
+      historyTimeline.innerHTML = '<div class="bcg-empty">Vincule esta reserva a um cadastro oficial para liberar histórico e ficha clínica.</div>';
+    } else {
+      historyTimeline.innerHTML = '<div class="bcg-empty">Carregando histórico da cliente…</div>';
+      try {
+        const history = await listAuthorizedHistory({ client, clienteId: appointment.cliente_id });
+        historyTimeline.innerHTML = renderAuthorizedHistory(history, staffMap);
+      } catch (error) {
+        historyTimeline.innerHTML = '<div class="bcg-empty">Não foi possível carregar o histórico da cliente.</div>';
+        setStatus(agendaStatus, error?.message || 'Erro ao carregar histórico.', 'error');
+      }
     }
 
     detail.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
@@ -335,11 +357,8 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   async function handleListClick(event) {
     const button = event.target.closest?.('[data-open-appointment]');
     if (!button) return;
-    try {
-      await openAppointment(button.dataset.openAppointment);
-    } catch (error) {
-      setStatus(agendaStatus, error?.message || 'Não foi possível abrir o atendimento.', 'error');
-    }
+    try { await openAppointment(button.dataset.openAppointment); }
+    catch (error) { setStatus(agendaStatus, error?.message || 'Não foi possível abrir o atendimento.', 'error'); }
   }
 
   todayList.addEventListener('click', handleListClick);
@@ -347,6 +366,27 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   closeButton?.addEventListener('click', closeDetail);
 
   detail.addEventListener('submit', async (event) => {
+    const linkForm = event.target.closest?.('[data-public-booking-link]');
+    if (linkForm) {
+      event.preventDefault();
+      const data = new FormData(linkForm);
+      const statusEl = linkForm.querySelector('[data-public-booking-link-status]');
+      const submit = linkForm.querySelector('[type="submit"]');
+      if (submit) submit.disabled = true;
+      try {
+        const id = linkForm.dataset.appointmentId;
+        await linkPendingPublicBooking({ client, appointmentId: id, clienteId: data.get('cliente_id') });
+        await refreshClients();
+        await refresh();
+        await openAppointment(id);
+        setStatus(agendaStatus, 'Reserva vinculada ao cadastro oficial.', 'success');
+      } catch (error) {
+        setStatus(statusEl, error?.message || 'Não foi possível vincular o cadastro.', 'error');
+        if (submit) submit.disabled = false;
+      }
+      return;
+    }
+
     const form = event.target.closest?.('[data-own-appointment-edit]');
     if (!form) return;
     event.preventDefault();
@@ -377,11 +417,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     if (!button || !currentAppointmentId) return;
     button.disabled = true;
     try {
-      await setAppointmentStatus({
-        client,
-        appointmentId: currentAppointmentId,
-        status: button.dataset.collabStatus,
-      });
+      await setAppointmentStatus({ client, appointmentId: currentAppointmentId, status: button.dataset.collabStatus });
       closeDetail();
       await refresh();
     } catch (error) {
@@ -394,6 +430,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   await loadLookups();
   await refresh();
   const procedurePanel = await initProcedurePanel({ client, profile, root });
+  const schedulePanel = await initCollaboratorSchedule({ client, profile, root });
 
   return {
     refresh,
@@ -401,6 +438,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     openAppointment,
     closeDetail,
     procedurePanel,
+    schedulePanel,
     getCurrentAppointment: () => appointments.get(currentAppointmentId) || null,
   };
 }
