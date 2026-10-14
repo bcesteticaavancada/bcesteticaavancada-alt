@@ -2,22 +2,37 @@
 -- Migration aditiva. Não abre tabelas operacionais diretamente ao navegador.
 
 -- Reservas do site ainda não possuem identidade clínica confirmada.
+-- `agenda` e `encaixe` são origens internas legadas já usadas pelo atendimento rápido.
 alter table public.agendamentos
   alter column cliente_id drop not null,
   alter column created_by drop not null,
-  add column if not exists origem text not null default 'interno',
+  add column if not exists origem text,
   add column if not exists public_booking_name text,
   add column if not exists public_booking_phone text,
   add column if not exists public_booking_phone_normalized text;
 
+-- Novos agendamentos internos comuns passam a usar a origem canônica `interno`.
+-- Registros históricos `agenda` e o fluxo explícito `encaixe` continuam válidos.
 alter table public.agendamentos
+  alter column origem set default 'interno';
+
+update public.agendamentos
+   set origem = 'interno'
+ where origem is null;
+
+alter table public.agendamentos
+  alter column origem set not null,
   drop constraint if exists agendamentos_origem_check,
   add constraint agendamentos_origem_check
-    check (origem in ('interno', 'site')),
+    check (origem in ('agenda', 'encaixe', 'interno', 'site')),
   drop constraint if exists agendamentos_identity_by_origin_check,
   add constraint agendamentos_identity_by_origin_check
     check (
-      (origem = 'interno' and cliente_id is not null and created_by is not null)
+      (
+        (origem = 'interno' or origem in ('agenda', 'encaixe'))
+        and cliente_id is not null
+        and created_by is not null
+      )
       or
       (
         origem = 'site'
@@ -28,7 +43,7 @@ alter table public.agendamentos
     );
 
 comment on column public.agendamentos.origem is
-  'Origem operacional do compromisso: interno ou site.';
+  'Origem operacional: site para reserva pública; interno para agenda comum; agenda/encaixe preservados por compatibilidade.';
 comment on column public.agendamentos.public_booking_name is
   'Snapshot do nome informado em reserva pública; não é identidade clínica confirmada.';
 comment on column public.agendamentos.public_booking_phone is
