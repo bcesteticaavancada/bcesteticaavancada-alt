@@ -5,9 +5,11 @@ import { existsSync, readFileSync } from 'node:fs';
 const pageUrl = new URL('../../protocolos/index.html', import.meta.url);
 const cssUrl = new URL('../../protocolos/protocolos.css', import.meta.url);
 const jsUrl = new URL('../../protocolos/protocolos.js', import.meta.url);
+const mediaReadmeUrl = new URL('../../assets/procedimentos/README.md', import.meta.url);
 const html = readFileSync(pageUrl, 'utf8');
 const css = readFileSync(cssUrl, 'utf8');
 const js = existsSync(jsUrl) ? readFileSync(jsUrl, 'utf8') : '';
+const mediaReadme = readFileSync(mediaReadmeUrl, 'utf8');
 
 const canonical = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/protocolos/';
 const videoSlugs = [
@@ -86,6 +88,18 @@ test('pending video themes use poster images without nonexistent eager sources',
   }
 });
 
+test('ready video themes can only reference files that exist in the repository', () => {
+  const readyCards = [...html.matchAll(/<article[^>]*data-video-state="ready"[\s\S]*?<\/article>/g)].map((match) => match[0]);
+  for (const card of readyCards) {
+    const sources = [...card.matchAll(/<source[^>]*data-src="([^"]+)"/g)].map((match) => match[1]);
+    assert.ok(sources.length >= 1, 'ready card must expose a lazy source');
+    for (const source of sources) {
+      assert.match(source, /^\.\.\/assets\//);
+      assert.equal(existsSync(new URL(source.replace(/^\.\.\//, '../../'), import.meta.url)), true, source);
+    }
+  }
+});
+
 test('family images below the hero lazy-load', () => {
   for (const id of familyIds) {
     const article = articleById(id);
@@ -127,4 +141,19 @@ test('Protocolos video module progressively hydrates only approved ready media',
   assert.match(js, /IntersectionObserver/);
   assert.match(js, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(js, /from\s+['"][^.'"]/i);
+});
+
+test('public copy stays client-facing and clinically prudent', () => {
+  assert.doesNotMatch(html, /\b(garante|sem risco|resultado certo|definitivo)\b/i);
+  assert.doesNotMatch(html, /os vídeos entram|mídia de cada tema é aprovada/i);
+  assert.match(html, /Não é o mesmo procedimento que Skinbooster/i);
+  assert.match(html, /mecanismos e indicações diferentes/i);
+});
+
+test('procedure media library documents ready and pending policy', () => {
+  assert.match(mediaReadme, /videos\//i);
+  assert.match(mediaReadme, /posters\//i);
+  assert.match(mediaReadme, /data-video-state/i);
+  assert.match(mediaReadme, /ready/i);
+  assert.match(mediaReadme, /pending/i);
 });
