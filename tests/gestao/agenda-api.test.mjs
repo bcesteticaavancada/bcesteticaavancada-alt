@@ -87,6 +87,18 @@ test('listAdminAppointments usa período sem filtro de profissional', async () =
   assert.equal(calls.some((call) => call[0] === 'eq' && call[1] === 'colaboradora_user_id'), false);
 });
 
+test('select autenticado inclui origem e snapshot da reserva pública sem perder relação nullable', async () => {
+  const mock = makeClient();
+  await listAdminAppointments({ client: mock.client, fromIso: 'A', toIso: 'B' });
+  const selectCall = mock.queries[0].calls.find((call) => call[0] === 'select');
+  assert.ok(selectCall);
+  const fields = String(selectCall[1]);
+  for (const field of ['origem', 'public_booking_name', 'public_booking_phone', 'public_booking_phone_normalized']) {
+    assert.match(fields, new RegExp(`\\b${field}\\b`));
+  }
+  assert.match(fields, /clientes\s*\(\s*id\s*,\s*nome\s*,\s*telefone\s*,\s*email\s*\)/i);
+});
+
 test('ponte legada de clientes já usa API segura e filtro de ativos', async () => {
   const listMock = makeClient();
   await listAdminClients({ client: listMock.client, search: 'Ana' });
