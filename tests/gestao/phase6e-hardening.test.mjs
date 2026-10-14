@@ -24,8 +24,9 @@ test('encaixe curto não oferece nem aceita protocolo composto sem seleção de 
   const text=await sql();
   assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_quick_visit_procedure_options_impl/i);
   assert.match(text,/procedure_versions[\s\S]*protocol_mode\s*=\s*'simple'/i);
-  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_quick_visit_create_impl/i);
+  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_quick_visit_simple_guard_impl/i);
   assert.match(text,/protocol_mode[\s\S]*'compound'[\s\S]*fluxo clínico completo/i);
+  assert.match(text,/create\s+or\s+replace\s+function\s+public\.bc_quick_visit_create[\s\S]*bc_quick_visit_simple_guard_impl[\s\S]*bc_quick_visit_create_impl/i);
 });
 
 test('hardening não abre tabelas clínicas nem storage diretamente',async()=>{
