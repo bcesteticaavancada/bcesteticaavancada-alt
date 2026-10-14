@@ -87,6 +87,12 @@ function renderObjectEntries(
     .map(([key, value]) => [humanize(key), asText(value)]);
 }
 
+function hasConsentReference(source: AnyRecord, treatment: AnyRecord): boolean {
+  const external = source.external_consent;
+  const hasExternal = Boolean(external && typeof external === 'object' && Object.keys(external as AnyRecord).length);
+  return Boolean(source.consent_document_id || treatment.consent_document_id || hasExternal);
+}
+
 export function buildTreatment6dSections(snapshot: AnyRecord | null | undefined): Treatment6dSection[] {
   const source = snapshot && typeof snapshot === 'object' ? snapshot : {};
   const photos = Array.isArray(source.photos) ? source.photos as AnyRecord[] : [];
@@ -151,7 +157,7 @@ export function buildTreatmentReportSection(snapshot: AnyRecord | null | undefin
   const professional = source.professional && typeof source.professional === 'object' ? source.professional as AnyRecord : {};
   const report = source.report && typeof source.report === 'object' ? source.report as AnyRecord : {};
   const anamneseId = source.anamnese_id || treatment.anamnese_id;
-  const consentId = source.consent_document_id || treatment.consent_document_id;
+  const consentLinked = hasConsentReference(source, treatment);
   const lines = [
     `Procedimento: ${asText(procedure.nome) || '—'}`,
     `Profissional responsável: ${asText(professional.name) || '—'}`,
@@ -164,7 +170,7 @@ export function buildTreatmentReportSection(snapshot: AnyRecord | null | undefin
   if (report.retorno_sugerido_em) lines.push(`Retorno sugerido em: ${formatDate(report.retorno_sugerido_em)}`);
   if (report.observacoes) lines.push(`Observações: ${asText(report.observacoes)}`);
   lines.push(`Anamnese Geral vinculada: ${anamneseId ? 'Sim' : 'Não'}`);
-  lines.push(`Consentimento vinculado: ${consentId ? 'Sim' : 'Não'}`);
+  lines.push(`Consentimento vinculado: ${consentLinked ? 'Sim' : 'Não'}`);
   return { title:'Relatório / Parecer do Atendimento', lines };
 }
 
@@ -300,7 +306,7 @@ export async function buildClinicalPdf(snapshot: ClinicalPdfSnapshot): Promise<U
     divider();
     section('Referências do prontuário');
     pair('Anamnese Geral vinculada', treatment.anamnese_id ? 'Sim' : 'Não registrada nesta versão');
-    pair('Consentimento vinculado', treatment.consent_document_id ? 'Sim' : 'Não registrado nesta versão');
+    pair('Consentimento vinculado', hasConsentReference(snap, treatment) ? 'Sim' : 'Não registrado nesta versão');
   }
 
   divider();
