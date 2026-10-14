@@ -14,7 +14,7 @@ test('vínculo externo congela arquivo, procedimento, classe, template e compone
   assert.match(text,/revoke\s+all\s+on\s+public\.treatment_external_consents\s+from\s+anon\s*,\s*authenticated/i);
 });
 
-test('link exige profissional responsável ativa, mesma cliente e TCLE não anulado',async()=>{
+test('link exige profissional responsável ativa, mesma cliente, PDF TCLE e arquivo não anulado',async()=>{
   const text=await sql();
   assert.match(text,/bc_treatment_external_consent_link_impl/i);
   assert.match(text,/auth\.uid\s*\(\s*\)/i);
@@ -22,6 +22,7 @@ test('link exige profissional responsável ativa, mesma cliente e TCLE não anul
   assert.match(text,/bc_treatment_can_execute_version/i);
   assert.match(text,/f\.cliente_id\s*<>\s*t\.cliente_id|t\.cliente_id\s*<>\s*f\.cliente_id/i);
   assert.match(text,/f\.category\s*<>\s*'tcle_externo'/i);
+  assert.match(text,/f\.mime_type\s*<>\s*'application\/pdf'/i);
   assert.match(text,/f\.voided_at\s+is\s+not\s+null/i);
   assert.match(text,/t\.status\s+not\s+in\s*\(\s*'rascunho'\s*,\s*'pronto_para_iniciar'\s*\)/i);
 });
@@ -40,6 +41,7 @@ test('helper canônico aceita consentimento interno válido ou TCLE externo comp
   assert.match(text,/treatment_external_consents/i);
   assert.match(text,/procedure_version_id\s*=\s*t\.procedure_version_id/i);
   assert.match(text,/consent_class\s*=\s*private\.bc_treatment_expected_consent_class/i);
+  assert.match(text,/f\.mime_type\s*=\s*'application\/pdf'/i);
 });
 
 test('gate de início usa helper canônico; arquivo solto não basta',async()=>{
@@ -47,6 +49,16 @@ test('gate de início usa helper canônico; arquivo solto não basta',async()=>{
   assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_treatment_gate/i);
   assert.match(text,/not\s+private\.bc_treatment_consent_satisfied\s*\(\s*t\.id\s*\)[\s\S]*consentimento_pendente/i);
   assert.doesNotMatch(text,/client_files[\s\S]*reasons\s*:=\s*array_remove[^;]*consentimento_pendente/i);
+});
+
+test('versão final congela referência do TCLE externo sem bytes nem URL de storage',async()=>{
+  const text=await sql();
+  assert.match(text,/create\s+or\s+replace\s+function\s+private\.bc_external_consent_snapshot_trigger/i);
+  assert.match(text,/before\s+insert\s+on\s+public\.clinical_treatment_versions/i);
+  assert.match(text,/external_consent/);
+  for(const token of ['client_file_id','procedure_version_id','consent_template_version_id','consent_class','reviewed_by','reviewed_at','sha256'])assert.match(text,new RegExp(token,'i'));
+  const triggerBlock=text.slice(text.indexOf('bc_external_consent_snapshot_trigger'),text.indexOf('create or replace function private.bc_treatment_consent_satisfied'));
+  assert.doesNotMatch(triggerBlock,/storage_path|getpublicurl|signedurl|file_bytes|bytes\s*[:=]/i);
 });
 
 test('RPCs são invoker, authenticated-only e implementações private mantêm execute mínimo',async()=>{
