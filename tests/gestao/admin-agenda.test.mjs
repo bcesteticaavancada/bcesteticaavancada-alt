@@ -50,4 +50,24 @@ test('renderAdminAppointments expõe edição e dados operacionais', () => {
   assert.match(html,/09:00/); assert.match(html,/Mel/); assert.match(html,/Botox/); assert.match(html,/data-admin-edit=["']a1["']/);
 });
 
+test('reserva do site usa snapshot e sinaliza cadastro pendente', () => {
+  const html=renderAdminAppointments([{
+    id:'site-1',
+    inicio:'2026-10-09T12:00:00Z',
+    status:'agendado',
+    origem:'site',
+    colaboradora_user_id:'mel-id',
+    cliente_id:null,
+    clientes:null,
+    public_booking_name:'Cliente Site',
+    public_booking_phone:'(31) 99999-0000',
+    procedimentos:{nome:'Bioestimulador'},
+  }],new Map([['mel-id','Mel']]));
+  assert.match(html,/Cliente Site/);
+  assert.match(html,/\(31\) 99999-0000/);
+  assert.match(html,/>Site</i);
+  assert.match(html,/Cadastro pendente/i);
+  assert.doesNotMatch(html,/<strong>Cliente<\/strong>/);
+});
+
 test('initAdminAgenda é função',()=>assert.equal(typeof initAdminAgenda,'function'));
