@@ -50,6 +50,8 @@ jobs:
         run: npm run test:site
       - name: BC Gestão tests
         run: npm run test:gestao
+      - name: Public Agenda Edge Function check
+        run: deno check supabase/functions/public-agenda/index.ts
       - name: Anamnese PDF Edge Function tests
         run: deno test --config supabase/functions/generate-anamnese-pdf/deno.json supabase/functions/generate-anamnese-pdf/pdf_test.ts
       - name: Clinical PDF Edge Function tests
