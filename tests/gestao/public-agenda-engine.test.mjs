@@ -65,8 +65,8 @@ test('mês público é validado no banco e atendimento exige cliente vinculada',
   const sql = await engineSql();
   assert.match(sql, /date_trunc\s*\(\s*'month'/i);
   assert.match(sql, /now\s*\(\s*\)\s+at\s+time\s+zone\s+'america\/sao_paulo'/i);
-  assert.match(sql, /cliente_id\s+is\s+null/i);
-  assert.match(sql, /cadastro da cliente precisa ser vinculado antes do atendimento/i);
+  assert.match(sql, /select\s+a\.cliente_id\s+into\s+v_client[^;]*from\s+public\.agendamentos/i);
+  assert.match(sql, /if\s+v_client\s+is\s+null\s+then\s+raise\s+exception\s+'cadastro da cliente precisa ser vinculado antes do atendimento\.'/i);
 });
 
 test('RPCs internos de disponibilidade e vínculo existem com grants autenticados', async () => {
