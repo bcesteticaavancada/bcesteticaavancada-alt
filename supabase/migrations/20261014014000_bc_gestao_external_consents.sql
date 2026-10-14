@@ -36,6 +36,7 @@ begin
   if not found then raise exception 'Documento externo não encontrado.' using errcode='P0002'; end if;
   if f.cliente_id<>t.cliente_id then raise exception 'Documento pertence a outra cliente.' using errcode='42501'; end if;
   if f.category<>'tcle_externo' then raise exception 'Documento não está classificado como TCLE externo.' using errcode='22023'; end if;
+  if f.mime_type<>'application/pdf' then raise exception 'TCLE externo deve ser um arquivo PDF.' using errcode='22023'; end if;
   if f.voided_at is not null then raise exception 'Documento externo está anulado.' using errcode='55000'; end if;
 
   v_class:=private.bc_treatment_expected_consent_class(t.id);
@@ -81,6 +82,56 @@ revoke all on function public.bc_treatment_external_consent_get(uuid) from publi
 revoke execute on function public.bc_treatment_external_consent_get(uuid) from anon;
 grant execute on function public.bc_treatment_external_consent_get(uuid) to authenticated;
 
+-- A versão final revalida o consentimento no instante do congelamento. Para TCLE externo,
+-- congela apenas metadados de referência e integridade; nunca caminho, URL ou bytes do arquivo.
+create or replace function private.bc_external_consent_snapshot_trigger()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_ref jsonb;
+begin
+  if not private.bc_treatment_consent_satisfied(new.treatment_id) then
+    raise exception 'Consentimento do atendimento não está mais válido.' using errcode='55000';
+  end if;
+
+  select jsonb_build_object(
+    'id',e.id,
+    'client_file_id',e.client_file_id,
+    'procedure_version_id',e.procedure_version_id,
+    'consent_template_version_id',e.consent_template_version_id,
+    'consent_class',e.consent_class,
+    'component_version_ids',e.component_version_ids,
+    'component_keys',e.component_keys,
+    'reviewed_by',e.reviewed_by,
+    'reviewed_at',e.reviewed_at,
+    'file_title',f.title,
+    'file_origin',f.origin,
+    'file_document_date',f.document_date,
+    'mime_type',f.mime_type,
+    'sha256',f.sha256
+  ) into v_ref
+    from public.treatment_external_consents e
+    join public.client_files f on f.id=e.client_file_id
+   where e.treatment_id=new.treatment_id
+     and f.voided_at is null
+     and f.mime_type='application/pdf';
+
+  if v_ref is not null then
+    new.snapshot:=jsonb_set(coalesce(new.snapshot,'{}'::jsonb),'{external_consent}',v_ref,true);
+  end if;
+  return new;
+end;
+$$;
+revoke all on function private.bc_external_consent_snapshot_trigger() from public,anon,authenticated;
+
+drop trigger if exists bc_external_consent_snapshot_before_version_insert on public.clinical_treatment_versions;
+create trigger bc_external_consent_snapshot_before_version_insert
+before insert on public.clinical_treatment_versions
+for each row execute function private.bc_external_consent_snapshot_trigger();
+
 create or replace function private.bc_treatment_consent_satisfied(p_treatment_id uuid)
 returns boolean language plpgsql stable security definer set search_path=''
 as $$
@@ -98,7 +149,7 @@ begin
   select * into e from public.treatment_external_consents where treatment_id=t.id;
   if found then
     select * into f from public.client_files where id=e.client_file_id;
-    if found and f.cliente_id=t.cliente_id and f.category='tcle_externo' and f.voided_at is null and e.cliente_id=t.cliente_id and e.procedure_version_id=t.procedure_version_id and e.consent_class=private.bc_treatment_expected_consent_class(t.id) and e.component_version_ids=v_ids and e.component_keys=v_keys then return true; end if;
+    if found and f.cliente_id=t.cliente_id and f.category='tcle_externo' and f.mime_type='application/pdf' and f.voided_at is null and e.cliente_id=t.cliente_id and e.procedure_version_id=t.procedure_version_id and e.consent_class=private.bc_treatment_expected_consent_class(t.id) and e.component_version_ids=v_ids and e.component_keys=v_keys then return true; end if;
   end if;
   return false;
 end;$$;
