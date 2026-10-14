@@ -34,6 +34,12 @@ function countMatches(text, re) {
   return (text.match(re) || []).length;
 }
 
+function articleById(id) {
+  const match = html.match(new RegExp(`<article[^>]*id="${id}"[\\s\\S]*?<\\/article>`));
+  assert.ok(match, `missing article #${id}`);
+  return match[0];
+}
+
 test('Protocolos 2.0 keeps canonical, shell actions and reference catalogue', () => {
   assert.match(html, new RegExp(`<link rel="canonical" href="${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
   assert.match(html, /href="\.\.\/agendamento\/"[^>]*>Agendar/i);
@@ -61,7 +67,27 @@ test('Protocolos 2.0 exposes six objective chips', () => {
 test('Protocolos 2.0 exposes ten compact treatment families', () => {
   assert.equal(countMatches(html, /class="[^"]*protocol-family-card[^"]*"/g), 10);
   for (const id of familyIds) {
-    assert.match(html, new RegExp(`<article[^>]*id="${id}"[^>]*class="[^"]*protocol-family-card[^"]*"|<article[^>]*class="[^"]*protocol-family-card[^"]*"[^>]*id="${id}"`));
+    const article = articleById(id);
+    assert.match(article, /class="[^"]*protocol-family-card[^"]*"/);
+    assert.match(article, /<details\b/);
+    assert.match(article, /<summary\b/);
+  }
+  assert.match(html, /conforme avaliação/i);
+});
+
+test('pending video themes use poster images without nonexistent eager sources', () => {
+  const pending = [...html.matchAll(/<article[^>]*data-video-state="pending"[\s\S]*?<\/article>/g)].map((match) => match[0]);
+  assert.ok(pending.length >= 1, 'at least one theme should remain pending until approved media exists');
+  for (const card of pending) {
+    assert.match(card, /<img\b[^>]*>/i);
+    assert.doesNotMatch(card, /<source\b[^>]*\ssrc=/i);
+  }
+});
+
+test('family images below the hero lazy-load', () => {
+  for (const id of familyIds) {
+    const article = articleById(id);
+    assert.match(article, /<img\b[^>]*loading="lazy"/i);
   }
 });
 
