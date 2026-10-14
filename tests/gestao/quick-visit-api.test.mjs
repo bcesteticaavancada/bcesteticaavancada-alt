@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createQuickVisit} from '../../gestao/js/quick-visit-api.js';
+import {createQuickVisit,listQuickVisitProcedureOptions} from '../../gestao/js/quick-visit-api.js';
 
 function makeClient(result={data:{appointment_id:'a1',treatment_id:'t1'},error:null}){
   const calls=[];
@@ -35,6 +35,13 @@ test('createQuickVisit chama RPC transacional com chave idempotente e sem autori
   assert.deepEqual(payload.p_component_keys,['b','a']);
   assert.equal('p_created_by' in payload,false);
   assert.equal('p_actor_user_id' in payload,false);
+});
+
+test('listQuickVisitProcedureOptions consulta autorização para a profissional selecionada',async()=>{
+  const mock=makeClient({data:[{procedure_id:'p1',can_execute:true},{procedure_id:'p2',can_execute:false}],error:null});
+  const rows=await listQuickVisitProcedureOptions({client:mock.client,profissionalUserId:'u1'});
+  assert.deepEqual(rows,[{procedure_id:'p1',can_execute:true},{procedure_id:'p2',can_execute:false}]);
+  assert.deepEqual(mock.calls,[['bc_quick_visit_procedure_options',{p_profissional_user_id:'u1'}]]);
 });
 
 test('requestKey é obrigatório para permitir retry idempotente explícito',async()=>{
