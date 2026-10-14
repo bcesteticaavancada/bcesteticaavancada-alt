@@ -3,6 +3,7 @@ import { loadClientClinicalBundle, initAnamneseController } from './anamnese-con
 import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
 import { renderTreatmentPanel, initTreatmentController } from './treatment-panel.js';
 import { initClientDocumentsPanel } from './client-documents-panel.js';
+import { initQuickVisitPanel } from './quick-visit-panel.js';
 
 const INSTALL_KEY = '__bcClinicalFolderRuntimeInstalled';
 
@@ -70,6 +71,39 @@ function updateTimeline(folder, treatments = []) {
   panel.insertAdjacentHTML?.('beforeend', renderTreatmentTimelineSummary(treatments));
 }
 
+function ensureTreatmentController({ client, folder }) {
+  const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
+  if (!treatmentsPanel) return null;
+  if (!folder.__bcTreatmentController) {
+    treatmentsPanel.innerHTML = renderTreatmentPanel({ client: folder.__bcClientRecord });
+    folder.__bcTreatmentController = initTreatmentController({
+      client,
+      root: treatmentsPanel,
+      getClientRecord: () => folder.__bcClientRecord,
+      refreshFolder: () => hydrateFolder({ client, folder, force: true, section: 'atendimentos' }),
+    });
+  }
+  return { panel: treatmentsPanel, controller: folder.__bcTreatmentController };
+}
+
+function ensureQuickVisitController({ client, folder }) {
+  const treatment = ensureTreatmentController({ client, folder });
+  if (!treatment) return null;
+  if (!folder.__bcQuickVisitController) {
+    folder.__bcQuickVisitController = initQuickVisitPanel({
+      client,
+      root: treatment.panel,
+      getClientRecord: () => folder.__bcClientRecord,
+      openTreatment: (treatmentId) => treatment.controller.openTreatment(treatmentId),
+      refresh: async () => {
+        const treatmentBundle = await treatment.controller.hydrate();
+        updateTimeline(folder, treatmentBundle?.treatments || []);
+      },
+    });
+  }
+  return folder.__bcQuickVisitController;
+}
+
 async function hydrateFolder({ client, folder, force = false, section = 'resumo' }) {
   if (!folder?.isConnected || !folder.dataset.clientId) return;
   if (folder.dataset.clinicalHydrating === 'true') {
@@ -127,18 +161,9 @@ async function hydrateFolder({ client, folder, force = false, section = 'resumo'
     }
 
     if (section === 'atendimentos') {
-      const treatmentsPanel = folder.querySelector?.('[data-folder-panel="atendimentos"]');
-      if (treatmentsPanel && !folder.__bcTreatmentController) {
-        treatmentsPanel.innerHTML = renderTreatmentPanel({ client: clientRecord });
-        folder.__bcTreatmentController = initTreatmentController({
-          client,
-          root: treatmentsPanel,
-          getClientRecord: () => folder.__bcClientRecord,
-          refreshFolder: () => hydrateFolder({ client, folder, force: true, section: 'atendimentos' }),
-        });
-      }
-      if (folder.__bcTreatmentController) {
-        const treatmentBundle = await folder.__bcTreatmentController.hydrate();
+      const treatment = ensureTreatmentController({ client, folder });
+      if (treatment?.controller) {
+        const treatmentBundle = await treatment.controller.hydrate();
         updateTimeline(folder, treatmentBundle?.treatments || []);
       }
     }
@@ -224,8 +249,18 @@ export function installClinicalFolderRuntime({ client, root = document } = {}) {
     hydrateFolder({ client, folder, section }).catch(() => {});
   };
 
+  const onNewTreatment = async (event) => {
+    const folder = event.target.closest?.('[data-client-folder]') || event.target;
+    if (!folder?.matches?.('[data-client-folder]')) return;
+    folder.querySelector?.('[data-folder-tab="atendimentos"]')?.click?.();
+    await hydrateFolder({ client, folder, section: 'atendimentos' });
+    const quickVisit = ensureQuickVisitController({ client, folder });
+    await quickVisit?.open?.();
+  };
+
   root.addEventListener?.('click', onClick);
   root.addEventListener?.('bc:folder-tab-change', onTabChange);
+  root.addEventListener?.('bc:client-new-treatment', onNewTreatment);
 
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
@@ -240,6 +275,7 @@ export function installClinicalFolderRuntime({ client, root = document } = {}) {
       observer.disconnect();
       root.removeEventListener?.('click', onClick);
       root.removeEventListener?.('bc:folder-tab-change', onTabChange);
+      root.removeEventListener?.('bc:client-new-treatment', onNewTreatment);
       delete globalThis[INSTALL_KEY];
     },
   };
