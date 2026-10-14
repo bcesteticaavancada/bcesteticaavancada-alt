@@ -92,12 +92,26 @@ test('family images below the hero lazy-load', () => {
 });
 
 test('Assinaturas BC keeps all eight authorial protocols', () => {
-  assert.match(html, /Assinaturas BC/i);
+  assert.match(html, /Assinaturas(?:\s|<[^>]+>)*BC/i);
   for (const name of ['Fort Hair', 'Fort Hair Plus', 'Fort Brow', 'Sculpt Cryo', 'Reset Glow', 'Monaco Glow', 'Skin Reset', 'Face Reset']) {
     assert.match(html, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
   }
 });
 
-test('legacy page has not already implemented the 2.0 CSS contract', () => {
-  assert.match(css, /\.protocol-video-rail/);
+test('Protocolos 2.0 CSS provides responsive rails, compact cards and motion safety', () => {
+  for (const selector of [
+    '.protocol-video-rail',
+    '.protocol-video-card',
+    '.protocol-objective-nav',
+    '.protocol-family-grid',
+    '.protocol-family-card',
+    '.protocol-signature-rail',
+  ]) assert.match(css, new RegExp(selector.replace('.', '\\.')));
+
+  assert.match(css, /scroll-snap-type\s*:/i);
+  assert.match(css, /overflow-x\s*:\s*auto/i);
+  assert.match(css, /aspect-ratio\s*:\s*9\s*\/\s*16/i);
+  assert.match(css, /:focus-visible/);
+  assert.match(css, /min-width\s*:\s*0/i);
+  assert.match(css, /@media\s*\([^)]*prefers-reduced-motion\s*:\s*reduce[^)]*\)/i);
 });
