@@ -165,9 +165,11 @@ test('public copy stays client-facing and clinically prudent', () => {
   assert.match(html, /mecanismos e indicações diferentes/i);
 });
 
-test('procedure media library documents ready and pending policy', () => {
-  assert.match(mediaReadme, /videos\//i);
-  assert.match(mediaReadme, /posters\//i);
+test('procedure media library documents flat approved media and ready/pending policy', () => {
+  assert.match(mediaReadme, /botox\.mp4/i);
+  assert.match(mediaReadme, /botox\.webp/i);
+  assert.doesNotMatch(mediaReadme, /`videos\/`/i);
+  assert.doesNotMatch(mediaReadme, /`posters\/`/i);
   assert.match(mediaReadme, /data-video-state/i);
   assert.match(mediaReadme, /ready/i);
   assert.match(mediaReadme, /pending/i);
