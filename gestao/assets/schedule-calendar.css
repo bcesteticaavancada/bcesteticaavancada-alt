@@ -23,4 +23,18 @@
 .schedule-calendar__dot[data-state="appointments"]{background:#9b784d}
 .schedule-calendar__legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:#81746a}
 .schedule-calendar__legend span{display:inline-flex;align-items:center;gap:5px}
-@media(max-width:620px){.schedule-calendar__weekdays,.schedule-calendar__grid{gap:3px}.schedule-calendar__day,.schedule-calendar__empty{min-height:56px;border-radius:9px}.schedule-calendar__day{padding:6px}.schedule-calendar__header h3{font-size:20px}.schedule-calendar__nav{width:34px;height:34px}}
+.bcg-schedule-admin{margin-top:20px;background:linear-gradient(145deg,#fffdf9,#f8f0e7)}
+.bcg-schedule-month-toolbar{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;margin:18px 0 4px}
+.bcg-schedule-month-toolbar strong{text-align:center;font:500 22px Georgia,"Times New Roman",serif;color:#5f4939;text-transform:capitalize}
+.bcg-schedule-editor-grid{margin-top:20px}
+.bcg-schedule-editor-grid .bcg-editor-card{padding:18px;border:1px solid #e5d8ca;background:#fffdf9}
+.bcg-schedule-editor-grid .bcg-editor-card>.bcg-eyebrow{margin-bottom:10px}
+.bcg-check-row{display:flex!important;grid-template-columns:auto 1fr;align-items:center;gap:8px!important}
+.bcg-check-row input{width:auto!important;margin:0}
+.bcg-weekday-checks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.bcg-weekday-checks label{display:flex;align-items:center;gap:5px;padding:8px;border:1px solid #eadfd3;border-radius:10px;background:#fffaf4;font-size:11px}
+.bcg-weekday-checks input{width:auto;margin:0}
+.bcg-appointment-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.bcg-status-pending{background:#fff0d4;color:#7a582a}
+@media(max-width:760px){.bcg-schedule-month-toolbar{grid-template-columns:1fr 1fr}.bcg-schedule-month-toolbar strong{grid-column:1/-1;grid-row:1}.bcg-weekday-checks{grid-template-columns:repeat(2,minmax(0,1fr))}.bcg-appointment-chips{justify-content:flex-start}}
+@media(max-width:620px){.schedule-calendar__weekdays,.schedule-calendar__grid{gap:3px}.schedule-calendar__day,.schedule-calendar__empty{min-height:56px;border-radius:9px}.schedule-calendar__day{padding:6px}.schedule-calendar__header h3{font-size:20px}.schedule-calendar__nav{width:34px;height:34px}.bcg-schedule-month-toolbar{gap:7px}.bcg-schedule-month-toolbar .bcg-small-button{white-space:normal}.bcg-weekday-checks{grid-template-columns:repeat(2,minmax(0,1fr))}}
