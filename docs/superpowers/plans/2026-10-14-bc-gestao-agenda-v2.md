@@ -22,6 +22,7 @@
 - Testes devem validar contratos/comportamento; evitar regex dependente de posição incidental de texto em SQL.
 - Não criar, alterar ou cancelar pacientes/agendamentos reais durante testes.
 - Antes de alterar migrations experimentais já existentes, confirmar se elas já foram aplicadas no projeto Supabase. Se aplicadas, não reescrever histórico; criar migration corretiva nova.
+- Quando uma migration nova for necessária, criar pelo fluxo oficial do Supabase (`supabase migration new <nome>`) e usar o arquivo/timestamp gerado; não inventar timestamp manualmente.
 - Antes de implementar ou publicar Edge Function/Supabase security, consultar changelog/docs atuais e rodar advisors quando disponíveis.
 
 ## Review Focus
@@ -46,7 +47,7 @@
 - [ ] **1.1 Confirmar histórico de migrations antes de editar SQL**
   - Consultar o projeto Supabase e verificar se `20261014173500` e `20261014184500` já foram aplicadas.
   - Se **não aplicadas**, elas podem ser reconciliadas na branch.
-  - Se **aplicadas**, congelar os arquivos históricos e criar migration V2 corretiva com novo timestamp.
+  - Se **aplicadas**, congelar os arquivos históricos e executar `supabase migration new bc_gestao_agenda_v2_reconcile` para gerar uma migration corretiva.
 
 - [ ] **1.2 Escrever/ajustar testes RED para os contratos V2**
   - Preservar `agenda`, `encaixe`, `interno`, `site`.
@@ -57,7 +58,9 @@
 - [ ] **1.3 Rodar RED focado**
 
 ```bash
-npm run test:gestao -- --test-name-pattern="agenda pública|motor|origem|rate"
+node --test --test-name-pattern="agenda pública|motor|origem|rate" \
+  tests/gestao/public-agenda-schema.test.mjs \
+  tests/gestao/public-agenda-engine.test.mjs
 ```
 
 Expected: falhar apenas onde o contrato V2 ainda não está reconciliado.
@@ -88,7 +91,8 @@ git commit -m "test: reconcile agenda v2 baseline"
 ## Task 2 — Adicionar a capacidade Colaboradora Chefe sem criar terceiro papel de login
 
 **Files:**
-- Create/Modify migration V2: `supabase/migrations/<timestamp>_bc_gestao_agenda_v2_permissions.sql`
+- Create via CLI if needed: `supabase migration new bc_gestao_agenda_v2_permissions`
+- Modify generated migration under `supabase/migrations/`
 - Modify: `gestao/js/auth.js`
 - Modify: `tests/gestao/auth-routing.test.mjs`
 - Create: `tests/gestao/agenda-manager-permissions.test.mjs`
@@ -118,6 +122,7 @@ node --test tests/gestao/auth-routing.test.mjs tests/gestao/agenda-manager-permi
 Expected: falha porque a nova capacidade ainda não existe.
 
 - [ ] **2.3 Implementar migration mínima**
+  - Se nenhuma migration V2 corretiva já puder receber esta alteração, executar `supabase migration new bc_gestao_agenda_v2_permissions`.
   - Adicionar `pode_gerenciar_agendas` em `staff_profiles` com default `false`.
   - Criar helper privado/seguro para decidir `can_manage_all_agendas(auth.uid())` usando `role='admin' OR pode_gerenciar_agendas=true`.
   - Não alterar `VALID_ROLES` nem `ROLE_DESTINATIONS`.
@@ -144,7 +149,8 @@ git commit -m "feat: add agenda manager capability"
 ## Task 3 — Criar uma API autenticada única para Geral, Site e Interna
 
 **Files:**
-- Modify/Create migration V2 engine: `supabase/migrations/<timestamp>_bc_gestao_agenda_v2_engine.sql`
+- Create via CLI if needed: `supabase migration new bc_gestao_agenda_v2_engine`
+- Modify generated V2 engine migration under `supabase/migrations/`
 - Modify: `gestao/js/agenda-api.js`
 - Create: `gestao/js/agenda-origin.js`
 - Modify: `tests/gestao/agenda-api.test.mjs`
@@ -189,6 +195,7 @@ node --test tests/gestao/agenda-api.test.mjs tests/gestao/agenda-origin.test.mjs
 ```
 
 - [ ] **3.3 Implementar RPC de leitura com escopo server-side**
+  - Se precisar de migration nova, executar `supabase migration new bc_gestao_agenda_v2_engine`.
   - Validar `p_origin` em `all/site/internal`.
   - Fazer a autorização antes do filtro visual.
   - Não expor observações ou dados além do necessário à UI autorizada.
@@ -283,7 +290,7 @@ git commit -m "feat: add agenda geral site interna views"
 - Modify: `gestao/colaborador/index.html`
 - Modify: `gestao/assets/gestao.css`
 - Create: `tests/gestao/agenda-disponibilidade.test.mjs`
-- Modify/Create migration V2 authorization for schedule RPCs as required.
+- Modify the active V2 migration or create one via `supabase migration new bc_gestao_agenda_v2_availability` if required by migration history.
 
 **Minimal scope:**
 - calendário/mês atual selecionável internamente com navegação futura;
