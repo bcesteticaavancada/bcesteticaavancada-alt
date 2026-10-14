@@ -66,6 +66,39 @@ test('wizard possui etapas 6C e cards 6D dentro da mesma sessão', () => {
   assert.match(html,/Texto institucional/);
 });
 
+test('TCLE externo selecionado na pasta aparece para revisão no atendimento',()=>{
+  const treatment={...baseTreatment,status:'rascunho',gate_reasons:['consentimento_pendente'],finalization_gate_reasons:[]};
+  const html=renderTreatmentWizard({
+    step:'clinical',treatment,consent:null,
+    pendingExternalConsent:{fileId:'f1',title:'TCLE GOV.BR assinado'},
+  });
+  assert.match(html,/TCLE externo para revisar/i);
+  assert.match(html,/TCLE GOV\.BR assinado/i);
+  assert.match(html,/data-treatment-external-consent-link=["']f1["']/);
+  assert.match(html,/Revisar e vincular/i);
+});
+
+test('TCLE externo já revisado satisfaz a etapa visual sem pedir assinatura interna',()=>{
+  const treatment={...baseTreatment,status:'rascunho',gate_reasons:[],finalization_gate_reasons:[]};
+  const html=renderTreatmentWizard({
+    step:'clinical',treatment,consent:null,
+    externalConsent:{client_file_id:'f1',file_title:'TCLE GOV.BR assinado',consent_class:'nao_injetavel',reviewed_at:'2026-10-14T12:00:00Z'},
+  });
+  assert.match(html,/TCLE externo revisado/i);
+  assert.match(html,/TCLE GOV\.BR assinado/i);
+  assert.doesNotMatch(html,/data-treatment-consent-prepare/);
+  assert.doesNotMatch(html,/data-treatment-signature-canvas=["']subject["']/);
+});
+
+test('controller carrega e confirma TCLE externo usando a seleção transitória da pasta',async()=>{
+  const source=await readFile(sourceUrl,'utf8');
+  assert.match(source,/getExternalConsent/);
+  assert.match(source,/linkExternalConsent/);
+  assert.match(source,/__bcPendingExternalConsent/);
+  assert.match(source,/data-treatment-external-consent-link/);
+  assert.match(source,/delete\s+folder\(\)\.__bcPendingExternalConsent|folder\(\)\.__bcPendingExternalConsent\s*=\s*null/);
+});
+
 test('parecer estruturado aparece no atendimento em curso com campos aprovados',()=>{
   const html=renderTreatmentWizard({step:'clinical',treatment:baseTreatment,report:null});
   assert.match(html,/Relatório \/ Parecer do Atendimento/i);
