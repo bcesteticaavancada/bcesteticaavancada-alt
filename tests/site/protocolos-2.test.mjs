@@ -104,6 +104,17 @@ test('ready video themes can only reference files that exist in the repository',
   }
 });
 
+test('approved Botox media is wired as the first ready video theme', () => {
+  const match = html.match(/<article[^>]*data-protocol-video="botox"[\s\S]*?<\/article>/);
+  assert.ok(match, 'missing Botox video theme');
+  const card = match[0];
+  assert.match(card, /data-video-state="ready"/);
+  assert.match(card, /<video\b[^>]*poster="\.\.\/assets\/procedimentos\/botox\.webp"[^>]*muted[^>]*playsinline[^>]*preload="none"/i);
+  assert.match(card, /<source[^>]*data-src="\.\.\/assets\/procedimentos\/botox\.mp4"[^>]*type="video\/mp4"/i);
+  assert.equal(existsSync(new URL('../../assets/procedimentos/botox.mp4', import.meta.url)), true);
+  assert.equal(existsSync(new URL('../../assets/procedimentos/botox.webp', import.meta.url)), true);
+});
+
 test('family images below the hero lazy-load', () => {
   for (const id of familyIds) {
     const article = articleById(id);
