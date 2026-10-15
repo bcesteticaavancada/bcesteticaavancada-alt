@@ -1,0 +1,43 @@
+name: Agenda DB CI
+
+on:
+  push:
+    branches:
+      - 'feature/public-agenda-native'
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/agenda-db-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/agenda-db-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  database-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+
+      - name: Show Supabase CLI version
+        run: supabase --version
+
+      - name: Start ephemeral Supabase
+        run: supabase start
+
+      - name: Replay migrations from scratch
+        run: supabase db reset
+
+      - name: Run database runtime tests
+        run: supabase test db
+
+      - name: Stop ephemeral Supabase
+        if: always()
+        run: supabase stop --no-backup
