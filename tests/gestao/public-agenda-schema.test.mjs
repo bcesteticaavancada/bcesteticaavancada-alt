@@ -43,3 +43,16 @@ test('inativação limita motivos internos ao vocabulário aprovado', async () =
     'curso_capacitacao', 'viagem', 'folga', 'outro',
   ]) assert.match(sql, new RegExp(reason));
 });
+
+test('migration da agenda fica depois do hotfix sincronizado e antes do engine', async () => {
+  const names = (await readdir(migrationsDir)).filter((item) => item.endsWith('.sql'));
+  const hotfix = names.find((item) => item.includes('bc_gestao_anamnese_remote_schema_hotfix'));
+  const schema = names.find((item) => item.includes('bc_gestao_public_agenda_schema'));
+  const engine = names.find((item) => item.includes('bc_gestao_public_agenda_engine'));
+
+  assert.ok(hotfix, 'hotfix de anamnese sincronizado do main deve existir');
+  assert.ok(schema, 'schema da agenda pública deve existir');
+  assert.ok(engine, 'engine da agenda pública deve existir');
+  assert.ok(schema > hotfix, `schema da agenda (${schema}) deve vir depois do hotfix (${hotfix})`);
+  assert.ok(engine > schema, `engine da agenda (${engine}) deve vir depois do schema (${schema})`);
+});
