@@ -96,12 +96,19 @@ test('máquina de estados limpa escolhas dependentes e bloqueia duplo submit', a
   assert.match(main, /selectedDate\s*=\s*null|date\s*=\s*['"]{0,2}|reset.*date/i);
 });
 
-test('WhatsApp só é preparado depois da confirmação 2xx do booking', async () => {
+test('WhatsApp só é aberto depois da confirmação 2xx do booking', async () => {
   const main = await read(mainUrl);
-  const bookCall = main.search(/await\s+[^;\n]*\.book\s*\(/i);
-  const whatsAppOpen = main.search(/window\.open\s*\(|location\.href\s*=\s*[^;]*wa\.me|openWhatsApp/i);
+  const submitStart = main.search(/form\.addEventListener\(['"]submit['"]/i);
+  assert.ok(submitStart >= 0, 'fluxo de submit deve existir');
+
+  const submitFlow = main.slice(submitStart);
+  const bookCall = submitFlow.search(/await\s+api\.book\s*\(/i);
+  const successCall = submitFlow.search(/showSuccess\s*\(/i);
+  const whatsAppCall = submitFlow.search(/openWhatsApp\s*\(/i);
+
   assert.ok(bookCall >= 0, 'booking deve aguardar a resposta da API');
-  assert.ok(whatsAppOpen > bookCall, 'WhatsApp só pode ser aberto depois do booking confirmado');
+  assert.ok(successCall > bookCall, 'sucesso só pode ser exibido depois do booking confirmado');
+  assert.ok(whatsAppCall > successCall, 'WhatsApp só pode ser aberto depois do booking confirmado e do card de sucesso');
 });
 
 test('CSS da agenda é mobile-first e preserva foco visível', async () => {
