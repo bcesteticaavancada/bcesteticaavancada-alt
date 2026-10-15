@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <meta name="description" content="Escolha procedimento, profissional, data e horário disponível para agendar na BC Estética Avançada.">
+  <title>Agenda | BC Estética Avançada</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="./agenda.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/app/apple-touch-icon.png">
+</head>
+<body class="agenda-page">
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="siteDrawer"><span></span><span></span><span></span></button>
+    <a class="brand" href="../" aria-label="BC Estética Avançada — início"><img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada"></a>
+    <a class="header-cta" href="./" aria-current="page">Agendar</a>
+  </div>
+</header>
+<div class="menu-overlay" id="menuOverlay" aria-hidden="true"></div>
+<aside class="site-drawer" id="siteDrawer" aria-hidden="true">
+  <div class="drawer-head"><span>BC</span><button class="drawer-close" id="drawerClose" type="button" aria-label="Fechar menu">×</button></div>
+  <nav class="drawer-nav" aria-label="Navegação principal">
+    <a href="../">Início</a><a href="../clinica/">A Clínica</a><a href="../equipe/">Nossa Equipe</a><a href="../mel/">Mel</a><a href="../procedimentos/">Vídeos</a><a href="../resultados/">Resultados</a><a href="../protocolos/">Protocolos</a><a href="../ambiente/">Ambiente</a><a href="../valores/">Valores</a><a href="../agendamento/">Pré-anamnese</a><a href="../contato/">Contato</a>
+  </nav>
+  <a class="drawer-whatsapp" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Falar com a BC pelo WhatsApp</a>
+</aside>
+
+<main class="agenda-public">
+  <section class="agenda-hero">
+    <p class="agenda-eyebrow">BC Estética Avançada</p>
+    <h1>Seu horário, do seu jeito</h1>
+    <p>Escolha o procedimento, a profissional e um horário livre deste mês. A reserva é confirmada na hora.</p>
+  </section>
+
+  <section class="agenda-shell" aria-labelledby="agendaTitle">
+    <div class="agenda-intro">
+      <div>
+        <span class="agenda-step-label">Agenda online</span>
+        <h2 id="agendaTitle">Agende seu atendimento</h2>
+      </div>
+      <p>Mostramos apenas horários livres. Seus dados são solicitados somente no momento da confirmação.</p>
+    </div>
+
+    <div class="agenda-flow">
+      <section class="agenda-card" aria-labelledby="procedureTitle">
+        <div class="agenda-card__number">01</div>
+        <div class="agenda-card__body">
+          <label id="procedureTitle" for="agendaProcedure">Procedimento</label>
+          <select id="agendaProcedure" data-procedure disabled><option>Carregando procedimentos...</option></select>
+        </div>
+      </section>
+
+      <section class="agenda-card" aria-labelledby="professionalTitle">
+        <div class="agenda-card__number">02</div>
+        <div class="agenda-card__body">
+          <label id="professionalTitle" for="agendaProfessional">Profissional</label>
+          <select id="agendaProfessional" data-professional disabled><option>Escolha primeiro um procedimento</option></select>
+        </div>
+      </section>
+
+      <section class="agenda-card agenda-card--wide" aria-labelledby="calendarTitle">
+        <div class="agenda-card__number">03</div>
+        <div class="agenda-card__body">
+          <h3 id="calendarTitle">Escolha uma data</h3>
+          <p class="agenda-card__hint">Calendário do mês atual. Dias sem horário livre ficam desabilitados.</p>
+          <div data-calendar class="agenda-calendar" aria-live="polite"><p class="agenda-empty">Escolha uma profissional para carregar o calendário.</p></div>
+          <div class="agenda-future">
+            <span>Precisa de um horário em outro mês?</span>
+            <a data-future-whatsapp href="https://wa.me/5531995184110?text=Ol%C3%A1%2C%20BC%20Est%C3%A9tica!%20Gostaria%20de%20consultar%20a%20agenda%20de%20um%20m%C3%AAs%20futuro." target="_blank" rel="noopener">Consultar mês futuro pelo WhatsApp</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="agenda-card agenda-card--wide" aria-labelledby="slotsTitle">
+        <div class="agenda-card__number">04</div>
+        <div class="agenda-card__body">
+          <h3 id="slotsTitle">Horários livres</h3>
+          <div data-slots class="agenda-slots" aria-live="polite"><p class="agenda-empty">Escolha uma data disponível para ver os horários.</p></div>
+        </div>
+      </section>
+
+      <section class="agenda-card agenda-card--wide" aria-labelledby="contactTitle">
+        <div class="agenda-card__number">05</div>
+        <div class="agenda-card__body">
+          <h3 id="contactTitle">Seus dados para confirmar</h3>
+          <form data-booking-form class="agenda-form" novalidate>
+            <div class="agenda-field">
+              <label for="agendaName">Nome</label>
+              <input id="agendaName" name="name" autocomplete="name" maxlength="120" required placeholder="Seu nome">
+            </div>
+            <div class="agenda-field">
+              <label for="agendaPhone">WhatsApp</label>
+              <input id="agendaPhone" name="phone" autocomplete="tel" inputmode="tel" maxlength="20" required placeholder="(31) 99999-9999">
+            </div>
+            <div class="agenda-honeypot" aria-hidden="true">
+              <label for="agendaWebsite">Website</label>
+              <input id="agendaWebsite" name="website" tabindex="-1" autocomplete="off">
+            </div>
+            <p class="agenda-privacy">Esses dados servem para identificar sua reserva e permitir o contato da clínica. O cadastro clínico, quando necessário, é feito separadamente.</p>
+            <button data-submit class="agenda-submit" type="submit">Confirmar agendamento</button>
+            <p data-status class="agenda-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <section data-booking-success class="agenda-success" hidden tabindex="-1">
+      <span class="agenda-success__icon" aria-hidden="true">✓</span>
+      <p class="agenda-step-label">Reserva confirmada</p>
+      <h2>Seu horário já está na agenda da BC</h2>
+      <p><span data-success-name></span>, confira o resumo:</p>
+      <dl class="agenda-success__summary">
+        <div><dt>Procedimento</dt><dd data-success-procedure></dd></div>
+        <div><dt>Profissional</dt><dd data-success-professional></dd></div>
+        <div><dt>Data</dt><dd data-success-date></dd></div>
+        <div><dt>Horário</dt><dd data-success-time></dd></div>
+      </dl>
+      <a data-success-whatsapp class="agenda-success__whatsapp" href="https://wa.me/5531995184110" target="_blank" rel="noopener">Abrir confirmação no WhatsApp</a>
+      <p class="agenda-success__note">Se a janela do WhatsApp não abrir automaticamente, use o botão acima. Sua reserva continua confirmada.</p>
+    </section>
+
+    <aside class="agenda-help">
+      <strong>Cancelamento ou remarcação</strong>
+      <p>Para cancelar ou remarcar uma reserva, fale diretamente com a BC pelo WhatsApp. A agenda pública não altera uma reserva já confirmada.</p>
+      <a href="https://wa.me/5531995184110" target="_blank" rel="noopener">Falar com a BC</a>
+    </aside>
+  </section>
+</main>
+
+<script type="module" src="./js/main.js"></script>
+<script src="../script.js"></script>
+</body>
+</html>
