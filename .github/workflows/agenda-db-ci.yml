@@ -6,11 +6,13 @@ on:
       - 'feature/public-agenda-native'
     paths:
       - 'supabase/**'
+      - 'scripts/prepare-supabase-ci-migrations.py'
       - '.github/workflows/agenda-db-ci.yml'
   pull_request:
     branches: [main]
     paths:
       - 'supabase/**'
+      - 'scripts/prepare-supabase-ci-migrations.py'
       - '.github/workflows/agenda-db-ci.yml'
   workflow_dispatch:
 
@@ -28,6 +30,9 @@ jobs:
 
       - name: Show Supabase CLI version
         run: supabase --version
+
+      - name: Normalize legacy migration versions for ephemeral CI
+        run: python3 scripts/prepare-supabase-ci-migrations.py
 
       - name: Start ephemeral Supabase
         run: supabase start
