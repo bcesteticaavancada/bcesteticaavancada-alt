@@ -32,10 +32,10 @@ test('backend reutiliza capacidade de agenda para criar, editar, vincular e geri
   assert.match(sql, /bc_set_agendamento_status_impl[\s\S]*bc_schedule_can_manage/i);
 });
 
-test('permissão amplia leitura operacional de agenda sem alterar políticas clínicas/financeiras', async () => {
+test('permissão amplia somente leitura operacional da agenda sem mexer em políticas clínicas/financeiras', async () => {
   const sql = await loadMigration('bc_gestao_agenda_v2_permissions');
   assert.match(sql, /alter\s+policy\s+["']?agendamentos_colaborador_select["']?[\s\S]*bc_can_manage_all_agendas/i);
-  assert.match(sql, /alter\s+policy\s+["']?clientes_colaborador_select_por_vinculo["']?[\s\S]*bc_can_manage_all_agendas/i);
+  assert.doesNotMatch(sql, /alter\s+policy\s+["']?clientes_/i);
   assert.doesNotMatch(sql, /alter\s+policy\s+["']?(?:pagamentos|recebimentos|repasses|atendimentos)_/i);
   assert.doesNotMatch(sql, /bc_registrar_atendimento_impl/i);
 });
