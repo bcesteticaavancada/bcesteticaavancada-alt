@@ -31,6 +31,12 @@ jobs:
       - name: Show Supabase CLI version
         run: supabase --version
 
+      - name: Generate corrective migration name with Supabase CLI
+        run: supabase migration new bc_gestao_agenda_v2_permissions
+
+      - name: Show generated corrective migration filename
+        run: find supabase/migrations -maxdepth 1 -type f -name '*bc_gestao_agenda_v2_permissions.sql' -printf '%f\n'
+
       - name: Normalize legacy migration versions for ephemeral CI
         run: python3 scripts/prepare-supabase-ci-migrations.py
 
