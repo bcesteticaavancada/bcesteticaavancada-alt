@@ -26,7 +26,7 @@ export async function getCurrentProfile(client = getDefaultClient()) {
   if (!user?.id) return null;
   const { data: profile, error: profileError } = await client
     .from('staff_profiles')
-    .select('user_id,display_name,role,active,pode_gerenciar_procedimentos')
+    .select('user_id,display_name,role,active,pode_gerenciar_agendas,pode_gerenciar_procedimentos')
     .eq('user_id', user.id)
     .maybeSingle();
   if (profileError) throw profileError;
