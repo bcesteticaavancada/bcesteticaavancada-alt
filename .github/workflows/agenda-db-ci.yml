@@ -35,7 +35,7 @@ jobs:
         run: python3 scripts/prepare-supabase-ci-migrations.py
 
       - name: Start free ephemeral Supabase database
-        run: supabase start --exclude rest,auth,realtime,storage,functions,studio,mail,analytics,pooler
+        run: supabase start --exclude edge-runtime,gotrue,imgproxy,kong,logflare,mailpit,postgres-meta,postgrest,realtime,storage-api,studio,supavisor,vector
 
       - name: Replay migrations from scratch
         run: supabase db reset
