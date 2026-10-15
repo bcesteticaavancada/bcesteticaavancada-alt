@@ -13,13 +13,20 @@ const SLOT_TAKEN_MESSAGE = 'Esse horário acabou de ser reservado. Escolha outro
 const RATE_LIMIT_MESSAGE = 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
 const GENERIC_MESSAGE = 'Não foi possível concluir agora. Fale com a BC pelo WhatsApp.';
 
-type SupabaseAdmin = ReturnType<typeof createClient>;
-
 type RpcError = {
   code?: string;
   message?: string;
   details?: string;
   hint?: string;
+};
+
+type RpcResponse = {
+  data: unknown;
+  error: RpcError | null;
+};
+
+type SupabaseAdmin = {
+  rpc: (name: string, args?: Record<string, unknown>) => PromiseLike<RpcResponse>;
 };
 
 function corsHeaders(origin: string | null): HeadersInit {
@@ -62,17 +69,25 @@ function createAdminClient(): SupabaseAdmin | null {
   if (!url || !secretKey) return null;
   return createClient(url, secretKey, {
     auth: { persistSession: false, autoRefreshToken: false },
-  });
+  }) as unknown as SupabaseAdmin;
 }
 
-async function rpc(admin: SupabaseAdmin, name: string, args: Record<string, unknown> = {}) {
+async function rpc(admin: SupabaseAdmin, name: string, args: Record<string, unknown> = {}): Promise<unknown> {
   const { data, error } = await admin.rpc(name, args);
   if (error) throw error;
   return data;
 }
 
-function safeArray(value: unknown): any[] {
-  return Array.isArray(value) ? value : [];
+function safeArray(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object' && !Array.isArray(item))
+    : [];
+}
+
+function safeObject(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
 }
 
 function hex(bytes: ArrayBuffer): string {
@@ -214,19 +229,19 @@ async function executeAction(admin: SupabaseAdmin, req: Request, payload: Public
 
       const originHash = await buildOriginHash(req);
       const startAt = clinicLocalDateTimeToIso(payload.date, payload.time);
-      const booking = await rpc(admin, 'bc_public_agenda_book', {
+      const booking = safeObject(await rpc(admin, 'bc_public_agenda_book', {
         p_name: payload.name,
         p_phone: payload.phone,
         p_professional_user_id: payload.professionalId,
         p_procedimento_id: payload.procedureId,
         p_inicio: startAt,
         p_origin_hash: originHash,
-      });
+      }));
       return {
         status: 201,
         body: {
           booking: {
-            id: String(booking?.appointment_id ?? ''),
+            id: String(booking.appointment_id ?? ''),
             procedureName: procedure.name,
             professionalName: professional.name,
             date: payload.date,
