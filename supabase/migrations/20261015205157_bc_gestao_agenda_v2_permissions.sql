@@ -59,22 +59,9 @@ using (
   )
 );
 
--- Para operação de agenda, a chefe precisa localizar o cadastro administrativo
--- de clientes. Prontuário/atendimentos continuam com as políticas próprias.
-alter policy "clientes_colaborador_select_por_vinculo"
-on public.clientes
-using (
-  private.is_bc_active_colaborador()
-  and (
-    private.bc_can_manage_all_agendas()
-    or exists (
-      select 1
-        from public.agendamentos a
-       where a.cliente_id = clientes.id
-         and a.colaboradora_user_id = (select auth.uid())
-    )
-  )
-);
+-- Clientes já são compartilhados com a equipe ativa pela policy
+-- clientes_equipe_select criada na Fase 4. Não ampliamos nem duplicamos
+-- essa política aqui; a permissão nova é restrita à operação da agenda.
 
 create or replace function private.bc_agendamento_create_impl(
   p_cliente_id uuid,
