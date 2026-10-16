@@ -1,4 +1,4 @@
-> **Atualização — fechamento da Agenda V2:** a homologação gratuita foi concluída no commit `2ef9dc3f28067179453832a7ab61c9f2aedf75ab`, com ambos os CIs verdes. Veja [o relatório atual](agenda-v2-homologation-2026-10-16.md) para os testes de banco, concorrência, permissões e os próximos passos. O conteúdo abaixo registra a verificação histórica anterior e seus itens de runtime pendentes foram substituídos pelo novo relatório. Produção continua sem alteração.
+> **Atualização de 16/10/2026:** o PR #45 foi mergeado e a Agenda V2 está publicada, com migrations e Edge Function no Supabase hospedado. Os 30 procedimentos e os horários de Alice/Mel foram configurados por solicitação de Fernando. Aline/Kate aguardam cadastro e as provas operacionais/mobile finais continuam pendentes. Veja [o relatório atual](agenda-v2-homologation-2026-10-16.md) e [a configuração operacional](agenda-v2-operational-setup-2026-10-16.md). O conteúdo abaixo é histórico de 15/10 e foi substituído pelos relatórios atuais.
 
 # BC Gestão — Agenda Pública — Verificação e Rollout
 
