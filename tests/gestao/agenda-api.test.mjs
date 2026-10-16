@@ -63,28 +63,17 @@ function hasCall(calls, method, ...args) {
   return calls.some((entry) => entry[0] === method && args.every((arg, i) => entry[i + 1] === arg));
 }
 
-test('listOwnAppointments filtra período e profissional autenticada explicitamente', async () => {
-  const mock = makeClient();
-  await listOwnAppointments({
-    client: mock.client,
-    userId: 'user-1',
-    fromIso: '2026-10-09T03:00:00.000Z',
-    toIso: '2026-10-10T03:00:00.000Z',
-  });
-  const calls = mock.queries[0].calls;
-  assert.deepEqual(mock.tables, ['agendamentos']);
-  assert.ok(hasCall(calls, 'eq', 'colaboradora_user_id', 'user-1'));
-  assert.ok(hasCall(calls, 'gte', 'inicio', '2026-10-09T03:00:00.000Z'));
-  assert.ok(hasCall(calls, 'lt', 'inicio', '2026-10-10T03:00:00.000Z'));
-});
-
-test('listAdminAppointments usa período sem filtro de profissional', async () => {
-  const mock = makeClient();
-  await listAdminAppointments({ client: mock.client, fromIso: 'A', toIso: 'B' });
-  const calls = mock.queries[0].calls;
-  assert.ok(hasCall(calls, 'gte', 'inicio', 'A'));
-  assert.ok(hasCall(calls, 'lt', 'inicio', 'B'));
-  assert.equal(calls.some((call) => call[0] === 'eq' && call[1] === 'colaboradora_user_id'), false);
+test('aliases de agenda usam RPC canônica, com autorização aplicada no banco', async () => {
+  const mock=makeClient({rpcResult:{data:[{id:'a1',booking_channel:'site',cliente_id:null}],error:null}});
+  const own=await listOwnAppointments({client:mock.client,userId:'forjado',fromIso:'A',toIso:'B',origin:'site'});
+  await listAdminAppointments({client:mock.client,fromIso:'A',toIso:'B',origin:'internal'});
+  assert.equal(own[0].booking_channel,'site');
+  assert.equal(own[0].cliente_id,null);
+  assert.deepEqual(mock.tables,[]);
+  assert.deepEqual(mock.rpcCalls,[
+    ['bc_agenda_list',{p_from:'A',p_to:'B',p_origin:'site'}],
+    ['bc_agenda_list',{p_from:'A',p_to:'B',p_origin:'internal'}],
+  ]);
 });
 
 test('ponte legada de clientes já usa API segura e filtro de ativos', async () => {
