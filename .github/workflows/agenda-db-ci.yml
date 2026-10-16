@@ -7,12 +7,16 @@ on:
     paths:
       - 'supabase/**'
       - 'scripts/prepare-supabase-ci-migrations.py'
+      - 'scripts/test-agenda-concurrency.py'
+      - 'scripts/fixtures/**'
       - '.github/workflows/agenda-db-ci.yml'
   pull_request:
     branches: [main]
     paths:
       - 'supabase/**'
       - 'scripts/prepare-supabase-ci-migrations.py'
+      - 'scripts/test-agenda-concurrency.py'
+      - 'scripts/fixtures/**'
       - '.github/workflows/agenda-db-ci.yml'
   workflow_dispatch:
 
@@ -38,10 +42,18 @@ jobs:
         run: supabase start --exclude edge-runtime,gotrue,imgproxy,kong,logflare,mailpit,postgres-meta,postgrest,realtime,storage-api,studio,supavisor,vector
 
       - name: Replay migrations from scratch
+        id: replay
         run: supabase db reset
 
       - name: Run database runtime tests
         run: supabase test db
+
+      - name: Check database functions
+        run: supabase db lint --local --schema public,private --level error --fail-on error
+
+      - name: Concurrent reservations across channels and midnight
+        if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
+        run: python3 scripts/test-agenda-concurrency.py
 
       - name: Stop ephemeral Supabase
         if: always()

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
-\ir ../fixtures/agenda.sql
+\ir ../../../scripts/fixtures/agenda.sql
 
 select has_column('public','agendamentos','booking_channel','Canal não reutiliza a semântica operacional de origem');
 select ok((select relrowsecurity from pg_class where oid='public.agendamentos'::regclass),'RLS da agenda está habilitada');
@@ -43,8 +43,8 @@ select lives_ok(format('select public.bc_agendamento_update(%L,%L,%L)',pg_temp.f
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'all')),2,'Geral reúne site e interna na mesma tabela');
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'internal')),1,'Interna filtra somente canal interno');
 select throws_ok(format('select public.bc_set_agendamento_status(%L,%L)',pg_temp.f('internal'),'atendido'),'42501','Atendimento clínico deve ser concluído pela profissional responsável.','Chefe não conclui atendimento clínico alheio');
-select is((with changed as (update public.staff_profiles set role='admin' where user_id=pg_temp.f('chief') returning user_id) select count(*)::integer from changed),0,'Chefe não promove a si mesma');
-select is((with changed as (update public.staff_profiles set pode_gerenciar_agendas=true where user_id=pg_temp.f('ordinary') returning user_id) select count(*)::integer from changed),0,'Chefe não concede capacidades a outras usuárias');
+with changed as (update public.staff_profiles set role='admin' where user_id=pg_temp.f('chief') returning user_id) select is((select count(*)::integer from changed),0,'Chefe não promove a si mesma');
+with changed as (update public.staff_profiles set pode_gerenciar_agendas=true where user_id=pg_temp.f('ordinary') returning user_id) select is((select count(*)::integer from changed),0,'Chefe não concede capacidades a outras usuárias');
 insert into fixture values('block',public.bc_schedule_block_create(pg_temp.f('worker'),(select slot+interval '3 hours' from test_clock),(select slot+interval '4 hours' from test_clock),'outro','Nota interna fictícia'));
 select throws_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot+interval '3 hours' from test_clock)),'23P01','slot_unavailable','Encaixe não ignora bloqueio absoluto');
 select lives_ok(format('select public.bc_schedule_block_delete(%L)',pg_temp.f('block')),'Chefe desbloqueia profissional alheia');

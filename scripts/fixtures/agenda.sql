@@ -22,8 +22,8 @@ select id,'Teste '||name,case when name='admin' then 'admin' else 'colaborador' 
 from fixture where name in ('admin','chief','worker','ordinary');
 insert into public.clientes(id,nome,telefone,created_by) values(pg_temp.f('client'),'Pessoa fictícia CI','31900000000',pg_temp.f('admin'));
 insert into public.procedimentos(id,nome,duracao_padrao,ativo,created_by) values(pg_temp.f('procedure'),'Procedimento fictício CI',30,true,pg_temp.f('admin'));
-insert into public.procedure_versions(id,procedimento_id,version,status,classe_documental,price_mode,base_price,created_by)
-values(pg_temp.f('version'),pg_temp.f('procedure'),1,'published','nao_injetavel','fixed',100,pg_temp.f('admin'));
+insert into public.procedure_versions(id,procedimento_id,version,status,nome,classe_documental,price_mode,base_price,created_by)
+values(pg_temp.f('version'),pg_temp.f('procedure'),1,'published','Procedimento fictício CI','nao_injetavel','fixed',100,pg_temp.f('admin'));
 update public.procedimentos set current_version_id=pg_temp.f('version'),access_mode='general' where id=pg_temp.f('procedure');
 insert into public.professional_availability_days(professional_user_id,local_date,enabled,start_time,end_time,created_by,updated_by)
 select pg_temp.f('worker'),day,true,'00:00','23:59',pg_temp.f('admin'),pg_temp.f('admin') from test_clock;
