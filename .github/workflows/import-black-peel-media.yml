@@ -1,0 +1,34 @@
+name: Import Black Peel media
+
+on:
+  push:
+    branches:
+      - feature/protocolos-videos-2026-10-15
+    paths:
+      - .github/workflows/import-black-peel-media.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-media:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/protocolos-videos-2026-10-15
+      - name: Download optimized Black Peel MP4
+        run: |
+          mkdir -p assets/procedimentos
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://d2jqrm6oza8nb6.cloudfront.net/datasets/abfdd5d6-0453-4e8d-976c-2961f9fed28d.mp4?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTIyMWM3MDg5MjZmZjNlMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MjIzNTY1Nn0.ZzYnqmI_17cOmZEmjaHoReKodw5dAPoFVB4I2HQzGws' \
+            --output assets/procedimentos/black-peel.mp4
+          test "$(wc -c < assets/procedimentos/black-peel.mp4)" -gt 250000
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of default=nw=1 assets/procedimentos/black-peel.mp4
+      - name: Commit permanent repository media
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/procedimentos/black-peel.mp4
+          git commit -m "feat: add optimized Black Peel protocol video"
+          git push origin HEAD:feature/protocolos-videos-2026-10-15
