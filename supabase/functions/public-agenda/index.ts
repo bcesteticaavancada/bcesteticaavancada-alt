@@ -157,6 +157,9 @@ function publicDbError(error: unknown): { status: number; message: string } | nu
   if (message.includes('rate_limit_exceeded') || code === '53300') {
     return { status: 429, message: RATE_LIMIT_MESSAGE };
   }
+  if (code === '22023') {
+    return { status: 422, message: 'Dados de agendamento inválidos. Atualize a disponibilidade e tente novamente.' };
+  }
   return null;
 }
 
@@ -237,6 +240,9 @@ async function executeAction(admin: SupabaseAdmin, req: Request, payload: Public
         p_inicio: startAt,
         p_origin_hash: originHash,
       }));
+      if (typeof booking.error_code === 'string') {
+        throw { code: booking.error_code, message: String(booking.error ?? '') };
+      }
       return {
         status: 201,
         body: {
@@ -253,7 +259,8 @@ async function executeAction(admin: SupabaseAdmin, req: Request, payload: Public
   }
 }
 
-Deno.serve(async (req: Request) => {
+export function createPublicAgendaHandler(getAdmin: () => SupabaseAdmin | null = createAdminClient) {
+return async (req: Request): Promise<Response> => {
   const origin = req.headers.get('origin');
 
   if (req.method === 'OPTIONS') {
@@ -276,7 +283,7 @@ Deno.serve(async (req: Request) => {
   const validation = validateRequest(raw);
   if (!validation.ok) return json({ error: validation.error }, 422, origin);
 
-  const admin = createAdminClient();
+  const admin = getAdmin();
   if (!admin) return json({ error: 'Serviço temporariamente indisponível. Fale com a BC pelo WhatsApp.' }, 503, origin);
 
   try {
@@ -291,4 +298,7 @@ Deno.serve(async (req: Request) => {
     });
     return json({ error: GENERIC_MESSAGE }, 500, origin);
   }
-});
+};
+}
+
+if (import.meta.main) Deno.serve(createPublicAgendaHandler());

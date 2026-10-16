@@ -52,7 +52,7 @@ def race(label, first, second):
     finally:
         if process.poll() is None: process.kill(); process.wait()
 
-fixture=Path('scripts/fixtures/agenda.sql').read_text()
+fixture=Path('supabase/tests/fixtures/agenda.psql').read_text()
 slot=sql(fixture+'\nselect slot from test_clock;').splitlines()[-1]
 shifted=sql(f"select '{slot}'::timestamptz + interval '15 minutes';").splitlines()[-1]
 race('site/site same start',operation('site',slot,origin='d'),operation('site',slot,origin='e'))

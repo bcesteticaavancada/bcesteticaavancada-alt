@@ -1,20 +1,4 @@
-const APPOINTMENT_SELECT = `
-  id,
-  cliente_id,
-  colaboradora_user_id,
-  procedimento_id,
-  inicio,
-  fim,
-  status,
-  origem,
-  public_booking_name,
-  public_booking_phone,
-  public_booking_phone_normalized,
-  observacao_administrativa,
-  clientes(id,nome,telefone,email),
-  procedimentos(id,nome,duracao_padrao)
-`;
-
+import { normalizeAgendaView } from './agenda-origin.js';
 const HISTORY_SELECT = `
   id,
   agendamento_id,
@@ -40,14 +24,21 @@ function cleanOptional(value){const clean=String(value??'').trim();return clean|
 function throwIfError(error,fallback){if(error)throw new Error(error.message||fallback);}
 async function resolveQuery(query,fallback){const {data,error}=await query;throwIfError(error,fallback);return data??[];}
 
-export async function listOwnAppointments({client,userId,fromIso,toIso}){
-  ensureClient(client);cleanRequired(userId,'Profissional');cleanRequired(fromIso,'Início do período');cleanRequired(toIso,'Fim do período');
-  return resolveQuery(client.from('agendamentos').select(APPOINTMENT_SELECT).eq('colaboradora_user_id',userId).gte('inicio',fromIso).lt('inicio',toIso).order('inicio',{ascending:true}),'Não foi possível carregar sua agenda.');
+export async function listAppointments({client,fromIso,toIso,origin='all'}) {
+  ensureClient(client);
+  const {data,error}=await client.rpc('bc_agenda_list',{
+    p_from:cleanRequired(fromIso,'Início do período'),
+    p_to:cleanRequired(toIso,'Fim do período'),
+    p_origin:normalizeAgendaView(origin),
+  });
+  throwIfError(error,'Não foi possível carregar a agenda.');
+  return data ?? [];
 }
-export async function listAdminAppointments({client,fromIso,toIso}){
-  ensureClient(client);cleanRequired(fromIso,'Início do período');cleanRequired(toIso,'Fim do período');
-  return resolveQuery(client.from('agendamentos').select(APPOINTMENT_SELECT).gte('inicio',fromIso).lt('inicio',toIso).order('inicio',{ascending:true}),'Não foi possível carregar a agenda administrativa.');
+export async function listOwnAppointments(options) {
+  cleanRequired(options.userId,'Profissional');
+  return listAppointments(options);
 }
+export async function listAdminAppointments(options) { return listAppointments(options); }
 export { listClients as listAdminClients, createClient } from './clientes-api.js';
 export async function listActiveProcedures({client}){
   ensureClient(client);

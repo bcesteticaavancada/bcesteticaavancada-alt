@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select no_plan();
-\ir ../../../scripts/fixtures/agenda.sql
+\ir ../fixtures/agenda.psql
 
 select has_column('public','agendamentos','booking_channel','Canal não reutiliza a semântica operacional de origem');
 select ok((select relrowsecurity from pg_class where oid='public.agendamentos'::regclass),'RLS da agenda está habilitada');
@@ -27,6 +27,7 @@ reset role;
 select is((select cliente_id from public.agendamentos where id=pg_temp.f('site')),null::uuid,'Reserva não cria nem associa paciente formal');
 select is((select count(*)::integer from public.clientes),1,'Nenhum paciente extra foi criado');
 select is((select booking_channel from public.agendamentos where id=pg_temp.f('site')),'site','Canal da reserva é site');
+select throws_ok(format('insert into public.atendimentos(agendamento_id,cliente_id,colaboradora_user_id,procedimento_id,data_atendimento,created_by) values(%L,%L,%L,%L,now(),%L)',pg_temp.f('site'),pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('procedure'),pg_temp.f('worker')),'55000','Cadastro da cliente precisa ser vinculado antes do atendimento.','Reserva sem cadastro não abre atendimento clínico');
 select is((select origem from public.agendamentos where id=pg_temp.f('site')),'agenda','Origem operacional de reserva pública continua agenda');
 select is((select public_booking_phone_normalized from public.agendamentos where id=pg_temp.f('site')),'31900000000','WhatsApp normalizado');
 select is((select fim-inicio from public.agendamentos where id=pg_temp.f('site')),interval '30 minutes','Duração bloqueia intervalo completo');
@@ -43,6 +44,8 @@ select lives_ok(format('select public.bc_agendamento_update(%L,%L,%L)',pg_temp.f
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'all')),2,'Geral reúne site e interna na mesma tabela');
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'internal')),1,'Interna filtra somente canal interno');
 select throws_ok(format('select public.bc_set_agendamento_status(%L,%L)',pg_temp.f('internal'),'atendido'),'42501','Atendimento clínico deve ser concluído pela profissional responsável.','Chefe não conclui atendimento clínico alheio');
+select throws_ok('select public.bc_financeiro_repasses_admin(null,null,null)','42501','Acesso administrativo obrigatório.','Chefe não ganha acesso financeiro administrativo');
+select throws_ok(format('select public.bc_registrar_atendimento(%L)',pg_temp.f('internal')),'42501','Acesso negado ao atendimento.','Chefe não registra dados clínicos de outra profissional');
 with changed as (update public.staff_profiles set role='admin' where user_id=pg_temp.f('chief') returning user_id) select is((select count(*)::integer from changed),0,'Chefe não promove a si mesma');
 with changed as (update public.staff_profiles set pode_gerenciar_agendas=true where user_id=pg_temp.f('ordinary') returning user_id) select is((select count(*)::integer from changed),0,'Chefe não concede capacidades a outras usuárias');
 insert into fixture values('block',public.bc_schedule_block_create(pg_temp.f('worker'),(select slot+interval '3 hours' from test_clock),(select slot+interval '4 hours' from test_clock),'outro','Nota interna fictícia'));
@@ -57,6 +60,8 @@ select lives_ok(format('select public.bc_set_agendamento_status(%L,%L)',pg_temp.
 reset role;
 select is((select cliente_id from public.agendamentos where id=pg_temp.f('site')),pg_temp.f('client'),'Vínculo persiste no mesmo agendamento');
 select is((select count(*)::integer from public.agendamentos),2,'Vínculo não duplica compromisso');
+update public.agendamentos set origem='encaixe' where id=pg_temp.f('internal');
+select is((select booking_channel from public.agendamentos where id=pg_temp.f('internal')),'internal','Origem encaixe legada permanece no canal interno');
 select is(public.bc_public_agenda_book('Outra Pessoa','31900000001',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('b',64))->>'error_code','23P01','Site também respeita ocupação');
 
 select set_config('request.jwt.claim.sub',pg_temp.f('ordinary')::text,true);

@@ -89,3 +89,10 @@ test('renderAuthorizedHistory monta timeline clínica compartilhada', () => {
 });
 
 test('initCollaboratorAgenda é função', () => assert.equal(typeof initCollaboratorAgenda, 'function'));
+
+test('reserva Site pendente permite remarcar e cancelar antes de vincular prontuário', () => {
+  const html=renderAppointmentDetail({id:'a1',origem:'agenda',booking_channel:'site',cliente_id:null,status:'agendado',inicio:'2026-10-16T15:00:00Z',public_booking_name:'Pessoa CI'},[{id:'p1',nome:'Teste'}]);
+  assert.match(html,/data-public-booking-link/);
+  assert.match(html,/data-own-appointment-edit/);
+  assert.match(html,/data-collab-status="cancelado"/);
+});

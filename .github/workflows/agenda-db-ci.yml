@@ -51,6 +51,9 @@ jobs:
       - name: Check database functions
         run: supabase db lint --local --schema public,private --level error --fail-on error
 
+      - name: Local security and performance advisors
+        run: supabase db advisors --local --type all --level warn --fail-on error
+
       - name: Concurrent reservations across channels and midnight
         if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
         run: python3 scripts/test-agenda-concurrency.py

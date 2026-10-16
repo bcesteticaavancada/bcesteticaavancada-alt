@@ -71,3 +71,11 @@ test('reserva do site usa snapshot e sinaliza cadastro pendente', () => {
 });
 
 test('initAdminAgenda é função',()=>assert.equal(typeof initAdminAgenda,'function'));
+
+test('admin pode vincular explicitamente reserva pública pendente a cadastro existente',async()=>{
+  const html=await loadAdminHtml();
+  assert.match(html,/id="adminPublicBookingClient"/);
+  assert.match(html,/id="adminPublicBookingLink"/);
+  const source=await readFile(new URL('../../gestao/js/admin-agenda.js',import.meta.url),'utf8');
+  assert.match(source,/linkPublicAppointment/);
+});

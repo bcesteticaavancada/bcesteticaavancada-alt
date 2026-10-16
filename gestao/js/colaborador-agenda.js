@@ -1,3 +1,4 @@
+import { agendaOriginKind } from './agenda-origin.js';
 import {
   listOwnAppointments,
   listAdminAppointments,
@@ -90,7 +91,7 @@ export async function linkPendingPublicBooking({ client, appointmentId, clienteI
 export function renderCollaboratorAppointments(appointments = [], staffMap = new Map()) {
   if (!appointments.length) return '<div class="bcg-empty">Nenhum atendimento encontrado neste período.</div>';
   return `<div class="bcg-agenda-list">${appointments.map((appointment) => {
-    const pendingSite = appointment.origem === 'site' && !appointment.cliente_id;
+    const pendingSite = agendaOriginKind(appointment) === 'site' && !appointment.cliente_id;
     const clientName = appointment.clientes?.nome || appointment.public_booking_name || 'Cliente';
     const phone = pendingSite ? appointment.public_booking_phone : '';
     const procedureName = appointment.procedimentos?.nome || 'Procedimento';
@@ -98,7 +99,7 @@ export function renderCollaboratorAppointments(appointments = [], staffMap = new
     const status = appointment.status || 'agendado';
     const chips = [
       `<span class="bcg-chip ${statusClass(status)}">${escapeHtml(statusLabel(status))}</span>`,
-      appointment.origem === 'site' ? '<span class="bcg-chip">Site</span>' : '',
+      agendaOriginKind(appointment) === 'site' ? '<span class="bcg-chip">Site</span>' : '',
       pendingSite ? '<span class="bcg-chip bcg-status-pending">Cadastro pendente</span>' : '',
     ].join('');
     const secondary = [procedureName, professionalName, phone].filter(Boolean).join(' • ');
@@ -128,16 +129,17 @@ export function renderAuthorizedHistory(history = [], staffMap = new Map()) {
 }
 
 export function renderAppointmentDetail(appointment, procedures = [], clients = []) {
-  const pendingSite = appointment.origem === 'site' && !appointment.cliente_id;
+  const pendingSite = agendaOriginKind(appointment) === 'site' && !appointment.cliente_id;
   const client = appointment.clientes || {};
   const procedure = appointment.procedimentos || {};
   const status = appointment.status || 'agendado';
+  const edit = status === 'agendado' ? `<form class="bcg-form bcg-form-grid bcg-appointment-edit" data-own-appointment-edit data-appointment-id="${escapeHtml(appointment.id)}"><label>Procedimento<select class="bcg-input" name="procedimento_id" required>${procedures.map((item) => option(item.nome, item.id, item.id === appointment.procedimento_id)).join('')}</select></label><label>Início<input class="bcg-input" name="inicio" type="datetime-local" value="${escapeHtml(localInputValue(appointment.inicio))}" required></label><label>Fim <span class="bcg-optional">opcional</span><input class="bcg-input" name="fim" type="datetime-local" value="${escapeHtml(localInputValue(appointment.fim))}"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea class="bcg-input bcg-textarea" name="observacao" rows="2">${escapeHtml(appointment.observacao_administrativa || '')}</textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar horário</button><span class="bcg-status" data-own-appointment-status></span></div></form>` : '';
   if (pendingSite) {
     const name = appointment.public_booking_name || 'Cliente do site';
     const phone = appointment.public_booking_phone || '';
-    return `<div class="bcg-detail-head"><div><p class="bcg-eyebrow">RESERVA DO SITE</p><h3>${escapeHtml(name)}</h3><p>${escapeHtml(procedure.nome || 'Procedimento')} • ${escapeHtml(formatClinicDateTime(appointment.inicio))}</p></div><div class="bcg-appointment-chips"><span class="bcg-chip">Site</span><span class="bcg-chip bcg-status-pending">Cadastro pendente</span></div></div><div class="bcg-detail-meta">${phone ? `<div><span>WhatsApp informado</span><strong>${escapeHtml(phone)}</strong></div>` : ''}</div><article class="bcg-editor-card bcg-link-public-booking"><p class="bcg-eyebrow">VINCULAR CADASTRO</p><p>A ficha clínica está bloqueada até esta reserva ser vinculada explicitamente a um cadastro oficial da clínica.</p><form class="bcg-form" data-public-booking-link data-appointment-id="${escapeHtml(appointment.id)}"><label>Cliente cadastrado<select class="bcg-input" name="cliente_id" required><option value="">Selecione o cadastro correto</option>${clients.map((item) => option(item.nome, item.id)).join('')}</select></label><div class="bcg-form-actions"><button class="bcg-button" type="submit">Vincular cliente</button><span class="bcg-status" data-public-booking-link-status></span></div></form></article>`;
+    return `<div class="bcg-detail-head"><div><p class="bcg-eyebrow">RESERVA DO SITE</p><h3>${escapeHtml(name)}</h3><p>${escapeHtml(procedure.nome || 'Procedimento')} • ${escapeHtml(formatClinicDateTime(appointment.inicio))}</p></div><div class="bcg-appointment-chips"><span class="bcg-chip">Site</span><span class="bcg-chip bcg-status-pending">Cadastro pendente</span></div></div><div class="bcg-detail-meta">${phone ? `<div><span>WhatsApp informado</span><strong>${escapeHtml(phone)}</strong></div>` : ''}</div><article class="bcg-editor-card bcg-link-public-booking"><p class="bcg-eyebrow">VINCULAR CADASTRO</p><p>A ficha clínica está bloqueada até esta reserva ser vinculada explicitamente a um cadastro oficial da clínica.</p><form class="bcg-form" data-public-booking-link data-appointment-id="${escapeHtml(appointment.id)}"><label>Cliente cadastrado<select class="bcg-input" name="cliente_id" required><option value="">Selecione o cadastro correto</option>${clients.map((item) => option(item.nome, item.id)).join('')}</select></label><div class="bcg-form-actions"><button class="bcg-button" type="submit">Vincular cliente</button><span class="bcg-status" data-public-booking-link-status></span></div></form></article>${edit}${status === 'agendado' ? `<div class="bcg-actions"><button type="button" class="bcg-small-button" data-collab-status="cancelado">Cancelar</button></div>` : ''}`;
   }
-  const edit = status === 'agendado' ? `<form class="bcg-form bcg-form-grid bcg-appointment-edit" data-own-appointment-edit data-appointment-id="${escapeHtml(appointment.id)}"><label>Procedimento<select class="bcg-input" name="procedimento_id" required>${procedures.map((item) => option(item.nome, item.id, item.id === appointment.procedimento_id)).join('')}</select></label><label>Início<input class="bcg-input" name="inicio" type="datetime-local" value="${escapeHtml(localInputValue(appointment.inicio))}" required></label><label>Fim <span class="bcg-optional">opcional</span><input class="bcg-input" name="fim" type="datetime-local" value="${escapeHtml(localInputValue(appointment.fim))}"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea class="bcg-input bcg-textarea" name="observacao" rows="2">${escapeHtml(appointment.observacao_administrativa || '')}</textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar horário</button><span class="bcg-status" data-own-appointment-status></span></div></form>` : '';
+
   return `<div class="bcg-detail-head"><div><p class="bcg-eyebrow">ATENDIMENTO</p><h3>${escapeHtml(client.nome || 'Cliente')}</h3><p>${escapeHtml(procedure.nome || 'Procedimento')} • ${escapeHtml(formatClinicDateTime(appointment.inicio))}</p></div><span class="bcg-chip ${statusClass(status)}">${escapeHtml(statusLabel(status))}</span></div><div class="bcg-detail-meta">${client.telefone ? `<div><span>Telefone</span><strong>${escapeHtml(client.telefone)}</strong></div>` : ''}${client.email ? `<div><span>E-mail</span><strong>${escapeHtml(client.email)}</strong></div>` : ''}</div>${edit}${status === 'agendado' ? `<div class="bcg-actions bcg-detail-actions"><button type="button" class="bcg-small-button" data-collab-status="faltou">Marcar falta</button><button type="button" class="bcg-small-button" data-collab-status="cancelado">Cancelar</button></div>` : ''}`;
 }
 
@@ -163,6 +165,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   if (!client || !profile?.user_id || !root) throw new Error('Contexto da profissional inválido.');
   const manager = isAgendaManager(profile);
   const el = (id) => root.getElementById(id);
+  const originFilter = el('collaboratorAgendaOriginFilter');
   const todayList = el('todayAgendaList');
   const nextList = el('nextAgendaList');
   const detail = el('appointmentDetail');
@@ -220,8 +223,8 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
 
   async function loadAppointments(range) {
     return manager
-      ? listAdminAppointments({ client, ...range })
-      : listOwnAppointments({ client, userId: profile.user_id, ...range });
+      ? listAdminAppointments({ client, ...range, origin: originFilter?.value || 'all' })
+      : listOwnAppointments({ client, userId: profile.user_id, ...range, origin: originFilter?.value || 'all' });
   }
 
   async function refresh() {
@@ -349,6 +352,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     catch (error) { setStatus(agendaStatus, error?.message || 'Não foi possível atualizar o atendimento.', 'error'); button.disabled = false; }
   });
 
+  originFilter?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
   syncAttendanceForm(null);
   await loadLookups();
   await refresh();
