@@ -24,7 +24,6 @@ jobs:
             'https://d2jqrm6oza8nb6.cloudfront.net/datasets/374f84ee-2272-47db-aa54-8fb726529663.mp4?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDA5NDM0YjU0ZmNkYmYzZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MjIzMTIyMX0.Hy5iSRMIF9kbFRrYqVbkfjqBHJdhx-zEWB2pD6DBafg' \
             --output assets/procedimentos/black-peel.mp4
           test "$(wc -c < assets/procedimentos/black-peel.mp4)" -gt 250000
-          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -of default=nw=1 assets/procedimentos/black-peel.mp4
       - name: Commit permanent repository media
         run: |
           git config user.name "github-actions[bot]"
