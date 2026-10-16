@@ -10,9 +10,16 @@ insert into fixture values
  ('version','a1000000-0000-4000-8000-000000000007');
 grant select, insert, update on fixture to authenticated, service_role;
 create function pg_temp.f(text) returns uuid language sql as $$select id from fixture where name=$1$$;
-create temporary table test_clock as select
- (date_trunc('hour',now()) + interval '2 hours') as slot,
- ((date_trunc('hour',now()) + interval '2 hours') at time zone 'America/Sao_Paulo')::date as day;
+-- Amanhã às 10h evita depender da hora local. No último dia usamos
+-- o próximo quarto de hora; o chamador verifica se o mês ainda tem janela.
+create temporary table test_clock as
+with clock as (select now() at time zone 'America/Sao_Paulo' as local_now),
+chosen as (select case
+ when date_trunc('month',local_now+interval '1 day')=date_trunc('month',local_now)
+ then ((local_now::date+1)+time '10:00') at time zone 'America/Sao_Paulo'
+ else to_timestamp(ceil(extract(epoch from now()+interval '1 minute')/900)*900)
+ end as slot from clock)
+select slot,(slot at time zone 'America/Sao_Paulo')::date as day from chosen;
 grant select on test_clock to authenticated, service_role;
 insert into auth.users(instance_id,id,aud,role,email,created_at,updated_at)
 select '00000000-0000-0000-0000-000000000000',id,'authenticated','authenticated',name||'-agenda@example.invalid',now(),now()

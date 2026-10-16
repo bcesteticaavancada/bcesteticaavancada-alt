@@ -6,6 +6,8 @@ The second connection attempts an overlapping reservation before the first commi
 There are no production URLs, credentials or configurable remote targets here.
 """
 import os
+import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import subprocess
 
@@ -55,12 +57,28 @@ def race(label, first, second):
 fixture=Path('supabase/tests/fixtures/agenda.psql').read_text()
 slot=sql(fixture+'\nselect slot from test_clock;').splitlines()[-1]
 shifted=sql(f"select '{slot}'::timestamptz + interval '15 minutes';").splitlines()[-1]
-race('site/site same start',operation('site',slot,origin='d'),operation('site',slot,origin='e'))
-race('site/site overlapping interval',operation('site',slot,origin='f'),operation('site',shifted,origin='g'))
-race('site/internal',operation('site',slot,origin='h'),operation('internal',slot))
-race('internal/site',operation('internal',slot),operation('site',slot,origin='i'))
+has_public_window=sql("select (now() at time zone 'America/Sao_Paulo') < (date_trunc('month',now() at time zone 'America/Sao_Paulo')+interval '1 month - 1 hour');").splitlines()[-1]=='t'
+if has_public_window:
+    race('site/site same start',operation('site',slot,origin='d'),operation('site',slot,origin='e'))
+    race('site/site overlapping interval',operation('site',slot,origin='f'),operation('site',shifted,origin='g'))
+    race('site/internal',operation('site',slot,origin='h'),operation('internal',slot))
+    race('internal/site',operation('internal',slot),operation('site',slot,origin='i'))
+else:
+    print('SKIP public races: no future 45-minute window remains in this civil month.')
 midnight=sql("select (current_date+3)::timestamp at time zone 'America/Sao_Paulo';").splitlines()[-1]
 start=sql(f"select '{midnight}'::timestamptz-interval '15 minutes';").splitlines()[-1]
 end=sql(f"select '{midnight}'::timestamptz+interval '15 minutes';").splitlines()[-1]
 race('internal across midnight',operation('internal',start,end),operation('internal',midnight))
-print('All 5 concurrency scenarios passed. Disposable fixture removed with CI database.')
+if has_public_window:
+    sql(f"delete from public.agendamentos where colaboradora_user_id='{WORKER}';")
+    def attempt(_):
+        output=sql('begin; '+operation('site',slot,origin='z')+' commit;')
+        return next(json.loads(line) for line in output.splitlines() if line.startswith('{'))
+    with ThreadPoolExecutor(max_workers=11) as pool:
+        results=list(pool.map(attempt,range(11)))
+    assert sum('appointment_id' in result for result in results)==1,results
+    assert sum(result.get('error_code')=='23P01' for result in results)==9,results
+    assert sum(result.get('error_code')=='53300' for result in results)==1,results
+    assert sql("select count(*) from private.public_booking_rate_limits where origin_hash=repeat('z',64);")=='10'
+    print('PASS concurrent rate limit: 11 attempts, 10 counted, 1 blocked, 1 reservation',flush=True)
+print(f'All {6 if has_public_window else 1} available concurrency scenarios passed. Disposable CI database only.')
