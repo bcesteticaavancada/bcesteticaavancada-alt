@@ -4,16 +4,16 @@ Código final validado antes desta atualização documental: `571439d4f58765ca44
 Branch: `feature/public-agenda-native`.
 PR: [#45](https://github.com/bcesteticaavancada/bcesteticaavancada-alt/pull/45), integrado à `main` em 16/10/2026 às 08:57:46 UTC.
 Merge verificado: `edc1889266633f2cd0337f882fc7617b0a2d1778`.
-Conferência atual: 16/10/2026, após 16h40 em Brasília; consultas sem escrita em produção.
+Conferência inicial: 16/10/2026, após 16h40 em Brasília. Configuração operacional posterior autorizada por Fernando: [horários e permissões](agenda-v2-operational-setup-2026-10-16.md).
 Escopo: fechamento técnico da Agenda V2, incluindo regressão de permissões RLS identificada após a limpeza dos Advisors.
 
 ## Resultado
 
-**Código integrado, banco hospedado e serviço público implantados. Uso operacional ainda pendente: não há disponibilidade futura publicada.**
+**Código integrado e agenda pública com horários de Alice e Mel para os 30 procedimentos. Aline e Kate aguardam cadastro; reserva controlada e validação mobile continuam pendentes.**
 
 O handoff com head `f4416b5` foi superado pela correção da Chefe e pelo rollout já observado. No head final do PR, `ce53b891efe658213ad655cbc1327508ab3c228c`, Agenda DB CI, Site CI e Pre-anamnese CI concluíram com sucesso. O deploy do GitHub Pages na `main` também passou.
 
-Esta conferência não executou novamente migrations, merge, deploy, criação de reservas ou mudanças em perfis reais.
+A conferência inicial não repetiu o rollout. Depois, a pedido de Fernando, foram configurados turnos, almoço, durações e permissões operacionais conforme o relatório vinculado acima. Nenhuma reserva ou conta foi criada nesta configuração.
 
 ## Correções concluídas
 
@@ -126,28 +126,29 @@ As migrations históricas devem ser preservadas. A normalização de nomes legad
 | Página `/agenda/`, módulo principal e configuração pública | HTTP 200 |
 | Manifesto do PWA | HTTP 200; a agenda está dentro do escopo do site instalável |
 | Edge Function `public-agenda` | ACTIVE, versão 1, `verify_jwt=false` intencional para o endpoint público |
-| Catálogo público sem login | HTTP 200; Limpeza de pele (90 min) e Limpeza de pele com peeling (100 min) |
-| Profissionais para os dois procedimentos | HTTP 200; Alice e Mel |
-| Calendário dos dois procedimentos × duas profissionais | HTTP 200; 31 dias de outubro de 2026 em cada resposta, zero dias livres |
+| Catálogo público sem login | HTTP 200; 30 procedimentos: 28 com 60 min, Limpeza de pele com 90 min e Limpeza de pele com peeling com 100 min |
+| Profissionais para todos os 30 procedimentos | HTTP 200; Alice e Mel, 60 combinações conferidas |
+| Calendários e horários após configuração | Mês completo; vagas de segunda a sábado, almoço das 12h às 13h e término até 19h |
 | Formato das respostas de calendário | Apenas mês, data, disponibilidade e estado; nenhum nome/dado de cliente |
-| Chrome remoto, página publicada | Catálogo, seleção de Alice e calendário completo carregaram; todos os dias futuros indisponíveis |
+| Chrome remoto, página publicada | Catálogo e calendário carregam; conferência anterior sem vagas foi superada pela configuração operacional |
 | Capability real | Alice ativa, `role=colaborador`, `pode_gerenciar_agendas=true`; Mel ativa, `role=admin` |
 | Policy de leitura de agendamentos | Inclui a capability da Chefe e mantém o filtro da colaboradora comum |
 
 O app usa o próprio site em formato instalável (PWA). A agenda publicada é compartilhada entre navegador e app; não há um segundo banco ou build nativo separado. Esta conferência não testou instalação nem execução em Android/iPhone reais.
 
-Inventário atual: 30 procedimentos ativos, 2 com duração válida, 28 sem duração, 2 profissionais ativas que atendem clientes, 6 vínculos de permissão profissional/procedimento e **zero dias futuros habilitados em `professional_availability_days`**. O funcionamento público confirmou essa ausência de vagas.
+Inventário após configuração autorizada: 30 procedimentos ativos com duração válida, 2 profissionais ativas que atendem clientes, 60 vínculos ativos profissional/procedimento, 628 dias de disponibilidade e 628 pausas de almoço. São 314 dias por profissional, de 16/10/2026 a 16/10/2027, sem domingos. Aline e Kate não possuem conta identificada e ainda não foram liberadas.
 
 Os CTAs da home já fazem parte da versão publicada. A exposição dos links não significa que reservas e dispositivos foram homologados em produção. A navegação pública permanece limitada ao mês atual; meses futuros ficam disponíveis na operação interna e por WhatsApp, conforme o desenho implementado.
 
 ## Escopo e limites desta conferência
 
-- O rollout já estava aplicado quando o estado atual foi consultado; esta rodada apenas verificou seus resultados.
+- O rollout já estava aplicado quando o estado atual foi consultado; depois foi executada a configuração operacional explicitamente solicitada por Fernando.
 - Nenhum paciente, cliente, usuário, agendamento, dado clínico ou financeiro real foi criado ou alterado por esta conferência.
-- Não foram inventados turnos, duração de procedimentos nem novas permissões.
+- Turnos e permissões seguem o pedido do usuário. Ele escolheu 60 minutos para os 28 procedimentos sem duração; os dois tempos anteriores foram preservados.
 - Não houve reserva de teste no ambiente hospedado. Conflitos, rate limiting e negativas de autorização possuem evidência no CI descartável; o ciclo de reserva real controlada ainda está pendente.
 - Login real e operação dos perfis em celulares ainda precisam de validação. A leitura da configuração de perfis não substitui essa prova.
 - Backup/rollback da implantação anterior não foi revalidado por esta auditoria; não se afirma que esta conferência produziu um backup.
+- A configuração operacional teve dry-run com rollback e guardou seu estado anterior no registro de auditoria `04538d12-607b-4d00-99b1-d174e61ea70c`.
 
 ## Advisors e segurança
 
@@ -163,8 +164,8 @@ Referências: [funções privilegiadas para anon](https://supabase.com/docs/guid
 
 ## Próximos passos: completar a operação
 
-1. Clínica informa dias, turnos e pausas por profissional; equipe publica esses períodos pela área de disponibilidade da gestão.
-2. Clínica define as durações dos 28 procedimentos restantes e confirma quais profissionais podem realizá-los. A existência de 6 vínculos não comprova cobertura de todos os procedimentos.
+1. Informar os e-mails de Aline e Kate para cadastrar e verificar os acessos corretos.
+2. Aplicar a Aline a regra de procedimentos de pele sem botox/preenchimento e a Kate a família de massagens/drenagens; usar os mesmos turnos autorizados. Conferir os procedimentos selecionados antes da ativação dessas contas.
 3. Validar login e ações de Admin, Chefe, colaboradora comum, inativa e conta sem perfil; usar contas/fixtures controladas para os perfis de teste.
 4. Com disponibilidade definida e janela específica de homologação, testar uma reserva fictícia do site até a gestão, conferir conflito e cancelamento controlado, sem editar compromissos reais.
 5. Validar Chrome/Android, Safari/iPhone, Chrome desktop, tela pequena e PWA instalada: calendário, seleção, confirmação e WhatsApp.
@@ -182,7 +183,8 @@ Referências: [funções privilegiadas para anon](https://supabase.com/docs/guid
 - Site: publicado; página e consultas públicas funcionando.
 - Supabase hospedado: seis migrations da fase registradas e função pública ativa.
 - Performance hospedada: antigos 11 WARN resolvidos.
-- Disponibilidade real: nenhum dia futuro publicado.
-- Catálogo: 28 durações pendentes para completar os 30 procedimentos.
+- Disponibilidade: Alice e Mel configuradas de segunda a sábado, 09h–19h, pausa 12h–13h, até 16/10/2027.
+- Catálogo: 30 durações válidas e Alice/Mel autorizadas nos 30 procedimentos.
+- Aline e Kate: cadastro e permissões específicas pendentes dos e-mails.
 - Validação operacional real/mobile: pendente.
-- Pronta para uso por clientes: ainda não; concluir cadastro operacional e provas finais.
+- Estado operacional: horários públicos liberados para Alice/Mel; concluir as demais contas e provas finais.

@@ -32,7 +32,7 @@ test('Contato presents the official contact, address, hours and GPS in Native la
   assert.match(contato, /bcesteticaav@gmail\.com/);
   assert.match(contato, /Rua Gávea, 358/);
   assert.match(contato, /Nova Suissa/);
-  assert.match(contato, /Terça a sábado, 09h às 18h/);
+  assert.match(contato, /Segunda a sábado, 09h às 19h, com intervalo das 12h às 13h/);
   assert.match(contato, /share\.google\/eh2hDmG6O5gNHK10i/);
 });
 

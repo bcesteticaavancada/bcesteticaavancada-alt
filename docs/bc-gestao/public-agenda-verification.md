@@ -1,4 +1,4 @@
-> **Atualização de 16/10/2026:** o PR #45 foi mergeado e a Agenda V2 já está publicada, com migrations e Edge Function no Supabase hospedado. Ainda faltam disponibilidade real, 28 durações de procedimentos e validação operacional/mobile. Veja [o relatório atual](agenda-v2-homologation-2026-10-16.md). O conteúdo abaixo é histórico de 15/10; suas afirmações sobre produção sem alterações e runtime pendente foram substituídas pelo relatório atual.
+> **Atualização de 16/10/2026:** o PR #45 foi mergeado e a Agenda V2 está publicada, com migrations e Edge Function no Supabase hospedado. Os 30 procedimentos e os horários de Alice/Mel foram configurados por solicitação de Fernando. Aline/Kate aguardam cadastro e as provas operacionais/mobile finais continuam pendentes. Veja [o relatório atual](agenda-v2-homologation-2026-10-16.md) e [a configuração operacional](agenda-v2-operational-setup-2026-10-16.md). O conteúdo abaixo é histórico de 15/10 e foi substituído pelos relatórios atuais.
 
 # BC Gestão — Agenda Pública — Verificação e Rollout
 
