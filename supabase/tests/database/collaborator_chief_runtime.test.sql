@@ -64,7 +64,7 @@ select throws_ok(
     (current_date + 2), true, '09:00'::time, '18:00'::time
   )$$,
   '42501',
-  'Acesso negado à agenda da profissional.',
+  'Acesso negado à disponibilidade.',
   'Colaboradora comum não pode gerir agenda de outra profissional'
 );
 

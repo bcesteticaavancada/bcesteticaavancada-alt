@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+import { isOwnClinicalAppointment } from '../../gestao/js/colaborador-agenda.js';
+
 const agendaUrl = new URL('../../gestao/js/colaborador-agenda.js', import.meta.url);
 const htmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
 
@@ -17,7 +19,9 @@ test('colaboradora chefe alterna para visão da equipe sem trocar o papel de log
 
 test('atendimento clínico e financeiro continuam restritos à profissional responsável', async () => {
   const source = await read(agendaUrl);
-  assert.match(source, /appointment\.colaboradora_user_id\s*===\s*profile\.user_id|profile\.user_id\s*===\s*appointment\.colaboradora_user_id/);
+  assert.equal(isOwnClinicalAppointment({user_id:'chief'}, {colaboradora_user_id:'worker'}), false);
+  assert.equal(isOwnClinicalAppointment({user_id:'chief'}, {colaboradora_user_id:'chief'}), true);
+  assert.equal(isOwnClinicalAppointment(null, null), false);
   assert.match(source, /canOperateClinicalAppointment|isOwnClinicalAppointment/);
 });
 
