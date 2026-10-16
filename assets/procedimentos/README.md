@@ -14,9 +14,10 @@ Pasta principal das imagens e mídias dos cards de procedimentos.
 
 Vídeos e posters aprovados usados pela vitrine da página de Protocolos ficam **diretamente em `assets/procedimentos/`**, sem criar subpastas extras só para `videos` ou `posters`.
 
-Exemplo aprovado atual:
+Mídias aprovadas atuais:
 - `botox.mp4` — vídeo final de Toxina Botulínica
 - `botox.webp` — poster WebP correspondente
+- `black-peel.mp4` — vídeo final narrado de Black Peel, usado no tema 05 · Textura
 
 Para novas mídias, prefira o mesmo padrão simples de nomes: `<tema>.mp4` e `<tema>.webp`, sempre em minúsculas, sem acentos e com hífens quando necessário.
 
