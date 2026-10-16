@@ -85,7 +85,10 @@ test('home LocalBusiness schema matches official clinic data', async () => {
   assert.equal(schema.address?.addressLocality, 'Belo Horizonte');
   assert.equal(schema.address?.addressRegion, 'MG');
   assert.ok(Array.isArray(schema.openingHoursSpecification));
-  assert.ok(schema.openingHoursSpecification.length > 0);
+  assert.deepEqual(schema.openingHoursSpecification.map(({ dayOfWeek, opens, closes }) => ({ dayOfWeek, opens, closes })), [
+    { dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '12:00' },
+    { dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '13:00', closes: '19:00' },
+  ]);
 });
 
 test('home keeps the official logo, decorative team hero and conversion actions', async () => {

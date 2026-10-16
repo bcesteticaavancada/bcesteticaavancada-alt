@@ -40,7 +40,8 @@ Uma reversão deve usar esse registro e conferir intervenções posteriores da e
 - 628 dias habilitados e 628 pausas; zero janela inválida ou domingo habilitado.
 - Consulta pública de sábado inclui 09h e 18h para massagem de 60 minutos; não oferece horário que atravesse 12h–13h ou termine após 19h.
 - Nenhum paciente, cliente, atendimento ou agendamento foi criado ou editado por esta configuração. A contagem desses registros permaneceu igual à anterior.
-- Textos da home, clínica, contato e rodapé comum ajustados para o novo horário; 99 testes existentes do site aprovados localmente.
+- Textos da home, clínica, contato e rodapé comum, dados estruturados de abertura e padrão do formulário de disponibilidade ajustados para o novo horário. Suíte local completa: 693 testes aprovados (62 pré-anamnese, 99 site, 532 gestão).
+- A revisão independente identificou horário antigo no JSON-LD; corrigido para segunda a sábado em duas janelas, 09h–12h e 13h–19h, com a asserção existente atualizada.
 
 ## Pendências
 
