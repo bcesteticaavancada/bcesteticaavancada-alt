@@ -52,7 +52,7 @@ jobs:
         run: supabase db lint --local --schema public,private --level error --fail-on error
 
       - name: Local security and performance advisors
-        run: supabase db advisors --local --type all --level warn --fail-on error
+        run: supabase db advisors --local --type all --level warn --fail-on warning
 
       - name: Concurrent reservations across channels and midnight
         if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
