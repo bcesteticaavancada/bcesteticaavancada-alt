@@ -90,6 +90,13 @@ set local role authenticated;
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'all')),3,'Admin vê todas as profissionais');
 select lives_ok(format('select public.bc_schedule_day_upsert(%L,%L,true,%L,%L)',pg_temp.f('ordinary'),(select day+1 from test_clock),'09:00','18:00'),'Admin administra disponibilidade de qualquer profissional');
 reset role;
+-- Reproduz fielmente linha histórica sem fim, antes da existência do gate.
+update public.agendamentos set status='cancelado' where id=pg_temp.f('site');
+alter table public.agendamentos disable trigger bc_agendamento_no_overlap;
+insert into public.agendamentos(cliente_id,colaboradora_user_id,procedimento_id,inicio,fim,status,created_by,origem)
+select pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('procedure'),slot,null,'agendado',pg_temp.f('admin'),'encaixe' from test_clock;
+alter table public.agendamentos enable trigger bc_agendamento_no_overlap;
+select is(public.bc_public_agenda_book('Teste legado','31900000001',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot+interval '15 minutes' from test_clock),repeat('l',64))->>'error_code','23P01','Compromisso legado sem fim bloqueia intervalo usando duração padrão');
 insert into private.public_booking_rate_limits(origin_hash) select repeat('c',64) from generate_series(1,10);
 select is(public.bc_public_agenda_book('Teste limite','31900000001',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('c',64))->>'error_code','53300','Mantém limite de dez confirmações em dez minutos');
 update private.public_booking_rate_limits set attempted_at=now()-interval '11 minutes' where origin_hash=repeat('c',64);

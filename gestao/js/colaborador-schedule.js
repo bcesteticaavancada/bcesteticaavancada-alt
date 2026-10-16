@@ -220,7 +220,7 @@ export async function initCollaboratorSchedule({ client, profile, root = documen
       blockForm.reset();
       el('collaboratorScheduleBlockType').value = 'compromisso';
       await refresh();
-      setMessage(status, 'Bloqueio criado. Atendimentos existentes foram preservados.', 'success');
+      setMessage(status, 'Bloqueio criado. Se houver atendimentos já marcados no período, revise-os com a equipe: eles foram preservados.', 'warning');
     } catch (error) { setMessage(status, error?.message || 'Não foi possível criar o bloqueio.', 'error'); }
     finally { submit.disabled = false; }
   });

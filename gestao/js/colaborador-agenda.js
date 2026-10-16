@@ -150,6 +150,20 @@ function futureRange(today) {
   return { fromIso: startIso, toIso: endRange.toIso };
 }
 
+export function collaboratorAgendaRanges(localDate = localInputValue(new Date().toISOString()).slice(0, 10)) {
+  const value = String(localDate).trim();
+  const date = new Date(`${value}T12:00:00-03:00`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(date.getTime())
+      || localInputValue(date.toISOString()).slice(0, 10) !== value) throw new Error('Data da agenda inválida.');
+  const day = clinicDayRange(date);
+  return { day, next: futureRange(day) };
+}
+
+export function filterCollaboratorAppointments(rows, profile, professionalId = '') {
+  const selected = isAgendaManager(profile) ? String(professionalId || '') : profile?.user_id;
+  return selected ? rows.filter((row) => row.colaboradora_user_id === selected) : rows;
+}
+
 function replaceOptions(select, items, emptyText, valueKey = 'id', labelKey = 'nome') {
   if (!select) return;
   select.innerHTML = `<option value="">${escapeHtml(emptyText)}</option>${items.map((item) => option(item[labelKey] || item.display_name || 'Profissional', item[valueKey] || item.user_id)).join('')}`;
@@ -166,6 +180,10 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   const manager = isAgendaManager(profile);
   const el = (id) => root.getElementById(id);
   const originFilter = el('collaboratorAgendaOriginFilter');
+  const agendaDate = el('collaboratorAgendaDate');
+  const agendaProfessional = el('collaboratorAgendaProfessionalFilter');
+  const agendaProfessionalField = el('collaboratorAgendaProfessionalField');
+  if (agendaDate && !agendaDate.value) agendaDate.value = localInputValue(new Date().toISOString()).slice(0, 10);
   const todayList = el('todayAgendaList');
   const nextList = el('nextAgendaList');
   const detail = el('appointmentDetail');
@@ -182,6 +200,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   const scopeText = el('collaboratorAgendaScopeText');
   if (!todayList || !nextList || !detail || !detailContent || !historyTimeline || !attendanceFormSlot || !appointmentForm || !clientSelect || !procedureSelect) throw new Error('Estrutura da agenda da colaboradora incompleta.');
 
+  let refreshVersion = 0;
   let appointments = new Map();
   let staffMap = new Map();
   let staffRows = [];
@@ -212,6 +231,8 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     staffMap = new Map(staff.map((item) => [item.user_id, item.display_name]));
     procedures = procedureRows;
     replaceOptions(procedureSelect, procedures, 'Selecione o procedimento');
+    if (agendaProfessionalField) agendaProfessionalField.hidden = !manager;
+    if (manager && agendaProfessional) replaceOptions(agendaProfessional, staffRows, 'Todas as profissionais', 'user_id', 'display_name');
     if (manager && professionalSelect && professionalField) {
       professionalField.hidden = false;
       replaceOptions(professionalSelect, staffRows, 'Selecione a profissional', 'user_id', 'display_name');
@@ -222,23 +243,26 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   }
 
   async function loadAppointments(range) {
-    return manager
+    const rows = await (manager
       ? listAdminAppointments({ client, ...range, origin: originFilter?.value || 'all' })
-      : listOwnAppointments({ client, userId: profile.user_id, ...range, origin: originFilter?.value || 'all' });
+      : listOwnAppointments({ client, userId: profile.user_id, ...range, origin: originFilter?.value || 'all' }));
+    return filterCollaboratorAppointments(rows, profile, agendaProfessional?.value);
   }
 
   async function refresh() {
+    const version = ++refreshVersion;
     setStatus(agendaStatus, manager ? 'Carregando agenda da equipe…' : 'Carregando sua agenda…');
-    const todayRange = clinicDayRange(new Date());
-    const nextRange = futureRange(todayRange);
+    const { day: todayRange, next: nextRange } = collaboratorAgendaRanges(agendaDate?.value || undefined);
     try {
       const [todayAppointments, nextAppointments] = await Promise.all([loadAppointments(todayRange), loadAppointments(nextRange)]);
+      if (version !== refreshVersion) return null;
       appointments = new Map([...todayAppointments, ...nextAppointments].map((item) => [item.id, item]));
       todayList.innerHTML = renderCollaboratorAppointments(todayAppointments, manager ? staffMap : new Map());
       nextList.innerHTML = renderCollaboratorAppointments(nextAppointments, manager ? staffMap : new Map());
-      setStatus(agendaStatus, `${todayAppointments.length} atendimento(s) hoje.`, 'success');
+      setStatus(agendaStatus, `${todayAppointments.length} atendimento(s) no dia selecionado.`, 'success');
       return { todayAppointments, nextAppointments };
     } catch (error) {
+      if (version !== refreshVersion) return null;
       todayList.innerHTML = '<div class="bcg-empty">Não foi possível carregar a agenda.</div>';
       nextList.innerHTML = '<div class="bcg-empty">Não foi possível carregar os próximos atendimentos.</div>';
       setStatus(agendaStatus, error?.message || 'Erro ao carregar agenda.', 'error');
@@ -353,6 +377,8 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   });
 
   originFilter?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
+  agendaDate?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
+  agendaProfessional?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
   syncAttendanceForm(null);
   await loadLookups();
   await refresh();

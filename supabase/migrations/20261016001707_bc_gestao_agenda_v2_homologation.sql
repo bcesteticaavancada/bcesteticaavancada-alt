@@ -291,6 +291,10 @@ begin
   if not private.bc_schedule_can_manage(v_a.colaboradora_user_id) then
     raise exception 'Acesso negado ao vínculo.' using errcode = '42501';
   end if;
+  if v_a.cliente_id is not null then
+    if v_a.cliente_id=p_cliente_id then return p_agendamento_id; end if;
+    raise exception 'Reserva já vinculada a outro cadastro.' using errcode='55000';
+  end if;
   if not exists(select 1 from public.clientes c where c.id = p_cliente_id and c.ativo = true) then
     raise exception 'Cliente ativa não encontrada.' using errcode = 'P0002';
   end if;
@@ -358,3 +362,75 @@ revoke all on function public.bc_public_agenda_month(uuid,uuid,date),
  public.bc_public_agenda_book(text,text,uuid,uuid,timestamptz,text) from public,anon,authenticated;
 grant execute on function public.bc_public_agenda_month(uuid,uuid,date),
  public.bc_public_agenda_book(text,text,uuid,uuid,timestamptz,text) to service_role;
+
+-- Status clínico também exige identidade formal confirmada.
+create or replace function private.bc_set_agendamento_status_impl(
+  p_agendamento_id uuid,
+  p_status text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_agendamento public.agendamentos%rowtype;
+begin
+  if v_user_id is null then
+    raise exception 'Sessão inválida.' using errcode = '42501';
+  end if;
+  if p_status is null or p_status not in ('agendado', 'atendido', 'cancelado', 'faltou') then
+    raise exception 'Status de agendamento inválido.' using errcode = '22023';
+  end if;
+
+  select * into v_agendamento
+    from public.agendamentos
+   where id = p_agendamento_id
+   for update;
+  if not found then
+    raise exception 'Agendamento não encontrado.' using errcode = 'P0002';
+  end if;
+  if not private.bc_schedule_can_manage(v_agendamento.colaboradora_user_id) then
+    raise exception 'Acesso negado ao agendamento.' using errcode = '42501';
+  end if;
+  if p_status='atendido' and v_agendamento.cliente_id is null then
+    raise exception 'Cadastro da cliente precisa ser vinculado antes do atendimento.' using errcode='55000';
+  end if;
+  if p_status = 'atendido'
+     and not private.is_bc_admin()
+     and v_agendamento.colaboradora_user_id <> v_user_id then
+    raise exception 'Atendimento clínico deve ser concluído pela profissional responsável.' using errcode = '42501';
+  end if;
+
+  update public.agendamentos
+     set status = p_status
+   where id = p_agendamento_id;
+
+  return p_agendamento_id;
+end;
+$$;
+
+-- A contagem considera todo o intervalo, inclusive passagem de meia-noite.
+create or replace function private.bc_agenda_inactivation_create_impl(
+  p_professional_user_id uuid,p_starts_on date,p_planned_ends_on date,p_reason text,p_internal_note text
+)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare v_user uuid:=auth.uid(); v_id uuid; v_affected integer;
+begin
+  if not private.bc_schedule_can_manage(p_professional_user_id) then raise exception 'Acesso negado à inativação.' using errcode='42501'; end if;
+  if p_planned_ends_on is not null and p_planned_ends_on<p_starts_on then raise exception 'Período de inativação inválido.' using errcode='22023'; end if;
+  if p_reason not in ('ferias','motivos_pessoais','motivo_medico','licenca_afastamento','curso_capacitacao','viagem','folga','outro') then raise exception 'Motivo de inativação inválido.' using errcode='22023'; end if;
+  select count(*)::integer into v_affected
+    from public.agendamentos a left join public.procedimentos p on p.id=a.procedimento_id
+   where a.colaboradora_user_id=p_professional_user_id
+     and a.status not in ('cancelado','faltou')
+     and coalesce(a.fim,a.inicio+pg_catalog.make_interval(mins=>coalesce(p.duracao_padrao,60)))
+         > (p_starts_on::timestamp at time zone 'America/Sao_Paulo')
+     and (p_planned_ends_on is null or a.inicio < ((p_planned_ends_on+1)::timestamp at time zone 'America/Sao_Paulo'));
+  insert into public.professional_agenda_inactivations(professional_user_id,starts_on,planned_ends_on,reason,internal_note,created_by)
+  values(p_professional_user_id,p_starts_on,p_planned_ends_on,p_reason,nullif(trim(p_internal_note),''),v_user) returning id into v_id;
+  insert into public.audit_log(actor_user_id,action,entity_type,entity_id,new_data) values(v_user,'agenda_inactivated','professional_agenda_inactivations',v_id,jsonb_build_object('professional_user_id',p_professional_user_id,'starts_on',p_starts_on,'planned_ends_on',p_planned_ends_on,'reason',p_reason,'affected_appointments',v_affected));
+  return jsonb_build_object('id',v_id,'affected_appointments',v_affected);
+end;$$;
