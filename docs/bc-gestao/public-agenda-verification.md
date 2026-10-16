@@ -1,3 +1,5 @@
+> **Atualização — fechamento da Agenda V2:** a homologação gratuita foi concluída no commit `2ef9dc3f28067179453832a7ab61c9f2aedf75ab`, com ambos os CIs verdes. Veja [o relatório atual](agenda-v2-homologation-2026-10-16.md) para os testes de banco, concorrência, permissões e os próximos passos. O conteúdo abaixo registra a verificação histórica anterior e seus itens de runtime pendentes foram substituídos pelo novo relatório. Produção continua sem alteração.
+
 # BC Gestão — Agenda Pública — Verificação e Rollout
 
 Data da verificação: 2026-10-15
