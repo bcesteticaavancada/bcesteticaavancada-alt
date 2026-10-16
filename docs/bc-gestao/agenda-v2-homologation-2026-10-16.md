@@ -73,6 +73,10 @@ RLS continua habilitada. Novos wrappers revogam execução de PUBLIC/anon e conc
 
 A revisão somente leitura encontrou três pontos: substituição de identidade vinculada, respostas antigas do filtro e fixture dependente da virada do mês. Foram corrigidos e cobertos por regressões. A revisão não executou SQL; essa evidência vem do CI descartável.
 
+### Cobertura complementar
+
+As regressões também validam acesso interno a datas futuras, filtro de profissional para a Chefe e o aviso de inativação sobre compromisso que começa na véspera. Esses casos passaram na suíte Node e nos testes SQL finais indicados acima.
+
 ## Produção e limites
 
 - Nenhum merge na `main`, publicação ou deploy foi feito.
@@ -84,7 +88,7 @@ A revisão somente leitura encontrou três pontos: substituição de identidade 
 
 ## Riscos e pendências antes de produção
 
-Os advisors apontam **11 avisos de performance preexistentes**: cinco de avaliação de autenticação nas policies de `admin_users`/`pre_anamneses` e seis de múltiplas policies permissivas. Não há erro ou aviso de segurança nesta execução local. As policies relacionadas já existiam antes do fechamento; não foi feita uma refatoração geral fora do escopo da agenda.
+Os advisors apontam **11 avisos de performance preexistentes**: cinco de avaliação de autenticação nas policies de `admin_users`, `pre_anamneses`, `staff_profiles` e `atendimentos` e seis de múltiplas policies permissivas. Não há erro ou aviso de segurança nesta execução local. As policies relacionadas já existiam antes do fechamento; não foi feita uma refatoração geral fora do escopo da agenda.
 
 O runner também avisa sobre a versão de Node usada internamente por actions antigas; ele as executa automaticamente em Node 24. Não houve falha de execução.
 
