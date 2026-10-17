@@ -14,12 +14,12 @@ Configuração solicitada por Fernando em 16/10/2026 e aplicada ao projeto `bc-e
 | --- | --- | --- |
 | Alice | Todos os 30 procedimentos, incluindo injetáveis | Aplicada |
 | Mel | Todos os 30 procedimentos, incluindo injetáveis | Aplicada |
-| Aline | Procedimentos de pele, sem botox nem preenchimento | Conta não localizada; falta e-mail para cadastro e aplicação |
-| Kate | Família de massagens e drenagens | Conta não localizada; falta e-mail para cadastro e aplicação |
+| Aline | Procedimentos de pele, sem botox nem preenchimento | E-mail recebido; conta Auth ainda não criada |
+| Kátia | Família de massagens e drenagens | E-mail recebido; conta Auth ainda não criada |
 
-Há um procedimento ativo agrupado de massagem: “Massagem (relaxante, drenagem ou redutora)”. Não foi criado um protocolo clínico ou preço novo de massagem desportiva por suposição. A seleção final para Aline/Kate será conferida ao cadastrar as contas.
+Há um procedimento ativo agrupado de massagem: “Massagem (relaxante, drenagem ou redutora)”. Não foi criado um protocolo clínico ou preço novo de massagem desportiva por suposição. A seleção final para Aline/Kátia será conferida ao cadastrar as contas.
 
-Os 30 procedimentos passaram a exigir autorização explícita por profissional. Isso permite aplicar as restrições de Aline/Kate sem que o modo geral libere todo o catálogo automaticamente. Alice e Mel têm 30 autorizações ativas cada. Papéis de administração e capabilities não foram modificados.
+Os 30 procedimentos passaram a exigir autorização explícita por profissional. Isso permite aplicar as restrições de Aline/Kátia sem que o modo geral libere todo o catálogo automaticamente. Alice e Mel têm 30 autorizações ativas cada. Papéis de administração e capabilities não foram modificados.
 
 ## Aplicação e possibilidade de reversão
 
@@ -45,4 +45,4 @@ Uma reversão deve usar esse registro e conferir intervenções posteriores da e
 
 ## Pendências
 
-Informar e-mails de Aline e Kate, cadastrar e validar os perfis, aplicar a seleção de procedimentos e o mesmo horário para elas. Concluir a reserva fictícia controlada até a gestão e a validação em Android/iPhone/PWA antes de declarar a homologação operacional completa.
+E-mails de Aline e Kátia recebidos; criar os acessos Auth e validar os perfis, aplicar a seleção de procedimentos e o mesmo horário para elas. Concluir a reserva fictícia controlada até a gestão e a validação em Android/iPhone/PWA antes de declarar a homologação operacional completa.

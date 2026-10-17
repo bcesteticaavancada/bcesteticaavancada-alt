@@ -1,6 +1,6 @@
 # Agenda V2 — homologação e conferência após implantação
 
-Código final validado antes desta atualização documental: `571439d4f58765ca446744435298bf8bc46b574f`.
+Código da homologação inicial: `571439d4f58765ca446744435298bf8bc46b574f`.
 Branch: `feature/public-agenda-native`.
 PR: [#45](https://github.com/bcesteticaavancada/bcesteticaavancada-alt/pull/45), integrado à `main` em 16/10/2026 às 08:57:46 UTC.
 Merge verificado: `edc1889266633f2cd0337f882fc7617b0a2d1778`.
@@ -9,7 +9,7 @@ Escopo: fechamento técnico da Agenda V2, incluindo regressão de permissões RL
 
 ## Resultado
 
-**Código integrado e agenda pública com horários de Alice e Mel para os 30 procedimentos. Aline e Kate aguardam cadastro; reserva controlada e validação mobile continuam pendentes.**
+**Código e horários públicos de Alice/Mel integrados. Em 17/10 foi implantado o backend do calendário mensal navegável; o frontend mensal também está publicado e suas provas estão no [relatório do calendário](agenda-month-calendar-2026-10-17.md). Aline e Kátia aguardam criação dos acessos; homologação em aparelhos físicos e reserva controlada hospedada permanecem pendentes.**
 
 O handoff com head `f4416b5` foi superado pela correção da Chefe e pelo rollout já observado. No head final do PR, `ce53b891efe658213ad655cbc1327508ab3c228c`, Agenda DB CI, Site CI e Pre-anamnese CI concluíram com sucesso. O deploy do GitHub Pages na `main` também passou.
 
@@ -136,9 +136,9 @@ As migrations históricas devem ser preservadas. A normalização de nomes legad
 
 O app usa o próprio site em formato instalável (PWA). A agenda publicada é compartilhada entre navegador e app; não há um segundo banco ou build nativo separado. Esta conferência não testou instalação nem execução em Android/iPhone reais.
 
-Inventário após configuração autorizada: 30 procedimentos ativos com duração válida, 2 profissionais ativas que atendem clientes, 60 vínculos ativos profissional/procedimento, 628 dias de disponibilidade e 628 pausas de almoço. São 314 dias por profissional, de 16/10/2026 a 16/10/2027, sem domingos. Aline e Kate não possuem conta identificada e ainda não foram liberadas.
+Inventário após configuração autorizada: 30 procedimentos ativos com duração válida, 2 profissionais ativas que atendem clientes, 60 vínculos ativos profissional/procedimento, 628 dias de disponibilidade e 628 pausas de almoço. São 314 dias por profissional, de 16/10/2026 a 16/10/2027, sem domingos. Aline e Kátia não possuem conta identificada e ainda não foram liberadas.
 
-Os CTAs da home já fazem parte da versão publicada. A exposição dos links não significa que reservas e dispositivos foram homologados em produção. A navegação pública permanece limitada ao mês atual; meses futuros ficam disponíveis na operação interna e por WhatsApp, conforme o desenho implementado.
+Os CTAs da home já fazem parte da versão publicada. A exposição dos links não significa que reservas e dispositivos foram homologados em produção. A restrição pública ao mês atual foi substituída em 17/10 pelo horizonte atual até +12 meses, conforme o relatório do calendário mensal.
 
 ## Escopo e limites desta conferência
 
@@ -164,8 +164,8 @@ Referências: [funções privilegiadas para anon](https://supabase.com/docs/guid
 
 ## Próximos passos: completar a operação
 
-1. Informar os e-mails de Aline e Kate para cadastrar e verificar os acessos corretos.
-2. Aplicar a Aline a regra de procedimentos de pele sem botox/preenchimento e a Kate a família de massagens/drenagens; usar os mesmos turnos autorizados. Conferir os procedimentos selecionados antes da ativação dessas contas.
+1. Criar e verificar os acessos Auth de Aline e Kátia; os e-mails foram recebidos. O painel de criação ainda requer login do responsável.
+2. Aplicar a Aline a regra de procedimentos de pele sem botox/preenchimento e a Kátia a família de massagens/drenagens; usar os mesmos turnos autorizados. Conferir os procedimentos selecionados antes da ativação dessas contas.
 3. Validar login e ações de Admin, Chefe, colaboradora comum, inativa e conta sem perfil; usar contas/fixtures controladas para os perfis de teste.
 4. Com disponibilidade definida e janela específica de homologação, testar uma reserva fictícia do site até a gestão, conferir conflito e cancelamento controlado, sem editar compromissos reais.
 5. Validar Chrome/Android, Safari/iPhone, Chrome desktop, tela pequena e PWA instalada: calendário, seleção, confirmação e WhatsApp.
@@ -185,6 +185,10 @@ Referências: [funções privilegiadas para anon](https://supabase.com/docs/guid
 - Performance hospedada: antigos 11 WARN resolvidos.
 - Disponibilidade: Alice e Mel configuradas de segunda a sábado, 09h–19h, pausa 12h–13h, até 16/10/2027.
 - Catálogo: 30 durações válidas e Alice/Mel autorizadas nos 30 procedimentos.
-- Aline e Kate: cadastro e permissões específicas pendentes dos e-mails.
-- Validação operacional real/mobile: pendente.
+- Aline e Kátia: e-mails recebidos; criação dos acessos e permissões específicas pendentes.
+- Reserva hospedada e aparelhos físicos/PWA instalada: pendentes; testes responsivos automatizados aprovados no relatório de 17/10.
 - Estado operacional: horários públicos liberados para Alice/Mel; concluir as demais contas e provas finais.
+
+## Atualização do calendário em 17/10/2026
+
+A homologação inicial acima registra 67 migrations e 153 testes. A fase seguinte alcançou 68 migrations, 205 testes SQL e dez cenários de navegador, com consultas hospedadas aprovadas. Ver [relatório completo](agenda-month-calendar-2026-10-17.md) para CI, implantação, limites e recuperação.
