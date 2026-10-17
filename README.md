@@ -135,7 +135,7 @@ A pré-anamnese e a área administrativa devem reutilizar a identidade BC e não
 - `script.js` — navegação e elementos compartilhados
 - `procedimentos/` — Vídeos (endereço mantido)
 - `resultados/` — resultados
-- `protocolos/` — Protocolos 2.0: vitrine mobile-first com 7 temas visuais, 10 famílias compactas com detalhes acessíveis, seção premium Assinaturas BC e mídia progressiva; sem preços e sem carregar vídeo não aprovado
+- `protocolos/` — Protocolos: player único com 5 vídeos disponíveis em sequência, miniaturas de seleção e 10 famílias em cartões compactos (2 colunas no celular), com detalhes expansíveis e Assinaturas BC; sem preços e sem carregar vídeos em lote
 - `ambiente/` — ambiente da clínica
 - `assets/portfolio/` — portfólio visual
 
