@@ -19,6 +19,14 @@ function defaultRedirect(url) {
   if (globalThis.location) globalThis.location.href = url;
 }
 
+function applyRolePresentation(profile) {
+  if (typeof document === 'undefined' || profile?.role !== 'colaborador') return;
+  const isChief = profile?.pode_gerenciar_agendas === true;
+  const roleLabel = document.getElementById('profileRole');
+  if (roleLabel) roleLabel.textContent = isChief ? 'Colaboradora Chefe' : 'Colaboradora';
+  document.documentElement?.setAttribute?.('data-agenda-manager', isChief ? 'true' : 'false');
+}
+
 export async function getCurrentProfile(client = getDefaultClient()) {
   const { data, error } = await client.auth.getSession();
   if (error) throw error;
@@ -26,7 +34,7 @@ export async function getCurrentProfile(client = getDefaultClient()) {
   if (!user?.id) return null;
   const { data: profile, error: profileError } = await client
     .from('staff_profiles')
-    .select('user_id,display_name,role,active,pode_gerenciar_procedimentos')
+    .select('user_id,display_name,role,active,pode_gerenciar_agendas,pode_gerenciar_procedimentos')
     .eq('user_id', user.id)
     .maybeSingle();
   if (profileError) throw profileError;
@@ -95,6 +103,7 @@ export async function requireRole(role, client = getDefaultClient(), redirect = 
     redirect('../login/');
     return null;
   }
+  applyRolePresentation(profile);
   await bootstrapRoleFeatures({ client, profile });
   return profile;
 }

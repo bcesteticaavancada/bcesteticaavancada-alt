@@ -26,7 +26,7 @@
       <a data-nav data-area-target="financeiro" href="#financeiro">Financeiro</a>
       <a href="../../instalar/">Instalar app</a>
     </nav>
-    <div class="bcg-menu-note">Sua agenda e seu financeiro são individuais. O cadastro e o histórico de clientes pertencem à clínica.</div>
+    <div class="bcg-menu-note">A agenda pode incluir gestão da equipe quando autorizada. Ficha clínica e financeiro continuam restritos à profissional responsável.</div>
   </aside>
   <button id="menuBackdrop" class="bcg-menu-backdrop" type="button" aria-label="Fechar menu" hidden></button>
 
@@ -34,18 +34,19 @@
     <header class="bcg-topbar">
       <div class="bcg-topbar-main">
         <button id="menuToggle" class="bcg-menu-toggle" type="button" aria-controls="gestaoMenu" aria-expanded="false" aria-label="Abrir menu"><span></span><span></span><span></span></button>
-        <div class="bcg-topbar-copy"><p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p><h1>BC Gestão</h1><p class="bcg-welcome">Bem-vinda, <strong>Colaboradora</strong> <strong id="profileName">Profissional</strong>. Sinta-se em casa.</p></div>
+        <div class="bcg-topbar-copy"><p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p><h1>BC Gestão</h1><p class="bcg-welcome">Bem-vinda, <strong id="profileRole">Colaboradora</strong> <strong id="profileName">Profissional</strong>. Sinta-se em casa.</p></div>
       </div>
       <button id="logoutBtn" class="bcg-button" type="button">Sair</button>
     </header>
     <p id="collaboratorAgendaStatus" class="bcg-status"></p>
 
     <section id="agenda" class="bcg-section" data-area-panel>
-      <div class="bcg-section-head"><div><p class="bcg-eyebrow">MINHA AGENDA</p><h2>Seus atendimentos</h2></div><p>Somente seus horários podem ser criados ou alterados por você.</p></div>
-      <h3>Hoje</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
+      <div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA</p><h2>Atendimentos</h2></div><p id="collaboratorAgendaScopeText">Você pode criar ou alterar os seus próprios horários.</p></div>
+      <div class="bcg-inline-filters"><label>Visão da agenda<select id="collaboratorAgendaOriginFilter" class="bcg-input"><option value="all">Geral</option><option value="site">Site</option><option value="internal">Interna</option></select></label><label>Data<input id="collaboratorAgendaDate" class="bcg-input" type="date"></label><label id="collaboratorAgendaProfessionalField" hidden>Profissional<select id="collaboratorAgendaProfessionalFilter" class="bcg-input"><option value="">Todas as profissionais</option></select></label></div><h3>Dia selecionado</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
       <div class="bcg-divider"></div><h3>Próximos atendimentos</h3><div id="nextAgendaList"></div>
       <div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
       <form id="collaboratorAppointmentForm" class="bcg-form bcg-form-grid">
+        <label id="appointmentProfessionalField" hidden>Profissional<select id="appointmentProfessional" class="bcg-input"></select></label>
         <label>Cliente<select id="collaboratorAppointmentClient" class="bcg-input" required></select></label>
         <label>Procedimento<select id="collaboratorAppointmentProcedure" class="bcg-input" required></select></label>
         <label>Início<input id="collaboratorAppointmentStart" class="bcg-input" type="datetime-local" required></label>

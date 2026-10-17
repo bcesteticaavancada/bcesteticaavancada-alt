@@ -16,7 +16,7 @@ const {
   clientProfileChecklist,
 } = domain;
 
-const referenceDate = new Date('2026-10-12T12:00:00-03:00');
+const referenceDate = new Date(2026, 9, 12, 12);
 
 test('normaliza e formata CPF sem alterar a identidade', () => {
   assert.equal(typeof normalizeCpf, 'function');

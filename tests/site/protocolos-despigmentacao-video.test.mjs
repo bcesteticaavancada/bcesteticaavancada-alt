@@ -1,18 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-
-const pageUrl = new URL('../../protocolos/index.html', import.meta.url);
-const html = readFileSync(pageUrl, 'utf8');
-
-test('Despigmentacao is wired as the ready video for theme 06', () => {
-  const match = html.match(/<article[^>]*data-protocol-video="despigmentacao"[\s\S]*?<\/article>/);
-  assert.ok(match, 'missing despigmentacao video theme');
-  const card = match[0];
-
-  assert.match(card, /data-video-state="ready"/);
-  assert.match(card, /<h3>Despigmenta(?:ç|c)ão<\/h3>/i);
-  assert.match(card, /<video\b[^>]*poster="\.\.\/assets\/procedimentos\/catalogo\/06-despigmentacao\.webp"[^>]*muted[^>]*playsinline[^>]*preload="none"[^>]*controls/i);
-  assert.match(card, /<source[^>]*data-src="\.\.\/assets\/procedimentos\/despigmentacao\.mp4"[^>]*type="video\/mp4"/i);
+const html = readFileSync(new URL('../../protocolos/index.html', import.meta.url), 'utf8');
+test('Despigmentação has a selectable final video and its own matching poster', () => {
+  const tag = html.match(/<a[^>]*data-protocol-video="despigmentacao"[^>]*>/)?.[0];
+  assert.ok(tag);
+  assert.match(tag, /href="\.\.\/assets\/procedimentos\/despigmentacao\.mp4"/);
+  assert.match(tag, /data-poster="\.\.\/assets\/procedimentos\/despigmentacao\.webp"/);
   assert.equal(existsSync(new URL('../../assets/procedimentos/despigmentacao.mp4', import.meta.url)), true);
 });

@@ -8,7 +8,7 @@
   <title>Procedimentos e Protocolos | BC Estética Avançada</title>
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="../editorial.css">
-  <link rel="stylesheet" href="protocolos.css?v=20261014-v2">
+  <link rel="stylesheet" href="protocolos.css?v=20261017-sequencia">
   <link rel="canonical" href="https://bcesteticaavancada.github.io/bcesteticaavancada-alt/protocolos/">
   <link rel="manifest" href="../manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/app/apple-touch-icon.png">
@@ -42,42 +42,56 @@
     </div>
   </section>
 
-  <section class="editorial-section protocol-video-showcase" aria-labelledby="video-showcase-title">
+  <section class="editorial-section protocol-video-showcase" id="videos" aria-labelledby="video-showcase-title">
     <div class="protocol-container">
       <div class="protocol-section-heading protocol-section-heading--compact">
-        <div class="eyebrow">ENTENDA EM POUCOS SEGUNDOS</div>
-        <h2 id="video-showcase-title">Tratamentos em <em>destaque.</em></h2>
-        <p>Explore os principais eixos de cuidado em apresentações rápidas e visuais. Cada tema resume uma família; os detalhes abaixo mostram o que muda entre as opções.</p>
+        <div class="eyebrow">CONHEÇA CADA CUIDADO</div>
+        <h2 id="video-showcase-title">Tratamentos em <em>movimento.</em></h2>
+        <p>Dê o play e assista em sequência. Você também pode escolher o próximo vídeo pelas miniaturas.</p>
       </div>
-      <div class="protocol-video-rail" aria-label="Temas de procedimentos em destaque">
-        <article class="protocol-video-card" data-protocol-video="botox" data-video-state="ready">
-          <div class="protocol-video-media"><video poster="../assets/procedimentos/botox.webp" muted playsinline preload="none" controls aria-label="Vídeo explicativo sobre toxina botulínica"><source data-src="../assets/procedimentos/botox.mp4" type="video/mp4"></video></div>
-          <div class="protocol-video-copy"><span>01 · Expressão</span><h3>Toxina Botulínica</h3><p>Terço superior, Full Face e Nefertiti fazem parte da mesma família, com planejamentos diferentes conforme a anatomia.</p></div>
-        </article>
-        <article class="protocol-video-card" data-protocol-video="harmonizacao" data-video-state="pending">
-          <div class="protocol-video-media"><img src="../assets/procedimentos/catalogo/13-profhilo.webp" alt="Apresentação ilustrativa de cuidado facial injetável" width="1122" height="1402" loading="lazy" decoding="async"></div>
-          <div class="protocol-video-copy"><span>02 · Proporções</span><h3>Harmonização &amp; Preenchimento</h3><p>Planejamento facial individualizado para trabalhar contorno, volumes e proporções preservando as características pessoais.</p></div>
-        </article>
-        <article class="protocol-video-card" data-protocol-video="bioestimulador" data-video-state="pending">
-          <div class="protocol-video-media"><img src="../assets/procedimentos/catalogo/11-bioestimulador-de-colageno.webp" alt="Apresentação ilustrativa de bioestimulador de colágeno" width="1122" height="1402" loading="lazy" decoding="async"></div>
-          <div class="protocol-video-copy"><span>03 · Colágeno</span><h3>Bioestimulador</h3><p>Estratégia voltada ao estímulo progressivo de colágeno e à qualidade da pele, conforme avaliação profissional.</p></div>
-        </article>
-        <article class="protocol-video-card" data-protocol-video="biorremodelacao" data-video-state="pending">
-          <div class="protocol-video-media"><img src="../assets/procedimentos/catalogo/10-skinbooster.webp" alt="Apresentação ilustrativa de Skinbooster e qualidade da pele" width="1122" height="1402" loading="lazy" decoding="async"></div>
-          <div class="protocol-video-copy"><span>04 · Hidratação</span><h3>Skinbooster &amp; Biorremodelação</h3><p>Tratamentos relacionados à hidratação e à qualidade da pele, com produtos, mecanismos e indicações que não são equivalentes.</p></div>
-        </article>
-        <article class="protocol-video-card" data-protocol-video="renovacao" data-video-state="ready">
-          <div class="protocol-video-media"><video poster="../assets/procedimentos/catalogo/14-microagulhamento.webp" muted playsinline preload="none" controls aria-label="Vídeo explicativo sobre Black Peel"><source data-src="../assets/procedimentos/black-peel.mp4" type="video/mp4"></video></div>
-          <div class="protocol-video-copy"><span>05 · Textura</span><h3>Black Peel</h3><p>Protocolo de renovação da pele escolhido conforme avaliação, com foco em textura, oleosidade e uniformidade do aspecto cutâneo.</p></div>
-        </article>
-        <article class="protocol-video-card" data-protocol-video="firmeza" data-video-state="pending">
-          <div class="protocol-video-media"><img src="../assets/procedimentos/catalogo/11-bioestimulador-de-colageno.webp" alt="Apresentação ilustrativa de cuidados de firmeza" width="1122" height="1402" loading="lazy" decoding="async"></div>
-          <div class="protocol-video-copy"><span>06 · Tecnologia</span><h3>Ultrassom &amp; Firmeza</h3><p>Tecnologias de firmeza atuam de maneiras diferentes e são escolhidas conforme região, objetivo e características da pele.</p></div>
-        </article>
-        <article class="protocol-video-card" data-protocol-video="contorno-corporal" data-video-state="pending">
-          <div class="protocol-video-media"><img src="../assets/procedimentos/catalogo/12-aplicacao-de-enzimas.webp" alt="Apresentação ilustrativa de cuidado para contorno corporal" width="1122" height="1402" loading="lazy" decoding="async"></div>
-          <div class="protocol-video-copy"><span>07 · Corpo</span><h3>Contorno Corporal &amp; Sculpt Cryo</h3><p>Cuidados corporais combinam recursos diferentes conforme o objetivo de firmeza, contorno e qualidade da pele.</p></div>
-        </article>
+      <div class="protocol-player" data-protocol-player>
+        <div class="protocol-player-stage">
+          <div class="protocol-video-media">
+            <video controls playsinline preload="none" poster="../assets/procedimentos/botox.webp" aria-label="Vídeo: Toxina Botulínica">
+              <source src="../assets/procedimentos/botox.mp4" type="video/mp4">
+              Seu navegador não conseguiu reproduzir o vídeo. Escolha uma das opções abaixo para abri-lo.
+            </video>
+          </div>
+          <div class="protocol-player-copy">
+            <span class="protocol-player-count" data-video-count>1 de 5</span>
+            <h3 data-video-title>Toxina Botulínica</h3>
+            <p data-video-description>Terço superior, Full Face e Nefertiti: planejamentos diferentes conforme a anatomia e a avaliação individual.</p>
+            <p class="protocol-player-hint">A avaliação individual orienta a escolha do tratamento.</p>
+            <div class="protocol-player-controls" data-playlist-control hidden>
+              <button type="button" data-video-previous disabled aria-label="Vídeo anterior">← Anterior</button>
+              <button type="button" data-video-next aria-label="Próximo vídeo">Próximo →</button>
+            </div>
+            <p class="protocol-player-status" data-video-status role="status" aria-live="polite"></p>
+            <a class="protocol-player-catalogue" href="#rosto">Explorar todos os procedimentos ↓</a>
+          </div>
+        </div>
+        <nav class="protocol-video-rail" aria-label="Escolher vídeo de procedimento">
+          <a class="protocol-video-card" href="../assets/procedimentos/botox.mp4" data-protocol-video="botox" data-video-state="ready" data-title="Toxina Botulínica" data-description="Terço superior, Full Face e Nefertiti: planejamentos diferentes conforme a anatomia e a avaliação individual." data-poster="../assets/procedimentos/botox.webp" aria-current="true">
+            <img src="../assets/procedimentos/botox.webp" alt="" width="72" height="96" loading="lazy" decoding="async">
+            <span><strong>Toxina Botulínica</strong><small>0:29</small></span>
+          </a>
+          <a class="protocol-video-card" href="../assets/procedimentos/bioestimulador.mp4" data-protocol-video="bioestimulador" data-video-state="ready" data-title="Bioestimulador" data-description="Conheça o cuidado voltado ao estímulo progressivo de colágeno e à qualidade da pele." data-poster="../assets/procedimentos/bioestimulador.webp">
+            <img src="../assets/procedimentos/bioestimulador.webp" alt="" width="72" height="96" loading="lazy" decoding="async">
+            <span><strong>Bioestimulador</strong><small>0:30</small></span>
+          </a>
+          <a class="protocol-video-card" href="../assets/procedimentos/black-peel.mp4" data-protocol-video="black-peel" data-video-state="ready" data-title="Black Peel" data-description="Do preparo ao cuidado após a sessão: veja como o protocolo atua na aparência da pele." data-poster="../assets/procedimentos/black-peel.webp">
+            <img src="../assets/procedimentos/black-peel.webp" alt="" width="72" height="96" loading="lazy" decoding="async">
+            <span><strong>Black Peel</strong><small>1:20</small></span>
+          </a>
+          <a class="protocol-video-card" href="../assets/procedimentos/despigmentacao.mp4" data-protocol-video="despigmentacao" data-video-state="ready" data-title="Despigmentação" data-description="Entenda a remoção de tatuagem a laser, as etapas do cuidado e a resposta gradual entre sessões." data-poster="../assets/procedimentos/despigmentacao.webp">
+            <img src="../assets/procedimentos/despigmentacao.webp" alt="" width="72" height="96" loading="lazy" decoding="async">
+            <span><strong>Despigmentação</strong><small>1:28</small></span>
+          </a>
+          <a class="protocol-video-card" href="../assets/procedimentos/microagulhamento.mp4" data-protocol-video="microagulhamento" data-video-state="ready" data-title="Microagulhamento" data-description="Acompanhe detalhes do procedimento, realizado conforme avaliação e indicação profissional." data-poster="../assets/procedimentos/microagulhamento.webp">
+            <img src="../assets/procedimentos/microagulhamento.webp" alt="" width="72" height="96" loading="lazy" decoding="async">
+            <span><strong>Microagulhamento</strong><small>0:22</small></span>
+          </a>
+        </nav>
       </div>
     </div>
   </section>
@@ -98,43 +112,43 @@
       <div class="protocol-section-heading">
         <div class="eyebrow">ROSTO · PELE · COLÁGENO</div>
         <h2 id="rosto-title">Escolha pelo seu <em>objetivo.</em></h2>
-        <p>Os grupos abaixo facilitam a navegação. Dentro de cada família, as técnicas continuam descritas separadamente para deixar claro o que muda entre elas.</p>
+        <p>Encontre seu cuidado e toque em “Saiba mais” para conhecer as opções de cada grupo.</p>
       </div>
       <div class="protocol-family-grid">
         <article class="protocol-family-card" id="toxina-botulinica">
-          <img src="../assets/procedimentos/catalogo/07-botox-terco-superior.webp" alt="Imagem ilustrativa de toxina botulínica" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/botox.webp" alt="Imagem ilustrativa de toxina botulinica" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Expressão</span><h3>Toxina Botulínica</h3><p>Planejamento para suavizar temporariamente linhas de expressão e equilibrar a dinâmica muscular.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Terço Superior:</strong> testa, glabela e região dos olhos, conforme avaliação.</p><p><strong>Full Face:</strong> planejamento em diferentes regiões da face de acordo com anatomia e objetivo.</p><p><strong>Nefertiti:</strong> abordagem da região inferior da face e pescoço, incluindo platisma quando indicado.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Terço Superior:</strong> testa, glabela e região dos olhos, conforme avaliação.</p><p><strong>Full Face:</strong> planejamento em diferentes regiões da face de acordo com anatomia e objetivo.</p><p><strong>Nefertiti:</strong> abordagem da região inferior da face e pescoço, incluindo platisma quando indicado.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
 
         <article class="protocol-family-card" id="limpeza-renovacao">
-          <img src="../assets/procedimentos/catalogo/01-limpeza-de-pele.webp" alt="Imagem ilustrativa de limpeza e renovação da pele" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/renovacao.webp" alt="Imagem ilustrativa de limpeza renovacao" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Renovação</span><h3>Limpeza &amp; Renovação</h3><p>Cuidados para higiene, textura, luminosidade, oleosidade e uniformidade do tom.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Limpeza de Pele:</strong> higienização profunda e remoção de impurezas conforme o tipo de pele.</p><p><strong>Limpeza + Peeling:</strong> associa limpeza com renovação superficial escolhida após avaliação.</p><p><strong>Peeling:</strong> renovação controlada com protocolo selecionado profissionalmente.</p><p><strong>Black Peel:</strong> protocolo de renovação com ativos específicos.</p><p><strong>Despigmentação:</strong> estratégia direcionada a alterações de pigmentação, conforme avaliação.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Limpeza de Pele:</strong> higienização profunda e remoção de impurezas conforme o tipo de pele.</p><p><strong>Limpeza + Peeling:</strong> associa limpeza com renovação superficial escolhida após avaliação.</p><p><strong>Peeling:</strong> renovação controlada com protocolo selecionado profissionalmente.</p><p><strong>Black Peel:</strong> protocolo de renovação com ativos específicos.</p><p><strong>Despigmentação:</strong> estratégia direcionada a alterações de pigmentação, conforme avaliação.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
 
         <article class="protocol-family-card" id="hidratacao-qualidade">
-          <img src="../assets/procedimentos/catalogo/10-skinbooster.webp" alt="Imagem ilustrativa de hidratação e qualidade da pele" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/hidratacao.webp" alt="Imagem ilustrativa de hidratacao qualidade" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Qualidade da pele</span><h3>Hidratação &amp; Biorremodelação</h3><p>Estratégias voltadas ao viço, hidratação, elasticidade e qualidade global da pele.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Skinbooster:</strong> pequenas aplicações de ácido hialurônico ou substâncias indicadas para hidratação e qualidade da pele.</p><p><strong>Profhilo®:</strong> tratamento à base de ácido hialurônico voltado à biorremodelação. Não é o mesmo procedimento que Skinbooster.</p><p><strong>Reset Glow™ e Monaco Glow™:</strong> protocolos autorais relacionados a revitalização e qualidade da pele, combinados conforme avaliação.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Skinbooster:</strong> pequenas aplicações de ácido hialurônico ou substâncias indicadas para hidratação e qualidade da pele.</p><p><strong>Profhilo®:</strong> tratamento à base de ácido hialurônico voltado à biorremodelação. Não é o mesmo procedimento que Skinbooster.</p><p><strong>Reset Glow™ e Monaco Glow™:</strong> protocolos autorais relacionados a revitalização e qualidade da pele, combinados conforme avaliação.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
 
         <article class="protocol-family-card" id="colageno-textura">
-          <img src="../assets/procedimentos/catalogo/11-bioestimulador-de-colageno.webp" alt="Imagem ilustrativa de bioestimulação de colágeno" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/firmeza.webp" alt="Imagem ilustrativa de colageno textura" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Firmeza e textura</span><h3>Colágeno &amp; Textura</h3><p>Cuidados que buscam estimular renovação, firmeza e melhora progressiva da textura.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Bioestimulador de Colágeno:</strong> substâncias selecionadas para estimular progressivamente a produção de colágeno.</p><p><strong>Microagulhamento:</strong> microperfurações controladas que ativam processos naturais de renovação.</p><p><strong>Skin Reset™:</strong> protocolo integrado que pode combinar tecnologias, bioestimulação e microagulhamento.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Bioestimulador de Colágeno:</strong> substâncias selecionadas para estimular progressivamente a produção de colágeno.</p><p><strong>Microagulhamento:</strong> microperfurações controladas que ativam processos naturais de renovação.</p><p><strong>Skin Reset™:</strong> protocolo integrado que pode combinar tecnologias, bioestimulação e microagulhamento.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
 
         <article class="protocol-family-card" id="harmonizacao-facial">
-          <img src="../assets/procedimentos/catalogo/13-profhilo.webp" alt="Imagem ilustrativa de planejamento facial injetável" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/harmonizacao.webp" alt="Imagem ilustrativa de harmonizacao facial" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Proporções</span><h3>Harmonização Facial</h3><p>Planejamento individualizado para cuidar de volumes, contorno e proporções respeitando a identidade facial.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Harmonização / Preenchimento:</strong> pode utilizar ácido hialurônico em pontos definidos após avaliação anatômica.</p><p><strong>Face Reset™:</strong> protocolo autoral que pode combinar toxina botulínica e preenchimento de forma estratégica.</p><p>Indicação, produto, quantidade e regiões são definidos individualmente.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Harmonização / Preenchimento:</strong> pode utilizar ácido hialurônico em pontos definidos após avaliação anatômica.</p><p><strong>Face Reset™:</strong> protocolo autoral que pode combinar toxina botulínica e preenchimento de forma estratégica.</p><p>Indicação, produto, quantidade e regiões são definidos individualmente.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
 
         <article class="protocol-family-card" id="tecnologias-firmeza">
-          <img src="../assets/procedimentos/catalogo/14-microagulhamento.webp" alt="Imagem ilustrativa de tecnologia para qualidade da pele" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/firmeza.webp" alt="Imagem ilustrativa de tecnologias firmeza" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Tecnologia</span><h3>Tecnologias de Firmeza</h3><p>Recursos selecionados para firmeza, contorno e qualidade da pele de acordo com profundidade e região.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Ultrassom Microfocado:</strong> utiliza ultrassom concentrado em profundidades específicas.</p><p><strong>Radiofrequência / Criofrequência:</strong> trabalham energia térmica com características próprias de cada equipamento.</p><p><strong>Jato de Plasma:</strong> atua em cuidados localizados próximos à superfície. Essas tecnologias têm mecanismos e indicações diferentes e não são substitutas automáticas entre si.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Ultrassom Microfocado:</strong> utiliza ultrassom concentrado em profundidades específicas.</p><p><strong>Radiofrequência / Criofrequência:</strong> trabalham energia térmica com características próprias de cada equipamento.</p><p><strong>Jato de Plasma:</strong> atua em cuidados localizados próximos à superfície. Essas tecnologias têm mecanismos e indicações diferentes e não são substitutas automáticas entre si.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
       </div>
     </div>
@@ -150,15 +164,15 @@
       </div>
       <div class="protocol-family-grid protocol-family-grid--two">
         <article class="protocol-family-card" id="contorno-corporal">
-          <img src="../assets/procedimentos/catalogo/12-aplicacao-de-enzimas.webp" alt="Imagem ilustrativa de cuidado para contorno corporal" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/corpo.webp" alt="Imagem ilustrativa de contorno corporal" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Corpo</span><h3>Contorno Corporal</h3><p>Estratégias personalizadas para firmeza, contorno e cuidado de regiões específicas.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Sculpt Cryo™:</strong> protocolo autoral de contorno corporal com tecnologia selecionada conforme avaliação.</p><p><strong>Aplicação de Enzimas / Intradermoterapia:</strong> aplicações localizadas de ativos escolhidos conforme objetivo e indicação.</p><p><strong>Papada:</strong> cuidado da região submentoniana definido após avaliação de volume, flacidez e características da pele.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Sculpt Cryo™:</strong> protocolo autoral de contorno corporal com tecnologia selecionada conforme avaliação.</p><p><strong>Aplicação de Enzimas / Intradermoterapia:</strong> aplicações localizadas de ativos escolhidos conforme objetivo e indicação.</p><p><strong>Papada:</strong> cuidado da região submentoniana definido após avaliação de volume, flacidez e características da pele.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
 
         <article class="protocol-family-card" id="massagens-bem-estar">
-          <img src="../assets/procedimentos/catalogo/03-massagens.webp" alt="Imagem ilustrativa de massagem na BC Estética Avançada" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/catalogo/03-massagens-560.webp" alt="Massagens e bem-estar" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Bem-estar</span><h3>Massagens &amp; Bem-estar</h3><p>Técnicas manuais escolhidas conforme a necessidade de relaxamento, inchaço ou contorno.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Relaxante:</strong> voltada à tensão corporal e sensação de descanso.</p><p><strong>Drenagem:</strong> cuidado manual para inchaço, retenção e sensação de leveza.</p><p><strong>Redutora / Modeladora:</strong> técnica manual voltada ao contorno dentro de um planejamento individualizado.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Relaxante:</strong> voltada à tensão corporal e sensação de descanso.</p><p><strong>Drenagem:</strong> cuidado manual para inchaço, retenção e sensação de leveza.</p><p><strong>Redutora / Modeladora:</strong> técnica manual voltada ao contorno dentro de um planejamento individualizado.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
       </div>
     </div>
@@ -173,14 +187,14 @@
       </div>
       <div class="protocol-family-grid protocol-family-grid--two">
         <article class="protocol-family-card" id="capilar-sobrancelhas">
-          <img src="../assets/tres-salas-560.webp" alt="Ambiente da BC Estética Avançada" width="560" height="700" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/fios.webp" alt="Cuidados capilares e sobrancelhas" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Fios e couro cabeludo</span><h3>Capilar &amp; Sobrancelhas</h3><p>Cuidados personalizados para couro cabeludo, fios e sobrancelhas conforme avaliação.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Fort Hair™:</strong> protocolo capilar com ativos e tecnologias selecionados após avaliação.</p><p><strong>Fort Hair Plus™:</strong> versão intensiva que pode combinar recursos adicionais e cuidados domiciliares.</p><p><strong>Fort Brow™:</strong> protocolo direcionado a sobrancelhas com falhas ou redução de densidade.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Fort Hair™:</strong> protocolo capilar com ativos e tecnologias selecionados após avaliação.</p><p><strong>Fort Hair Plus™:</strong> versão intensiva que pode combinar recursos adicionais e cuidados domiciliares.</p><p><strong>Fort Brow™:</strong> protocolo direcionado a sobrancelhas com falhas ou redução de densidade.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
         <article class="protocol-family-card" id="cuidados-especificos">
-          <img src="../assets/procedimentos/catalogo/06-despigmentacao.webp" alt="Imagem ilustrativa de cuidado localizado da pele" width="1122" height="1402" loading="lazy" decoding="async">
+          <img src="../assets/procedimentos/miniaturas/laser.webp" alt="Imagem ilustrativa de cuidados especificos" width="360" height="360" loading="lazy" decoding="async">
           <div class="protocol-family-copy"><span>Cuidados localizados</span><h3>Cuidados Específicos</h3><p>Tratamentos direcionados a características particulares da pele e pigmentos.</p>
-          <details><summary>Conhecer opções</summary><div class="protocol-detail"><p><strong>Estrias:</strong> técnicas escolhidas conforme tipo, cor, profundidade e localização.</p><p><strong>Vasinhos:</strong> cuidado direcionado a pequenos vasos superficiais, conforme avaliação profissional.</p><p><strong>Remoção a Laser:</strong> tecnologia direcionada a pigmentos de tatuagens ou micropigmentações; a resposta depende de cor, profundidade e pigmento.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
+          <details name="protocol-family"><summary>Saiba mais</summary><div class="protocol-detail"><p><strong>Estrias:</strong> técnicas escolhidas conforme tipo, cor, profundidade e localização.</p><p><strong>Vasinhos:</strong> cuidado direcionado a pequenos vasos superficiais, conforme avaliação profissional.</p><p><strong>Remoção a Laser:</strong> tecnologia direcionada a pigmentos de tatuagens ou micropigmentações; a resposta depende de cor, profundidade e pigmento.</p><a href="../agendamento/">Agendar avaliação</a></div></details></div>
         </article>
       </div>
     </div>
@@ -221,6 +235,6 @@
 <footer class="footer"><span>BC Estética Avançada</span><span>Menos achismo. Mais ciência.</span></footer>
 <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
 <script src="../script.js"></script><script>(function(){if(window.BCMenuReady)return;var t=document.getElementById("menuToggle"),d=document.getElementById("siteDrawer"),o=document.getElementById("menuOverlay"),c=document.getElementById("drawerClose");if(!t||!d||!o)return;function m(open){t.classList.toggle("is-open",open);d.classList.toggle("is-open",open);o.classList.toggle("is-open",open);t.setAttribute("aria-expanded",open?"true":"false");t.setAttribute("aria-label",open?"Fechar menu":"Abrir menu");d.setAttribute("aria-hidden",open?"false":"true");o.setAttribute("aria-hidden",open?"false":"true");document.body.classList.toggle("menu-open",open);}t.addEventListener("click",function(){m(!d.classList.contains("is-open"));});if(c)c.addEventListener("click",function(){m(false);});o.addEventListener("click",function(){m(false);});d.querySelectorAll("a").forEach(function(a){a.addEventListener("click",function(){m(false);});});document.addEventListener("keydown",function(e){if(e.key==="Escape")m(false);});})();</script>
-<script type="module" src="protocolos.js"></script>
+<script type="module" src="protocolos.js?v=20261017-sequencia"></script>
 </body>
 </html>

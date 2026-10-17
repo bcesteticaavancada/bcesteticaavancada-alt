@@ -1,0 +1,217 @@
+.home-agenda-band {
+  width: min(1180px, calc(100% - 32px));
+  margin: 18px auto 68px;
+  padding: 22px;
+  border: 1px solid rgba(177, 138, 79, .22);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(198, 155, 91, .12), transparent 34%),
+    linear-gradient(145deg, #181310, #0d0a08 72%);
+  color: #f8f2e9;
+  box-shadow: 0 28px 72px rgba(25, 17, 12, .18);
+  overflow: hidden;
+}
+
+.home-agenda-head {
+  display: grid;
+  gap: 16px;
+}
+
+.home-agenda-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #d9b477;
+  font-size: .69rem;
+  font-weight: 800;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.home-agenda-head h2 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.9rem, 8vw, 3.3rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.home-agenda-head p,
+.home-agenda-status,
+.home-agenda-empty {
+  margin: 0;
+  color: rgba(248, 242, 233, .7);
+  line-height: 1.55;
+}
+
+.home-agenda-start,
+.home-agenda-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid rgba(226, 193, 139, .44);
+  border-radius: 999px;
+  background: #e6c58f;
+  color: #21170f;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.home-agenda-start:disabled {
+  opacity: .62;
+  cursor: wait;
+}
+
+.home-agenda-controls {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.home-agenda-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: rgba(248, 242, 233, .82);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.home-agenda-field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font: inherit;
+}
+
+.home-agenda-field select option {
+  color: #1d1814;
+}
+
+.home-agenda-field select:disabled {
+  opacity: .55;
+}
+
+.home-agenda-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.home-agenda-empty {
+  grid-column: 1 / -1;
+  padding: 14px;
+  border: 1px dashed rgba(255, 255, 255, .14);
+  border-radius: 13px;
+  font-size: .84rem;
+  overflow-wrap: anywhere;
+}
+
+.home-agenda-slot {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .06);
+  color: #fff;
+  text-decoration: none;
+}
+
+.home-agenda-slot span,
+.home-agenda-slot small {
+  color: rgba(255, 255, 255, .64);
+  font-size: .7rem;
+}
+
+.home-agenda-slot strong {
+  font-size: 1.22rem;
+}
+
+.home-agenda-slot small {
+  color: #d8b779;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.home-agenda-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.home-agenda-future {
+  color: #d9b477;
+  font-size: .8rem;
+  font-weight: 700;
+  text-align: center;
+  text-underline-offset: 3px;
+}
+
+.home-agenda-status {
+  min-height: 1.35em;
+  margin-top: 12px;
+  font-size: .8rem;
+}
+
+.home-agenda-status[data-tone="error"] { color: #f0a7a0; }
+.home-agenda-status[data-tone="ok"] { color: #b8d9b8; }
+
+.home-agenda-start:focus-visible,
+.home-agenda-link:focus-visible,
+.home-agenda-future:focus-visible,
+.home-agenda-field select:focus-visible,
+.home-agenda-slot:focus-visible {
+  outline: 3px solid rgba(235, 201, 145, .58);
+  outline-offset: 3px;
+}
+
+@media (min-width: 720px) {
+  .home-agenda-band {
+    padding: 30px;
+  }
+
+  .home-agenda-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .home-agenda-head p {
+    max-width: 620px;
+  }
+
+  .home-agenda-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-agenda-results {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .home-agenda-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .home-agenda-future {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-agenda-band * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -19,6 +19,7 @@
   <link rel="preload" as="image" href="assets/bc-estetica-equipe-hero-luxo-dourado.webp" type="image/webp">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="home-team-hero.css">
+  <link rel="stylesheet" href="home-agenda.css">
   <style id="bc-home-hero-v2">
     .home-hero{
       background:#0b0705!important;
@@ -232,9 +233,14 @@
     },
     "openingHoursSpecification": [{
       "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
       "opens": "09:00",
-      "closes": "18:00"
+      "closes": "12:00"
+    }, {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      "opens": "13:00",
+      "closes": "19:00"
     }],
     "sameAs": ["https://www.instagram.com/bc.esteticaavancada/"]
   }
@@ -253,7 +259,7 @@
       <a class="brand" href="./" aria-label="BC Estética Avançada — início">
         <img src="assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" alt="BC Estética Avançada">
       </a>
-      <a class="header-cta" href="agendamento/">Agendar</a>
+      <a class="header-cta" href="agenda/">Agendar</a>
     </div>
   </header>
 
@@ -288,7 +294,7 @@
           <h1>Beleza com <em>propósito.</em></h1>
           <p>Ciência e estética para uma beleza real, natural e que acompanha a sua história.</p>
           <div class="hero-actions">
-            <a class="btn gold" href="agendamento/">Agende sua avaliação <span aria-hidden="true">→</span></a>
+            <a class="btn gold" href="agenda/">Agende sua avaliação <span aria-hidden="true">→</span></a>
             <a class="btn light" href="agendamento/#preAnamneseForm">Faça sua pré-anamnese <span aria-hidden="true">→</span></a>
           </div>
           <a class="hero-treatment-link" href="protocolos/">Conheça os tratamentos <span aria-hidden="true">→</span></a>
@@ -373,15 +379,47 @@
       </div>
     </section>
 
+    <div class="home-agenda-band" data-home-agenda aria-labelledby="homeAgendaTitle">
+      <div class="home-agenda-head">
+        <div>
+          <span class="home-agenda-kicker">Agenda online</span>
+          <h2 id="homeAgendaTitle">Agenda BC Estética</h2>
+          <p>Consulte alguns dos próximos horários livres deste mês. A confirmação da reserva é feita no calendário completo.</p>
+        </div>
+        <button class="home-agenda-start" data-home-agenda-start type="button">Consultar horários livres</button>
+      </div>
+
+      <div class="home-agenda-controls" data-home-agenda-controls hidden>
+        <div class="home-agenda-field">
+          <label for="homeAgendaProcedure">Procedimento</label>
+          <select id="homeAgendaProcedure" data-home-agenda-procedure disabled><option value="">Escolha o procedimento</option></select>
+        </div>
+        <div class="home-agenda-field">
+          <label for="homeAgendaProfessional">Profissional</label>
+          <select id="homeAgendaProfessional" data-home-agenda-professional disabled><option value="">Escolha primeiro um procedimento</option></select>
+        </div>
+      </div>
+
+      <div class="home-agenda-results" data-home-agenda-results aria-live="polite">
+        <p class="home-agenda-empty">Toque em “Consultar horários livres” para começar.</p>
+      </div>
+      <p class="home-agenda-status" data-home-agenda-status role="status" aria-live="polite"></p>
+
+      <div class="home-agenda-actions">
+        <a class="home-agenda-link" href="agenda/">Ver calendário completo</a>
+        <a class="home-agenda-future" data-home-agenda-future href="https://wa.me/5531995184110?text=Ol%C3%A1%2C%20BC%20Est%C3%A9tica!%20Gostaria%20de%20consultar%20a%20agenda%20de%20um%20m%C3%AAs%20futuro." target="_blank" rel="noopener">Preciso de um mês futuro</a>
+      </div>
+    </div>
+
     <section class="home-closing" id="cta-final">
       <div class="home-closing-inner">
         <div class="home-closing-copy">
           <span class="home-section-kicker">BC ESTÉTICA AVANÇADA</span>
           <h2>Sua melhor versão começa aqui.</h2>
-          <p>Belo Horizonte • Nova Suissa • Terça a sábado, 09h às 18h</p>
+          <p>Belo Horizonte • Nova Suissa • Segunda a sábado, 09h às 19h, com intervalo das 12h às 13h</p>
         </div>
         <div class="home-closing-actions">
-          <a class="btn gold" href="agendamento/">Agendar agora <span aria-hidden="true">→</span></a>
+          <a class="btn gold" href="agenda/">Agendar agora <span aria-hidden="true">→</span></a>
           <a class="home-whatsapp-link" href="https://wa.me/5531995184110" target="_blank" rel="noopener">WhatsApp</a>
         </div>
       </div>
@@ -429,11 +467,12 @@
     </div>
     <div class="bc-footer-bottom">
       <span>BC Estética Avançada • Belo Horizonte — MG</span>
-      <span>Atendimento: terça a sábado, 09h às 18h</span>
+      <span>Atendimento: segunda a sábado, 09h às 19h, com intervalo das 12h às 13h</span>
     </div>
   </footer>
 
   <a class="whatsapp-float" href="https://wa.me/5531995184110" target="_blank" rel="noopener" aria-label="Falar com a BC Estética pelo WhatsApp">WhatsApp</a>
+  <script type="module" src="home-agenda.js"></script>
   <script src="script.js"></script>
 <script>
 (function(){

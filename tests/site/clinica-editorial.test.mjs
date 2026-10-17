@@ -27,7 +27,7 @@ test('A Clinica preserves official identity and location facts', () => {
   assert.match(html, />2025</);
   assert.match(html, /Rua Gávea, 358/);
   assert.match(html, /Nova Suissa/);
-  assert.match(html, /Terça a sábado, 09h às 18h/);
+  assert.match(html, /Segunda a sábado, 09h às 19h, com intervalo das 12h às 13h/);
   assert.match(html, /Menos achismo\. Mais ciência\./);
 });
 
