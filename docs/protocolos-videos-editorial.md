@@ -1,21 +1,29 @@
-# Protocolos: organização e série de vídeos
+# Protocolos: vídeos em sequência e catálogo compacto
 
-A página reúne os 30 serviços em sete grupos por objetivo e quatro cartões específicos. As variações continuam nos detalhes expansíveis, com os endereços de âncora anteriores preservados. Agrupar serviços não significa que as técnicas sejam equivalentes.
+Atualização de 17/10/2026 autorizada pelo usuário após revisão do estado publicado.
 
-Série definida com o cliente: até sete vídeos, cada um com no máximo 30 segundos, narração em português e legendas. Publicar apenas vídeos concluídos, com reprodução voluntária e `preload="none"`.
+## Experiência
 
-1. Botox — concluído e incorporado. As variações terço superior, full face e Nefertiti ficam no mesmo grupo.
-2. Preenchimento com ácido hialurônico — volumes, contorno e naturalidade.
-3. Bioestimulador de colágeno — estímulo gradual, sem mostrar resultado imediato.
-4. Ultrassom microfocado — tecnologia voltada à firmeza, mecanismo distinto do bioestimulador.
-5. Peeling — renovação da pele, sem repetir Black Peel em vídeo separado.
-6. Microagulhamento — renovação e textura, mecanismo distinto do peeling.
-7. Fort Hair — cuidado capilar individualizado; não prometer crescimento ou resultados garantidos.
+Um player, com seleção por miniaturas e botões Anterior/Próximo. Reprodução iniciada pelo visitante; avanço no evento ended até o fim da lista. Mantém a preferência de áudio e volume. Pausa ao sair da área visível ou colocar o aplicativo em segundo plano. Os controles explicam um eventual bloqueio de reprodução do navegador.
 
-Os seis novos vídeos ainda precisam ser produzidos. Não mostrar controles de reprodução para conteúdos indisponíveis. Ao acrescentá-los, manter a área de mídia compacta, permitir um vídeo por vez e evitar sete players grandes empilhados.
+Somente vídeos existentes entram na sequência. Sem JavaScript, o primeiro usa controles nativos e cada miniatura abre diretamente seu MP4. Não há posters simulando vídeos ainda inexistentes.
 
-Critério editorial: demanda geral, clareza visual, diversidade de técnicas e identidade BC. A ISAPS Global Survey 2025 destaca toxina botulínica, ácido hialurônico e tratamentos não cirúrgicos de firmeza; isso não constitui um ranking de procura da BC. Os demais temas são escolhas editoriais para apresentar o catálogo.
+## Sequência disponível
 
-Fonte consultada em 14/10/2026: https://www.isaps.org/discover/about-isaps/global-statistics/global-survey-2025-full-report-and-press-releases/
+1. Toxina Botulínica — vídeo de Botox já publicado.
+2. Bioestimulador — arquivo de 30 segundos com áudio fornecido pelo usuário, reenviado em 16/10.
+3. Black Peel — versão científica narrada completa, aproximadamente 80 segundos.
+4. Despigmentação de tatuagem — versão científica narrada completa, aproximadamente 88 segundos.
+5. Microagulhamento — edição cinematográfica anterior, aproximadamente 22 segundos.
 
-Miniaturas: recortes de imagens BC já existentes, imagem Fort Hair previamente aprovada, frame do vídeo de remoção a laser e novas ilustrações fotográficas de preenchimento, plasma, estrias e vasinhos. A página identifica imagens e vídeo como ilustrativos.
+As versões científicas longas foram preservadas. Não produzir novos vídeos nem cortar narração para cumprir a antiga proposta de 30 segundos. Permanecem no máximo sete destaques principais; atualmente há cinco.
+
+## Catálogo
+
+As dez famílias e as oito Assinaturas BC preservam o portfólio. No celular, o catálogo mostra dois cartões por linha, imagens pequenas e descrição curta. Saiba mais expande as opções; o grupo aberto ganha a largura da grade. Imagens abaixo da primeira dobra usam versões pequenas e lazy loading.
+
+Os agrupamentos não tornam os tratamentos clinicamente equivalentes. Descrições, âncoras, conteúdo semântico, avaliação e agendamento foram preservados.
+
+## Validação
+
+Testes de estado cobrem avanço, fim da lista, seleção, preservação do áudio, pausa voluntária, bloqueio do navegador, falha de mídia, rejeição de reprodução obsoleta e integração dos controles. Verificar também existência e decodificação dos MP4s e integração contínua antes de publicar.

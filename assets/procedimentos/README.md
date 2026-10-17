@@ -14,9 +14,13 @@ Pasta principal das imagens e mídias dos cards de procedimentos.
 
 Vídeos e posters aprovados usados pela vitrine da página de Protocolos ficam **diretamente em `assets/procedimentos/`**, sem criar subpastas extras só para `videos` ou `posters`.
 
-Exemplo aprovado atual:
+Mídias aprovadas atuais:
 - `botox.mp4` — vídeo final de Toxina Botulínica
 - `botox.webp` — poster WebP correspondente
+- `bioestimulador.mp4` / `bioestimulador.webp` — versão de 30 s com o áudio fornecido pelo usuário
+- `black-peel.mp4` / `black-peel.webp` — versão científica narrada completa
+- `despigmentacao.mp4` / `despigmentacao.webp` — versão científica narrada completa
+- `microagulhamento.mp4` / `microagulhamento.webp` — edição cinematográfica anterior
 
 Para novas mídias, prefira o mesmo padrão simples de nomes: `<tema>.mp4` e `<tema>.webp`, sempre em minúsculas, sem acentos e com hífens quando necessário.
 
@@ -28,11 +32,10 @@ Exemplos:
 - `bc-harmonizacao-facial.webp`
 - `bc-sculpt-cryo-abdomen.webp`
 
-## Política de mídia da Protocolos 2.0
+## Política de mídia
 
-Cada tema visual usa `data-video-state` no HTML público:
+A faixa de seleção exibe somente arquivos disponíveis, identificados por `data-video-state="ready"`. Cada miniatura é um link direto para o MP4, utilizável sem JavaScript. Vídeos ainda sem arquivo final permanecem fora da faixa; os tratamentos continuam no catálogo.
 
-- `pending` — o MP4 final ainda não foi aprovado ou não está presente no repositório. O card mostra apenas poster/imagem existente e nunca aponta para um arquivo de vídeo inexistente.
-- `ready` — o arquivo final aprovado já existe no repositório. O `<video>` deve usar `muted`, `playsinline`, `preload="none"` e `<source data-src="...">` para carregamento progressivo.
+O player é único, com `controls`, `playsinline` e `preload="none"`. O primeiro vídeo aguarda reprodução voluntária. Ao terminar, ele avança para o próximo preservando volume e preferência de som; ao final da lista, para. Se o navegador bloquear a continuidade, informa que é preciso tocar em reproduzir. Rolagem para fora da área do player e aplicativo em segundo plano pausam o vídeo.
 
-Um card só pode mudar de `pending` para `ready` depois de confirmar que o arquivo referenciado existe no repositório e corresponde à mídia aprovada para aquele tema. Não reutilizar outro vídeo apenas para preencher espaço.
+Não baixar toda a lista antecipadamente. Os MP4s H.264/AAC usam fast start. As versões científicas longas preservam a narração completa, sem corte para 30 segundos. Os posters novos são extraídos do próprio vídeo; imagens do catálogo continuam ilustrativas.
