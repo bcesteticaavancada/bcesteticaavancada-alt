@@ -47,8 +47,8 @@ test('sucesso mantém resumo da reserva e ação manual de WhatsApp', async () =
 test('assets da agenda são relativos e compatíveis com o subpath do GitHub Pages', async () => {
   const html = await read(agendaHtmlUrl);
   assert.match(html, /href=["']\.\.\/styles\.css["']/i);
-  assert.match(html, /href=["']\.\/agenda\.css["']/i);
-  assert.match(html, /src=["']\.\/js\/main\.js["']/i);
+  assert.match(html, /href=["']\.\/agenda\.css(?:\?[^"']*)?["']/i);
+  assert.match(html, /src=["']\.\/js\/main\.js(?:\?[^"']*)?["']/i);
   assert.doesNotMatch(html, /(?:href|src)=["']\/(?!\/)/i);
 });
 
