@@ -25,6 +25,18 @@ Deno.test('catálogo HTTP retorna somente id, nome e duração', async () => {
   equal(await response.json(),{procedures:[{id:procedureId,name:'Teste',durationMinutes:30}]});
   equal(response.headers.get('Cache-Control'),'no-store');
 });
+Deno.test('overview HTTP consulta um mês e retorna somente disponibilidade diária', async () => {
+  const calls: unknown[]=[];
+  const handler=createPublicAgendaHandler(()=>({rpc:async(name: string,args?: Record<string,unknown>)=>{
+    calls.push([name,args]);
+    return {data:[{date:'2027-10-01',available:true,patient_name:'NUNCA',professional_user_id:'NUNCA',reason:'NUNCA'}],error:null};
+  }}));
+  const response=await handler(request({action:'overview',month:'2027-10'}));
+  equal(response.status,200);
+  equal(await response.json(),{month:'2027-10',days:[{date:'2027-10-01',available:true,state:'available'}]});
+  equal(calls,[['bc_public_agenda_overview',{p_month:'2027-10-01'}]]);
+  equal(response.headers.get('Cache-Control'),'no-store');
+});
 for(const [code,status] of [['23P01',409],['53300',429],['22023',422],['XX000',500]] as const) {
   Deno.test(`reserva HTTP traduz erro ${code} sem expor conteúdo interno`,async()=>{
     Deno.env.set('PUBLIC_AGENDA_RATE_LIMIT_SALT','fictitious-ci-salt-0000000000');

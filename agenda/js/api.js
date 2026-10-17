@@ -41,6 +41,9 @@ export function createPublicAgendaApi({ endpoint = PUBLIC_AGENDA_FUNCTION_URL, f
     async getCatalog() {
       return post({ action: 'catalog' });
     },
+    async getOverview({ month }) {
+      return post({ action: 'overview', month });
+    },
     async getProfessionals(procedureId) {
       return post({ action: 'professionals', procedureId });
     },

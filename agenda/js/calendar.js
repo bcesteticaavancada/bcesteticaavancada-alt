@@ -1,19 +1,31 @@
 const CLINIC_TIME_ZONE = 'America/Sao_Paulo';
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export function clinicToday() {
+export function clinicToday(instant = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: CLINIC_TIME_ZONE,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).formatToParts(new Date());
+  }).formatToParts(instant);
   const map = Object.fromEntries(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
   return `${map.year}-${map.month}-${map.day}`;
 }
 
 export function currentClinicMonth() {
   return clinicToday().slice(0, 7);
+}
+
+export function shiftMonth(month, offset) {
+  const { year, monthNumber } = parseMonth(month);
+  if (!Number.isInteger(offset)) throw new Error('Deslocamento de mês inválido.');
+  const index = year * 12 + monthNumber - 1 + offset;
+  return `${Math.floor(index / 12)}-${String(((index % 12) + 12) % 12 + 1).padStart(2, '0')}`;
+}
+
+export function publicMonthBounds(today = clinicToday()) {
+  const min = today.slice(0, 7);
+  return { min, max: shiftMonth(min, 12) };
 }
 
 function parseMonth(month) {
@@ -41,29 +53,26 @@ export function buildMonthCells(month, days = [], today = clinicToday()) {
     const date = `${month}-${String(day).padStart(2, '0')}`;
     const isPast = date < today;
     const available = availability.get(date) === true && !isPast;
-    cells.push({ date, day, available, disabled: !available, isPast });
+    cells.push({ date, day, available, disabled: !available, isPast, isToday: date === today });
   }
-  while (cells.length % 7 !== 0) cells.push(null);
+  while (cells.length < 42) cells.push(null);
   return cells;
 }
 
-export function renderPublicCalendar({ root, month, days = [], selectedDate = null, onSelect = () => {} }) {
+export function renderPublicCalendar({ root, month, days = [], selectedDate = null, today = clinicToday(), busy = false, onSelect = () => {} }) {
   if (!root) return;
-  const cells = buildMonthCells(month, days);
+  const cells = buildMonthCells(month, busy ? [] : days, today);
   root.innerHTML = `
-    <div class="agenda-calendar__heading">
-      <strong>${monthLabel(month)}</strong>
-      <span>Somente horários disponíveis neste mês</span>
-    </div>
     <div class="agenda-calendar__weekdays" aria-hidden="true">
       ${WEEKDAYS.map((day) => `<span>${day}</span>`).join('')}
     </div>
-    <div class="agenda-calendar__grid" role="grid" aria-label="Calendário de ${monthLabel(month)}">
+    <div class="agenda-calendar__grid" role="group" aria-label="Calendário de ${monthLabel(month)}">
       ${cells.map((cell) => {
         if (!cell) return '<span class="agenda-calendar__blank" aria-hidden="true"></span>';
         const state = cell.available ? 'available' : 'disabled';
         const selected = cell.date === selectedDate;
-        return `<button type="button" class="agenda-calendar__day is-${state}${selected ? ' is-selected' : ''}" data-date="${cell.date}" ${cell.disabled ? 'disabled' : ''} aria-pressed="${selected ? 'true' : 'false'}"><span>${cell.day}</span><small>${cell.available ? 'Livre' : cell.isPast ? 'Passou' : 'Indisponível'}</small></button>`;
+        const label = `${cell.day} de ${monthLabel(month)}, ${cell.available ? 'horários livres' : cell.isPast ? 'data passada' : 'sem horários'}`;
+        return `<button type="button" class="agenda-calendar__day is-${state}${selected ? ' is-selected' : ''}${cell.isToday ? ' is-today' : ''}" data-date="${cell.date}" ${cell.disabled ? 'disabled' : ''} ${cell.isToday ? 'aria-current="date"' : ''} aria-label="${label}" aria-pressed="${selected ? 'true' : 'false'}"><span>${cell.day}</span><i aria-hidden="true"></i></button>`;
       }).join('')}
     </div>`;
 

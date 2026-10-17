@@ -2,6 +2,7 @@ import { validatePublicAgendaPayload } from './domain.js';
 
 export type PublicAgendaAction =
   | { action: 'catalog' }
+  | { action: 'overview'; month: string }
   | { action: 'professionals'; procedureId: string }
   | { action: 'month'; procedureId: string; professionalId: string; month: string }
   | { action: 'slots'; procedureId: string; professionalId: string; date: string }
