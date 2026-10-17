@@ -64,7 +64,7 @@ select ok((select pg_temp.overview_available(day+7) from calendar_clock),'Janela
 select is(public.bc_public_agenda_slots(pg_temp.f('worker'),pg_temp.f('procedure'),(select day+7 from calendar_clock))->0->>'time','09:15','Slots e overview usam a mesma grade de quinze minutos');
 select ok(not exists(select 1 from calendar_clock cross join lateral jsonb_array_elements(public.bc_public_agenda_overview(next_month)) d
   cross join lateral jsonb_object_keys(d) k where k not in ('date','available')),'RPC overview permite somente data e booleano');
-select unlike(public.bc_public_agenda_overview((select next_month from calendar_clock))::text,'%PRIVATE%','Overview não retorna nomes, bloqueios nem motivos');
+select ok(public.bc_public_agenda_overview((select next_month from calendar_clock))::text not like '%PRIVATE%','Overview não retorna nomes, bloqueios nem motivos');
 select ok((select bool_and((d->>'available')::boolean=(jsonb_array_length(public.bc_public_agenda_slots(pg_temp.f('worker'),pg_temp.f('procedure'),(d->>'date')::date))>0))
   from calendar_clock cross join lateral jsonb_array_elements(public.bc_public_agenda_overview(next_month)) d),'Overview coincide com slots reais de cada dia no cenário de uma profissional');
 
