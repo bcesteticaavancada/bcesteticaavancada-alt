@@ -1,6 +1,6 @@
 import { BC_WHATSAPP_NUMBER } from '../../assets/js/bc-public-config.js';
-import { createPublicAgendaApi, PublicAgendaError } from './api.js';
-import { clinicToday, monthLabel, publicMonthBounds, renderPublicCalendar, shiftMonth } from './calendar.js';
+import { createPublicAgendaApi } from './api.js?v=20261017-monthly';
+import { clinicToday, monthLabel, publicMonthBounds, renderPublicCalendar, shiftMonth } from './calendar.js?v=20261017-monthly';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
 const formatDate = date => /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date.split('-').reverse().join('/') : '';
@@ -248,7 +248,7 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
       announce('Agendamento confirmado. Seu horário já está reservado.', 'ok');
       openWhatsApp(whatsappUrl);
     } catch (error) {
-      if (error instanceof PublicAgendaError && error.status === 409) await loadProfessionals();
+      if (error?.status === 409) await loadProfessionals();
       announce(message(error), 'error');
     } finally { state.submitting = false; renderCalendar(); }
   });

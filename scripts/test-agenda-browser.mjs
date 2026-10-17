@@ -8,7 +8,15 @@ const base = process.cwd();
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml' };
 const server = createServer(async (req, res) => {
   try {
-    const route = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    const requested = new URL(req.url, 'http://localhost');
+    const route = decodeURIComponent(requested.pathname);
+    // Simulate a CDN/browser retaining the old unversioned release assets.
+    if (['/agenda/js/main.js', '/agenda/js/api.js', '/agenda/js/calendar.js', '/agenda/agenda.css'].includes(route) && !requested.search) {
+      res.setHeader('Content-Type', route.endsWith('.css') ? 'text/css' : 'text/javascript');
+      res.setHeader('Cache-Control', 'public, max-age=600');
+      res.end(route.endsWith('.css') ? '/* Legacy stylesheet */' : 'throw new Error("Legacy cached agenda module requested");');
+      return;
+    }
     const file = path.resolve(base, `.${route.endsWith('/') ? route + 'index.html' : route}`);
     if (!file.startsWith(base + path.sep)) { res.writeHead(403).end(); return; }
     res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
