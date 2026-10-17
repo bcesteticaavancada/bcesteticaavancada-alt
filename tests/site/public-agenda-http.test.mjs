@@ -78,6 +78,51 @@ test('HTTP catálogo e disponibilidade removem identidade e informações intern
   }
 });
 
+test('HTTP overview usa uma consulta e entrega apenas dia, disponibilidade e estado', async () => {
+  const { handler, calls } = await handlerFor(async () => ({ data: [
+    { date:'2027-10-01', available:true, professionalId:'PRIVATE', patient_name:'PRIVATE', reason:'PRIVATE' },
+    { date:'2027-10-02', available:false, internal_note:'PRIVATE' },
+  ], error:null }));
+  const response = await handler(request({ action:'overview', month:'2027-10', professionalId:'PRIVATE' }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { month:'2027-10', days:[
+    { date:'2027-10-01', available:true, state:'available' },
+    { date:'2027-10-02', available:false, state:'unavailable' },
+  ] });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], 'bc_public_agenda_overview');
+  assert.equal(JSON.stringify(calls[0][1]), JSON.stringify({ p_month:'2027-10-01' }));
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+});
+
+test('HTTP overview traduz rejeição de horizonte sem expor detalhes do banco', async () => {
+  const { handler, calls } = await handlerFor(async () => ({ data:null, error:{ code:'22023', message:'PRIVATE invalid month' } }));
+  const response = await handler(request({ action:'overview', month:'2027-11' }));
+  assert.equal(response.status, 422);
+  assert.equal(calls.length, 1);
+  assert.doesNotMatch(await response.text(), /PRIVATE|invalid month/);
+});
+
+test('HTTP reserva futura preserva o dia local e o contrato existente', async () => {
+  const { handler, calls } = await handlerFor(async (name) => ({ data:
+    name === 'bc_public_agenda_catalog' ? [{ id:procedureId, name:'Procedimento CI', duration:30 }]
+    : name === 'bc_public_agenda_professionals' ? [{ id:professionalId, name:'Profissional CI' }]
+    : { appointment_id:'future-reservation' }, error:null }));
+  const response = await handler(request({ ...booking, date:'2027-10-16' }));
+  assert.equal(response.status, 201);
+  assert.equal((await response.json()).booking.date, '2027-10-16');
+  assert.equal(calls.find(([name]) => name === 'bc_public_agenda_book')[1].p_inicio, '2027-10-16T17:30:00.000Z');
+});
+
+test('HTTP não reserva profissional fora das permissões públicas do procedimento', async () => {
+  const { handler, calls } = await handlerFor(async (name) => ({ data:
+    name === 'bc_public_agenda_catalog' ? [{ id:procedureId, name:'Procedimento CI', duration:30 }] : [], error:null }));
+  const response = await handler(request({ ...booking, date:'2027-10-16' }));
+  assert.equal(response.status, 422);
+  assert.equal(calls.some(([name]) => name === 'bc_public_agenda_book'), false);
+  assert.doesNotMatch(await response.text(), /booking|appointment_id/);
+});
+
 test('HTTP confirma reserva com DTO mínimo e hash da origem, sem IP bruto', async () => {
   const { handler, calls } = await handlerFor(async (name) => ({ data:
     name === 'bc_public_agenda_catalog' ? [{ id: procedureId, name: 'Procedimento CI', duration: 30 }]

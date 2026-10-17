@@ -15,8 +15,10 @@ on:
       - 'gestao/**'
       - 'supabase/**'
       - 'tests/site/**'
+      - 'scripts/test-agenda-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/site-ci.yml'
   pull_request:
     branches: [main]
@@ -29,8 +31,10 @@ on:
       - 'gestao/**'
       - 'supabase/**'
       - 'tests/site/**'
+      - 'scripts/test-agenda-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/site-ci.yml'
 
 jobs:
@@ -44,12 +48,24 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Install test dependencies
+        run: npm ci
       - name: Existing pre-anamnese tests
         run: npm run test:frontend
       - name: Site regression tests
         run: npm run test:site
       - name: BC Gestão tests
         run: npm run test:gestao
+      - name: Install browser test engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Agenda mobile, tablet and desktop browser tests
+        run: node scripts/test-agenda-browser.mjs
+      - name: Upload agenda browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agenda-browser-screenshots
+          path: test-results/agenda/
       - name: Public Agenda Edge Function check
         run: deno check --node-modules-dir=auto supabase/functions/public-agenda/index.ts
       - name: Public Agenda HTTP boundary tests

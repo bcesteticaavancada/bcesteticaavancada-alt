@@ -24,6 +24,15 @@ test('ação desconhecida é rejeitada', () => {
   assert.throws(() => validatePublicAgendaPayload({ action:'delete_all' }), /ação inválida/i);
 });
 
+test('overview aceita somente mês civil e elimina identidades e filtros internos', () => {
+  assert.deepEqual(sanitizePublicAgendaPayload({ action:'overview', month:'2027-10',
+    procedureId:'PRIVATE', professionalId:'PRIVATE', patient_name:'PRIVATE', internal_note:'PRIVATE' }),
+  { action:'overview', month:'2027-10' });
+  for (const month of [undefined, '2027-13', '2027-1', '2027-10-01']) {
+    assert.throws(() => validatePublicAgendaPayload({ action:'overview', month }), /mês inválido/i);
+  }
+});
+
 test('month e date precisam de formato civil estrito', () => {
   assert.throws(() => validatePublicAgendaPayload({ action:'month', procedureId:'11111111-1111-4111-8111-111111111111', professionalId:'22222222-2222-4222-8222-222222222222', month:'20/10/2026' }), /mês inválido/i);
   assert.throws(() => validatePublicAgendaPayload({ action:'slots', procedureId:'11111111-1111-4111-8111-111111111111', professionalId:'22222222-2222-4222-8222-222222222222', date:'31-10-2026' }), /data inválida/i);

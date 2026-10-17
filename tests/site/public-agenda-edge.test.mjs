@@ -26,6 +26,7 @@ test('handler chama somente os RPCs públicos mínimos da agenda', async () => {
   for (const rpc of [
     'bc_public_agenda_catalog',
     'bc_public_agenda_professionals',
+    'bc_public_agenda_overview',
     'bc_public_agenda_month',
     'bc_public_agenda_slots',
     'bc_public_agenda_book',

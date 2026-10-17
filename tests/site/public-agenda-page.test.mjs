@@ -26,16 +26,6 @@ test('agenda pública expõe somente os dados mínimos do fluxo de reserva', asy
   assert.doesNotMatch(html, /Data de nascimento|Nascimento/i);
 });
 
-test('calendário público fica preso ao mês civil atual e oferece WhatsApp para outro mês', async () => {
-  const [html, calendar] = await Promise.all([read(agendaHtmlUrl), read(calendarUrl)]);
-  assert.doesNotMatch(html, /Próximo mês|Avançar mês|data-next-month/i);
-  assert.doesNotMatch(calendar, /nextMonth|addMonth|monthOffset/i);
-  assert.match(html, /outro mês|mês futuro/i);
-  assert.match(html, /data-future-whatsapp/i);
-  assert.match(calendar, /available/i);
-  assert.match(calendar, /disabled/i);
-});
-
 test('cancelamento e remarcação são orientados para contato com a BC', async () => {
   const html = await read(agendaHtmlUrl);
   assert.match(html, /cancelar|cancelamento/i);
@@ -80,20 +70,6 @@ test('API pública usa POST único, trata conflitos e nunca envia Bearer privile
   assert.match(api, /429/);
   assert.match(api, /5\d\d|>=\s*500|status\s*>?=\s*500/i);
   assert.doesNotMatch(api, /Authorization\s*[:=].*Bearer/i);
-});
-
-test('máquina de estados limpa escolhas dependentes e bloqueia duplo submit', async () => {
-  const main = await read(mainUrl);
-  assert.match(main, /initPublicAgenda/);
-  assert.match(main, /procedure/i);
-  assert.match(main, /professional/i);
-  assert.match(main, /date/i);
-  assert.match(main, /slot|time/i);
-  assert.match(main, /name/i);
-  assert.match(main, /phone|whatsapp/i);
-  assert.match(main, /disabled\s*=\s*true|setAttribute\(['"]disabled/i);
-  assert.match(main, /selectedProfessional\s*=\s*null|professionalId\s*=\s*['"]{0,2}|reset.*professional/i);
-  assert.match(main, /selectedDate\s*=\s*null|date\s*=\s*['"]{0,2}|reset.*date/i);
 });
 
 test('WhatsApp só é aberto depois da confirmação 2xx do booking', async () => {

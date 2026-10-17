@@ -23,7 +23,8 @@ update public.procedimentos set duracao_padrao=null where id=pg_temp.f('procedur
 select ok(not public.bc_public_agenda_catalog() @> jsonb_build_array(jsonb_build_object('id',pg_temp.f('procedure'))),'Procedimento sem duração não é oferecido');
 update public.procedimentos set duracao_padrao=30 where id=pg_temp.f('procedure');
 select ok(jsonb_array_length(public.bc_public_agenda_slots(pg_temp.f('worker'),pg_temp.f('procedure'),(select day from test_clock)))>0,'Disponibilidade explícita produz horários');
-select throws_ok(format('select public.bc_public_agenda_month(%L,%L,%L)',pg_temp.f('worker'),pg_temp.f('procedure'),(date_trunc('month',now() at time zone 'America/Sao_Paulo')+interval '1 month')::date),'22023','Data fora do mês disponível.','Site recusa mês futuro');
+select throws_ok(format('select public.bc_public_agenda_month(%L,%L,%L)',pg_temp.f('worker'),pg_temp.f('procedure'),(date_trunc('month',now() at time zone 'America/Sao_Paulo')-interval '1 month')::date),'22023','Data fora do mês disponível.','Site recusa mês passado');
+select throws_ok(format('select public.bc_public_agenda_month(%L,%L,%L)',pg_temp.f('worker'),pg_temp.f('procedure'),(date_trunc('month',now() at time zone 'America/Sao_Paulo')+interval '13 months')::date),'22023','Data fora do mês disponível.','Site recusa mês além de doze meses');
 select is(jsonb_array_length(public.bc_public_agenda_month(pg_temp.f('worker'),pg_temp.f('procedure'),date_trunc('month',now() at time zone 'America/Sao_Paulo')::date)),extract(day from date_trunc('month',now() at time zone 'America/Sao_Paulo')+interval '1 month - 1 day')::integer,'Calendário contém mês civil inteiro');
 
 set local role service_role;

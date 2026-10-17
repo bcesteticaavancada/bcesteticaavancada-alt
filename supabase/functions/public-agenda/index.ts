@@ -188,10 +188,14 @@ async function executeAction(admin: SupabaseAdmin, req: Request, payload: Public
     case 'professionals': {
       return { status: 200, body: { professionals: await professionals(admin, payload.procedureId) } };
     }
+    case 'overview':
     case 'month': {
-      const rows = safeArray(await rpc(admin, 'bc_public_agenda_month', {
-        p_professional_user_id: payload.professionalId,
-        p_procedimento_id: payload.procedureId,
+      const rows = safeArray(await rpc(admin,
+        payload.action === 'overview' ? 'bc_public_agenda_overview' : 'bc_public_agenda_month', {
+        ...(payload.action === 'month' ? {
+          p_professional_user_id: payload.professionalId,
+          p_procedimento_id: payload.procedureId,
+        } : {}),
         p_month: `${payload.month}-01`,
       }));
       return {
