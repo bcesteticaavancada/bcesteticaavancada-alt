@@ -15,3 +15,11 @@ test('timeout aborts public transport with an explicit uncertain outcome and all
  const api=createPublicAgendaApi({timeoutMs:1,fetchImpl:async(_url,{body,signal})=>{calls.push(JSON.parse(body));await new Promise((_,reject)=>{cancel=()=>reject(new DOMException('Aborted','AbortError'));signal.addEventListener('abort',cancel,{once:true});});}});
  await assert.rejects(()=>api.book(payload),/mesmos dados|mesma reserva/i);assert.equal(calls.length,1);
 });
+
+test('page reload retains the retry key in session storage without storing patient fields',async()=>{
+ const saved=new Map();const storage={getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v)};const keys=[];
+ const fetchImpl=async(_url,options)=>{keys.push(JSON.parse(options.body).requestKey);throw Error('rede');};
+ await assert.rejects(()=>createPublicAgendaApi({storage,fetchImpl}).book(payload));
+ await assert.rejects(()=>createPublicAgendaApi({storage,fetchImpl}).book(payload));
+ assert.equal(keys[0],keys[1]);const raw=[...saved.values()].join('');assert.doesNotMatch(raw,/Pessoa fictícia|5531900000000/);
+});

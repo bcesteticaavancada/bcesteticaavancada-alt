@@ -8,6 +8,8 @@ select is(jsonb_array_length(public.bc_agenda_eligible_procedures(pg_temp.f('wor
 reset role;
 update public.staff_profiles set procedure_scope='explicit' where user_id=pg_temp.f('worker');
 set local role authenticated;
+select is(public.bc_procedure_get(pg_temp.f('procedure'))->>'can_execute','false','Ficha do catálogo mostra a mesma recusa de execução');
+select is(public.bc_procedure_list()->0->>'can_execute','false','Listagem clínica não oferece procedimento geral ao escopo explícito');
 select is(jsonb_array_length(public.bc_agenda_eligible_procedures(pg_temp.f('worker'))),0,'Escopo explícito não herda procedimento geral');
 select throws_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock)),'42501','Profissional não autorizada para este procedimento.','Agenda interna recusa procedimento não autorizado');
 reset role;
@@ -22,9 +24,9 @@ update public.procedure_professional_permissions set allowed=false,revoked_at=no
 set local role authenticated;
 select lives_ok(format('select public.bc_set_agendamento_status(%L,%L)',pg_temp.f('appointment'),'cancelado'),'Revogação permite cancelar reserva existente');
 reset role;
-insert into storage.objects(bucket_id,name,metadata) values('bc-prontuario-private','orfao/teste.pdf','{"mimetype":"application/pdf"}');
+insert into storage.objects(bucket_id,name,metadata) values('bc-prontuario-private','orfao/teste.pdf','{"mimetype":"application/pdf"}'),('bc-prontuario-private','assinaturas/orfao.png','{"mimetype":"image/png"}'),('bc-prontuario-private','documentos/orfao.pdf','{"mimetype":"application/pdf"}');
 set local role authenticated;
-select is((select count(*)::integer from storage.objects where name='orfao/teste.pdf'),0,'Equipe não lê objeto sem contexto clínico');
+select is((select count(*)::integer from storage.objects where name in ('orfao/teste.pdf','assinaturas/orfao.png','documentos/orfao.pdf')),0,'Equipe não lê objeto sem contexto clínico');
 reset role;
 insert into storage.objects(bucket_id,name,metadata) values('bc-prontuario-private','identificacao/ci/teste.png','{"mimetype":"image/png"}');
 insert into public.cliente_identificacao_fotos(cliente_id,storage_path,mime_type,tamanho_bytes,atual,created_by)
@@ -32,6 +34,18 @@ values(pg_temp.f('client'),'identificacao/ci/teste.png','image/png',10,true,pg_t
 set local role authenticated;
 select is((select count(*)::integer from storage.objects where name='identificacao/ci/teste.png'),1,'Foto no prontuário mantém leitura clínica compartilhada');
 reset role;
+insert into public.bc_pre_anamneses(id,public_code,patient_name,patient_phone,procedure,answers,consents,source_version,submission_token,submission_hash,pdf_path,pdf_sha256,pdf_size_bytes)
+values('a2000000-0000-4000-8000-000000000002','BC-CI-VOID','Fictícia','31900000000','Teste','{}','{}','ci','ci-void-token',repeat('a',64),'pre-anamneses/ci/anulada.pdf',repeat('b',64),100);
+insert into storage.objects(bucket_id,name,metadata) values('bc-prontuario-private','pre-anamneses/ci/anulada.pdf','{"mimetype":"application/pdf"}');
+select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
+set local role authenticated;
+select lives_ok(format('select public.bc_pre_anamnese_link(%L,%L)','a2000000-0000-4000-8000-000000000002',pg_temp.f('client')),'Admin vincula documento fictício');
+reset role;
+update public.client_files set voided_at=now(),voided_by=pg_temp.f('admin'),void_reason='Teste fictício' where storage_path='pre-anamneses/ci/anulada.pdf';
+set local role authenticated;
+select is((select count(*)::integer from storage.objects where name='pre-anamneses/ci/anulada.pdf'),0,'Nem admin abre anexo anulado pela policy de recepção');
+reset role;
+select set_config('request.jwt.claim.sub',pg_temp.f('worker')::text,true);
 update public.staff_profiles set active=false where user_id=pg_temp.f('worker');
 set local role authenticated;
 select is((select count(*)::integer from storage.objects where name='identificacao/ci/teste.png'),0,'Conta desativada perde acesso ao arquivo');

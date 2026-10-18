@@ -251,10 +251,10 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
       announce('Agendamento confirmado. Seu horário já está reservado.', 'ok');
       openWhatsApp(whatsappUrl);
     } catch (error) {
-      state.uncertain=!error?.status;
+      state.uncertain=!error?.status || error.status>=500;
       if (error?.status === 409) await loadProfessionals();
       announce(message(error), 'error');
-    } finally { state.submitting = false; renderCalendar(); }
+    } finally { state.submitting = false; renderCalendar(); showRecovery(); }
   });
   let refreshInFlight=null;
   function refreshAvailability(){
@@ -280,6 +280,22 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
   const timer=view?.setInterval(triggerRefresh,60000);timer?.unref?.();
   const stop=()=>{view?.clearInterval(timer);root.removeEventListener('visibilitychange',triggerRefresh);for(const event of ['focus','pageshow','online'])view?.removeEventListener(event,triggerRefresh);};
   view?.addEventListener('pagehide',event=>{if(!event.persisted)stop();});
+  const recovery=root.createElement('div');recovery.className='agenda-empty';recovery.hidden=true;
+  const recoverButton=root.createElement('button');recoverButton.type='button';recoverButton.className='agenda-text-button';recoverButton.textContent='Recuperar tentativa anterior';
+  const recoveryStatus=root.createElement('p');recoveryStatus.setAttribute('role','status');recovery.append(recoveryStatus,recoverButton);calendarRoot.before(recovery);
+  function showRecovery(){recovery.hidden=!api.hasPendingBooking?.();if(!recovery.hidden)recoveryStatus.textContent='Uma tentativa anterior aguarda confirmação. Você pode recuperá-la mesmo se o horário já estiver ocupado.';}
+  recoverButton.addEventListener('click',async()=>{
+    recoverButton.disabled=true;
+    try {
+      const {booking}=await api.recoverPending();state.selectedDate=booking.date;
+      find('[data-selected-date]').textContent=`Reserva recuperada • ${formatDate(booking.date)}`;showPanel();
+      const text=`Olá, BC Estética! Recuperei minha reserva: ${booking.procedureName}, ${booking.professionalName}, ${formatDate(booking.date)} às ${booking.time}.`;
+      showSuccess(booking,{name:'Reserva recuperada',date:booking.date,time:booking.time},{},`https://wa.me/${BC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`);
+      state.uncertain=false;recovery.hidden=true;announce('Reserva recuperada. Nenhum novo agendamento foi criado.','ok');
+    }catch(error){recoveryStatus.textContent=message(error);}
+    finally{recoverButton.disabled=false;}
+  });
+  showRecovery();
   const ready = Promise.all([loadMonth(), loadCatalog()]);
   return { state, ready, loadCatalog, loadMonth, loadProfessionals,refreshAvailability,stop };
 }

@@ -27,12 +27,14 @@ export function createPublicAgendaApi({ endpoint = PUBLIC_AGENDA_FUNCTION_URL, f
   let lastRequest=null;
   const keyName='bc.publicBooking.retry.v1';
   try {storage ||= globalThis.window?.sessionStorage;} catch { /* Memory fallback. */ }
+  function readPending(){if(!lastRequest)try{lastRequest=JSON.parse(storage?.getItem(keyName)||'null');}catch{lastRequest=null;}return lastRequest;}
+  function persist(){try{storage?.setItem(keyName,JSON.stringify(lastRequest));}catch{ /* Page memory remains usable. */ }}
   async function requestKey(payload) {
     const bytes=new TextEncoder().encode(JSON.stringify(payload));
     const fingerprint=Array.from(new Uint8Array(await cryptoImpl.subtle.digest('SHA-256',bytes))).map(x=>x.toString(16).padStart(2,'0')).join('');
     if(!lastRequest)try{lastRequest=JSON.parse(storage?.getItem(keyName)||'null');}catch{lastRequest=null;}
-    if(lastRequest?.fingerprint!==fingerprint || lastRequest.expiresAt<=Date.now() || !/^[a-f0-9-]{36}$/i.test(lastRequest?.key||'')) {
-      lastRequest={fingerprint,key:cryptoImpl.randomUUID(),expiresAt:Date.now()+30*60*1000};
+    if(lastRequest?.fingerprint!==fingerprint || !/^[a-f0-9-]{36}$/i.test(lastRequest?.key||'')) {
+      lastRequest={fingerprint,key:cryptoImpl.randomUUID()};
       try{storage?.setItem(keyName,JSON.stringify(lastRequest));}catch{ /* Page memory keeps retry usable. */ }
     }
     return lastRequest.key;
@@ -58,6 +60,13 @@ export function createPublicAgendaApi({ endpoint = PUBLIC_AGENDA_FUNCTION_URL, f
   }
 
   return {
+    hasPendingBooking(){return readPending()?.pending===true;},
+    async recoverPending(){
+      const pending=readPending();if(!pending?.key)throw new PublicAgendaError('Nenhuma tentativa para recuperar.',404);
+      const result=await post({action:'recover',requestKey:pending.key});
+      if(!result?.booking?.id)throw new PublicAgendaError('A confirmação ainda não chegou. Verifique novamente em instantes.',0);
+      pending.pending=false;persist();return result;
+    },
     async getCatalog() {
       return post({ action: 'catalog' });
     },
@@ -75,7 +84,10 @@ export function createPublicAgendaApi({ endpoint = PUBLIC_AGENDA_FUNCTION_URL, f
     },
     async book({ procedureId, professionalId, date, time, name, phone, website = '' }) {
       const payload={action:'book',procedureId,professionalId,date,time,name:name.trim().replace(/\s+/g,' '),phone:String(phone).replace(/\D/g,''),website};
-      return post({...payload,requestKey:await requestKey(payload)});
+      const key=await requestKey(payload);lastRequest.pending=true;persist();
+      try {const result=await post({...payload,requestKey:key});if(!result?.booking?.id)throw new PublicAgendaError('A confirmação não chegou. Recupere sua tentativa anterior.',0);lastRequest.pending=false;persist();return result;}
+      catch(error){if(error.status>0 && error.status<500){lastRequest.pending=false;persist();}throw error;}
+
     },
   };
 }

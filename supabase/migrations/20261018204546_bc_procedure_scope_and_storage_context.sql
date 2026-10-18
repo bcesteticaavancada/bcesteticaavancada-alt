@@ -75,3 +75,34 @@ grant execute on function private.bc_clinical_storage_context_read(text) to auth
 alter policy bc_prontuario_private_select on storage.objects using (
   bucket_id='bc-prontuario-private' and private.bc_clinical_storage_context_read(name)
 );
+
+
+drop policy if exists bc_prontuario_6b_staff_read on storage.objects;
+create or replace function private.bc_pre_anamnese_storage_read(p_path text)
+returns boolean language sql stable security definer set search_path='' as $$
+  select private.is_bc_active_staff() and exists(select 1 from public.bc_pre_anamneses r where r.pdf_path=p_path and (
+    (r.status='recebida' and private.is_bc_admin()) or
+    (r.status='vinculada' and exists(select 1 from public.client_files f where f.id=r.client_file_id and f.storage_path=p_path and f.voided_at is null))));
+$$;
+
+create or replace function private.bc_procedure_list_scoped_impl(p_include_archived boolean)
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare result jsonb;
+begin
+  select coalesce(jsonb_agg(item||jsonb_build_object('can_execute',private.bc_schedule_public_eligible(auth.uid(),(item->>'id')::uuid)) order by item->>'nome'),'[]'::jsonb)
+  into result from jsonb_array_elements(private.bc_procedure_list_impl(p_include_archived)) item;
+  return result;
+end; $$;
+create or replace function private.bc_procedure_get_scoped_impl(p_procedure_id uuid)
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare result jsonb;
+begin
+  result:=private.bc_procedure_get_impl(p_procedure_id);
+  return result||jsonb_build_object('can_execute',private.bc_schedule_public_eligible(auth.uid(),p_procedure_id));
+end; $$;
+create or replace function public.bc_procedure_list(p_include_archived boolean default false) returns jsonb
+language sql security invoker set search_path='' as $$ select private.bc_procedure_list_scoped_impl($1); $$;
+create or replace function public.bc_procedure_get(p_procedure_id uuid) returns jsonb
+language sql security invoker set search_path='' as $$ select private.bc_procedure_get_scoped_impl($1); $$;
+revoke all on function private.bc_procedure_list_scoped_impl(boolean),private.bc_procedure_get_scoped_impl(uuid) from public,anon;
+grant execute on function private.bc_procedure_list_scoped_impl(boolean),private.bc_procedure_get_scoped_impl(uuid) to authenticated;

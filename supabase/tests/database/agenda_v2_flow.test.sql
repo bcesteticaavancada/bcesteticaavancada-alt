@@ -76,6 +76,8 @@ update public.agendamentos set origem='encaixe' where id=pg_temp.f('internal');
 select is((select booking_channel from public.agendamentos where id=pg_temp.f('internal')),'internal','Origem encaixe legada permanece no canal interno');
 select is(public.bc_public_agenda_book('Outra Pessoa','31900000001',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('b',64))->>'error_code','23P01','Site também respeita ocupação');
 
+reset role;
+insert into public.procedure_professional_permissions(procedimento_id,professional_user_id,allowed,granted_by) values(pg_temp.f('procedure'),pg_temp.f('ordinary'),true,pg_temp.f('admin'));
 select set_config('request.jwt.claim.sub',pg_temp.f('ordinary')::text,true);
 set local role authenticated;
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'all')),0,'Comum não vê agenda alheia em Geral');
@@ -83,7 +85,7 @@ select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day'
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'internal')),0,'Comum não vê agenda alheia em Interna');
 select throws_ok(format('select public.bc_agendamento_update(%L,%L,%L)',pg_temp.f('internal'),pg_temp.f('procedure'),(select slot+interval '2 hours' from test_clock)),'42501','Acesso negado ao agendamento.','Comum não edita agenda alheia');
 select throws_ok(format('select public.bc_agendamento_link_cliente(%L,%L)',pg_temp.f('site'),pg_temp.f('client')),'42501','Acesso negado ao vínculo.','Comum não vincula reserva alheia');
-select lives_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('client'),pg_temp.f('ordinary'),pg_temp.f('procedure'),(select slot+interval '1 day' from test_clock)),'Comum cria encaixe próprio sem disponibilidade pública');
+select lives_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('client'),pg_temp.f('ordinary'),pg_temp.f('procedure'),(select slot+interval '1 day' from test_clock)),'Comum habilitada cria encaixe próprio sem disponibilidade pública');
 select is(jsonb_array_length(public.bc_agenda_list((select slot-interval '1 day' from test_clock),(select slot+interval '2 days' from test_clock),'internal')),1,'Filtro da comum continua restrito a si');
 reset role;
 select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);

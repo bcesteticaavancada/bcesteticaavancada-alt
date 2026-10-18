@@ -27,3 +27,18 @@ test('cross-tab invalidation carries only a constant event and no record payload
  assert.equal(live.isMutationRpc('bc_treatment_complete_finalize'),true);
  assert.equal(live.isMutationRpc('bc_agenda_list'),false);
 });
+
+test('blocked BroadcastChannel cannot report a committed mutation as failed',()=>{
+ const {document,window}=environment();window.BroadcastChannel=class {constructor(){throw new Error('bloqueado');}};
+ assert.doesNotThrow(()=>live.notifyAppChange(window));
+ const controller=live.startLiveRefresh({root:document,view:window});controller.stop();
+});
+
+test('edits begun during fetch and blurred selects outside forms prevent applying the late result',async()=>{
+ const {document,window}=environment();const scope=document.getElementById('list');scope.innerHTML='<select><option value="">Escolha</option><option value="c1">Cliente</option></select><div id="result">Inicial</div>';
+ let release;const response=new Promise(r=>release=r);
+ const controller=live.startLiveRefresh({root:document,view:window,tasks:[{scope:()=>scope,async refresh({canApply}){await response;if(canApply())document.getElementById('result').textContent='Sobrescrito';}}]});
+ const pending=controller.refresh();document.querySelector('option[value="c1"]').selected=true;
+ document.querySelector('select').dispatchEvent(new window.Event('change',{bubbles:true}));release();await pending;
+ assert.equal(document.getElementById('result').textContent,'Inicial');controller.stop();
+});

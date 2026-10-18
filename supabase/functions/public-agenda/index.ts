@@ -225,6 +225,13 @@ async function executeAction(admin: SupabaseAdmin, req: Request, payload: Public
         },
       };
     }
+    case 'recover': {
+      const booking=safeObject(await rpc(admin,'bc_public_agenda_recover',{p_request_key:payload.requestKey,p_origin_hash:await buildOriginHash(req)}));
+      if(typeof booking.error_code==='string')throw {code:booking.error_code,message:String(booking.error||'')};
+      if(booking.not_found)return {status:404,body:{error:'A confirmação ainda não foi localizada. Verifique novamente em instantes ou fale com a BC.'}};
+      const local=localPartsAt(new Date(String(booking.start_at)).getTime());
+      return {status:200,body:{booking:{id:String(booking.appointment_id),procedureName:String(booking.procedure_name||''),professionalName:String(booking.professional_name||''),date:`${local.year}-${local.month}-${local.day}`,time:`${local.hour}:${local.minute}`}}};
+    }
     case 'book': {
       if(payload.requestKey) {
         const booking=safeObject(await rpc(admin,'bc_public_agenda_book_v2',{
