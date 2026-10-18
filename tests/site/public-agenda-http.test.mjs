@@ -170,3 +170,13 @@ test('HTTP não confirma reserva quando RPC devolve recusa persistida no DTO', a
     assert.doesNotMatch(body, /PRIVATE|appointment_id|"booking"/);
   }
 });
+
+test('HTTP recovery delegates key and identity to the atomic RPC and returns only confirmation',async()=>{
+ const key='a3000000-0000-4000-8000-000000000001';
+ const {handler,calls}=await handlerFor(async()=>({data:{appointment_id:'same',procedure_name:'Pele',professional_name:'Alice',internal_note:'PRIVATE'},error:null}));
+ const response=await handler(request({...booking,requestKey:key}));
+ assert.equal(response.status,201);assert.equal(calls.length,1);assert.equal(calls[0][0],'bc_public_agenda_book_v2');
+ assert.equal(calls[0][1].p_request_key,key);assert.equal((await response.json()).booking.id,'same');
+ const mismatch=await handlerFor(async()=>({data:null,error:{code:'23505',message:'request_key_mismatch PRIVATE'}}));
+ const denied=await mismatch.handler(request({...booking,requestKey:key}));assert.equal(denied.status,409);assert.doesNotMatch(await denied.text(),/PRIVATE/);
+});

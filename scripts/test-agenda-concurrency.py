@@ -81,4 +81,16 @@ if has_public_window:
     assert sum(result.get('error_code')=='53300' for result in results)==1,results
     assert sql("select count(*) from private.public_booking_rate_limits where origin_hash=repeat('z',64);")=='10'
     print('PASS concurrent rate limit: 11 attempts, 10 counted, 1 blocked, 1 reservation',flush=True)
-print(f'All {6 if has_public_window else 1} available concurrency scenarios passed. Disposable CI database only.')
+if has_public_window:
+    sql(f"delete from public.agendamentos where colaboradora_user_id='{WORKER}';")
+    def recover(_):
+        output=sql(f"begin; set local role service_role; select public.bc_public_agenda_book_v2('a3000000-0000-4000-8000-000000000099','Pessoa Corrida CI','31900000001','{WORKER}','{PROCEDURE}','{slot}',repeat('y',64)); commit;")
+        return next(json.loads(line) for line in output.splitlines() if line.startswith('{'))
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        confirmations=list(pool.map(recover,range(8)))
+    assert len({result.get('appointment_id') for result in confirmations})==1,confirmations
+    assert all(result.get('appointment_id') for result in confirmations),confirmations
+    assert sql(f"select count(*) from public.agendamentos where colaboradora_user_id='{WORKER}';")=='1'
+    assert sql("select count(*) from private.public_booking_rate_limits where origin_hash=repeat('y',64);")=='1'
+    print('PASS concurrent recovery: 8 confirmations, 1 reservation, 1 counted attempt',flush=True)
+print(f'All {7 if has_public_window else 1} available concurrency scenarios passed. Disposable CI database only.')

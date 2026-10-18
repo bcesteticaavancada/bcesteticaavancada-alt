@@ -89,6 +89,7 @@ export function sanitizePublicAgendaPayload(raw) {
     name: normalizeName(input.name),
     phone: normalizePhone(input.phone),
     website: '',
+    ...(input.requestKey != null ? {requestKey:requiredUuid(input.requestKey,'Tentativa')} : {}),
   };
 }
 

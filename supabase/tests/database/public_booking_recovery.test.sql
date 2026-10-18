@@ -1,0 +1,23 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+\ir ../fixtures/agenda.psql
+select ok(not has_function_privilege('anon','public.bc_public_agenda_book_v2(uuid,text,text,uuid,uuid,timestamptz,text)','EXECUTE'),'Público não contorna a Edge para reservar');
+select ok(not has_table_privilege('authenticated','private.public_booking_requests','SELECT'),'Confirmações não têm leitura direta');
+set local role service_role;
+insert into fixture values('booking',(public.bc_public_agenda_book_v2('a3000000-0000-4000-8000-000000000001','Pessoa fictícia','31900000000',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('a',64))->>'appointment_id')::uuid);
+select is((public.bc_public_agenda_book_v2('a3000000-0000-4000-8000-000000000001','Pessoa fictícia','31900000000',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('b',64))->>'appointment_id')::uuid,pg_temp.f('booking'),'Resposta perdida é recuperada sem duplicar mesmo com mudança de rede');
+select throws_ok(format('select public.bc_public_agenda_book_v2(%L,%L,%L,%L,%L,%L,%L)','a3000000-0000-4000-8000-000000000001','Outra pessoa','31900000000',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('a',64)),'23505','request_key_mismatch','Chave não aceita outro payload');
+reset role;
+select is((select count(*)::integer from public.agendamentos where id=pg_temp.f('booking')),1,'Existe somente uma reserva');
+select is((select count(*)::integer from private.public_booking_rate_limits where origin_hash=repeat('a',64)),1,'Recuperação não consome outra tentativa de reserva');
+update public.procedimentos set ativo=false where id=pg_temp.f('procedure');
+set local role service_role;
+select is(public.bc_public_agenda_book_v2('a3000000-0000-4000-8000-000000000001','Pessoa fictícia','31900000000',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('a',64))->>'procedure_name','Procedimento fictício CI','Confirmação mantém snapshot mesmo após desativação do catálogo');
+reset role;
+update public.agendamentos set status='cancelado' where id=pg_temp.f('booking');
+set local role service_role;
+select throws_ok(format('select public.bc_public_agenda_book_v2(%L,%L,%L,%L,%L,%L,%L)','a3000000-0000-4000-8000-000000000001','Pessoa fictícia','31900000000',pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock),repeat('a',64)),'55000','request_booking_changed','Reserva cancelada não aparece como ativa na recuperação');
+reset role;
+select * from finish();
+rollback;

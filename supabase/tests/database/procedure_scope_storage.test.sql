@@ -1,0 +1,40 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+\ir ../fixtures/agenda.psql
+select set_config('request.jwt.claim.sub',pg_temp.f('worker')::text,true);
+set local role authenticated;
+select is(jsonb_array_length(public.bc_agenda_eligible_procedures(pg_temp.f('worker'))),1,'Lista interna usa matriz autorizada');
+reset role;
+update public.staff_profiles set procedure_scope='explicit' where user_id=pg_temp.f('worker');
+set local role authenticated;
+select is(jsonb_array_length(public.bc_agenda_eligible_procedures(pg_temp.f('worker'))),0,'Escopo explícito não herda procedimento geral');
+select throws_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock)),'42501','Profissional não autorizada para este procedimento.','Agenda interna recusa procedimento não autorizado');
+reset role;
+select is(private.bc_schedule_public_eligible(pg_temp.f('worker'),pg_temp.f('procedure')),false,'Site também recusa procedimento não autorizado');
+select is(private.bc_treatment_can_execute_version(pg_temp.f('version'),pg_temp.f('worker')),false,'Clínica usa a mesma matriz');
+insert into public.procedure_professional_permissions(procedimento_id,professional_user_id,allowed,granted_by)
+values(pg_temp.f('procedure'),pg_temp.f('worker'),true,pg_temp.f('admin'));
+set local role authenticated;
+insert into fixture values('appointment',public.bc_agendamento_create(pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock)));
+reset role;
+update public.procedure_professional_permissions set allowed=false,revoked_at=now() where professional_user_id=pg_temp.f('worker');
+set local role authenticated;
+select lives_ok(format('select public.bc_set_agendamento_status(%L,%L)',pg_temp.f('appointment'),'cancelado'),'Revogação permite cancelar reserva existente');
+reset role;
+insert into storage.objects(bucket_id,name,metadata) values('bc-prontuario-private','orfao/teste.pdf','{"mimetype":"application/pdf"}');
+set local role authenticated;
+select is((select count(*)::integer from storage.objects where name='orfao/teste.pdf'),0,'Equipe não lê objeto sem contexto clínico');
+reset role;
+insert into storage.objects(bucket_id,name,metadata) values('bc-prontuario-private','identificacao/ci/teste.png','{"mimetype":"image/png"}');
+insert into public.cliente_identificacao_fotos(cliente_id,storage_path,mime_type,tamanho_bytes,atual,created_by)
+values(pg_temp.f('client'),'identificacao/ci/teste.png','image/png',10,true,pg_temp.f('worker'));
+set local role authenticated;
+select is((select count(*)::integer from storage.objects where name='identificacao/ci/teste.png'),1,'Foto no prontuário mantém leitura clínica compartilhada');
+reset role;
+update public.staff_profiles set active=false where user_id=pg_temp.f('worker');
+set local role authenticated;
+select is((select count(*)::integer from storage.objects where name='identificacao/ci/teste.png'),0,'Conta desativada perde acesso ao arquivo');
+reset role;
+select * from finish();
+rollback;

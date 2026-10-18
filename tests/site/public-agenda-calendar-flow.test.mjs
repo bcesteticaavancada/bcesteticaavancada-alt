@@ -153,3 +153,10 @@ test('a failed initial catalog stays recoverable when a day is opened later', as
   assert.equal(f.find('[data-procedure]').disabled, false);
   assert.equal(f.find('[data-details-retry]').hidden, true);
 });
+
+test('background availability preserves contact fields and selected slot until it becomes occupied',async()=>{
+ const f=fixture();await f.chooseSlot();f.find('[name="name"]').value='Pessoa fictícia';
+ await f.app.refreshAvailability();assert.equal(f.app.state.selectedSlot,'18:00');assert.equal(f.find('[name="name"]').value,'Pessoa fictícia');
+ f.api.getSlots=async()=>({slots:['09:00']});await f.app.refreshAvailability();
+ assert.equal(f.app.state.selectedSlot,null);assert.equal(f.find('[data-submit]').disabled,true);assert.equal(f.find('[name="name"]').value,'Pessoa fictícia');f.app.stop();
+});
