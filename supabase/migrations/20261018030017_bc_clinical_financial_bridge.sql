@@ -133,3 +133,13 @@ create or replace function public.bc_treatment_resolve_appointment(p_treatment_i
 language sql security invoker set search_path='' as $$ select private.bc_treatment_resolve_appointment_impl($1,$2,$3); $$;
 revoke all on function private.bc_treatment_appointment_options_impl(uuid),private.bc_treatment_resolve_appointment_impl(uuid,uuid,timestamptz),public.bc_treatment_appointment_options(uuid),public.bc_treatment_resolve_appointment(uuid,uuid,timestamptz) from public,anon;
 grant execute on function private.bc_treatment_appointment_options_impl(uuid),private.bc_treatment_resolve_appointment_impl(uuid,uuid,timestamptz),public.bc_treatment_appointment_options(uuid),public.bc_treatment_resolve_appointment(uuid,uuid,timestamptz) to authenticated;
+
+-- A leitura clínica continua compartilhada; somente a autora recebe ações de vínculo.
+create or replace function public.bc_treatment_get(p_treatment_id uuid) returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare result jsonb;
+begin
+  result:=private.bc_treatment_get_impl(p_treatment_id);
+  return result||jsonb_build_object('can_resolve_appointment',
+    private.is_bc_active_staff() and result->>'profissional_user_id'=auth.uid()::text);
+end; $$;

@@ -45,6 +45,11 @@ export function buildSubmissionSuccessView(result, patientName = '') {
   };
 }
 
+export function restoreFinalizeAction(successPanel, button) {
+  const actions=successPanel?.querySelector('.actions');
+  if(actions && button) { actions.replaceChildren(button); button.disabled=false; }
+}
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -341,7 +346,7 @@ function initializePreAnamnese() {
   restart.addEventListener('click', () => {
     state = resetPreAnamnese(storage); form.reset(); signaturePad?.clear(); submissionSucceeded = false;
     successPanel?.querySelector('.submission-code')?.remove();
-    const actions=successPanel?.querySelector('.actions');if(actions)actions.innerHTML='';
+    restoreFinalizeAction(successPanel,finalizeButton);
     if (submitStatus) submitStatus.textContent = '';
     renderStep();
   });

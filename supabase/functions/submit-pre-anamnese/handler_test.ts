@@ -44,7 +44,7 @@ Deno.test('gerações concorrentes publicam uma versão imutável do PDF e mant�
   assertEquals(paths[0],paths[1]);
   assertEquals(objects.size,1);
   const bytes=objects.get(saved.pdf_path)!;
-  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(bytes).buffer))).map(x=>x.toString(16).padStart(2,'0')).join('');
   assertEquals(saved.pdf_sha256,hash);
   assertEquals(saved.pdf_path.endsWith(`ficha-${hash}.pdf`),true);
 });

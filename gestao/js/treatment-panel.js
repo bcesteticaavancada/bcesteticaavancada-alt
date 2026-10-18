@@ -171,6 +171,7 @@ function renderFinalSignature(treatment = {}, signatures = []) {
 
 function renderAppointmentResolution(treatment,options) {
   if(treatment.agendamento_id) return '';
+  if(treatment.can_resolve_appointment !== true) return '<p class="bcg-muted">Ficha anterior à integração. O vínculo com a agenda deve ser revisado pela profissional responsável.</p>';
   return `<section class="bcg-treatment-stage"><h4>Vincular sessão à agenda</h4><p>Esta ficha foi aberta antes da integração com a agenda. Confira o agendamento correspondente ou reserve o horário real desta sessão em ${escapeHtml(treatment.treatment_date || '')}.</p><form class="bcg-form" data-treatment-appointment-form><label>Agendamento existente<select class="bcg-input" name="appointment_id"><option value="">Reservar o horário real abaixo</option>${options.map(a=>`<option value="${escapeHtml(a.id)}">${escapeHtml(new Date(a.inicio).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}))}</option>`).join('')}</select></label><label>Horário real na data da sessão<input class="bcg-input" type="time" name="session_time"></label><button class="bcg-small-button" type="submit">Confirmar vínculo com a agenda</button><p class="bcg-status" data-treatment-status></p></form></section>`;
 }
 
@@ -297,7 +298,7 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     if (activeTreatment.pending_document_id) {
       finalSignatures = await listClinicalSignatures({ client, documentId:activeTreatment.pending_document_id });
     }
-    const appointmentOptions = activeTreatment.agendamento_id ? [] : await listTreatmentAppointmentOptions({client,treatmentId:id});
+    const appointmentOptions = activeTreatment.agendamento_id || activeTreatment.can_resolve_appointment !== true ? [] : await listTreatmentAppointmentOptions({client,treatmentId:id});
     const pendingExternalConsent = externalConsent ? null : (folder()?.__bcPendingExternalConsent || null);
     workspace().innerHTML = renderTreatmentWizard({ step:'clinical', appointmentOptions, treatment:activeTreatment, report, consent, consentSignatures, finalSignatures, clientRecord:clientRecord(), externalConsent, pendingExternalConsent });
     mountPads();

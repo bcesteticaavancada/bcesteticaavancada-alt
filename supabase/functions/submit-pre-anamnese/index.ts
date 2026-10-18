@@ -73,7 +73,7 @@ async function signedPdfUrl(supabase: any, pdfPath: string, downloadFilename: st
   return { pdfUrl: data.signedUrl, pdfExpiresAt: new Date(Date.now() + PDF_TTL_SECONDS * 1000).toISOString() };
 }
 
-export async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array, generate = generatePreAnamnesePdf, logo = fetchLogo) {
+export async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array, generate = generatePreAnamnesePdf, logo = fetchLogo): Promise<string> {
   const paths = storagePaths(row.public_code, row.created_at);
   const logoBytes = await logo();
   const pdfBytes = await generate({
@@ -100,11 +100,11 @@ export async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8
     .update({ pdf_path: pdfPath, pdf_sha256: hash, pdf_size_bytes: pdfBytes.byteLength })
     .eq('id', row.id).is('pdf_path', null).select('pdf_path').maybeSingle();
   if (updateError) throw updateError;
-  if (updated?.pdf_path) return updated.pdf_path;
+  if (updated?.pdf_path) return String(updated.pdf_path);
   const {data: winner, error: lookupError} = await supabase.from(TABLE).select('pdf_path').eq('id', row.id).single();
   if (lookupError || !winner?.pdf_path) throw lookupError || new Error('PDF ainda em preparação.');
   if (winner.pdf_path !== pdfPath) await supabase.storage.from(BUCKET).remove([pdfPath]);
-  return winner.pdf_path;
+  return String(winner.pdf_path);
 }
 
 async function completeExisting(supabase: any, row: any) {

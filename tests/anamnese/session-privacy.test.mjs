@@ -1,3 +1,6 @@
+import {parseHTML} from 'linkedom';
+import {readFileSync} from 'node:fs';
+import {restoreFinalizeAction} from '../../agendamento/js/main.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as state from '../../agendamento/js/state.js';
@@ -27,4 +30,16 @@ test('blocked browser storage leaves the form usable in memory',()=>{
   const storage=state.prepareSessionStorage(view);
   state.saveDraft(storage,{step:2,values:{nome:'Fictícia'}});
   assert.equal(state.loadDraft(storage).step,2);
+});
+
+test('new form restores the original finalization button with its listener after error or success',()=>{
+ for(const success of [false,true]){
+  const {document}=parseHTML(readFileSync(new URL('../../agendamento/index.html',import.meta.url),'utf8'));
+  const panel=document.querySelector('.success-panel'),button=document.getElementById('finalizeButton');
+  let called=0;button.addEventListener('click',()=>called++);
+  if(success) panel.querySelector('.actions').innerHTML='<button>Baixar PDF</button>';
+  restoreFinalizeAction(panel,button);
+  assert.equal(document.getElementById('finalizeButton'),button);assert.equal(button.isConnected,true);
+  button.click();assert.equal(called,1);assert.equal(button.disabled,false);
+ }
 });
