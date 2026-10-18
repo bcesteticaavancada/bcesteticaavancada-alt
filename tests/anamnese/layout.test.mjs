@@ -16,7 +16,7 @@ test('pre-anamnesis markup exposes exactly eight conceptual steps', async () => 
 test('pre-anamnesis markup loads modular CSS and JS', async () => {
   const html = await readFile(htmlUrl, 'utf8');
   assert.match(html, /href="\.\/anamnese\.css"/);
-  assert.match(html, /src="\.\/js\/main\.js"/);
+  assert.match(html, /src="\.\/js\/main\.js(?:\?v=[^"]+)?"/);
 });
 
 test('pre-anamnesis keeps branded hero, shell and progress landmarks', async () => {

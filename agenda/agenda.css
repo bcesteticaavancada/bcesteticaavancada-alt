@@ -1,5 +1,5 @@
 .agenda-page{--agenda-ink:#25231f;--agenda-muted:#78746c;--agenda-gold:#997743;--agenda-line:#e7e0d6;background:#f7f4ef;color:var(--agenda-ink)}
-.agenda-page.agenda-dialog-open{overflow:hidden}
+body.agenda-dialog-open{overflow:hidden}
 .agenda-public{max-width:1180px;margin:auto;padding:24px 12px 48px}
 .agenda-hero{padding:12px 8px 25px;text-align:center}
 .agenda-eyebrow,.agenda-step-label{margin:0 0 10px;font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--agenda-gold)}

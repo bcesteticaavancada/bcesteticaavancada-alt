@@ -20,6 +20,12 @@ export function mergeStateValues(state, values) {
   return { step: state?.step || 1, values: { ...values } };
 }
 
+export function scrollPreAnamneseIntoView(form, view = globalThis.window) {
+  const target = form?.closest?.('.shell') || form;
+  const reducedMotion = view?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  target?.scrollIntoView?.({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' });
+}
+
 export function maskCpfValue(value) {
   return formatCpf(value);
 }
@@ -187,7 +193,7 @@ function initializePreAnamnese() {
     formError.classList.toggle('show', messages.length > 0);
   }
 
-  function renderStep() {
+  function renderStep(scroll = true) {
     for (const section of steps) {
       section.classList.toggle('active', Number(section.dataset.step) === state.step);
     }
@@ -210,7 +216,7 @@ function initializePreAnamnese() {
     }
     renderConditionals();
     showErrors({});
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (scroll) scrollPreAnamneseIntoView(form);
   }
 
   function renderSubmissionSuccess(result) {
@@ -329,7 +335,7 @@ function initializePreAnamnese() {
     });
   });
 
-  renderStep();
+  renderStep(false);
 }
 
 if (typeof document !== 'undefined') {

@@ -6,7 +6,7 @@ const htmlUrl = new URL('../../index.html', import.meta.url);
 const cssUrl = new URL('../../styles.css', import.meta.url);
 const heroCssUrl = new URL('../../home-team-hero.css', import.meta.url);
 const scriptUrl = new URL('../../script.js', import.meta.url);
-const homeAgendaUrl = new URL('../../home-agenda.js', import.meta.url);
+const homeAgendaUrl = new URL('../../agenda/js/main.js', import.meta.url);
 
 async function homeHtml() {
   return readFile(htmlUrl, 'utf8');
@@ -44,7 +44,7 @@ test('home follows the approved glamorous editorial structure without becoming c
   const html = await homeHtml();
   const main = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] || '';
   assert.equal((html.match(/<h1\b/gi) || []).length, 1);
-  assert.equal((main.match(/<section\b/gi) || []).length, 4);
+  assert.equal((main.match(/class=["'][^"']*home-(?:hero|signature|treatments|closing)["']/gi) || []).length, 4);
   assert.match(main, /id=["']inicio["']/i);
   assert.match(main, /id=["']diferenciais["']/i);
   assert.match(main, /id=["']tratamentos["']/i);
@@ -111,35 +111,24 @@ test('booking CTAs use agenda while explicit pre-anamnese links stay clinical', 
   assert.match(html, /<nav[\s\S]*?href=["']agendamento\/["'][^>]*>Agendamento<\/a>/i);
 });
 
-test('home exposes compact Agenda BC Estética widget without private or occupied data', async () => {
+test('home exposes the full monthly calendar without private or occupied data', async () => {
   const html = await homeHtml();
-  assert.match(html, /data-home-agenda/i);
-  assert.match(html, /Agenda BC Estética/i);
-  assert.match(html, /data-home-agenda-start/i);
-  assert.match(html, /data-home-agenda-procedure/i);
-  assert.match(html, /data-home-agenda-professional/i);
-  assert.match(html, /data-home-agenda-results/i);
-  assert.match(html, /href=["']agenda\/["'][^>]*>Ver calendário completo/i);
-  assert.match(html, /data-home-agenda-future/i);
+  assert.match(html, /data-public-agenda/);
+  for (const control of ['data-calendar', 'data-month-next', 'data-month-prev', 'data-procedure', 'data-professional', 'data-slots']) assert.ok(html.includes(control), control);
+  assert.doesNotMatch(html, /data-home-agenda-start/);
   assert.doesNotMatch(html, /horário ocupado|cliente:|paciente:|nome da cliente/i);
   assert.doesNotMatch(html, /data-client|data-patient/i);
 });
 
-test('home agenda widget only reads public availability after user interaction', async () => {
-  const js = await readFile(homeAgendaUrl, 'utf8');
+test('home reuses the public calendar controller and explicit booking confirmation', async () => {
+  const [html, js] = await Promise.all([homeHtml(), readFile(homeAgendaUrl, 'utf8')]);
+  assert.match(html, /src="agenda\/js\/main\.js\?v=/);
   assert.match(js, /createPublicAgendaApi/);
-  assert.match(js, /currentClinicMonth/);
-  assert.match(js, /data-home-agenda-start/);
-  assert.match(js, /addEventListener\(['"]click['"]/i);
-  assert.match(js, /getCatalog\s*\(/);
+  assert.match(js, /getOverview\s*\(/);
   assert.match(js, /getProfessionals\s*\(/);
-  assert.match(js, /getMonth\s*\(/);
   assert.match(js, /getSlots\s*\(/);
-  const clickIndex = js.search(/addEventListener\(['"]click['"]/i);
-  const catalogIndex = js.search(/getCatalog\s*\(/);
-  assert.ok(clickIndex >= 0 && catalogIndex > clickIndex, 'catálogo deve carregar somente após interação');
-  assert.doesNotMatch(js, /cliente|paciente|occupied|ocupad[oa]/i);
-  assert.doesNotMatch(js, /\.book\s*\(/i);
+  assert.match(js, /form\.addEventListener\(['"]submit['"]/);
+  assert.doesNotMatch(js, /service_role|secret_key/i);
 });
 
 test('home preserves menu, WhatsApp, official address and GPS', async () => {
@@ -161,7 +150,7 @@ test('home preserves menu, WhatsApp, official address and GPS', async () => {
   assert.match(heroCss, /\.site-header\s*\{[^}]*z-index:\s*220/is);
   assert.match(heroCss, /\.whatsapp-float\s*\{[^}]*z-index:\s*210/is);
   assert.match(html, /<script\s+src=["']script\.js["']><\/script>/i);
-  assert.match(html, /<script\s+type=["']module["']\s+src=["']home-agenda\.js["']><\/script>/i);
+  assert.match(html, /<script\s+type=["']module["']\s+src=["']agenda\/js\/main\.js\?v=[^"']+["']><\/script>/i);
   assert.ok(script.includes('window.BCMenuReady=true'));
 });
 
