@@ -90,9 +90,13 @@ try {
         if (pagePath === '/agendamento/') {
           assert.equal(await page.locator('#preAnamneseForm .step').count(), 8);
           assert.equal(await page.locator('#step1').isVisible(), true);
-          await page.evaluate(() => localStorage.setItem('bc.preAnamnese.draft.v1', JSON.stringify({ step: 2, values: {} })));
+          await page.evaluate(() => {
+            localStorage.setItem('bc.preAnamnese.draft.v1', JSON.stringify({step:5,values:{nome:'Legado fictício'}}));
+            sessionStorage.setItem('bc.preAnamnese.draft.v1', JSON.stringify({ step: 2, values: {}, expiresAt:Date.now()+30*60*1000 }));
+          });
           await page.reload({ waitUntil: 'domcontentloaded' });
           await page.locator('#step2.active').waitFor();
+          assert.equal(await page.evaluate(()=>localStorage.getItem('bc.preAnamnese.draft.v1')),null);
           await page.locator('#back').click();
           await page.locator('#step1.active').waitFor();
           await page.waitForFunction(() => { const top = document.querySelector('.shell').getBoundingClientRect().top; return top >= 80 && top <= 150; });
