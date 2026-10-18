@@ -1,0 +1,45 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+\ir ../fixtures/agenda.psql
+
+select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
+set local role authenticated;
+insert into fixture values('basic',public.bc_cliente_create_v2('{"nome":"Pessoa Fictícia Básica","telefone":"(31) 90000-0001"}'));
+insert into fixture values('second',public.bc_cliente_create_v2('{"nome":"Outra Pessoa Fictícia","telefone":"31900000002","cpf":"","data_nascimento":""}'));
+select is((select cpf from public.clientes where id=pg_temp.f('basic')),null::text,'CPF ausente é NULL, permitindo mais de um cadastro básico');
+select is((select data_nascimento from public.clientes where id=pg_temp.f('basic')),null::date,'Nascimento pode ser preenchido depois');
+select is((select created_by from public.clientes where id=pg_temp.f('basic')),pg_temp.f('admin'),'Autoria continua derivada da sessão');
+select throws_ok($$select public.bc_cliente_create_v2('{"nome":" ","telefone":"31900000000"}')$$,'22023','Nome completo e telefone são obrigatórios.','Nome continua obrigatório');
+select throws_ok($$select public.bc_cliente_create_v2('{"nome":"Pessoa Fictícia","telefone":" "}')$$,'22023','Nome completo e telefone são obrigatórios.','Telefone continua obrigatório');
+select throws_ok($$select public.bc_cliente_create_v2('{"nome":"Pessoa Fictícia","telefone":"31900000000","cpf":"123"}')$$,'22023','CPF deve conter 11 dígitos.','CPF informado deve ser válido');
+select throws_ok($$select public.bc_cliente_create_v2('{"nome":"Pessoa Fictícia","telefone":"31900000000","cpf":"abc"}')$$,'22023','CPF deve conter 11 dígitos.','CPF não numérico não vira ausência silenciosa');
+select throws_ok($$select public.bc_cliente_create_v2('{"nome":"Pessoa Fictícia","telefone":"31900000000","data_nascimento":"abc"}')$$,'22023','Data de nascimento inválida.','Nascimento inválido não é salvo');
+select throws_ok(format('select public.bc_cliente_create_v2(%L::jsonb)',jsonb_build_object('nome','Pessoa Fictícia','telefone','31900000000','data_nascimento',current_date+1)),'22023','Data de nascimento não pode ser futura.','Nascimento futuro continua inválido');
+select lives_ok($$select public.bc_cliente_create_v2('{"nome":"Menor Fictícia","telefone":"31900000003","data_nascimento":"2015-01-01"}')$$,'Dados do responsável também podem ser completados na avaliação');
+select is((select count(*)::integer from public.bc_cliente_duplicate_candidates('',' pessoa fictícia básica ',null,'31900000001')),1,'Duplicidade identifica nome e telefone mesmo sem CPF ou nascimento');
+select is((select count(*)::integer from public.bc_cliente_duplicate_candidates('','Pessoa Fictícia Básica','1990-01-01','31900000001')),1,'Preencher nascimento não esconde cadastro básico já existente');
+select is((select count(*)::integer from public.bc_cliente_duplicate_candidates('','Pessoa Fictícia Básica',null,'31900000099')),0,'Telefone diferente não causa falso duplicado');
+
+select lives_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('basic'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock)),'Cliente básico pode ser agendado');
+select lives_ok(format('select public.bc_quick_visit_create(%L,%L,%L,%L,%L)',gen_random_uuid(),pg_temp.f('basic'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot+interval '1 hour' from test_clock)),'Cliente básico pode abrir encaixe com procedimento');
+select set_config('request.jwt.claim.sub',pg_temp.f('worker')::text,true);
+select lives_ok(format('select public.bc_treatment_create(%L,%L)',pg_temp.f('basic'),pg_temp.f('procedure')),'Profissional pode abrir atendimento clínico com cadastro básico');
+select lives_ok($$select public.bc_cliente_create_v2('{"nome":"Cadastro Colaboradora Fictício","telefone":"31900000004"}')$$,'Colaboradora também cria cliente somente com nome e telefone');
+select lives_ok(format('select public.bc_cliente_update_v2(%L,%L)',pg_temp.f('basic'),'{"email":"teste@example.invalid","cidade":"Belo Horizonte","cpf":"123.456.789-00"}'),'Complementos podem ser adicionados aos poucos');
+select lives_ok(format('select public.bc_cliente_update_v2(%L,%L)',pg_temp.f('basic'),'{"nome":"Pessoa Fictícia Atualizada","telefone":"31900000005"}'),'Editar nome e telefone não exige reenviar complementos');
+select is((select cpf from public.clientes where id=pg_temp.f('basic')),'12345678900','CPF já preenchido é preservado na edição parcial');
+select is((select email from public.clientes where id=pg_temp.f('basic')),'teste@example.invalid','E-mail já preenchido é preservado');
+select is((select cidade from public.clientes where id=pg_temp.f('basic')),'Belo Horizonte','Endereço já preenchido é preservado');
+select is((select count(*)::integer from public.bc_cliente_duplicate_candidates('12345678900','outro',null,'1')),1,'CPF informado continua identificando duplicado exato');
+select throws_ok($$select public.bc_cliente_create_v2('{"nome":"Duplicada Fictícia","telefone":"31900000006","cpf":"12345678900"}')$$,'23505','CPF já cadastrado na BC Estética.','Unicidade de CPF permanece');
+select lives_ok(format('select public.bc_cliente_update_v2(%L,%L)',pg_temp.f('basic'),'{"cpf":"","data_nascimento":""}'),'Complemento opcional pode ser explicitamente limpo');
+select is((select cpf from public.clientes where id=pg_temp.f('basic')),null::text,'CPF explicitamente vazio é removido');
+select throws_ok(format('select public.bc_cliente_update_v2(%L,%L)',pg_temp.f('basic'),'{"nome":""}'),'22023','Nome completo e telefone são obrigatórios.','Edição não permite apagar nome obrigatório');
+reset role;
+select set_config('request.jwt.claim.sub','',true);
+select throws_ok($$select private.bc_cliente_create_v2_impl('{"nome":"Sem sessão","telefone":"31900000000"}')$$,'42501','Acesso negado ao cadastro de clientes.','Cadastro continua protegido por sessão ativa');
+select ok(not has_function_privilege('anon','public.bc_cliente_create_v2(jsonb)','EXECUTE'),'Público não ganha acesso ao cadastro interno');
+select ok(not has_function_privilege('anon','public.bc_cliente_update_v2(uuid,jsonb)','EXECUTE'),'Público não ganha acesso à edição');
+select * from finish();
+rollback;

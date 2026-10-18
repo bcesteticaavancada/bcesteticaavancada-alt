@@ -149,7 +149,7 @@ export async function findPotentialDuplicates({ client, cpf, nome, dataNasciment
   const { data, error } = await client.rpc('bc_cliente_duplicate_candidates', {
     p_cpf: normalizeCpf(cpf),
     p_nome: required(nome, 'Nome'),
-    p_data_nascimento: required(dataNascimento, 'Data de nascimento'),
+    p_data_nascimento: optional(dataNascimento),
     p_telefone: String(telefone ?? '').replace(/\D/g, ''),
   });
   fail(error, 'Não foi possível verificar duplicidades.');

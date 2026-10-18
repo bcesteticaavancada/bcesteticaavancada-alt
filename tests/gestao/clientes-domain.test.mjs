@@ -18,6 +18,13 @@ const {
 
 const referenceDate = new Date(2026, 9, 12, 12);
 
+test('cadastro básico fica completo só com nome e telefone', () => {
+  assert.equal(clientProfileChecklist({ nome: 'Pessoa Fictícia', telefone: '31900000000' }).cadastroBasico, true);
+  assert.equal(clientProfileChecklist({ nome: ' ', telefone: '31900000000' }).cadastroBasico, false);
+  assert.equal(clientProfileChecklist({ nome: 'Pessoa Fictícia', telefone: ' ' }).cadastroBasico, false);
+  assert.equal(calculateAge(null, referenceDate), null);
+});
+
 test('normaliza e formata CPF sem alterar a identidade', () => {
   assert.equal(typeof normalizeCpf, 'function');
   assert.equal(typeof formatCpf, 'function');

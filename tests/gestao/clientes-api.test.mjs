@@ -149,6 +149,14 @@ test('findPotentialDuplicates usa RPC dedicado com identidade normalizada', asyn
   }]);
 });
 
+test('duplicidade pode ser verificada só com nome e telefone antes da avaliação', async () => {
+  const mock = makeClient({ rpcResult: { data: [], error: null } });
+  await clientesApi.findPotentialDuplicates({ client: mock.client, nome: ' Pessoa Fictícia ', telefone: '(31) 90000-0000' });
+  assert.deepEqual(mock.rpcCalls[0], ['bc_cliente_duplicate_candidates', {
+    p_cpf: '', p_nome: 'Pessoa Fictícia', p_data_nascimento: null, p_telefone: '31900000000',
+  }]);
+});
+
 test('listClientHistory retorna timeline completa por cliente do mais recente', async () => {
   const mock = makeClient();
   await listClientHistory({ client: mock.client, clienteId: 'c1' });
