@@ -10,3 +10,7 @@
 .page-booking>.agendamento-hero h2{font:600 clamp(44px,7vw,74px)/.95 Georgia,serif;margin:8px 0 18px;color:#fff;letter-spacing:-.02em}
 @media(min-width:600px){.agenda-embed{padding:34px 26px 28px}}
 @media(max-width:379px){.agenda-embed{width:calc(100% - 16px);padding-inline:6px}.page-booking>.agenda-embed{width:100%}}
+
+/* Clip decorative art without creating a scroll container above the sticky panel. */
+.home-editorial:has(>.agenda-embed){overflow:clip}
+.page-booking>.shell{scroll-margin-top:110px}

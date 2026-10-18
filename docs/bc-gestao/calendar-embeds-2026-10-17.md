@@ -9,3 +9,5 @@ As duas páginas reutilizam o HTML completo de `.agenda-workspace`, o mesmo `age
 Validação: teste de integração nas duas páginas cobre calendário completo, ausência de IDs duplicados, navegação mensal, seleção de data, procedimento e horários, sem reservar dados reais. O teste também exige que o HTML do calendário continue igual nas três páginas para evitar divergência entre cópias. A pré-anamnese mantém suas oito etapas e seu módulo original.
 
 A suíte de navegador existente foi ampliada para a inicial e Agendamento em telefone pequeno, tablet e desktop, nos motores Chromium e WebKit, com API e reservas inteiramente fictícias. A execução local não dispõe dos binários de navegador; a execução completa ocorre no Site CI antes da publicação.
+
+A revisão identificou e corrigiu a rolagem da pré-anamnese: Próximo/Voltar passam a manter a ficha visível, e a inicialização não força deslocamento para o formulário. A preferência por movimento reduzido é respeitada. Na home, o ancestral do painel usa overflow:clip para preservar o recorte sem capturar o sticky do desktop.

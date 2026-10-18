@@ -66,6 +66,9 @@ try {
         const panel = page.locator('[data-booking-panel]');
         assert.equal(await panel.isVisible(), true);
         if (width < 1100) assert.equal(await panel.evaluate(node => node.matches(':modal')), true);
+        if (device === 'home-desktop') {
+          assert.equal(await page.locator('.home-editorial').evaluate(node => getComputedStyle(node).overflow), 'clip');
+        }
         if (width >= 1100) {
           await page.setViewportSize({ width: 768, height: 1024 });
           await page.waitForFunction(() => document.querySelector('[data-booking-panel]').matches(':modal'));
@@ -87,6 +90,13 @@ try {
         if (pagePath === '/agendamento/') {
           assert.equal(await page.locator('#preAnamneseForm .step').count(), 8);
           assert.equal(await page.locator('#step1').isVisible(), true);
+          await page.evaluate(() => localStorage.setItem('bc.preAnamnese.draft.v1', JSON.stringify({ step: 2, values: {} })));
+          await page.reload({ waitUntil: 'domcontentloaded' });
+          await page.locator('#step2.active').waitFor();
+          await page.locator('#back').click();
+          await page.locator('#step1.active').waitFor();
+          await page.waitForFunction(() => { const top = document.querySelector('.shell').getBoundingClientRect().top; return top >= 80 && top <= 150; });
+          assert.equal(await page.locator('#stage').textContent(), 'Etapa 1 de 8');
         }
         assert.deepEqual(errors, [], `${engine}/${device}: runtime errors`);
         console.log(`PASS ${engine}/${device} ${width}x${height}: calendar, future month, native dialog, slots, confirmation, no overflow`);
