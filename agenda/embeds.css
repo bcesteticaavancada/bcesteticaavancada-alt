@@ -1,0 +1,12 @@
+/* The existing monthly calendar, embedded directly in the public pages. */
+.agenda-embed{width:min(1180px,calc(100% - 32px));margin:42px auto 56px;padding:28px 12px 24px;border:1px solid var(--agenda-line);border-radius:26px;scroll-margin-top:100px}
+.agenda-embed .agenda-hero{padding:0 8px 24px}
+.agenda-embed .agenda-hero :is(h1,h2){margin:0 0 14px;font:400 clamp(2.1rem,5vw,3.4rem)/1.1 Georgia,serif;color:var(--agenda-ink)}
+.agenda-embed .agenda-hero :is(h1,h2) em{color:var(--agenda-gold);font-weight:400}
+.agenda-embed .agenda-hero>p:last-child{max-width:580px}
+.agenda-embed .agenda-help{padding-inline:6px}
+.agenda-embed .agenda-workspace{min-width:0}
+.page-booking>.agenda-embed{width:100%;margin-top:30px;margin-bottom:34px}
+.page-booking>.agendamento-hero h2{font:600 clamp(44px,7vw,74px)/.95 Georgia,serif;margin:8px 0 18px;color:#fff;letter-spacing:-.02em}
+@media(min-width:600px){.agenda-embed{padding:34px 26px 28px}}
+@media(max-width:379px){.agenda-embed{width:calc(100% - 16px);padding-inline:6px}.page-booking>.agenda-embed{width:100%}}
