@@ -44,7 +44,7 @@ create table if not exists private.pre_anamnese_rate_limits (
 create index if not exists pre_anamnese_rate_origin_idx on private.pre_anamnese_rate_limits(origin_hash,attempted_at);
 revoke all on private.pre_anamnese_rate_limits from public,anon,authenticated;
 
-create or replace function public.bc_pre_anamnese_rate_limit(p_origin_hash text)
+create or replace function private.bc_pre_anamnese_rate_limit_impl(p_origin_hash text)
 returns boolean language plpgsql security definer set search_path='' as $$
 begin
   if p_origin_hash is null or length(p_origin_hash)<>64 then return false; end if;
@@ -54,10 +54,10 @@ begin
   delete from private.pre_anamnese_rate_limits where attempted_at<now()-interval '1 day';
   return true;
 end; $$;
-revoke all on function public.bc_pre_anamnese_rate_limit(text) from public,anon,authenticated;
-grant execute on function public.bc_pre_anamnese_rate_limit(text) to service_role;
+revoke all on function private.bc_pre_anamnese_rate_limit_impl(text) from public,anon,authenticated;
+grant execute on function private.bc_pre_anamnese_rate_limit_impl(text) to service_role;
 
-create or replace function public.bc_pre_anamnese_inbox(p_limit integer default 100)
+create or replace function private.bc_pre_anamnese_inbox_impl(p_limit integer default 100)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare result jsonb;
 begin
@@ -69,7 +69,7 @@ begin
   return result;
 end; $$;
 
-create or replace function public.bc_pre_anamnese_link(p_intake_id uuid,p_cliente_id uuid)
+create or replace function private.bc_pre_anamnese_link_impl(p_intake_id uuid,p_cliente_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare r public.bc_pre_anamneses%rowtype; file_id uuid; actor uuid:=auth.uid();
 begin
@@ -93,9 +93,9 @@ begin
   values(actor,'pre_anamnese_linked','bc_pre_anamneses',r.id,jsonb_build_object('cliente_id',p_cliente_id,'client_file_id',file_id));
   return jsonb_build_object('linked',true,'client_file_id',file_id);
 end; $$;
-revoke all on function public.bc_pre_anamnese_inbox(integer) from public,anon;
-revoke all on function public.bc_pre_anamnese_link(uuid,uuid) from public,anon;
-grant execute on function public.bc_pre_anamnese_inbox(integer),public.bc_pre_anamnese_link(uuid,uuid) to authenticated;
+revoke all on function private.bc_pre_anamnese_inbox_impl(integer) from public,anon;
+revoke all on function private.bc_pre_anamnese_link_impl(uuid,uuid) from public,anon;
+grant execute on function private.bc_pre_anamnese_inbox_impl(integer),public.bc_pre_anamnese_link(uuid,uuid) to authenticated;
 
 -- Leitura da recepção é administrativa; após vínculo, o PDF passa a integrar a pasta clínica.
 create or replace function private.bc_pre_anamnese_storage_read(p_path text)
@@ -110,3 +110,27 @@ using(bucket_id='bc-prontuario-private' and private.bc_pre_anamnese_storage_read
 
 -- Não permitir que a política ampla legada abra a recepção ainda não vinculada.
 alter policy bc_prontuario_private_select on storage.objects using (bucket_id='bc-prontuario-private' and private.is_bc_active_staff() and coalesce((storage.foldername(name))[1],'')<>'pre-anamneses');
+
+-- A tabela documental é RPC-only. Consultá-la diretamente dentro da policy
+-- faz qualquer SELECT do Storage falhar por falta de privilégio nessa tabela.
+create or replace function private.bc_client_file_storage_read(p_path text)
+returns boolean language sql stable security definer set search_path='' as $$
+  select private.is_bc_active_staff() and exists(select 1 from public.client_files f
+    where f.storage_path=p_path and f.voided_at is null);
+$$;
+revoke all on function private.bc_client_file_storage_read(text) from public,anon;
+grant execute on function private.bc_client_file_storage_read(text) to authenticated;
+alter policy bc_client_files_read on storage.objects using (
+  bucket_id='bc-prontuario-private' and private.bc_client_file_storage_read(name)
+);
+
+create or replace function public.bc_pre_anamnese_rate_limit(p_origin_hash text) returns boolean
+language sql security invoker set search_path='' as $$ select private.bc_pre_anamnese_rate_limit_impl($1); $$;
+create or replace function public.bc_pre_anamnese_inbox(p_limit integer default 100) returns jsonb
+language sql security invoker set search_path='' as $$ select private.bc_pre_anamnese_inbox_impl($1); $$;
+create or replace function public.bc_pre_anamnese_link(p_intake_id uuid,p_cliente_id uuid) returns jsonb
+language sql security invoker set search_path='' as $$ select private.bc_pre_anamnese_link_impl($1,$2); $$;
+revoke all on function public.bc_pre_anamnese_rate_limit(text) from public,anon,authenticated;
+grant execute on function public.bc_pre_anamnese_rate_limit(text) to service_role;
+revoke all on function public.bc_pre_anamnese_inbox(integer),public.bc_pre_anamnese_link(uuid,uuid) from public,anon;
+grant execute on function public.bc_pre_anamnese_inbox(integer),public.bc_pre_anamnese_link(uuid,uuid) to authenticated;
