@@ -1,4 +1,4 @@
-import { clearDraft } from './state.js';
+import { clearDraft, createInitialState } from './state.js';
 import { validateSubmission } from './validation.js';
 import { FORM_VERSION } from './config.js';
 import {
@@ -50,4 +50,10 @@ export async function finalizePreAnamnese({
   clearDraft(storage);
   clearSubmissionToken(storage);
   return result;
+}
+
+export function resetPreAnamnese(storage) {
+  clearDraft(storage);
+  clearSubmissionToken(storage);
+  return createInitialState();
 }

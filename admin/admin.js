@@ -169,4 +169,4 @@ async function boot() {
   await refreshSession();
 }
 
-if (typeof document !== 'undefined') boot();
+if (typeof document !== 'undefined') globalThis.location.replace('../gestao/login/');

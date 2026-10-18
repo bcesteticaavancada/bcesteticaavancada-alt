@@ -54,7 +54,7 @@ test('CPF is never persisted in the durable local draft', () => {
   });
 });
 
-test('loadDraft strips CPF from a legacy draft before returning state', () => {
+test('loadDraft erases a legacy draft without expiration', () => {
   const storage = memoryStorage({
     [DRAFT_KEY]: JSON.stringify({
       step: 2,
@@ -62,10 +62,8 @@ test('loadDraft strips CPF from a legacy draft before returning state', () => {
     }),
   });
 
-  assert.deepEqual(loadDraft(storage), {
-    step: 2,
-    values: { nome: 'Legado', whatsapp: '31999999999' },
-  });
+  assert.deepEqual(loadDraft(storage), createInitialState());
+  assert.equal(storage.getItem(DRAFT_KEY),null);
 });
 
 test('stripSensitiveDraftValues returns a copy without CPF', () => {

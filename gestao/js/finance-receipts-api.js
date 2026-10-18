@@ -48,6 +48,19 @@ export async function registerReceipt({
   return data;
 }
 
+export async function registerReceiptForAppointment({client,appointmentId,valor,formaPagamento,recebidoAt=null,observacao=null}) {
+  ensureClient(client);
+  const {data,error}=await client.rpc('bc_recebimento_registrar_agendamento',{
+    p_agendamento_id:cleanRequired(appointmentId,'Agendamento'),
+    p_valor:positiveMoney(valor),
+    p_forma_pagamento:cleanRequired(formaPagamento,'Forma de pagamento'),
+    p_recebido_at:recebidoAt?String(recebidoAt).trim():null,
+    p_observacao:cleanOptional(observacao),
+  });
+  throwIfError(error,'Não foi possível registrar o recebimento.');
+  return data;
+}
+
 export async function reverseReceipt({ client, recebimentoId, motivo }) {
   ensureClient(client);
   const { data, error } = await client.rpc('bc_recebimento_estornar', {

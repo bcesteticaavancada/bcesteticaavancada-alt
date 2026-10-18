@@ -23,6 +23,7 @@
       <nav class="bcg-menu-nav" aria-label="Navegação administrativa">
         <a data-nav data-area-target="agenda" aria-current="page" href="#agenda">Agenda</a>
         <a data-nav data-area-target="clientes" href="#clientes">Clientes</a>
+        <a data-nav data-area-target="pre-anamneses" href="#pre-anamneses">Pré-anamneses</a>
         <a data-nav data-area-target="financeiro" href="#financeiro">Financeiro</a>
         <p class="bcg-menu-group-label">Administração</p>
         <a data-nav data-area-target="procedimentos" href="#procedimentos">Procedimentos</a>
@@ -69,6 +70,8 @@
         </div>
         <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div>
       </section>
+
+      <section id="pre-anamneses" class="bcg-panel" data-area-panel hidden><div class="bcg-section-head"><div><p class="bcg-eyebrow">RECEPÇÃO PRIVADA</p><h2>Pré-anamneses recebidas</h2></div><button id="preAnamneseRefresh" class="bcg-small-button" type="button">Atualizar fichas</button></div><p class="bcg-muted">Revise o PDF e escolha o cadastro correto. O vínculo não substitui a avaliação profissional nem conclui a Anamnese Geral.</p><div id="preAnamneseInbox"></div></section>
 
       <section id="financeiro" class="bcg-panel" data-area-panel hidden>
         <div class="bcg-section-head">
@@ -133,9 +136,10 @@
     import { initAdminAudit } from '../js/admin-audit.js';
     import { initAdminFinance } from '../js/admin-finance.js';
     import { initAdminStaffClinicalIdentity } from '../js/admin-staff-profile.js';
+    import { initPreAnamneseInbox } from '../js/pre-anamnese-inbox.js';
     import '../js/shell.js';
     const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('admin',client);
-    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;try{const agenda=await initAdminAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});await initAdminStaffClinicalIdentity({client,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
+    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;try{const agenda=await initAdminAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});await initAdminStaffClinicalIdentity({client,root:document});await initPreAnamneseInbox({client,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
     logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
   </script>
 </body>
