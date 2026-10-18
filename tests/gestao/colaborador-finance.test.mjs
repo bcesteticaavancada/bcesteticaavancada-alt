@@ -27,7 +27,7 @@ test('registro de recebimento usa o atendimento atualmente aberto na agenda', as
   assert.match(html, /id=["']currentAppointmentReceiptForm["']/);
   assert.match(source, /getCurrentAppointment/);
   assert.match(source, /const\s+appointment\s*=\s*getCurrentAppointment\(\)/);
-  assert.match(source, /atendimentoId\s*:\s*appointment\.id/);
+  assert.match(source, /appointmentId\s*:\s*appointment\.id/);
   assert.doesNotMatch(source, /listOwnAttendances/);
 });
 

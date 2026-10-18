@@ -95,7 +95,7 @@ begin
 end; $$;
 revoke all on function private.bc_pre_anamnese_inbox_impl(integer) from public,anon;
 revoke all on function private.bc_pre_anamnese_link_impl(uuid,uuid) from public,anon;
-grant execute on function private.bc_pre_anamnese_inbox_impl(integer),public.bc_pre_anamnese_link(uuid,uuid) to authenticated;
+grant execute on function private.bc_pre_anamnese_inbox_impl(integer),private.bc_pre_anamnese_link_impl(uuid,uuid) to authenticated;
 
 -- Leitura da recepção é administrativa; após vínculo, o PDF passa a integrar a pasta clínica.
 create or replace function private.bc_pre_anamnese_storage_read(p_path text)

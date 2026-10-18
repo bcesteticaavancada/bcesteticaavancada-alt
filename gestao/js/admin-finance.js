@@ -151,6 +151,7 @@ export async function initAdminFinance({ client, profile, root = document, staff
     } catch (error) { setStatus(message, error?.message || 'Erro ao atualizar repasse.', 'error'); }
   });
 
+  root.addEventListener?.('bc:finance-changed',()=>refresh().catch(()=>{}));
   refreshButton?.addEventListener('click', refresh); professional.addEventListener('change', refresh); from.addEventListener('change', refresh); to.addEventListener('change', refresh);
   const procedures = await listActiveProcedures({ client });
   populateLookups(procedures);

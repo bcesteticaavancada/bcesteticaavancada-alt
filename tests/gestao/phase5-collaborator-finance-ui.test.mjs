@@ -31,7 +31,7 @@ test('collaborator finance registration derives the receipt target from the curr
   const js = await read(jsPath);
   assert.match(js, /getCurrentAppointment/);
   assert.match(js, /const\s+appointment\s*=\s*getCurrentAppointment\(\)/);
-  assert.match(js, /atendimentoId\s*:\s*appointment\.id/);
+  assert.match(js, /appointmentId\s*:\s*appointment\.id/);
   assert.match(js, /appointment\.colaboradora_user_id[\s\S]*profile\.user_id/);
   assert.doesNotMatch(js, /from\(['"]atendimentos['"]\)/);
 });

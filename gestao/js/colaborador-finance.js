@@ -1,4 +1,4 @@
-import { registerReceipt, listOwnReceipts } from './finance-receipts-api.js';
+import { registerReceiptForAppointment, listOwnReceipts } from './finance-receipts-api.js';
 import { listOwnBooks } from './finance-books-api.js';
 import { listOwnPayouts } from './finance-payouts-api.js';
 
@@ -108,9 +108,9 @@ export async function initCollaboratorFinance({ client, profile, root = document
     const submit = receiptForm.querySelector('[type="submit"]');
     if (submit) submit.disabled = true;
     try {
-      await registerReceipt({
+      await registerReceiptForAppointment({
         client,
-        atendimentoId: appointment.id,
+        appointmentId: appointment.id,
         valor: el('currentAppointmentReceiptValue').value,
         formaPagamento: el('currentAppointmentReceiptMethod').value,
         recebidoAt: el('currentAppointmentReceiptAt').value ? new Date(el('currentAppointmentReceiptAt').value).toISOString() : null,
