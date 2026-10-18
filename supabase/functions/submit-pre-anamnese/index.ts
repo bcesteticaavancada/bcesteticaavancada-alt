@@ -14,6 +14,8 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 const PDF_TTL_SECONDS = 600;
 const MAX_CONTENT_LENGTH = 3_000_000;
+const BUCKET = 'bc-prontuario-private';
+const TABLE = 'bc_pre_anamneses';
 const LOGO_URL = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/logo-oficial/logo-bc-estetica-sem-fundo.png';
 
 function corsHeaders(origin: string | null): HeadersInit {
@@ -46,7 +48,7 @@ function storagePaths(publicCode: string, createdAt: string) {
   const date = new Date(createdAt);
   const yyyy = String(date.getUTCFullYear());
   const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
-  return { signature: `${yyyy}/${mm}/${publicCode}.png`, pdf: `${yyyy}/${mm}/${publicCode}.pdf` };
+  return { signature: `pre-anamneses/${yyyy}/${mm}/${publicCode}/rubrica.png`, pdf: `pre-anamneses/${yyyy}/${mm}/${publicCode}/ficha.pdf` };
 }
 
 function patientFromAnswers(row: any) {
@@ -62,7 +64,7 @@ function patientFromAnswers(row: any) {
 }
 
 async function signedPdfUrl(supabase: any, pdfPath: string, downloadFilename: string) {
-  const { data, error } = await supabase.storage.from('pre-anamnese-pdfs').createSignedUrl(
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(
     pdfPath,
     PDF_TTL_SECONDS,
     { download: downloadFilename },
@@ -87,12 +89,12 @@ async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array) 
     rubricConfirmedAt: row.rubric_confirmed_at || row.created_at,
   });
 
-  const { error: uploadError } = await supabase.storage.from('pre-anamnese-pdfs').upload(paths.pdf, pdfBytes, {
+  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(paths.pdf, pdfBytes, {
     contentType: 'application/pdf', upsert: true, cacheControl: '0',
   });
   if (uploadError) throw uploadError;
 
-  const { error: updateError } = await supabase.from('pre_anamneses').update({ pdf_path: paths.pdf }).eq('id', row.id);
+  const { error: updateError } = await supabase.from(TABLE).update({ pdf_path: paths.pdf, pdf_sha256: await sha256Hex(pdfBytes), pdf_size_bytes: pdfBytes.byteLength }).eq('id', row.id);
   if (updateError) throw updateError;
   return paths.pdf;
 }
@@ -101,7 +103,7 @@ async function completeExisting(supabase: any, row: any) {
   let pdfPath = row.pdf_path as string | null;
   if (!pdfPath) {
     if (!row.signature_path) throw new Error('Ficha incompleta: rubrica não localizada.');
-    const { data: signatureBlob, error } = await supabase.storage.from('pre-anamnese-signatures').download(row.signature_path);
+    const { data: signatureBlob, error } = await supabase.storage.from(BUCKET).download(row.signature_path);
     if (error || !signatureBlob) throw new Error('Não foi possível recuperar a rubrica da ficha.');
     pdfPath = await finalizePdf(supabase, row, new Uint8Array(await signatureBlob.arrayBuffer()));
   }
@@ -110,7 +112,7 @@ async function completeExisting(supabase: any, row: any) {
   return { id: row.id, publicCode: row.public_code, createdAt: row.created_at, ...signed };
 }
 
-async function insertSubmission(supabase: any, payload: ValidSubmission, signatureBytes: Uint8Array) {
+async function insertSubmission(supabase: any, payload: ValidSubmission, signatureBytes: Uint8Array, submissionHash: string) {
   const now = new Date();
   const rubricSha256 = await sha256Hex(signatureBytes);
   let lastError: any = null;
@@ -130,7 +132,7 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
       confirmedAt: createdAt,
     }));
 
-    const { error: signatureError } = await supabase.storage.from('pre-anamnese-signatures').upload(paths.signature, signatureBytes, {
+    const { error: signatureError } = await supabase.storage.from(BUCKET).upload(paths.signature, signatureBytes, {
       contentType: 'image/png', upsert: false, cacheControl: '0',
     });
     if (signatureError) {
@@ -139,7 +141,7 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
       throw signatureError;
     }
 
-    const { data: row, error: insertError } = await supabase.from('pre_anamneses').insert({
+    const { data: row, error: insertError } = await supabase.from(TABLE).insert({
       public_code: publicCode,
       status: 'recebida',
       patient_name: payload.patient.name,
@@ -152,6 +154,7 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
       signature_path: paths.signature,
       source_version: payload.sourceVersion,
       submission_token: payload.submissionToken,
+      submission_hash: submissionHash,
       created_at: createdAt,
       data_authorization_accepted_at: createdAt,
       rubric_sha256: rubricSha256,
@@ -161,10 +164,10 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
 
     if (!insertError && row) return row;
 
-    await supabase.storage.from('pre-anamnese-signatures').remove([paths.signature]);
+    await supabase.storage.from(BUCKET).remove([paths.signature]);
     lastError = insertError;
     if (insertError?.code === '23505') {
-      const { data: existing } = await supabase.from('pre_anamneses').select('*').eq('submission_token', payload.submissionToken).maybeSingle();
+      const { data: existing } = await supabase.from(TABLE).select('*').eq('submission_token', payload.submissionToken).maybeSingle();
       if (existing) return existing;
       continue;
     }
@@ -173,7 +176,28 @@ async function insertSubmission(supabase: any, payload: ValidSubmission, signatu
   throw lastError || new Error('Não foi possível gerar um código único para a ficha.');
 }
 
-Deno.serve(async (req: Request) => {
+function createAdminClient() {
+  const url=Deno.env.get('SUPABASE_URL');
+  let key: string | undefined;
+  try { key=JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')||'{}').default; } catch { /* legacy fallback */ }
+  key ||= Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  return url && key ? createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}}) : null;
+}
+
+export async function readLimitedJson(req: Request) {
+  const reader=req.body?.getReader();
+  if(!reader) throw new Error('JSON inválido.');
+  const chunks:Uint8Array[]=[];let size=0;
+  try {
+    while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;
+      if(size>MAX_CONTENT_LENGTH){await reader.cancel();throw new Error('payload_too_large');}chunks.push(value);}
+  } finally { reader.releaseLock(); }
+  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+export function createPreAnamneseHandler(getAdmin = createAdminClient) {
+return async (req: Request) => {
   const origin = req.headers.get('origin');
   if (req.method === 'OPTIONS') {
     if (origin && !ALLOWED_ORIGINS.has(origin)) return json({ error: 'Origem não autorizada.' }, 403, origin);
@@ -186,8 +210,8 @@ Deno.serve(async (req: Request) => {
   if (contentLength > MAX_CONTENT_LENGTH) return json({ error: 'Conteúdo enviado é muito grande.' }, 413, origin);
 
   let raw: unknown;
-  try { raw = await req.json(); }
-  catch { return json({ error: 'JSON inválido.' }, 400, origin); }
+  try { raw = await readLimitedJson(req); }
+  catch(error) { return json({ error: 'Conteúdo inválido ou muito grande.' }, error instanceof Error && error.message==='payload_too_large' ? 413 : 400, origin); }
 
   const validation = validateSubmission(raw);
   if (!validation.valid) return json({ error: 'Revise os dados antes de enviar.', errors: validation.errors }, 422, origin);
@@ -200,21 +224,33 @@ Deno.serve(async (req: Request) => {
     return json({ error: 'Rubrica de confirmação inválida.', errors: { signatureDataUrl: 'Rubrica PNG inválida.' } }, 422, origin);
   }
 
-  const url = Deno.env.get('SUPABASE_URL');
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!url || !serviceKey) return json({ error: 'Serviço temporariamente indisponível.' }, 503, origin);
-  const supabase = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const supabase = getAdmin();
+  if (!supabase) return json({ error: 'Serviço temporariamente indisponível.' }, 503, origin);
+  const submissionHash=await sha256Hex(new TextEncoder().encode(JSON.stringify({patient:payload.patient,procedure:payload.procedure,answers:payload.answers,consents:payload.consents,sourceVersion:payload.sourceVersion,rubric:await sha256Hex(signatureBytes)})));
 
   try {
-    const { data: existing, error: lookupError } = await supabase.from('pre_anamneses').select('*').eq('submission_token', payload.submissionToken).maybeSingle();
+    const salt=Deno.env.get('PUBLIC_AGENDA_RATE_LIMIT_SALT');
+    if(!salt || salt.length<16) return json({error:'Serviço temporariamente indisponível.'},503,origin);
+    const originHash=await sha256Hex(new TextEncoder().encode(salt+':'+(req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown')));
+    const {data:allowed,error:rateError}=await supabase.rpc('bc_pre_anamnese_rate_limit',{p_origin_hash:originHash});
+    if(rateError)throw rateError;
+    if(allowed!==true)return json({error:'Muitas tentativas. Aguarde alguns minutos e tente novamente.'},429,origin);
+    const { data: existing, error: lookupError } = await supabase.from(TABLE).select('*').eq('submission_token', payload.submissionToken).maybeSingle();
     if (lookupError) throw lookupError;
-    if (existing) return json(await completeExisting(supabase, existing), 200, origin);
+    if (existing) {
+      if(existing.submission_hash!==submissionHash)return json({error:'Este envio já foi recebido com outros dados. Inicie uma nova ficha.'},409,origin);
+      return json(await completeExisting(supabase, existing), 200, origin);
+    }
 
-    const row = await insertSubmission(supabase, payload, signatureBytes);
+    const row = await insertSubmission(supabase, payload, signatureBytes, submissionHash);
+    if(row.submission_hash!==submissionHash)return json({error:'Este envio já foi recebido com outros dados. Inicie uma nova ficha.'},409,origin);
     const result = await completeExisting(supabase, row);
     return json(result, 201, origin);
   } catch (error) {
     console.error('submit-pre-anamnese failed', error instanceof Error ? error.message : 'unknown error');
-    return json({ error: 'Não foi possível concluir o envio agora. Seus dados permanecem salvos neste dispositivo para tentar novamente.' }, 500, origin);
+    return json({ error: 'Não foi possível concluir o envio agora. Mantenha esta página aberta e tente novamente, ou fale com a BC pelo WhatsApp.' }, 500, origin);
   }
-});
+};
+}
+
+if(import.meta.main)Deno.serve(createPreAnamneseHandler());

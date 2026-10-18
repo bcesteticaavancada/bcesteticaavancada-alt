@@ -1,2 +1,5 @@
 [functions.public-agenda]
 verify_jwt = false
+
+[functions.submit-pre-anamnese]
+verify_jwt = false
