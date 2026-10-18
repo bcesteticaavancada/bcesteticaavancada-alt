@@ -73,12 +73,12 @@ function buildCreatePayload(form) {
   const data = new FormData(form);
   return {
     nome: formValue(data, 'nome'),
-    cpf: normalizeCpf(formValue(data, 'cpf')),
+    cpf: formValue(data, 'cpf'),
     data_nascimento: formValue(data, 'data_nascimento'),
     telefone: formValue(data, 'telefone'),
     email: formValue(data, 'email'),
     responsavel_nome: formValue(data, 'responsavel_nome'),
-    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_cpf: formValue(data, 'responsavel_cpf'),
     responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
     responsavel_telefone: formValue(data, 'responsavel_telefone'),
   };
@@ -88,7 +88,7 @@ function buildEditPayload(form) {
   const data = new FormData(form);
   return {
     nome: formValue(data, 'nome'),
-    cpf: normalizeCpf(formValue(data, 'cpf')),
+    cpf: formValue(data, 'cpf'),
     data_nascimento: formValue(data, 'data_nascimento'),
     telefone: formValue(data, 'telefone'),
     email: formValue(data, 'email'),
@@ -100,7 +100,7 @@ function buildEditPayload(form) {
     cidade: formValue(data, 'cidade'),
     uf: formValue(data, 'uf').toUpperCase(),
     responsavel_nome: formValue(data, 'responsavel_nome'),
-    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_cpf: formValue(data, 'responsavel_cpf'),
     responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
     responsavel_telefone: formValue(data, 'responsavel_telefone'),
   };
@@ -260,7 +260,8 @@ export async function initClientesPanel({
         dataNascimento: payload.data_nascimento,
         telefone: payload.telefone,
       });
-      const exact = candidates.filter((item) => normalizeCpf(item.cpf) === payload.cpf && payload.cpf);
+      const cpf = normalizeCpf(payload.cpf);
+      const exact = candidates.filter((item) => cpf && normalizeCpf(item.cpf) === cpf);
       if (exact.length) {
         renderDuplicateChoice(createStatus, exact, { exactCpf: true });
         return;

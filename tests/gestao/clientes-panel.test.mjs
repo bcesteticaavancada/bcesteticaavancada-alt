@@ -29,6 +29,11 @@ test('só nome e telefone são obrigatórios nos cadastros de admin, colaborador
   }
 });
 
+test('dados parciais de responsável continuam acessíveis na edição sem nascimento', () => {
+  const { document } = parseHTML(renderClientEditor({ id: 'c1', nome: 'Pessoa Fictícia', telefone: '31900000000', responsavel_telefone: '31900000001' }));
+  assert.equal(document.querySelector('[data-client-edit-guardian]').hasAttribute('hidden'), false);
+});
+
 test('lista compartilhada escapa dados e abre cliente sem expor arquivamento à colaboradora', () => {
   const html = renderClientsList([
     { id: 'c1', nome: '<script>Ana</script>', telefone: '3199', ativo: true },

@@ -16,6 +16,7 @@ on:
       - 'supabase/**'
       - 'tests/site/**'
       - 'scripts/test-agenda-browser.mjs'
+      - 'scripts/test-client-registration-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -32,6 +33,7 @@ on:
       - 'supabase/**'
       - 'tests/site/**'
       - 'scripts/test-agenda-browser.mjs'
+      - 'scripts/test-client-registration-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -60,6 +62,8 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
       - name: Agenda mobile, tablet and desktop browser tests
         run: node scripts/test-agenda-browser.mjs
+      - name: Basic client registration browser tests
+        run: node scripts/test-client-registration-browser.mjs
       - name: Upload agenda browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -85,7 +85,7 @@ export function renderClientCadastroForm(client, canArchive = false) {
   const archiveAction = canArchive
     ? `<button type="button" class="bcg-small-button" data-toggle-client="${active ? 'false' : 'true'}">${active ? 'Arquivar cliente' : 'Reativar cliente'}</button>`
     : '';
-  const showGuardian = isMinor(client.data_nascimento) || Boolean(client.responsavel_nome || client.responsavel_cpf);
+  const showGuardian = isMinor(client.data_nascimento) || Boolean(client.responsavel_nome || client.responsavel_cpf || client.responsavel_parentesco || client.responsavel_telefone);
   const age = calculateAge(client.data_nascimento);
 
   return `<form class="bcg-form bcg-form-grid bcg-folder-form" data-client-edit-form data-client-id="${escapeHtml(client.id)}">
