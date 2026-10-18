@@ -58,8 +58,6 @@ export function isMinor(dataNascimento, referenceDate = new Date()) {
 export function clientProfileChecklist(client = {}) {
   const cadastroBasico = Boolean(
     clean(client.nome)
-    && normalizeCpf(client.cpf).length === 11
-    && parseBirthDate(client.data_nascimento)
     && clean(client.telefone),
   );
   const enderecoCompleto = Boolean(

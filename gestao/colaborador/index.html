@@ -91,12 +91,13 @@
       <div class="bcg-subgrid">
         <article class="bcg-subpanel"><h3>Novo cliente</h3>
           <form id="clientCreateForm" class="bcg-form">
+            <p class="bcg-muted">Só nome completo e telefone são obrigatórios. Os demais dados podem ser preenchidos durante a avaliação.</p>
             <label>Nome completo<input class="bcg-input" name="nome" autocomplete="name" required></label>
-            <label>CPF<input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off" required></label>
-            <label>Data de nascimento<input class="bcg-input" name="data_nascimento" type="date" required><small id="clientAgePreview" class="bcg-muted">Idade calculada automaticamente</small></label>
             <label>Telefone<input class="bcg-input" name="telefone" type="tel" autocomplete="tel" required></label>
+            <label>CPF <span class="bcg-optional">opcional</span><input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off"></label>
+            <label>Data de nascimento <span class="bcg-optional">opcional</span><input class="bcg-input" name="data_nascimento" type="date"><small id="clientAgePreview" class="bcg-muted">Idade calculada automaticamente</small></label>
             <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" autocomplete="email"></label>
-            <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Obrigatório para cliente menor de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset>
+            <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Pode ser preenchido durante a avaliação de clientes menores de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset>
             <button class="bcg-button" type="submit">Cadastrar cliente</button><div id="clientCreateStatus" class="bcg-status" role="status" aria-live="polite"></div>
           </form>
         </article>
@@ -134,7 +135,7 @@
 import { requireRole, signOut } from '../js/auth.js';
 import { createBcGestaoClient } from '../js/supabase-client.js';
 import { initCollaboratorAgenda } from '../js/colaborador-agenda.js';
-import { initClientesPanel } from '../js/clientes-panel.js';
+import { initClientesPanel } from '../js/clientes-panel.js?v=20261018-basic';
 import { bindAttendanceForm } from '../js/atendimento-form.js';
 import { initCollaboratorFinance } from '../js/colaborador-finance.js';
 import '../js/shell.js';

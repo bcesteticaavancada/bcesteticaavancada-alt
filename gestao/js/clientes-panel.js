@@ -6,14 +6,14 @@ import {
   setClientActive,
   listClientHistory,
   findPotentialDuplicates,
-} from './clientes-api.js';
+} from './clientes-api.js?v=20261018-basic';
 import { listStaffDirectory } from './agenda-api.js';
-import { calculateAge, formatCpf, isMinor, normalizeCpf } from './clientes-domain.js';
+import { calculateAge, formatCpf, isMinor, normalizeCpf } from './clientes-domain.js?v=20261018-basic';
 import {
   renderClientCadastroForm,
   renderClientFolder,
   renderClientTimeline,
-} from './clientes-folder.js';
+} from './clientes-folder.js?v=20261018-basic';
 import {
   uploadClientIdPhoto,
   listClientIdPhotos,
@@ -73,12 +73,12 @@ function buildCreatePayload(form) {
   const data = new FormData(form);
   return {
     nome: formValue(data, 'nome'),
-    cpf: normalizeCpf(formValue(data, 'cpf')),
+    cpf: formValue(data, 'cpf'),
     data_nascimento: formValue(data, 'data_nascimento'),
     telefone: formValue(data, 'telefone'),
     email: formValue(data, 'email'),
     responsavel_nome: formValue(data, 'responsavel_nome'),
-    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_cpf: formValue(data, 'responsavel_cpf'),
     responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
     responsavel_telefone: formValue(data, 'responsavel_telefone'),
   };
@@ -88,7 +88,7 @@ function buildEditPayload(form) {
   const data = new FormData(form);
   return {
     nome: formValue(data, 'nome'),
-    cpf: normalizeCpf(formValue(data, 'cpf')),
+    cpf: formValue(data, 'cpf'),
     data_nascimento: formValue(data, 'data_nascimento'),
     telefone: formValue(data, 'telefone'),
     email: formValue(data, 'email'),
@@ -100,13 +100,13 @@ function buildEditPayload(form) {
     cidade: formValue(data, 'cidade'),
     uf: formValue(data, 'uf').toUpperCase(),
     responsavel_nome: formValue(data, 'responsavel_nome'),
-    responsavel_cpf: normalizeCpf(formValue(data, 'responsavel_cpf')),
+    responsavel_cpf: formValue(data, 'responsavel_cpf'),
     responsavel_parentesco: formValue(data, 'responsavel_parentesco'),
     responsavel_telefone: formValue(data, 'responsavel_telefone'),
   };
 }
 
-function updateGuardianState(form, { edit = false } = {}) {
+export function updateGuardianState(form, { edit = false } = {}) {
   const birth = form?.querySelector?.('[name="data_nascimento"]');
   const agePreview = edit
     ? form?.querySelector?.('[data-client-edit-age]')
@@ -118,9 +118,10 @@ function updateGuardianState(form, { edit = false } = {}) {
   const age = calculateAge(birth.value);
   if (agePreview) agePreview.textContent = age === null ? 'Idade calculada automaticamente' : `${age} anos`;
   const minor = isMinor(birth.value);
-  guardian.hidden = !minor;
+  const hasGuardianData = [...guardian.querySelectorAll('input,select')].some((input) => input.value?.trim());
+  guardian.hidden = !minor && !hasGuardianData;
   guardian.querySelectorAll?.('input,select')?.forEach?.((input) => {
-    input.required = minor;
+    input.required = false;
   });
 }
 
@@ -129,7 +130,7 @@ function renderDuplicateChoice(statusEl, candidates, { exactCpf = false } = {}) 
   const candidate = candidates[0];
   const label = exactCpf
     ? 'CPF já cadastrado na BC Estética.'
-    : 'Encontramos um cadastro com nome, nascimento e telefone semelhantes.';
+    : 'Encontramos um cadastro com o mesmo nome e telefone. Confira antes de cadastrar novamente.';
   statusEl.dataset.kind = 'warning';
   statusEl.innerHTML = `${escapeHtml(label)} <button type="button" class="bcg-small-button" data-open-duplicate="${escapeHtml(candidate.id)}">Abrir prontuário existente</button>${exactCpf ? '' : ' <button type="button" class="bcg-small-button" data-confirm-duplicate>Cadastrar mesmo assim</button>'}`;
 }
@@ -259,7 +260,8 @@ export async function initClientesPanel({
         dataNascimento: payload.data_nascimento,
         telefone: payload.telefone,
       });
-      const exact = candidates.filter((item) => normalizeCpf(item.cpf) === payload.cpf && payload.cpf);
+      const cpf = normalizeCpf(payload.cpf);
+      const exact = candidates.filter((item) => cpf && normalizeCpf(item.cpf) === cpf);
       if (exact.length) {
         renderDuplicateChoice(createStatus, exact, { exactCpf: true });
         return;
@@ -296,6 +298,8 @@ export async function initClientesPanel({
         } catch {
           setStatus(createStatus, error?.message || 'CPF já cadastrado.', 'error');
         }
+      } else {
+        setStatus(createStatus, error?.message || 'Não foi possível cadastrar a cliente.', 'error');
       }
       // Campos permanecem preenchidos em falha.
     }

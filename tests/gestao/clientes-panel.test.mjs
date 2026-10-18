@@ -1,17 +1,38 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { parseHTML } from 'linkedom';
 import {
   renderClientsList,
   renderClientEditor,
   renderClientHistory,
   runFormSubmit,
   notifyClientsChanged,
+  updateGuardianState,
 } from '../../gestao/js/clientes-panel.js';
 
 const panelSourceUrl = new URL('../../gestao/js/clientes-panel.js', import.meta.url);
 const adminHtmlUrl = new URL('../../gestao/admin/index.html', import.meta.url);
 const collaboratorHtmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
+
+test('só nome e telefone são obrigatórios nos cadastros de admin, colaboradora e edição', async () => {
+  const forms = await Promise.all([adminHtmlUrl, collaboratorHtmlUrl].map(async (url) => {
+    const { document } = parseHTML(await readFile(url, 'utf8'));
+    return document.querySelector('#clientCreateForm');
+  }));
+  forms.push(parseHTML(renderClientEditor({ id: 'c1', nome: 'Pessoa Fictícia', telefone: '31900000000' })).document.querySelector('form'));
+  for (const form of forms) {
+    assert.deepEqual([...form.querySelectorAll('[required]')].map((field) => field.name).sort(), ['nome', 'telefone']);
+    form.querySelector('[name=data_nascimento]').value = '2015-01-01';
+    updateGuardianState(form, { edit: form.hasAttribute('data-client-edit-form') });
+    assert.deepEqual([...form.querySelectorAll('[required]')].map((field) => field.name).sort(), ['nome', 'telefone']);
+  }
+});
+
+test('dados parciais de responsável continuam acessíveis na edição sem nascimento', () => {
+  const { document } = parseHTML(renderClientEditor({ id: 'c1', nome: 'Pessoa Fictícia', telefone: '31900000000', responsavel_telefone: '31900000001' }));
+  assert.equal(document.querySelector('[data-client-edit-guardian]').hasAttribute('hidden'), false);
+});
 
 test('lista compartilhada escapa dados e abre cliente sem expor arquivamento à colaboradora', () => {
   const html = renderClientsList([

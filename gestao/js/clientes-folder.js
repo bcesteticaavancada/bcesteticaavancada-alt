@@ -1,4 +1,4 @@
-import { calculateAge, clientProfileChecklist, formatCpf, isMinor } from './clientes-domain.js';
+import { calculateAge, clientProfileChecklist, formatCpf, isMinor } from './clientes-domain.js?v=20261018-basic';
 import { formatClinicDateTime } from './agenda-format.js';
 import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
 
@@ -85,14 +85,15 @@ export function renderClientCadastroForm(client, canArchive = false) {
   const archiveAction = canArchive
     ? `<button type="button" class="bcg-small-button" data-toggle-client="${active ? 'false' : 'true'}">${active ? 'Arquivar cliente' : 'Reativar cliente'}</button>`
     : '';
-  const showGuardian = isMinor(client.data_nascimento) || Boolean(client.responsavel_nome || client.responsavel_cpf);
+  const showGuardian = isMinor(client.data_nascimento) || Boolean(client.responsavel_nome || client.responsavel_cpf || client.responsavel_parentesco || client.responsavel_telefone);
   const age = calculateAge(client.data_nascimento);
 
   return `<form class="bcg-form bcg-form-grid bcg-folder-form" data-client-edit-form data-client-id="${escapeHtml(client.id)}">
+    <p class="bcg-muted bcg-field-wide">Só nome completo e telefone são obrigatórios. Complete os demais dados durante a avaliação ou quando estiverem disponíveis.</p>
     <label>Nome completo<input class="bcg-input" name="nome" value="${escapeHtml(client.nome || '')}" required></label>
-    <label>CPF<input class="bcg-input" name="cpf" inputmode="numeric" value="${escapeHtml(formatCpf(client.cpf || ''))}" required></label>
-    <label>Data de nascimento<input class="bcg-input" name="data_nascimento" type="date" value="${escapeHtml(client.data_nascimento || '')}" required><small class="bcg-muted" data-client-edit-age>${age === null ? 'Idade não informada' : `${age} anos`}</small></label>
     <label>Telefone<input class="bcg-input" name="telefone" type="tel" value="${escapeHtml(client.telefone || '')}" required></label>
+    <label>CPF <span class="bcg-optional">opcional</span><input class="bcg-input" name="cpf" inputmode="numeric" value="${escapeHtml(formatCpf(client.cpf || ''))}"></label>
+    <label>Data de nascimento <span class="bcg-optional">opcional</span><input class="bcg-input" name="data_nascimento" type="date" value="${escapeHtml(client.data_nascimento || '')}"><small class="bcg-muted" data-client-edit-age>${age === null ? 'Idade não informada' : `${age} anos`}</small></label>
     <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" value="${escapeHtml(client.email || '')}"></label>
     <div class="bcg-field-wide bcg-form-section-title"><span>Endereço</span></div>
     <label>CEP<input class="bcg-input" name="cep" inputmode="numeric" value="${escapeHtml(client.cep || '')}"></label>
