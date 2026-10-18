@@ -1,5 +1,5 @@
 import {assertEquals} from 'jsr:@std/assert';
-import {createPreAnamneseHandler,readLimitedJson} from './index.ts';
+import {createPreAnamneseHandler,readLimitedJson,finalizePdf} from './index.ts';
 
 Deno.test('recepção rejeita método/origem/payload antes de consultar a base',async()=>{
   const handler=createPreAnamneseHandler(()=>{throw new Error('Não deve consultar banco');});
@@ -23,4 +23,28 @@ Deno.test('reenvio com o mesmo token e outros dados não devolve PDF anterior',a
   const response=await handler(new Request('https://example.invalid',{method:'POST',body:JSON.stringify({patient:{name:'Pessoa fictícia',cpf:'52998224725',birthDate:'1990-01-01',age:36,phone:'31900000000'},procedure:'Teste',answers:{},consents:{truthful:true,dataProcessing:true,dataAuthorization:true},signatureDataUrl:'data:image/png;base64,'+btoa(String.fromCharCode(...png)),sourceVersion:'ci',submissionToken:'ci-token-000000000000'})}));
   assertEquals(response.status,409);
   assertEquals('pdfUrl' in await response.json(),false);
+});
+
+Deno.test('gerações concorrentes publicam uma versão imutável do PDF e mantêm seu hash',async()=>{
+  let saved: any = null;
+  const objects = new Map<string,Uint8Array>();
+  const admin={storage:{from:()=>({upload:async(path:string,bytes:Uint8Array,options:any)=>{
+    assertEquals(options.upsert,false);
+    if(objects.has(path))return {error:{message:'already exists'}};
+    objects.set(path,bytes);return {error:null};
+  },remove:async(paths:string[])=>{paths.forEach(path=>objects.delete(path));return {error:null};}})},
+  from:()=>({update:(value:any)=>({eq:()=>({is:()=>({select:()=>({maybeSingle:async()=>{
+    if(saved)return {data:null,error:null};saved=value;return {data:{pdf_path:value.pdf_path},error:null};
+  }})})})}),select:()=>({eq:()=>({single:async()=>({data:saved,error:null})})})})};
+  const row={id:'ci',public_code:'CI',created_at:'2026-10-18T12:00:00Z',patient_name:'Fictícia',patient_phone:'31900000000',answers:{},consents:{}};
+  const paths=await Promise.all([
+    finalizePdf(admin,row,new Uint8Array(),async()=>new Uint8Array([1,2,3]),async()=>null),
+    finalizePdf(admin,row,new Uint8Array(),async()=>new Uint8Array([4,5,6]),async()=>null),
+  ]);
+  assertEquals(paths[0],paths[1]);
+  assertEquals(objects.size,1);
+  const bytes=objects.get(saved.pdf_path)!;
+  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(x=>x.toString(16).padStart(2,'0')).join('');
+  assertEquals(saved.pdf_sha256,hash);
+  assertEquals(saved.pdf_path.endsWith(`ficha-${hash}.pdf`),true);
 });

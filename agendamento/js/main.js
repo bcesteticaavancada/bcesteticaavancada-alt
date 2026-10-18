@@ -1,11 +1,11 @@
-import { createInitialState, loadDraft, saveDraft, serializeForm } from './state.js';
+import { createInitialState, loadDraft, saveDraft, serializeForm, prepareSessionStorage } from './state.js';
 import { validateStep } from './validation.js';
 import { getVisibleModuleKeys } from './conditional.js';
 import { buildReviewSections } from './review.js';
 import { createSignaturePad } from './signature.js';
 import { FORM_VERSION } from './config.js';
 import { downloadPdf, filenameForPatient, sharePdf } from './api.js';
-import { createSubmissionGate, finalizePreAnamnese } from './finalize.js';
+import { createSubmissionGate, finalizePreAnamnese, resetPreAnamnese } from './finalize.js';
 import { formatCpf } from './cpf.js';
 
 export function advanceStep(current, total) {
@@ -152,14 +152,15 @@ function initializePreAnamnese() {
     }
   }
 
-  let state = loadDraft(window.localStorage);
+  const storage = prepareSessionStorage(window);
+  let state = loadDraft(storage);
   if (!state || !Number.isInteger(state.step)) state = createInitialState();
   state.step = Math.min(Math.max(state.step, 1), total);
   setFormValues(form, state.values || {});
 
   function syncState() {
     state = mergeStateValues(state, serializeForm(form));
-    saveDraft(window.localStorage, state);
+    saveDraft(storage, state);
     return state;
   }
 
@@ -286,7 +287,7 @@ function initializePreAnamnese() {
     if (submissionSucceeded) return;
     syncState();
     state.step = retreatStep(state.step);
-    saveDraft(window.localStorage, state);
+    saveDraft(storage, state);
     renderStep();
   });
 
@@ -302,7 +303,7 @@ function initializePreAnamnese() {
       return;
     }
     state.step = advanceStep(state.step, total);
-    saveDraft(window.localStorage, state);
+    saveDraft(storage, state);
     renderStep();
   });
 
@@ -311,30 +312,40 @@ function initializePreAnamnese() {
       syncState();
       if (!signaturePad || signaturePad.isValid?.() !== true) {
         state.step = 7;
-        saveDraft(window.localStorage, state);
+        saveDraft(storage, state);
         renderStep();
         showErrors({ signature: 'Faça uma rubrica válida antes de finalizar.' });
         return;
       }
-      finalizeButton.disabled = true;
+      finalizeButton.disabled = true; restart.disabled = true;
       if (submitStatus) submitStatus.textContent = 'Enviando sua ficha com segurança e preparando o PDF...';
       try {
         const result = await finalizePreAnamnese({
           state,
           signaturePad,
-          storage: window.localStorage,
+          storage,
           sourceVersion: FORM_VERSION,
         });
         renderSubmissionSuccess(result);
       } catch (error) {
         const details = error?.details || {};
         showErrors(details);
-        if (submitStatus) submitStatus.textContent = error?.message || 'Não foi possível concluir agora. Seus dados continuam salvos para tentar novamente.';
+        if (submitStatus) submitStatus.textContent = error?.message || 'Não foi possível concluir agora. Mantenha esta página aberta para tentar novamente.';
         finalizeButton.disabled = false;
-      }
+      } finally { restart.disabled = false; }
     });
   });
 
+  const restart = document.createElement('button');
+  restart.type = 'button'; restart.className = 'btn secondary small'; restart.textContent = 'Iniciar nova ficha e apagar rascunho';
+  restart.addEventListener('click', () => {
+    state = resetPreAnamnese(storage); form.reset(); signaturePad?.clear(); submissionSucceeded = false;
+    successPanel?.querySelector('.submission-code')?.remove();
+    const actions=successPanel?.querySelector('.actions');if(actions)actions.innerHTML='';
+    if (submitStatus) submitStatus.textContent = '';
+    renderStep();
+  });
+  form.appendChild(restart);
   renderStep(false);
 }
 

@@ -40,3 +40,10 @@ export async function completeTreatmentFinalization({client,treatmentId,document
 export async function correctTreatmentSameDay({client,treatmentId,patch={}}){ return call(client,'bc_treatment_correct_same_day',{p_treatment_id:required(treatmentId,'Atendimento'),p_patch:sanitizePatch(patch)}); }
 export async function createTreatmentReopenGrant({client,treatmentId,reason,expiresAt}){ return call(client,'bc_treatment_create_reopen_grant',{p_treatment_id:required(treatmentId,'Atendimento'),p_reason:required(reason,'Motivo'),p_expires_at:required(expiresAt,'Expiração')}); }
 export async function correctReopenedTreatment({client,treatmentId,patch={}}){ return call(client,'bc_treatment_correct_reopened',{p_treatment_id:required(treatmentId,'Atendimento'),p_patch:sanitizePatch(patch)}); }
+export async function listTreatmentAppointmentOptions({client,treatmentId}) {
+  return await call(client,'bc_treatment_appointment_options',{p_treatment_id:required(treatmentId,'Atendimento')}) || [];
+}
+export async function resolveTreatmentAppointment({client,treatmentId,appointmentId=null,inicioIso=null}) {
+  if(!appointmentId && !inicioIso) throw new Error('Selecione um agendamento ou informe o horário real da sessão.');
+  return call(client,'bc_treatment_resolve_appointment',{p_treatment_id:required(treatmentId,'Atendimento'),p_agendamento_id:appointmentId||null,p_inicio:inicioIso||null});
+}

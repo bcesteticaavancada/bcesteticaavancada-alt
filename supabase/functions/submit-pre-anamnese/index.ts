@@ -73,10 +73,10 @@ async function signedPdfUrl(supabase: any, pdfPath: string, downloadFilename: st
   return { pdfUrl: data.signedUrl, pdfExpiresAt: new Date(Date.now() + PDF_TTL_SECONDS * 1000).toISOString() };
 }
 
-async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array) {
+export async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array, generate = generatePreAnamnesePdf, logo = fetchLogo) {
   const paths = storagePaths(row.public_code, row.created_at);
-  const logoBytes = await fetchLogo();
-  const pdfBytes = await generatePreAnamnesePdf({
+  const logoBytes = await logo();
+  const pdfBytes = await generate({
     publicCode: row.public_code,
     createdAt: row.created_at,
     patient: patientFromAnswers(row),
@@ -89,14 +89,22 @@ async function finalizePdf(supabase: any, row: any, signatureBytes: Uint8Array) 
     rubricConfirmedAt: row.rubric_confirmed_at || row.created_at,
   });
 
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(paths.pdf, pdfBytes, {
-    contentType: 'application/pdf', upsert: true, cacheControl: '0',
+  const hash = await sha256Hex(pdfBytes);
+  const pdfPath = paths.pdf.replace('ficha.pdf', `ficha-${hash}.pdf`);
+  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(pdfPath, pdfBytes, {
+    contentType: 'application/pdf', upsert: false, cacheControl: '0',
   });
-  if (uploadError) throw uploadError;
+  if (uploadError && !/already exists|duplicate/i.test(String(uploadError.message || ''))) throw uploadError;
 
-  const { error: updateError } = await supabase.from(TABLE).update({ pdf_path: paths.pdf, pdf_sha256: await sha256Hex(pdfBytes), pdf_size_bytes: pdfBytes.byteLength }).eq('id', row.id);
+  const { data: updated, error: updateError } = await supabase.from(TABLE)
+    .update({ pdf_path: pdfPath, pdf_sha256: hash, pdf_size_bytes: pdfBytes.byteLength })
+    .eq('id', row.id).is('pdf_path', null).select('pdf_path').maybeSingle();
   if (updateError) throw updateError;
-  return paths.pdf;
+  if (updated?.pdf_path) return updated.pdf_path;
+  const {data: winner, error: lookupError} = await supabase.from(TABLE).select('pdf_path').eq('id', row.id).single();
+  if (lookupError || !winner?.pdf_path) throw lookupError || new Error('PDF ainda em preparação.');
+  if (winner.pdf_path !== pdfPath) await supabase.storage.from(BUCKET).remove([pdfPath]);
+  return winner.pdf_path;
 }
 
 async function completeExisting(supabase: any, row: any) {

@@ -3,7 +3,7 @@ import {listClients} from './clientes-api.js';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const required=(value,label)=>{const clean=String(value??'').trim();if(!clean)throw new Error(`${label} é obrigatório.`);return clean;};
 async function rpc(client,name,args){const {data,error}=await client.rpc(name,args);if(error)throw new Error(error.message||'Não foi possível concluir.');return data;}
-export async function listPreAnamneses({client}){return await rpc(client,'bc_pre_anamnese_inbox',{p_limit:100})||[];}
+export async function listPreAnamneses({client,offset=0}){return await rpc(client,'bc_pre_anamnese_inbox_page',{p_limit:100,p_offset:offset})||[];}
 export async function linkPreAnamnese({client,intakeId,clienteId}){return rpc(client,'bc_pre_anamnese_link',{p_intake_id:required(intakeId,'Ficha'),p_cliente_id:required(clienteId,'Selecione o cadastro correto')});}
 
 export function renderPreAnamneseInbox(items=[],clients=[]){
@@ -13,10 +13,16 @@ export function renderPreAnamneseInbox(items=[],clients=[]){
 
 export async function initPreAnamneseInbox({client,root=document}){
   const host=root.getElementById('preAnamneseInbox');if(!host)return null;
-  let items=[];
+  let items=[];let offset=0;
+  const pager=root.createElement('div');pager.className='bcg-form-actions';
+  const previous=root.createElement('button'),next=root.createElement('button');
+  for(const button of [previous,next]){button.type='button';button.className='bcg-small-button';pager.appendChild(button);}
+  previous.textContent='Fichas mais recentes';next.textContent='Fichas anteriores';host.after(pager);
   async function refresh(){
-    const [rows,clients]=await Promise.all([listPreAnamneses({client}),listClients({client})]);items=rows;host.innerHTML=renderPreAnamneseInbox(items,clients);
+    const [rows,clients]=await Promise.all([listPreAnamneses({client,offset}),listClients({client})]);items=rows;host.innerHTML=renderPreAnamneseInbox(items,clients);previous.disabled=offset===0;next.disabled=items.length<100;
   }
+  previous.addEventListener('click',()=>{offset=Math.max(0,offset-100);refresh().catch(error=>{host.textContent=error.message;});});
+  next.addEventListener('click',()=>{offset+=100;refresh().catch(error=>{host.textContent=error.message;});});
   root.getElementById('preAnamneseRefresh')?.addEventListener('click',()=>refresh().catch(error=>{host.textContent=error.message;}));
   host.addEventListener('click',async event=>{
     const button=event.target.closest?.('[data-intake-pdf],[data-intake-link]');if(!button)return;
@@ -29,7 +35,7 @@ export async function initPreAnamneseInbox({client,root=document}){
         const anchor=root.createElement('a');anchor.href=data.signedUrl;anchor.target='_blank';anchor.rel='noopener noreferrer';anchor.click();
       }else{
         await linkPreAnamnese({client,intakeId:button.dataset.intakeLink,clienteId:card.querySelector('[data-intake-client]').value});
-        await refresh();
+        offset=0;await refresh();
       }
     }catch(error){status.textContent=error.message||'Não foi possível concluir.';status.dataset.kind='error';}
     finally{button.disabled=false;}

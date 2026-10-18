@@ -1,4 +1,18 @@
 export const DRAFT_KEY = 'bc.preAnamnese.draft.v1';
+export const DRAFT_TTL_MS = 30 * 60 * 1000;
+const TOKEN_KEY = 'bc.preAnamnese.submissionToken.v1';
+
+export function prepareSessionStorage(view) {
+  try { view.localStorage?.removeItem(DRAFT_KEY); view.localStorage?.removeItem(TOKEN_KEY); } catch { /* Browser can deny storage. */ }
+  const memory = new Map();
+  let session;
+  try { session = view.sessionStorage; session?.setItem('bc.storage.probe', '1'); session?.removeItem('bc.storage.probe'); } catch { session = null; }
+  return {
+    getItem(key) { try { return session?.getItem(key) ?? memory.get(key) ?? null; } catch { return memory.get(key) ?? null; } },
+    setItem(key, value) { memory.set(key, String(value)); try { session?.setItem(key, String(value)); } catch { /* Keep page usable in memory. */ } },
+    removeItem(key) { memory.delete(key); try { session?.removeItem(key); } catch { /* Already unavailable. */ } },
+  };
+}
 
 export function createInitialState() {
   return { step: 1, values: {} };
@@ -10,24 +24,27 @@ export function stripSensitiveDraftValues(values) {
   return safeValues;
 }
 
-export function loadDraft(storage) {
+export function loadDraft(storage, now = Date.now()) {
   try {
     const raw = storage?.getItem?.(DRAFT_KEY);
-    if (!raw) return createInitialState();
+    if (!raw) { storage?.removeItem?.(TOKEN_KEY); return createInitialState(); }
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return createInitialState();
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !Number.isFinite(parsed.expiresAt) || parsed.expiresAt <= now) {
+      clearDraft(storage); storage?.removeItem?.(TOKEN_KEY); return createInitialState();
+    }
     if (!Number.isInteger(parsed.step) || parsed.step < 1) return createInitialState();
     if (!parsed.values || typeof parsed.values !== 'object' || Array.isArray(parsed.values)) return createInitialState();
-    return { ...parsed, values: stripSensitiveDraftValues(parsed.values) };
+    return { step: parsed.step, values: stripSensitiveDraftValues(parsed.values) };
   } catch {
     return createInitialState();
   }
 }
 
-export function saveDraft(storage, state) {
+export function saveDraft(storage, state, now = Date.now()) {
   const safeState = {
     ...(state && typeof state === 'object' ? state : createInitialState()),
     values: stripSensitiveDraftValues(state?.values),
+    expiresAt: now + DRAFT_TTL_MS,
   };
   storage?.setItem?.(DRAFT_KEY, JSON.stringify(safeState));
 }

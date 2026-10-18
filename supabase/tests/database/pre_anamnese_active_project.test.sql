@@ -3,6 +3,10 @@ create extension if not exists pgtap with schema extensions;
 select no_plan();
 \ir ../fixtures/agenda.psql
 
+set local role service_role;
+select is(public.bc_pre_anamnese_rate_limit(repeat('c',64)),true,'Serviço público consegue executar o controle de tentativas');
+reset role;
+
 select ok(not has_table_privilege('anon','public.bc_pre_anamneses','SELECT'),'Envios não são públicos');
 select ok(not has_table_privilege('authenticated','public.bc_pre_anamneses','SELECT'),'Recepção não tem leitura direta pela equipe');
 select ok(not has_function_privilege('anon','public.bc_pre_anamnese_inbox(integer)','EXECUTE'),'Público não acessa recepção');
@@ -29,6 +33,16 @@ select is((select count(*)::integer from public.client_files where storage_path=
 select set_config('request.jwt.claim.sub',pg_temp.f('chief')::text,true);
 set local role authenticated;
 select is((select count(*)::integer from storage.objects where name='pre-anamneses/ci/ficha.pdf'),1,'PDF vinculado segue compartilhamento clínico da pasta');
+reset role;
+-- A fila contém somente pendências e oferece acesso às páginas mais antigas.
+reset role;
+insert into public.bc_pre_anamneses(public_code,patient_name,patient_phone,procedure,answers,consents,source_version,submission_token,submission_hash,created_at)
+select 'BC-CI-PAGE-'||i,'Pessoa fictícia','31900000000','Teste','{}','{}','ci','ci-pagina-token-'||i,repeat('a',64),now()-i*interval '1 minute' from generate_series(1,3) i;
+select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
+set local role authenticated;
+select is(jsonb_array_length(public.bc_pre_anamnese_inbox_page(2,0)),2,'Primeira página contém pendências');
+select is(jsonb_array_length(public.bc_pre_anamnese_inbox_page(2,2)),1,'Pendência antiga continua acessível');
+select is(public.bc_pre_anamnese_inbox_page(2,2)->0->>'public_code','BC-CI-PAGE-3','Página antiga não é deslocada por fichas já vinculadas');
 reset role;
 select * from finish();
 rollback;

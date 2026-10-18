@@ -36,6 +36,7 @@ create index if not exists bc_pre_anamneses_reviewer_idx on public.bc_pre_anamne
 alter table public.bc_pre_anamneses enable row level security;
 revoke all on public.bc_pre_anamneses from public,anon,authenticated;
 grant all on public.bc_pre_anamneses to service_role;
+grant usage on schema private to service_role;
 
 create table if not exists private.pre_anamnese_rate_limits (
   origin_hash text not null,
@@ -64,7 +65,7 @@ begin
   if auth.uid() is null or not private.is_bc_admin() then raise exception 'Acesso restrito à administração clínica.' using errcode='42501'; end if;
   select coalesce(jsonb_agg(to_jsonb(r)),'[]'::jsonb) into result from (
     select id,public_code,patient_name,patient_phone,procedure,created_at,status,pdf_path,cliente_id
-    from public.bc_pre_anamneses order by created_at desc limit greatest(1,least(coalesce(p_limit,100),200))
+    from public.bc_pre_anamneses where status='recebida' order by created_at desc,id desc limit greatest(1,least(coalesce(p_limit,100),200))
   ) r;
   return result;
 end; $$;
@@ -134,3 +135,20 @@ revoke all on function public.bc_pre_anamnese_rate_limit(text) from public,anon,
 grant execute on function public.bc_pre_anamnese_rate_limit(text) to service_role;
 revoke all on function public.bc_pre_anamnese_inbox(integer),public.bc_pre_anamnese_link(uuid,uuid) from public,anon;
 grant execute on function public.bc_pre_anamnese_inbox(integer),public.bc_pre_anamnese_link(uuid,uuid) to authenticated;
+
+create or replace function private.bc_pre_anamnese_inbox_page_impl(p_limit integer,p_offset integer)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare result jsonb;
+begin
+  if auth.uid() is null or not private.is_bc_admin() then raise exception 'Acesso restrito à administração clínica.' using errcode='42501'; end if;
+  select coalesce(jsonb_agg(to_jsonb(r)),'[]'::jsonb) into result from (
+    select id,public_code,patient_name,patient_phone,procedure,created_at,status,pdf_path,cliente_id
+    from public.bc_pre_anamneses where status='recebida' order by created_at desc,id desc
+    limit greatest(1,least(coalesce(p_limit,100),200)) offset greatest(0,coalesce(p_offset,0))
+  ) r;
+  return result;
+end; $$;
+create or replace function public.bc_pre_anamnese_inbox_page(p_limit integer default 100,p_offset integer default 0)
+returns jsonb language sql security invoker set search_path='' as $$ select private.bc_pre_anamnese_inbox_page_impl($1,$2); $$;
+revoke all on function private.bc_pre_anamnese_inbox_page_impl(integer,integer),public.bc_pre_anamnese_inbox_page(integer,integer) from public,anon;
+grant execute on function private.bc_pre_anamnese_inbox_page_impl(integer,integer),public.bc_pre_anamnese_inbox_page(integer,integer) to authenticated;
