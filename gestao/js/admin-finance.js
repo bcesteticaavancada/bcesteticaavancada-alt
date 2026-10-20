@@ -79,13 +79,16 @@ export async function initAdminFinance({ client, profile, root = document, staff
     target.innerHTML = `<div class="bcg-finance-list">${rows.map((r) => `<article class="bcg-finance-row"><div><strong>${money(r.valor_total)} • ${escapeHtml(staffMap.get(r.profissional_user_id) || 'Profissional')}</strong><span>${escapeHtml(r.periodo_inicio)} → ${escapeHtml(r.periodo_fim)}</span></div><div><span class="bcg-chip">${escapeHtml(r.status)}</span>${r.status === 'aberto' ? `<button class="bcg-small-button" data-settle-payout="${escapeHtml(r.id)}" type="button">Baixar</button>` : ''}${r.status !== 'estornado' ? `<button class="bcg-small-button" data-reverse-payout="${escapeHtml(r.id)}" type="button">Estornar</button>` : ''}</div></article>`).join('')}</div>`;
   }
 
-  async function refresh() {
-    setStatus(message, 'Carregando financeiro…');
+  let refreshVersion=0;
+  async function refresh({canApply=()=>true,quiet=false}={}) {
+    const version=++refreshVersion;
+    if(!quiet)setStatus(message, 'Carregando financeiro…');
     const args = { client, profissionalUserId: professional.value || null, periodoInicio: from.value || null, periodoFim: to.value || null };
     try {
       const [receipts, commissions, books, payouts] = await Promise.all([
         listAdminReceipts(args), listAdminCommissions({ client, profissionalUserId: professional.value || null }), listAdminBooks(args), listAdminPayouts(args),
       ]);
+      if(version!==refreshVersion || !canApply())return null;
       renderReceipts(receipts); renderCommissions(commissions); renderBooks(books); renderPayouts(payouts);
       const total = receipts.filter((r) => r.status === 'ativo').reduce((sum, r) => sum + Number(r.valor || 0), 0);
       const pending = payouts.filter((r) => r.status === 'aberto').reduce((sum, r) => sum + Number(r.valor_total || 0), 0);

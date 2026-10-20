@@ -65,8 +65,9 @@ export async function initCollaboratorFinance({ client, profile, root = document
   if (!from.value) from.value = period.start;
   if (!to.value) to.value = period.end;
 
-  async function refreshReceipts() {
+  async function refreshReceipts({canApply=()=>true}={}) {
     const receipts = await listOwnReceipts({ client, periodoInicio: from.value, periodoFim: to.value });
+    if(!canApply())return receipts;
     receiptsEl.innerHTML = renderReceipts(receipts);
     if (totalReceived) {
       totalReceived.textContent = money(receipts.filter((r) => r.status === 'ativo').reduce((sum, r) => sum + Number(r.valor || 0), 0));
@@ -74,13 +75,17 @@ export async function initCollaboratorFinance({ client, profile, root = document
     return receipts;
   }
 
-  async function refresh() {
-    status(message, 'Carregando seu financeiro…');
+  let refreshVersion=0;
+  async function refresh({canApply=()=>true,quiet=false}={}) {
+    const version=++refreshVersion;
+    const mayApply=()=>version===refreshVersion && canApply();
+    if(!quiet)status(message, 'Carregando seu financeiro…');
     try {
       const args = { client, periodoInicio: from.value, periodoFim: to.value };
       const [receipts, books, payouts] = await Promise.all([
-        refreshReceipts(), listOwnBooks(args), listOwnPayouts(args),
+        refreshReceipts({canApply:mayApply}), listOwnBooks(args), listOwnPayouts(args),
       ]);
+      if(!mayApply())return null;
       booksEl.innerHTML = renderBooks(books);
       payoutsEl.innerHTML = renderPayouts(payouts);
       if (totalEarned) totalEarned.textContent = money(books.reduce((sum, r) => sum + Number(r.repasse_total || 0), 0));

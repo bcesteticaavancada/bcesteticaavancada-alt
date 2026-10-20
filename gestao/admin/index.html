@@ -129,7 +129,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
-    import { requireRole, signOut } from '../js/auth.js';
+    import { requireRole, signOut, installSessionGuard } from '../js/auth.js';
     import { createBcGestaoClient } from '../js/supabase-client.js';
     import { initAdminAgenda } from '../js/admin-agenda.js';
     import { initClientesPanel } from '../js/clientes-panel.js?v=20261018-basic';
@@ -137,9 +137,10 @@
     import { initAdminFinance } from '../js/admin-finance.js';
     import { initAdminStaffClinicalIdentity } from '../js/admin-staff-profile.js';
     import { initPreAnamneseInbox } from '../js/pre-anamnese-inbox.js';
+    import {startLiveRefresh} from '../js/live-refresh.js';
     import '../js/shell.js';
     const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('admin',client);
-    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;try{const agenda=await initAdminAgenda({client,profile,root:document});await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});await initAdminStaffClinicalIdentity({client,root:document});await initPreAnamneseInbox({client,root:document});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
+    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;const guard=installSessionGuard({client,profile,app});try{const agenda=await initAdminAgenda({client,profile,root:document});const clientsPanel=await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});const finance=await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});await initAdminStaffClinicalIdentity({client,root:document});const inbox=await initPreAnamneseInbox({client,root:document});startLiveRefresh({root:document,authorize:guard.authorize,tasks:[{scope:()=>document.getElementById('adminAgendaList'),refresh:agenda.refreshAgenda},{scope:()=>document.getElementById('clientsList'),refresh:clientsPanel.refreshClients},{scope:()=>document.getElementById('financeiro'),refresh:finance.refresh},{scope:()=>document.getElementById('preAnamneseInbox'),refresh:inbox.refresh}]});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
     logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
   </script>
 </body>

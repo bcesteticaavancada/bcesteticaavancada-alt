@@ -153,3 +153,22 @@ test('a failed initial catalog stays recoverable when a day is opened later', as
   assert.equal(f.find('[data-procedure]').disabled, false);
   assert.equal(f.find('[data-details-retry]').hidden, true);
 });
+
+test('background availability preserves contact fields and selected slot until it becomes occupied',async()=>{
+ const f=fixture();await f.chooseSlot();f.find('[name="name"]').value='Pessoa fictícia';
+ await f.app.refreshAvailability();assert.equal(f.app.state.selectedSlot,'18:00');assert.equal(f.find('[name="name"]').value,'Pessoa fictícia');
+ f.api.getSlots=async()=>({slots:['09:00']});await f.app.refreshAvailability();
+ assert.equal(f.app.state.selectedSlot,null);assert.equal(f.find('[data-submit]').disabled,true);assert.equal(f.find('[name="name"]').value,'Pessoa fictícia');f.app.stop();
+});
+
+test('pending booking can be recovered after reload without choosing an available slot',async()=>{
+ let recovered=0;const f=fixture({hasPendingBooking:()=>true,async recoverPending(){recovered++;return {booking:{id:'old-booking',procedureName:'Pele',professionalName:'Alice',date:'2026-10-20',time:'18:00'}};},async getSlots(){return {slots:[]};}});
+ await f.app.ready;await settled();
+ const button=[...f.document.querySelectorAll('button')].find(b=>b.textContent==='Recuperar tentativa anterior');assert.ok(button);button.click();await settled();
+ assert.equal(recovered,1);assert.equal(f.find('[data-booking-success]').hidden,false);assert.equal(f.calls.filter(([name])=>name==='book').length,0);f.app.stop();
+});
+test('HTTP 500 preserves uncertain selection for recovery instead of polling it away',async()=>{
+ const f=fixture({async book(){throw new PublicAgendaError('Resultado incerto',500);}});await f.chooseSlot();f.find('[name="name"]').value='Pessoa fictícia';f.find('[name="phone"]').value='31900000000';
+ f.find('[data-booking-form]').dispatchEvent(new f.window.Event('submit',{bubbles:true,cancelable:true}));await settled();
+ assert.equal(f.app.state.uncertain,true);f.api.getSlots=async()=>({slots:[]});await f.app.refreshAvailability();assert.equal(f.app.state.selectedSlot,'18:00');f.app.stop();
+});

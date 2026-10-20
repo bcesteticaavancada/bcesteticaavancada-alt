@@ -198,13 +198,16 @@ export async function initClientesPanel({
 
   let staffMap = new Map();
   let currentClientId = null;
+  let listVersion=0;
 
-  async function refreshClients() {
+  async function refreshClients({canApply=()=>true}={}) {
+    const version=++listVersion;
     const clients = await listClients({
       client,
       search: search.value,
       includeArchived: canArchive,
     });
+    if(version!==listVersion || !canApply())return clients;
     list.innerHTML = renderClientsList(clients, canArchive);
     return clients;
   }

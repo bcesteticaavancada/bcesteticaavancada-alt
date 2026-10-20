@@ -1,3 +1,4 @@
+import {notifyAppChange,isMutationRpc} from './live-refresh.js';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
 
 export function createBcGestaoClient(createClient) {
@@ -12,6 +13,11 @@ export function createBcGestaoClient(createClient) {
       detectSessionInUrl: true,
     },
   });
+
+  if(typeof client.rpc==='function'){
+    const rpc=client.rpc.bind(client);
+    client.rpc=async(name,...args)=>{const result=await rpc(name,...args);if(!result?.error && isMutationRpc(name))notifyAppChange();return result;};
+  }
 
   if (typeof globalThis !== 'undefined') globalThis.__bcGestaoClient = client;
   if (typeof document !== 'undefined') {

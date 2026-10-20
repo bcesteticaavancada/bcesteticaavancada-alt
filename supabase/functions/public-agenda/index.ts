@@ -151,6 +151,8 @@ function publicDbError(error: unknown): { status: number; message: string } | nu
   const candidate = (error ?? {}) as RpcError;
   const code = String(candidate.code ?? '');
   const message = String(candidate.message ?? '').toLowerCase();
+  if(message.includes('request_key_mismatch')) return {status:409,message:'Esta tentativa já foi recebida com outros dados. Revise sua reserva com a BC.'};
+  if(message.includes('request_booking_changed')) return {status:409,message:'A reserva desta tentativa foi alterada pela BC. Consulte a equipe antes de reservar novamente.'};
   if (message.includes('slot_unavailable') || code === '23P01') {
     return { status: 409, message: SLOT_TAKEN_MESSAGE };
   }
@@ -223,7 +225,24 @@ async function executeAction(admin: SupabaseAdmin, req: Request, payload: Public
         },
       };
     }
+    case 'recover': {
+      const booking=safeObject(await rpc(admin,'bc_public_agenda_recover',{p_request_key:payload.requestKey,p_origin_hash:await buildOriginHash(req)}));
+      if(typeof booking.error_code==='string')throw {code:booking.error_code,message:String(booking.error||'')};
+      if(booking.not_found)return {status:404,body:{error:'A confirmação ainda não foi localizada. Verifique novamente em instantes ou fale com a BC.'}};
+      const local=localPartsAt(new Date(String(booking.start_at)).getTime());
+      return {status:200,body:{booking:{id:String(booking.appointment_id),procedureName:String(booking.procedure_name||''),professionalName:String(booking.professional_name||''),date:`${local.year}-${local.month}-${local.day}`,time:`${local.hour}:${local.minute}`}}};
+    }
     case 'book': {
+      if(payload.requestKey) {
+        const booking=safeObject(await rpc(admin,'bc_public_agenda_book_v2',{
+          p_request_key:payload.requestKey,p_name:payload.name,p_phone:payload.phone,
+          p_professional_user_id:payload.professionalId,p_procedimento_id:payload.procedureId,
+          p_inicio:clinicLocalDateTimeToIso(payload.date,payload.time),p_origin_hash:await buildOriginHash(req),
+        }));
+        if(typeof booking.error_code==='string')throw {code:booking.error_code,message:String(booking.error||'')};
+        if(!booking.appointment_id)throw new Error('missing_booking_confirmation');
+        return {status:201,body:{booking:{id:String(booking.appointment_id),procedureName:String(booking.procedure_name||''),professionalName:String(booking.professional_name||''),date:payload.date,time:payload.time}}};
+      }
       const [procedures, eligibleProfessionals] = await Promise.all([
         catalog(admin),
         professionals(admin, payload.procedureId),

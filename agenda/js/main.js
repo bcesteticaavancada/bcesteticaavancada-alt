@@ -1,6 +1,6 @@
 import { BC_WHATSAPP_NUMBER } from '../../assets/js/bc-public-config.js';
-import { createPublicAgendaApi } from './api.js?v=20261017-monthly';
-import { clinicToday, monthLabel, publicMonthBounds, renderPublicCalendar, shiftMonth } from './calendar.js?v=20261017-monthly';
+import { createPublicAgendaApi } from './api.js?v=20261018-recovery';
+import { clinicToday, monthLabel, publicMonthBounds, renderPublicCalendar, shiftMonth } from './calendar.js?v=20261018-recovery';
 
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
 const formatDate = date => /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date.split('-').reverse().join('/') : '';
@@ -23,7 +23,7 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
   const success = find('[data-booking-success]');
   if (!procedureSelect || !professionalSelect || !calendarRoot || !slotsRoot || !form || !submitButton || !panel) return null;
   const bounds = publicMonthBounds(today);
-  const state = { procedures: [], professionals: [], selectedProcedure: null, selectedProfessional: null, selectedDate: null, selectedSlot: null, month: bounds.min, days: [], submitting: false, loadingMonth: false, loadingDetails: false };
+  const state = { procedures: [], professionals: [], selectedProcedure: null, selectedProfessional: null, selectedDate: null, selectedSlot: null, month: bounds.min, days: [], submitting: false, loadingMonth: false, loadingDetails: false, uncertain:false };
   let monthGeneration = 0, detailsGeneration = 0, catalogLoading = false, catalogError = '';
   let slotMap = new Map();
   const message = error => error instanceof Error ? error.message : 'Não foi possível carregar. Tente novamente.';
@@ -78,7 +78,7 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
     showPanel();
   });
   function resetDetails() {
-    detailsGeneration++;
+    detailsGeneration++;state.uncertain=false;
     state.selectedProcedure = null;
     state.selectedProfessional = null;
     state.selectedSlot = null;
@@ -149,8 +149,9 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
     find('[data-selected-date]').textContent = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, day)));
     showPanel();
   }
-  function renderSlots(slots = []) {
-    state.selectedSlot = null;
+  function renderSlots(slots = [],preserve=false) {
+    const selected=preserve && slots.includes(state.selectedSlot) ? state.selectedSlot : null;
+    state.selectedSlot = selected;
     find('[data-booking-summary]').hidden = true;
     slotsRoot.innerHTML = slots.length ? slots.map(time => `<button type="button" class="agenda-slot" data-slot="${escapeText(time)}" aria-pressed="false">${escapeText(time)}</button>`).join('') : '<p class="agenda-empty">Não há horários livres para esta escolha neste dia.</p>';
     slotsRoot.querySelectorAll('[data-slot]').forEach(button => button.addEventListener('click', () => {
@@ -163,9 +164,11 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
       announce('Horário selecionado. Preencha seu nome e WhatsApp para confirmar.');
       syncControls();
     }));
+    if(selected){const button=slotsRoot.querySelector(`[data-slot="${selected}"]`);button?.classList.add('is-selected');button?.setAttribute('aria-pressed','true');find('[data-booking-summary]').hidden=false;}
     syncControls();
   }
   function selectProfessional(id) {
+    state.uncertain=false;
     state.selectedProfessional = state.professionals.some(item => item.id === id) ? id : null;
     if (state.selectedProfessional) renderSlots(slotMap.get(id) || []);
     else { renderSlots([]); slotsRoot.innerHTML = '<p class="agenda-empty">Escolha a profissional para ver os horários.</p>'; }
@@ -244,15 +247,56 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
       if (!booking?.id) throw new Error('Não foi possível confirmar a reserva. Consulte a BC antes de tentar novamente.');
       const text = `Olá, BC Estética! Meu agendamento foi confirmado pelo site.\n\nNome: ${payload.name}\nProcedimento: ${booking.procedureName || names.procedure}\nProfissional: ${booking.professionalName || names.professional}\nData: ${formatDate(booking.date || payload.date)}\nHorário: ${booking.time || payload.time}`;
       const whatsappUrl = `https://wa.me/${BC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-      showSuccess(booking, payload, names, whatsappUrl);
+      state.uncertain=false;showSuccess(booking, payload, names, whatsappUrl);
       announce('Agendamento confirmado. Seu horário já está reservado.', 'ok');
       openWhatsApp(whatsappUrl);
     } catch (error) {
+      state.uncertain=!error?.status || error.status>=500;
       if (error?.status === 409) await loadProfessionals();
       announce(message(error), 'error');
-    } finally { state.submitting = false; renderCalendar(); }
+    } finally { state.submitting = false; renderCalendar(); showRecovery(); }
   });
+  let refreshInFlight=null;
+  function refreshAvailability(){
+    if(state.submitting || state.uncertain || state.loadingMonth || state.loadingDetails || root.visibilityState==='hidden' || view?.navigator?.onLine===false)return Promise.resolve();
+    if(refreshInFlight)return refreshInFlight;
+    const month=state.month,monthVersion=monthGeneration,detailsVersion=detailsGeneration;
+    const procedureId=state.selectedProcedure,professionalId=state.selectedProfessional,date=state.selectedDate;
+    refreshInFlight=(async()=>{
+      const response=await api.getOverview({month});
+      if(monthVersion===monthGeneration && !state.submitting && Array.isArray(response?.days)){state.days=response.days;renderCalendar();}
+      if(!procedureId || !professionalId || !date || form.hidden || slotsRoot.contains(root.activeElement))return;
+      const result=await api.getSlots({procedureId,professionalId,date});
+      if(detailsVersion!==detailsGeneration || state.selectedProcedure!==procedureId || state.selectedProfessional!==professionalId || state.selectedDate!==date || state.submitting || state.uncertain)return;
+      const slots=Array.isArray(result?.slots)?result.slots.filter(time=>/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time)):[];
+      slotMap.set(professionalId,slots);const prior=state.selectedSlot;renderSlots(slots,true);
+      if(prior && !state.selectedSlot)announce('O horário selecionado foi ocupado. Escolha outro horário disponível.','error');
+    })().catch(()=>{}).finally(()=>{refreshInFlight=null;});
+    return refreshInFlight;
+  }
+  const triggerRefresh=()=>refreshAvailability();
+  root.addEventListener('visibilitychange',triggerRefresh);
+  for(const event of ['focus','pageshow','online'])view?.addEventListener(event,triggerRefresh);
+  const timer=view?.setInterval(triggerRefresh,60000);timer?.unref?.();
+  const stop=()=>{view?.clearInterval(timer);root.removeEventListener('visibilitychange',triggerRefresh);for(const event of ['focus','pageshow','online'])view?.removeEventListener(event,triggerRefresh);};
+  view?.addEventListener('pagehide',event=>{if(!event.persisted)stop();});
+  const recovery=root.createElement('div');recovery.className='agenda-empty';recovery.hidden=true;
+  const recoverButton=root.createElement('button');recoverButton.type='button';recoverButton.className='agenda-text-button';recoverButton.textContent='Recuperar tentativa anterior';
+  const recoveryStatus=root.createElement('p');recoveryStatus.setAttribute('role','status');recovery.append(recoveryStatus,recoverButton);calendarRoot.before(recovery);
+  function showRecovery(){recovery.hidden=!api.hasPendingBooking?.();if(!recovery.hidden)recoveryStatus.textContent='Uma tentativa anterior aguarda confirmação. Você pode recuperá-la mesmo se o horário já estiver ocupado.';}
+  recoverButton.addEventListener('click',async()=>{
+    recoverButton.disabled=true;
+    try {
+      const {booking}=await api.recoverPending();state.selectedDate=booking.date;
+      find('[data-selected-date]').textContent=`Reserva recuperada • ${formatDate(booking.date)}`;showPanel();
+      const text=`Olá, BC Estética! Recuperei minha reserva: ${booking.procedureName}, ${booking.professionalName}, ${formatDate(booking.date)} às ${booking.time}.`;
+      showSuccess(booking,{name:'Reserva recuperada',date:booking.date,time:booking.time},{},`https://wa.me/${BC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`);
+      state.uncertain=false;recovery.hidden=true;announce('Reserva recuperada. Nenhum novo agendamento foi criado.','ok');
+    }catch(error){recoveryStatus.textContent=message(error);}
+    finally{recoverButton.disabled=false;}
+  });
+  showRecovery();
   const ready = Promise.all([loadMonth(), loadCatalog()]);
-  return { state, ready, loadCatalog, loadMonth, loadProfessionals };
+  return { state, ready, loadCatalog, loadMonth, loadProfessionals,refreshAvailability,stop };
 }
 if (typeof document !== 'undefined') initPublicAgenda();

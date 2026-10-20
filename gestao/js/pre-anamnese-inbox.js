@@ -13,13 +13,14 @@ export function renderPreAnamneseInbox(items=[],clients=[]){
 
 export async function initPreAnamneseInbox({client,root=document}){
   const host=root.getElementById('preAnamneseInbox');if(!host)return null;
-  let items=[];let offset=0;
+  let items=[];let offset=0;let refreshVersion=0;
   const pager=root.createElement('div');pager.className='bcg-form-actions';
   const previous=root.createElement('button'),next=root.createElement('button');
   for(const button of [previous,next]){button.type='button';button.className='bcg-small-button';pager.appendChild(button);}
   previous.textContent='Fichas mais recentes';next.textContent='Fichas anteriores';host.after(pager);
-  async function refresh(){
-    const [rows,clients]=await Promise.all([listPreAnamneses({client,offset}),listClients({client})]);items=rows;host.innerHTML=renderPreAnamneseInbox(items,clients);previous.disabled=offset===0;next.disabled=items.length<100;
+  async function refresh({canApply=()=>true}={}){
+    const version=++refreshVersion;
+    const [rows,clients]=await Promise.all([listPreAnamneses({client,offset}),listClients({client})]);if(version!==refreshVersion || !canApply())return;items=rows;host.innerHTML=renderPreAnamneseInbox(items,clients);previous.disabled=offset===0;next.disabled=items.length<100;
   }
   previous.addEventListener('click',()=>{offset=Math.max(0,offset-100);refresh().catch(error=>{host.textContent=error.message;});});
   next.addEventListener('click',()=>{offset+=100;refresh().catch(error=>{host.textContent=error.message;});});

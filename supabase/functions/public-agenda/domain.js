@@ -1,4 +1,4 @@
-const ACTIONS = new Set(['catalog', 'professionals', 'overview', 'month', 'slots', 'book']);
+const ACTIONS = new Set(['catalog', 'recover', 'professionals', 'overview', 'month', 'slots', 'book']);
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const MONTH_RE = /^(\d{4})-(0[1-9]|1[0-2])$/;
 const DATE_RE = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
@@ -64,6 +64,7 @@ export function sanitizePublicAgendaPayload(raw) {
   const action = cleanString(input.action);
   if (!ACTIONS.has(action)) throw new Error('Ação inválida.');
 
+  if (action === 'recover') return {action,requestKey:requiredUuid(input.requestKey,'Tentativa')};
   if (action === 'catalog') return { action };
   if (action === 'overview') return { action, month: validateMonth(input.month) };
 
@@ -89,6 +90,7 @@ export function sanitizePublicAgendaPayload(raw) {
     name: normalizeName(input.name),
     phone: normalizePhone(input.phone),
     website: '',
+    ...(input.requestKey != null ? {requestKey:requiredUuid(input.requestKey,'Tentativa')} : {}),
   };
 }
 

@@ -107,3 +107,20 @@ export async function requireRole(role, client = getDefaultClient(), redirect = 
   await bootstrapRoleFeatures({ client, profile });
   return profile;
 }
+
+export function installSessionGuard({client,profile,app,view=globalThis.window}) {
+  let stopped=false;
+  function revoke(){
+    if(stopped)return;stopped=true;app.hidden=true;app.replaceChildren();view.location.replace('../login/');
+  }
+  const subscription=client.auth.onAuthStateChange?.((event,session)=>{if(event==='SIGNED_OUT' || (event==='SIGNED_IN' && session?.user?.id!==profile.user_id))revoke();});
+  return {
+    async authorize(){
+      if(stopped)return false;
+      const current=await getCurrentProfile(client);
+      if(!current || current.user_id!==profile.user_id || current.role!==profile.role){revoke();return false;}
+      return true;
+    },
+    stop(){stopped=true;subscription?.data?.subscription?.unsubscribe?.();},
+  };
+}

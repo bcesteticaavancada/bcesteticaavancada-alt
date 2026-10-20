@@ -57,3 +57,9 @@ export async function listAuthorizedHistory({client,clienteId}){ensureClient(cli
 export async function registerAttendance({client,appointmentId,fields={}}){
   ensureClient(client);const allowedFields=['queixa_objetivo','observacoes','reacoes','intercorrencias','feedback_cliente','orientacoes','recomendacao_proxima_sessao'];const payload={p_agendamento_id:cleanRequired(appointmentId,'Agendamento')};for(const field of allowedFields)payload[`p_${field}`]=String(fields[field]??'').trim();const {data,error}=await client.rpc('bc_registrar_atendimento',payload);throwIfError(error,'Não foi possível registrar o atendimento.');return data;
 }
+
+export async function listEligibleProcedures({client,professionalUserId}) {
+  if(!client || typeof client.rpc!=='function') throw new Error('Cliente Supabase indisponível.');
+  const {data,error}=await client.rpc('bc_agenda_eligible_procedures',{p_professional_user_id:cleanRequired(professionalUserId,'Profissional')});
+  throwIfError(error,'Não foi possível carregar os procedimentos autorizados.');return data||[];
+}

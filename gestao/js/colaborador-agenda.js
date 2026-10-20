@@ -4,7 +4,7 @@ import {
   listAdminAppointments,
   listAuthorizedHistory,
   listStaffDirectory,
-  listActiveProcedures,
+  listEligibleProcedures,
   createAppointment,
   updateAppointment,
   setAppointmentStatus,
@@ -201,6 +201,8 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   if (!todayList || !nextList || !detail || !detailContent || !historyTimeline || !attendanceFormSlot || !appointmentForm || !clientSelect || !procedureSelect) throw new Error('Estrutura da agenda da colaboradora incompleta.');
 
   let refreshVersion = 0;
+  let eligibilityVersion = 0;
+  let openingVersion = 0;
   let appointments = new Map();
   let staffMap = new Map();
   let staffRows = [];
@@ -226,7 +228,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   }
 
   async function loadLookups() {
-    const [staff, procedureRows] = await Promise.all([listStaffDirectory({ client }), listActiveProcedures({ client })]);
+    const [staff, procedureRows] = await Promise.all([listStaffDirectory({ client }), listEligibleProcedures({ client, professionalUserId:profile.user_id })]);
     staffRows = staff;
     staffMap = new Map(staff.map((item) => [item.user_id, item.display_name]));
     procedures = procedureRows;
@@ -242,6 +244,17 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     await refreshClients();
   }
 
+  async function refreshEligibleProcedures() {
+    const version=++eligibilityVersion;procedureSelect.disabled=true;
+    try {
+      const professionalUserId=manager ? professionalSelect?.value : profile.user_id;
+      const rows=professionalUserId ? await listEligibleProcedures({client,professionalUserId}) : [];
+      if(version!==eligibilityVersion)return;
+      procedures=rows;replaceOptions(procedureSelect,procedures,'Selecione o procedimento');
+    } finally {if(version===eligibilityVersion)procedureSelect.disabled=false;}
+  }
+  professionalSelect?.addEventListener('change',()=>refreshEligibleProcedures().catch(error=>setStatus(el('collaboratorAppointmentStatus'),error.message,'error')));
+
   async function loadAppointments(range) {
     const rows = await (manager
       ? listAdminAppointments({ client, ...range, origin: originFilter?.value || 'all' })
@@ -249,20 +262,20 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     return filterCollaboratorAppointments(rows, profile, agendaProfessional?.value);
   }
 
-  async function refresh() {
+  async function refresh({canApply=()=>true,quiet=false}={}) {
     const version = ++refreshVersion;
-    setStatus(agendaStatus, manager ? 'Carregando agenda da equipe…' : 'Carregando sua agenda…');
+    if(!quiet)setStatus(agendaStatus, manager ? 'Carregando agenda da equipe…' : 'Carregando sua agenda…');
     const { day: todayRange, next: nextRange } = collaboratorAgendaRanges(agendaDate?.value || undefined);
     try {
       const [todayAppointments, nextAppointments] = await Promise.all([loadAppointments(todayRange), loadAppointments(nextRange)]);
-      if (version !== refreshVersion) return null;
+      if (version !== refreshVersion || !canApply()) return null;
       appointments = new Map([...todayAppointments, ...nextAppointments].map((item) => [item.id, item]));
       todayList.innerHTML = renderCollaboratorAppointments(todayAppointments, manager ? staffMap : new Map());
       nextList.innerHTML = renderCollaboratorAppointments(nextAppointments, manager ? staffMap : new Map());
       setStatus(agendaStatus, `${todayAppointments.length} atendimento(s) no dia selecionado.`, 'success');
       return { todayAppointments, nextAppointments };
     } catch (error) {
-      if (version !== refreshVersion) return null;
+      if (version !== refreshVersion || !canApply()) return null;
       todayList.innerHTML = '<div class="bcg-empty">Não foi possível carregar a agenda.</div>';
       nextList.innerHTML = '<div class="bcg-empty">Não foi possível carregar os próximos atendimentos.</div>';
       setStatus(agendaStatus, error?.message || 'Erro ao carregar agenda.', 'error');
@@ -271,11 +284,14 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   }
 
   async function openAppointment(appointmentId) {
+    const version=++openingVersion;detail.hidden=true;syncAttendanceForm(null);
     const appointment = appointments.get(appointmentId);
     if (!appointment) throw new Error('Atendimento não encontrado na agenda carregada.');
+    const eligible=await listEligibleProcedures({client,professionalUserId:appointment.colaboradora_user_id});
+    if(version!==openingVersion)return null;
     currentAppointmentId = appointment.id;
     detail.dataset.appointmentId = appointment.id;
-    detailContent.innerHTML = renderAppointmentDetail(appointment, procedures, clients);
+    detailContent.innerHTML = renderAppointmentDetail(appointment, eligible, clients);
     syncAttendanceForm(appointment);
     detail.hidden = false;
     if (!canOpenClinicalAppointment(appointment)) {
@@ -286,17 +302,21 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
       historyTimeline.innerHTML = '<div class="bcg-empty">Carregando histórico da cliente…</div>';
       try {
         const history = await listAuthorizedHistory({ client, clienteId: appointment.cliente_id });
+        if(version!==openingVersion)return null;
         historyTimeline.innerHTML = renderAuthorizedHistory(history, staffMap);
       } catch (error) {
+        if(version!==openingVersion)return null;
         historyTimeline.innerHTML = '<div class="bcg-empty">Não foi possível carregar o histórico da cliente.</div>';
         setStatus(agendaStatus, error?.message || 'Erro ao carregar histórico.', 'error');
       }
     }
+    if(version!==openingVersion)return null;
     detail.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
     return appointment;
   }
 
   function closeDetail() {
+    openingVersion++;
     currentAppointmentId = null;
     delete detail.dataset.appointmentId;
     detail.hidden = true;
@@ -323,6 +343,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
       }) });
       appointmentForm.reset();
       if (manager && professionalSelect) professionalSelect.value = profile.user_id;
+      await refreshEligibleProcedures();
       setStatus(statusEl, 'Agendamento criado.', 'success');
       await refresh();
     } catch (error) { setStatus(statusEl, error?.message || 'Não foi possível criar o agendamento.', 'error'); }
