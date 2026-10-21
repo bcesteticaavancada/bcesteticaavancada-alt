@@ -1,0 +1,2 @@
+.bcg-creation-list{display:grid;gap:1rem;margin:1rem 0}.bcg-creation-details{display:grid;gap:.8rem}.bcg-creation-details div{min-width:0}.bcg-creation-details dt{font-weight:600;color:#4b3b32}.bcg-creation-details dd{margin:.2rem 0 0;overflow-wrap:anywhere;white-space:pre-wrap}.bcg-creation-list summary{cursor:pointer;padding:.5rem 0}.bcg-dashboard-main:has(#creationList){max-width:1200px;margin:auto}
+@media(min-width:800px){.bcg-creation-details{grid-template-columns:repeat(2,minmax(0,1fr))}}

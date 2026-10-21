@@ -1,5 +1,6 @@
 export const ROLE_DESTINATIONS = Object.freeze({
   admin: '../admin/',
+  admin_criacao: '../criacao/',
   colaborador: '../colaborador/',
 });
 

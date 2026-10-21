@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin de Criação • BC Gestão</title>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#171310">
+  <link rel="stylesheet" href="../assets/gestao.css"><link rel="stylesheet" href="../assets/navigation.css">
+  <link rel="stylesheet" href="../assets/creation.css">
+  <link rel="manifest" href="../../manifest.webmanifest">
+</head>
+<body class="bcg-page bcg-dashboard-page">
+  <p id="authStatus" class="bcg-status" role="status" aria-live="polite">Validando acesso…</p>
+  <div id="gestaoApp" class="bcg-dashboard-main" hidden>
+    <header class="bcg-topbar"><div><p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p><h1>Admin de Criação</h1><p>Olá, <strong id="profileName"></strong>.</p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
+    <main class="bcg-panel">
+      <div class="bcg-section-head"><div><p class="bcg-eyebrow">ACOMPANHAMENTO DA OPERAÇÃO</p><h2>Visão geral</h2></div><button id="creationRefresh" type="button" class="bcg-small-button">Atualizar</button></div>
+      <p class="bcg-muted">Seu perfil permite consultar a operação da clínica. Alterações clínicas e financeiras são realizadas pelas responsáveis.</p>
+      <form id="creationFilters" class="bcg-inline-filters"><label>Área<select id="creationSection" class="bcg-input"></select></label><label>Buscar<input id="creationSearch" class="bcg-input" type="search" maxlength="80" placeholder="Nome, data ou situação"></label><button class="bcg-button" type="submit">Buscar</button></form>
+      <p class="bcg-muted">Documentos e anamneses mostram identificação e situação. PDFs, anexos e formulários completos ficam com a equipe clínica, pois podem conter valores.</p>
+      <p id="creationStatus" class="bcg-status" role="status" aria-live="polite"></p>
+      <div id="creationList" class="bcg-creation-list"></div>
+      <div class="bcg-form-actions"><button id="creationPrevious" class="bcg-small-button" type="button" disabled>Anterior</button><button id="creationNext" class="bcg-small-button" type="button" disabled>Próxima</button></div>
+    </main>
+    <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import {requireRole,signOut,installSessionGuard} from '../js/auth.js';
+    import {createBcGestaoClient} from '../js/supabase-client.js';
+    import {initCreationPanel} from '../js/creation-panel.js';
+    import {startLiveRefresh} from '../js/live-refresh.js';
+    import '../js/shell.js';
+    const client=createBcGestaoClient(globalThis.supabase?.createClient);
+    const profile=await requireRole('admin_criacao',client);
+    const app=document.getElementById('gestaoApp'),status=document.getElementById('authStatus');
+    document.getElementById('logoutBtn').addEventListener('click',async()=>{try{await signOut(client);}finally{window.location.replace('../login/');}});
+    if(profile){
+      document.getElementById('profileName').textContent=profile.display_name;
+      const guard=installSessionGuard({client,profile,app});
+      status.hidden=true;app.hidden=false;
+      const panel=await initCreationPanel({client,root:document});
+      startLiveRefresh({root:document,authorize:guard.authorize,tasks:[{scope:()=>document.getElementById('creationList'),refresh:panel.refresh}]});
+    }
+  </script>
+</body>
+</html>
