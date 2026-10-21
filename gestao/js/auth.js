@@ -1,6 +1,6 @@
 import { createBcGestaoClient } from './supabase-client.js';
 
-const VALID_ROLES = new Set(['admin', 'colaborador']);
+const VALID_ROLES = new Set(['admin', 'colaborador', 'admin_criacao']);
 let browserClient;
 
 function getDefaultClient() {

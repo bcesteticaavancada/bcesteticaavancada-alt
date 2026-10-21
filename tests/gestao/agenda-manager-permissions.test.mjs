@@ -40,11 +40,12 @@ test('permissão amplia somente leitura operacional da agenda sem mexer em polí
   assert.doesNotMatch(sql, /bc_registrar_atendimento_impl/i);
 });
 
-test('perfil autenticado carrega a capacidade e apresenta Colaboradora Chefe sem terceiro papel', async () => {
+test('perfil autenticado apresenta Colaboradora Chefe sem criar papel clínico adicional', async () => {
   const source = await read(authUrl);
   assert.match(source, /pode_gerenciar_agendas/);
   assert.match(source, /Colaboradora Chefe/);
-  assert.match(source, /VALID_ROLES\s*=\s*new Set\(\[['"]admin['"],\s*['"]colaborador['"]\]\)/);
+  assert.match(source, /profile\?\.role !== 'colaborador'/);
+  assert.doesNotMatch(source, /['"]colaboradora_chefe['"]/);
 });
 
 test('área colaboradora mantém módulo financeiro de colaboradora, não o administrativo', async () => {
