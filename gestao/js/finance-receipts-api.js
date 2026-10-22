@@ -1,12 +1,13 @@
+function inputError(message){return Object.assign(new Error(message),{confirmedFailure:true});}
 function ensureClient(client) {
   if (!client || typeof client.rpc !== 'function') {
-    throw new Error('Cliente Supabase indisponível.');
+    throw inputError('Cliente Supabase indisponível.');
   }
 }
 
 function cleanRequired(value, label) {
   const clean = String(value ?? '').trim();
-  if (!clean) throw new Error(`${label} é obrigatório.`);
+  if (!clean) throw inputError(`${label} é obrigatório.`);
   return clean;
 }
 
@@ -18,44 +19,47 @@ function cleanOptional(value) {
 function positiveMoney(value) {
   const amount = Number(value);
   if (!Number.isFinite(amount) || amount <= 0) {
-    throw new Error('Valor recebido deve ser maior que zero.');
+    throw inputError('Valor recebido deve ser maior que zero.');
   }
   return amount;
 }
 
 function throwIfError(error, fallback) {
   if (!error) return;
-  throw new Error(error.message || fallback);
+  throw Object.assign(new Error(error.message||fallback),{code:error.code,confirmedFailure:/^(?:(?:22|23|25|28|40|42|55|P0|XX)[0-9A-Z]{3}|PGRST[123][0-9]{2})$/.test(error.code||'')});
 }
 
 export async function registerReceipt({
   client,
   atendimentoId,
+  requestKey,
   valor,
   formaPagamento,
   recebidoAt = null,
   observacao = null,
 }) {
   ensureClient(client);
-  const { data, error } = await client.rpc('bc_recebimento_registrar', {
+  const { data, error } = await client.rpc('bc_recebimento_registrar_v2', {
     p_atendimento_id: cleanRequired(atendimentoId, 'Atendimento'),
     p_valor: positiveMoney(valor),
     p_forma_pagamento: cleanRequired(formaPagamento, 'Forma de pagamento'),
     p_recebido_at: recebidoAt ? String(recebidoAt).trim() : null,
     p_observacao: cleanOptional(observacao),
+    p_request_key: cleanRequired(requestKey,'Chave da tentativa'),
   });
   throwIfError(error, 'Não foi possível registrar o recebimento.');
   return data;
 }
 
-export async function registerReceiptForAppointment({client,appointmentId,valor,formaPagamento,recebidoAt=null,observacao=null}) {
+export async function registerReceiptForAppointment({client,appointmentId,requestKey,valor,formaPagamento,recebidoAt=null,observacao=null}) {
   ensureClient(client);
-  const {data,error}=await client.rpc('bc_recebimento_registrar_agendamento',{
+  const {data,error}=await client.rpc('bc_recebimento_registrar_agendamento_v2',{
     p_agendamento_id:cleanRequired(appointmentId,'Agendamento'),
     p_valor:positiveMoney(valor),
     p_forma_pagamento:cleanRequired(formaPagamento,'Forma de pagamento'),
     p_recebido_at:recebidoAt?String(recebidoAt).trim():null,
     p_observacao:cleanOptional(observacao),
+    p_request_key:cleanRequired(requestKey,'Chave da tentativa'),
   });
   throwIfError(error,'Não foi possível registrar o recebimento.');
   return data;

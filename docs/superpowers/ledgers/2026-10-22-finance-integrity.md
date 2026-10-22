@@ -1,0 +1,21 @@
+# Execução — plano: docs/superpowers/plans/2026-10-22-finance-integrity.md
+
+Base abbe5bd; execução nativa sequencial autorizada pelo usuário. Checkout isolado de auditoria já existente; não recomeçar tarefas após compactação.
+
+Pre-flight: FIN02 chama a implementação de recebimento protegida por FIN01. FIN03 congela livros em lote ativo; FIN04 confere novamente todos os livros antes da baixa. Interfaces compatíveis; wrappers novos de FIN02 substituem os chamadores frontend e recusam escrita antiga.
+
+Ruling: manter o formulário de recebimento focado na entrada; total vem da obrigação inequívoca existente ou versão clínica assinada — produção não contém atendimentos legados/pagamentos — atendimento sem total exige revisão antes de receber; não inferir total pela parcela. Custo: legado sem obrigação precisa ser regularizado antes de cobrar.
+
+Task 1: implementação local concluída — RED100!=600 observado, GREEN sete cenários SQL isolados (parcial, quitação/estorno, total ausente, cobrança apenas de agenda, ambiguidade, excesso, preço mutável). Recompute bloqueia pagamento antes da soma; total não aumenta silenciosamente. npm test769/769. pgTAP financeiro adicionado e fixture da ponte agora inclui versão final. CI PostgreSQL17 e concorrência ainda pendentes; migration não aplicada em produção.
+
+Task 2: implementação local concluída — RED RPC v2 ausente e regressões de formulário observados; GREEN onze cenários SQL isolados cumulativos. Chave por tentativa, payload/autor conferidos, mesmo recibo após replay/estorno e escrita antiga encerrada. Formulários preservam tentativa incerta, inclusive em reload, e não permitem trocar valor silenciosamente; falha definitiva posterior não apaga incerteza anterior. sessionStorage guarda somente IDs opacos/hash, sem valores ou observações. Node774/774. Concorrência PostgreSQL17/CI ainda pendente.
+
+Task 3: implementação local concluída — RED reabertura de livro com lote ativo foi aceita indevidamente; GREEN guarda na reabertura e no recálculo sob bloqueio do livro. Estorno libera revisão e novo lote reflete nova comissão (50→40 no cenário isolado). Catorze cenários SQL isolados cumulativos; Node774/774. Concorrência PostgreSQL17 pendente.
+
+Task 4: implementação local concluída — RED baixa de livro em revisão foi aceita indevidamente; GREEN dezoito cenários SQL isolados cumulativos, incluindo divergência de valor, ausência de livros e baixa coerente. Node774/774. Ordem de bloqueio dos livros estável na criação/baixa. Adicionado teste PostgreSQL real de concorrência (chave repetida, excesso, recebimento/estorno, lote/reabertura e fechamento com recebimento em andamento); aguarda CI. Investigar a possível corrida de fechamento/período antes da publicação. Nenhuma migration financeira aplicada em produção.
+
+Revisão independente da branch encontrou três falhas materiais: fechamento/recálculo sem serialização com movimentos; estorno em estado legado ignorando lote ativo; armazenamento indisponível podendo perder chave e duplicar após reload. Todos entraram na única rodada de correção. CI PostgreSQL17 confirmou RED do fechamento concorrente: cinco cenários anteriores passaram e o livro ficou sem os R$100 ainda não confirmados na outra transação.
+
+Correção local: mutex transacional por profissional antes de row locks em recebimento, estorno, fechamento, recálculo e comissão, mais proteção no trigger de inserção. Estorno bloqueia livros em lote ativo antes de mexer em itens; movimento retroativo também exige estorno do lote. Storage precisa gravar e reler a chave antes do envio; falha bloqueia a operação, limpeza malsucedida impede nova tentativa e resposta antiga não remove uma chave mais recente. RED→GREEN dos casos de storage/limpeza/resposta atrasada e do estorno com lote ativo; dezenove cenários SQL isolados e Node778/778 passaram. Incluídas no pgTAP as cobranças só de agenda, ambíguas e o preço mutável já exigidos no plano; não são cobertura futura adiada.
+
+Ruling: trava única por profissional em vez de conjunto de datas — clínica com baixo volume, ordem de bloqueio mais simples e proteção também entre semanas — custo: operações financeiras simultâneas da mesma profissional aguardam a anterior. CI PostgreSQL17 final ainda pendente; nenhuma migration financeira aplicada em produção.

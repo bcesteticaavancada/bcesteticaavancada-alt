@@ -8,6 +8,7 @@ on:
       - 'supabase/**'
       - 'scripts/prepare-supabase-ci-migrations.py'
       - 'scripts/test-agenda-concurrency.py'
+      - 'scripts/test-finance-concurrency.py'
       - 'scripts/fixtures/**'
       - '.github/workflows/agenda-db-ci.yml'
   pull_request:
@@ -16,6 +17,7 @@ on:
       - 'supabase/**'
       - 'scripts/prepare-supabase-ci-migrations.py'
       - 'scripts/test-agenda-concurrency.py'
+      - 'scripts/test-finance-concurrency.py'
       - 'scripts/fixtures/**'
       - '.github/workflows/agenda-db-ci.yml'
   workflow_dispatch:
@@ -57,6 +59,10 @@ jobs:
       - name: Concurrent reservations across channels and midnight
         if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
         run: python3 scripts/test-agenda-concurrency.py
+
+      - name: Concurrent financial receipts, reversals and books
+        if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
+        run: python3 scripts/test-finance-concurrency.py
 
       - name: Stop ephemeral Supabase
         if: always()
