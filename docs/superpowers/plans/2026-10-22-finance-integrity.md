@@ -56,5 +56,5 @@
 
 - [x] RED revisão/divergência/sem livros impedem baixa sem alterações; lote coerente continua funcionando.
 - [x] Implementar conferências sob bloqueios; GREEN SQL/Node.
-- [ ] Revisão independente da branch, CI PostgreSQL17/pgTAP/lint/advisors/concorrência e frontend, corrigir achados materiais.
-- [ ] Aplicar migrations aprovadas, publicar app e verificar somente leitura/arquivos publicados; reportar limites do fluxo de caixa e convite pendente.
+- [x] Revisão independente da branch, CI PostgreSQL17/pgTAP/lint/advisors/concorrência e frontend, corrigir achados materiais.
+- [x] Aplicar migrations aprovadas, publicar app e verificar somente leitura/arquivos publicados; reportar limites do fluxo de caixa e ativação das contas.
