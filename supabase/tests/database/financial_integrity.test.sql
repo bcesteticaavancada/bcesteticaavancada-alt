@@ -10,8 +10,11 @@ insert into fixture values('fin-appointment',public.bc_agendamento_create(pg_tem
 insert into fixture values('fin-treatment',public.bc_treatment_create(pg_temp.f('client'),pg_temp.f('procedure'),pg_temp.f('fin-appointment')));
 reset role;
 update public.clinical_treatments set final_price=600,status='em_atendimento' where id=pg_temp.f('fin-treatment');
+-- A versão histórica fictícia não testa o fluxo de consentimento.
+alter table public.clinical_treatment_versions disable trigger bc_external_consent_snapshot_before_version_insert;
 insert into public.clinical_treatment_versions(treatment_id,version,snapshot,created_by)
 select id,1,jsonb_build_object('treatment',to_jsonb(t)),pg_temp.f('worker') from public.clinical_treatments t where id=pg_temp.f('fin-treatment');
+alter table public.clinical_treatment_versions enable trigger bc_external_consent_snapshot_before_version_insert;
 update public.clinical_treatments t set current_version_id=v.id from public.clinical_treatment_versions v where v.treatment_id=t.id and t.id=pg_temp.f('fin-treatment');
 update public.clinical_treatments set status='finalizado' where id=pg_temp.f('fin-treatment');
 insert into fixture select 'fin-attendance',operational_attendance_id from public.clinical_treatments where id=pg_temp.f('fin-treatment');

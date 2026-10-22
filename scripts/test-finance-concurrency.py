@@ -58,7 +58,9 @@ insert into public.agendamentos(id,cliente_id,colaboradora_user_id,procedimento_
 select '{APPOINTMENT}','{CLIENT}','{WORKER}','{PROCEDURE}',slot,slot+interval '30 minutes','agendado','{WORKER}' from test_clock;
 insert into public.clinical_treatments(id,cliente_id,procedimento_id,procedure_version_id,profissional_user_id,agendamento_id,treatment_date,price_mode_snapshot,base_price_snapshot,final_price,created_by,status)
 select '{TREATMENT}','{CLIENT}','{PROCEDURE}',pg_temp.f('version'),'{WORKER}','{APPOINTMENT}',day,'fixed',600,600,'{WORKER}','em_atendimento' from test_clock;
+alter table public.clinical_treatment_versions disable trigger bc_external_consent_snapshot_before_version_insert;
 insert into public.clinical_treatment_versions(treatment_id,version,snapshot,created_by) select id,1,jsonb_build_object('treatment',to_jsonb(t)),'{WORKER}' from public.clinical_treatments t where id='{TREATMENT}';
+alter table public.clinical_treatment_versions enable trigger bc_external_consent_snapshot_before_version_insert;
 update public.clinical_treatments t set current_version_id=v.id from public.clinical_treatment_versions v where v.treatment_id=t.id and t.id='{TREATMENT}';
 update public.clinical_treatments set status='finalizado' where id='{TREATMENT}';
 select operational_attendance_id from public.clinical_treatments where id='{TREATMENT}';
