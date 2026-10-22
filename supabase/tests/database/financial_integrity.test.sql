@@ -57,6 +57,33 @@ reset role;
 select is((select count(*)::integer from public.pagamentos where atendimento_id=pg_temp.f('fin-attendance')),0,'FIN01 falha não cria cobrança');
 rollback to no_total;
 
+-- Casos da auditoria também executados no PostgreSQL17 de CI.
+savepoint appointment_charge;
+delete from public.recebimentos where atendimento_id=pg_temp.f('fin-attendance');
+delete from public.pagamentos where atendimento_id=pg_temp.f('fin-attendance');
+insert into public.pagamentos(agendamento_id,cliente_id,valor_total,created_by) values(pg_temp.f('fin-appointment'),pg_temp.f('client'),450,pg_temp.f('admin'));
+set local role authenticated;
+select public.bc_recebimento_registrar_v2(gen_random_uuid(),pg_temp.f('fin-attendance'),100,'pix');
+reset role;
+select is((select count(*)::integer from public.pagamentos where agendamento_id=pg_temp.f('fin-appointment')),1,'FIN01 cobrança apenas da agenda é reutilizada');
+select is((select valor_total from public.pagamentos where atendimento_id=pg_temp.f('fin-attendance')),450::numeric,'FIN01 obrigação explícita preserva total450');
+rollback to appointment_charge;
+savepoint ambiguous_charge;
+insert into public.pagamentos(agendamento_id,atendimento_id,cliente_id,valor_total,created_by) values(pg_temp.f('fin-appointment'),pg_temp.f('fin-attendance'),pg_temp.f('client'),600,pg_temp.f('admin'));
+set local role authenticated;
+select throws_ok(format('select public.bc_recebimento_registrar_v2(gen_random_uuid(),%L,100,%L)',pg_temp.f('fin-attendance'),'pix'),'55000','Há cobranças ambíguas para este atendimento; revise antes de receber.','FIN01 cobrança ambígua é recusada');
+reset role;
+rollback to ambiguous_charge;
+savepoint mutable_price;
+delete from public.recebimentos where atendimento_id=pg_temp.f('fin-attendance');
+delete from public.pagamentos where atendimento_id=pg_temp.f('fin-attendance');
+update public.clinical_treatments set final_price=50 where id=pg_temp.f('fin-treatment');
+set local role authenticated;
+select public.bc_recebimento_registrar_v2(gen_random_uuid(),pg_temp.f('fin-attendance'),100,'pix');
+reset role;
+select is((select valor_total from public.pagamentos where atendimento_id=pg_temp.f('fin-attendance')),600::numeric,'FIN01 preço mutável não substitui snapshot assinado600');
+rollback to mutable_price;
+
 -- FIN03: o lote precisa ser estornado antes da revisão, inclusive estado legado.
 set local role authenticated;
 select public.bc_comissao_set(pg_temp.f('worker'),pg_temp.f('procedure'),50);
@@ -67,6 +94,10 @@ reset role;
 update public.livros_financeiros set status='em_revisao' where id=pg_temp.f('fin-book');
 set local role authenticated;
 select throws_ok(format('select public.bc_livros_recalcular(%L,null,%L::date,%L::date)',pg_temp.f('worker'),date_trunc('week',now() at time zone 'America/Sao_Paulo')::date,date_trunc('week',now() at time zone 'America/Sao_Paulo')::date+6),'55000','Estorne o repasse ativo antes de revisar ou recalcular o livro.','FIN03 estado legado não permite recalcular lote ativo');
+reset role;
+insert into fixture select 'fin-live-receipt',id from public.recebimentos where atendimento_id=pg_temp.f('fin-attendance') and status='ativo';
+set local role authenticated;
+select throws_ok(format('select public.bc_recebimento_estornar(%L,%L)',pg_temp.f('fin-live-receipt'),'Estorno fictício'),'55000','Estorne o repasse ativo antes de estornar recebimentos deste livro.','FIN03 estorno de recebimento também respeita lote ativo');
 select lives_ok(format('select public.bc_repasse_estornar(%L,%L)',pg_temp.f('fin-payout'),'Revisão fictícia'),'FIN03 estorno libera revisão');
 select public.bc_comissao_set(pg_temp.f('worker'),pg_temp.f('procedure'),40);
 select is(public.bc_livros_recalcular(pg_temp.f('worker'),null,date_trunc('week',now() at time zone 'America/Sao_Paulo')::date,date_trunc('week',now() at time zone 'America/Sao_Paulo')::date+6),1,'FIN03 livro pode ser recalculado depois do estorno');

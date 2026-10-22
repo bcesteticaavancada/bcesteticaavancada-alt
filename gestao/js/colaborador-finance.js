@@ -1,4 +1,4 @@
-import {createReceiptAttempt,receiptFailureMessage} from './receipt-attempt.js';
+import {createReceiptAttempt,receiptFailureMessage,receiptStorageMessage} from './receipt-attempt.js';
 import { registerReceiptForAppointment, listOwnReceipts } from './finance-receipts-api.js';
 import { listOwnBooks } from './finance-books-api.js';
 import { listOwnPayouts } from './finance-payouts-api.js';
@@ -62,7 +62,8 @@ export async function initCollaboratorFinance({ client, profile, root = document
     throw new Error('Estrutura financeira da colaboradora incompleta.');
   }
 
-  const attempts=createReceiptAttempt();
+  let receiptStorage;try{receiptStorage=root.defaultView?.sessionStorage;}catch{}
+  const attempts=createReceiptAttempt({storage:receiptStorage});
   const period = defaultPeriod();
   if (!from.value) from.value = period.start;
   if (!to.value) to.value = period.end;
@@ -116,18 +117,18 @@ export async function initCollaboratorFinance({ client, profile, root = document
     if(submit?.disabled)return;
     if(submit)submit.disabled=true;
     const context=`${profile.user_id}:${appointment.id}`;
-    let requestKey,registered=false;
+    let requestKey,registered=false,released=false;
     try {
       const values={valor:Number(el('currentAppointmentReceiptValue').value),formaPagamento:el('currentAppointmentReceiptMethod').value.trim(),recebidoAt:el('currentAppointmentReceiptAt').value?new Date(el('currentAppointmentReceiptAt').value).toISOString():null,observacao:el('currentAppointmentReceiptNote').value.trim()||null};
       requestKey=await attempts.get(context,values);
       await registerReceiptForAppointment({client,appointmentId:appointment.id,requestKey,...values});
-      registered=true;attempts.complete(context,requestKey);
+      registered=true;released=attempts.complete(context,requestKey);
       receiptForm.reset();
       await refreshReceipts();
-      status(receiptMessage,'Recebimento registrado no atendimento atual.','success');
+      status(receiptMessage,released?'Recebimento confirmado no atendimento atual.':receiptStorageMessage,'success');
     } catch(error) {
       if(requestKey)attempts.fail(context,requestKey,error);
-      status(receiptMessage,registered?'Recebimento registrado. Atualize o financeiro para conferir a lista.':receiptFailureMessage(error,requestKey),registered?'success':'error');
+      status(receiptMessage,registered?(released?'Recebimento confirmado. Atualize o financeiro para conferir a lista.':receiptStorageMessage):receiptFailureMessage(error,requestKey),registered?'success':'error');
     } finally {
       if(submit)submit.disabled=false;
     }

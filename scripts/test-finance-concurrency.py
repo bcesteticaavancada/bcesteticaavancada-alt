@@ -101,4 +101,14 @@ clear();overlap(receipt(7),CLOSE)
 assert sql(f"select producao_recebida from public.livros_financeiros where profissional_user_id='{WORKER}';")=='100.00'
 assert sql(f"select count(*) from public.livro_financeiro_itens li join public.recebimentos r on r.id=li.movimento_recebimento_id where r.profissional_user_id='{WORKER}';")=='1'
 print('PASS financial period: closing includes the in-flight receipt',flush=True)
+# A reversal must re-check the committed closed state after a concurrent recalculation.
+clear();sql('begin; '+auth(receipt(8))+' commit;');b=first_value(sql('begin; '+auth(CLOSE)+' commit;'))
+sql('begin; '+auth(f"select public.bc_livro_reabrir('{b}','Revisão fictícia CI');")+' commit;')
+r=first_value(sql(f"select id from public.recebimentos where profissional_user_id='{WORKER}' and status='ativo';"))
+recalculate=f"select public.bc_livros_recalcular('{WORKER}',null,'{START}','{END}');"
+reverse=f"select public.bc_recebimento_estornar('{r}','Estorno fictício CI');"
+overlap(recalculate,reverse,'55000')
+assert sql(f"select status from public.recebimentos where id='{r}';")=='ativo'
+assert sql(f"select status from public.livros_financeiros where id='{b}';")=='fechado'
+print('PASS financial period: recalculation freezes reversal before its checks',flush=True)
 print('All financial concurrency checks passed. Disposable CI database only.',flush=True)

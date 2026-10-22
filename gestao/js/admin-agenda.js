@@ -1,4 +1,4 @@
-import {createReceiptAttempt,receiptFailureMessage} from './receipt-attempt.js';
+import {createReceiptAttempt,receiptFailureMessage,receiptStorageMessage} from './receipt-attempt.js';
 import { registerReceiptForAppointment } from './finance-receipts-api.js';
 import { linkPublicAppointment } from './schedule-api.js';
 import { agendaOriginKind } from './agenda-origin.js';
@@ -63,7 +63,8 @@ export async function initAdminAgenda({client,profile,root=document}){
   appointmentForm.addEventListener('submit',async(event)=>{event.preventDefault();const start=el('appointmentStart').value;const end=el('appointmentEnd').value;try{await withSubmitState(appointmentForm,el('appointmentFormStatus'),()=>createAppointment({client,clienteId:clientSelect.value,colaboradoraUserId:collaboratorSelect.value,procedimentoId:procedureSelect.value,inicioIso:clinicLocalDateTimeToIso(start),fimIso:end?clinicLocalDateTimeToIso(end):null,observacao:el('appointmentNote').value}));appointmentForm.reset();await refreshProcedures();await refreshAgenda();}catch{}});
   editForm.addEventListener('submit',async(event)=>{event.preventDefault();try{await withSubmitState(editForm,el('adminAppointmentEditStatus'),()=>updateAppointment({client,appointmentId:editForm.dataset.appointmentId,procedimentoId:editProcedure.value,inicioIso:clinicLocalDateTimeToIso(editStart.value),fimIso:editEnd.value?clinicLocalDateTimeToIso(editEnd.value):null,observacao:editNote.value}));editForm.hidden=true;await refreshAgenda();}catch{}});el('adminAppointmentEditCancel')?.addEventListener('click',()=>{editVersion++;editForm.hidden=true;});
   agendaList.addEventListener('click',async(event)=>{const editButton=event.target.closest?.('[data-admin-edit]');if(editButton){try{await openEdit(editButton.dataset.adminEdit);}catch(error){setMessage(agendaStatus,error?.message||'Não foi possível editar.','error');}return;}const button=event.target.closest?.('[data-admin-status]');if(!button)return;const id=button.closest('[data-appointment-id]')?.dataset?.appointmentId;if(!id)return;button.disabled=true;try{await setAppointmentStatus({client,appointmentId:id,status:button.dataset.adminStatus});await refreshAgenda();}catch(error){setMessage(agendaStatus,error?.message||'Não foi possível atualizar o status.','error');button.disabled=false;}});
-  const receiptAttempts=createReceiptAttempt();
+  let receiptStorage;try{receiptStorage=root.defaultView?.sessionStorage;}catch{}
+  const receiptAttempts=createReceiptAttempt({storage:receiptStorage});
   agendaList.addEventListener('submit',async(event)=>{
     const form=event.target.closest?.('[data-admin-receipt-form]');if(!form)return;event.preventDefault();
     const button=form.querySelector('[type="submit"]');if(button.disabled)return;button.disabled=true;
@@ -72,7 +73,7 @@ export async function initAdminAgenda({client,profile,root=document}){
       const values={valor:Number(form.querySelector('[name="valor"]').value),formaPagamento:form.querySelector('[name="forma"]').value.trim(),recebidoAt:null,observacao:null};
       requestKey=await receiptAttempts.get(context,values);
       await registerReceiptForAppointment({client,appointmentId:form.dataset.adminReceiptForm,requestKey,...values});
-      receiptAttempts.complete(context,requestKey);form.reset();setMessage(form.querySelector('[data-receipt-status]'),'Recebimento registrado.','success');
+      const released=receiptAttempts.complete(context,requestKey);form.reset();setMessage(form.querySelector('[data-receipt-status]'),released?'Recebimento confirmado.':receiptStorageMessage,'success');
       const EventCtor=root.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)root.dispatchEvent(new EventCtor('bc:finance-changed'));
     }catch(error){if(requestKey)receiptAttempts.fail(context,requestKey,error);setMessage(form.querySelector('[data-receipt-status]'),receiptFailureMessage(error,requestKey),'error');}
     finally{button.disabled=false;}
