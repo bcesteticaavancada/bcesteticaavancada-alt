@@ -1,7 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
 import {
-  destination, safeFileName, secureEqual, selectPending, sha256Hex, sourceKey,
+  destination, isAllowedRoot, isFinancialPath, isPrivatePermissionSet, safeFileName, secureEqual, selectPending, sha256Hex, sourceKey,
+  type DrivePermission,
   type DriveRecord, type Entry,
 } from "./core.ts";
 
@@ -36,9 +37,6 @@ function required(name: string): string {
   if (!value) throw new Error("Missing server configuration: " + name);
   return value;
 }
-function isFinancialPath(path: string): boolean {
-  return path.split("/").some((part) => /^(financeiro|finance|comiss(?:ao|oes)|comissões|recibos?|caixa|pagamentos?|payouts?)$/i.test(part));
-}
 function looksLikeFolderId(id: string): boolean {
   return /^[a-zA-Z0-9_-]{12,120}$/.test(id);
 }
@@ -59,9 +57,12 @@ async function enumerateStorage(service: any): Promise<Entry[]> {
         if (!item.name || item.name === ".emptyFolderPlaceholder") continue;
         const path = prefix ? prefix + "/" + item.name : item.name;
         if (isFinancialPath(path)) continue;
+        // Unknown paths must never silently fall back to a clinical destination.
+        if (!isAllowedRoot(path)) throw new Error("Unclassified Storage root; backup stopped");
         if (!item.id) {
           folders.push(path);
         } else {
+          if (!destination(path)) throw new Error("Unclassified Storage object; backup stopped");
           result.push({
             path,
             updatedAt: String(item.updated_at || ""),
@@ -118,6 +119,30 @@ async function assertWritableFolder(id: string, token: string): Promise<void> {
     folder.capabilities?.canAddChildren !== true) {
     throw new Error("Drive folder is not an accessible writable private folder");
   }
+  // Recheck sharing at runtime: permissions may change after the initial manual review.
+  const allowed = new Set(required("BC_DRIVE_ALLOWED_ACCOUNTS")
+    .split(",").map((email) => email.trim().toLowerCase()).filter(Boolean));
+  if (allowed.size < 2) throw new Error("Drive recipient allowlist is incomplete");
+  let page = "";
+  let total = 0;
+  do {
+    const params = new URLSearchParams({
+      fields: "nextPageToken,permissions(type,role,emailAddress)",
+      pageSize: "100",
+    });
+    if (page) params.set("pageToken", page);
+    const response = await googleRequest(
+      DRIVE_API + "/" + encodeURIComponent(id) + "/permissions?" + params.toString(), token,
+    );
+    const info = await response.json();
+    const permissions = (info.permissions || []) as DrivePermission[];
+    if (permissions.length && !isPrivatePermissionSet(permissions, allowed)) {
+      throw new Error("Drive folder has an unexpected sharing permission");
+    }
+    total += permissions.length;
+    page = String(info.nextPageToken || "");
+  } while (page);
+  if (!total) throw new Error("Drive folder permissions could not be verified");
 }
 async function listBackups(folders: string[], token: string): Promise<Map<string, DriveRecord>> {
   const results = new Map<string, DriveRecord>();
@@ -235,8 +260,10 @@ Deno.serve(async (request) => {
         if (bytes.length > MAX_BYTES) throw new Error("File exceeds backup v1 size cap");
         const hash = await sha256Hex(bytes);
         // If unchanged bytes but the updated_at changed, a metadata refresh is still safe.
+        const kind = destination(candidate.entry.path);
+        if (!kind) throw new Error("Unclassified Storage object; upload denied");
         await uploadToDrive(
-          token, folders[destination(candidate.entry.path)], candidate.entry.path,
+          token, folders[kind], candidate.entry.path,
           candidate.sourceKey, bytes, candidate.entry.mime,
           candidate.entry.updatedAt, hash,
         );
