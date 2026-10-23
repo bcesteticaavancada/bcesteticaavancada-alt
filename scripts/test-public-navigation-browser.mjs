@@ -25,6 +25,12 @@ try{
       for(const [device,width,height] of [['phone',360,780],['tablet',768,1024]]){
         const page=await browser.newPage({viewport:{width,height},reducedMotion:'reduce'});
         const errors=[];page.on('pageerror',error=>errors.push(error.message));
+        // A navegação não depende do backend: resposta fictícia e sem tráfego para o projeto real.
+        await page.route(/\.supabase\.co\//,route=>route.fulfill({
+          status:200,contentType:'application/json',
+          headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'GET, POST, OPTIONS'},
+          body:JSON.stringify({days:[],slots:[],procedures:[],professionals:[]})
+        }));
         await page.goto(root+'/',{waitUntil:'domcontentloaded'});
         await page.locator('#menuToggle').click();
         assert.equal(await page.locator('.drawer-nav > .bc-drawer-group').count(),2);
