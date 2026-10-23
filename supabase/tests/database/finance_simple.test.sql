@@ -90,7 +90,7 @@ select is((select state from private.bc_commission_items where receipt_id=pg_tem
 select is((select rate_snapshot from private.bc_commission_items where receipt_id=pg_temp.f('simple-receipt')),30::numeric,'snapshot guardado para histórico');
 select is((select count(*)::integer from private.bc_commission_payments),1,'um pagamento confirmado apesar dos retries');
 select is((select count(*)::integer from private.bc_finance_expenses),1,'uma despesa apesar dos retries');
-update public.staff_profiles set role='admin_criacao',atende_clientes=false,pode_gerenciar_agendas=false,pode_gerenciar_procedimentos=false where user_id=pg_temp.f('ordinary');
+update public.staff_profiles set role='admin_criacao',atende_clientes=false,pode_gerenciar_agendas=false,pode_gerenciar_procedimentos=false,procedure_scope='explicit' where user_id=pg_temp.f('ordinary');
 select set_config('request.jwt.claim.sub',pg_temp.f('ordinary')::text,true);
 set local role authenticated;
 select throws_ok('select pg_temp.fin_overview()','42501',null,'criação sem visão financeira');
