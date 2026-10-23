@@ -1,89 +1,100 @@
-# BC Estética Avançada — cópia paralela para Google Drive (V1, preparação)
+# BC Estética Avançada — backup paralelo Drive (rascunho revisado)
 
-> **Não está publicado, implantado ou agendado.** Esta branch é um ensaio técnico.
-> O site, Maya, agenda, banco e documentos de produção permanecem intactos.
+Data: 23/10/2026. Branch: `backup/drive-paralelo-v1`.
 
-## Finalidade
-Preservar uma cópia paralela dos **objetos do bucket privado**
-`bc-prontuario-private` (PDFs gerados, anexos, assinaturas e imagens clínicas),
-sem depender do Drive para o funcionamento do aplicativo. Financeiro não é copiado.
-Não há compartilhamento público.
+> **Sem implantação, publicação, agendamento, merge ou transferência clínica real.** O Supabase continua principal. Este código aceita somente homologação com arquivos fictícios.
 
-Fluxo futuro:
-1. O servidor Supabase lista arquivos do bucket privado (sem nomes de clientes nos logs).
-2. A função consulta o Drive pela indexação privada `appProperties.bcSourceKey` (hash do caminho original).
-3. Para itens novos/alterados, baixa do bucket, calcula SHA-256 e cria **novo arquivo com hash no nome** na pasta privada. Nunca apaga ou substitui uma cópia anterior.
-4. Retorna contadores de itens analisados, novos e falhos, sem dados clínicos.
-5. Um agendamento de servidor, **ainda inexistente**, executará a função em intervalos regulares. Falhas na cópia não impedem registros clínicos.
+## Estado e limites
 
-## Pastas privadas preparadas previamente, ainda NÃO conectadas à função
+O worker existente foi separado em regras (`core.ts`), adaptador Supabase REST (`source.ts`), transporte Drive (`drive.ts`), execução (`worker.ts`), manifesto/recuperação (`restore.ts`) e entrada de servidor (`index.ts`). O site e as políticas de acesso não foram alterados. Não há dependências externas no worker nem importação JSR necessária para executá-lo. O Deno de CI foi fixado em 2.9.6; compatibilidade com o runtime Supabase real ainda precisa de teste controlado.
 
-- Raiz: `1Ax1FUrgxpBdgHgBTsriMtQGYK37GMK_y` — BC Estética Avançada - Backups Privados
-- `01_Anamneses_e_Documentos_Clinicos`: `1cnahFxCbJH06YBEAJkaqTqEIdgcwwE0Y`
-- `02_Arquivos_de_Clientes`: `1A8xBkQ7ws5pElNqIRNTASXeBnttOu97N`
-- `03_Site_Maya_e_Midias`: `1rR9CfdXLVPZZSkyYDv2tPk3jlj4RMyAQ`
-- `04_Manifestos_e_Relatorios_de_Backup`: `1s7LTdxb24dDYpzdHThKIEAEFdwwvmfjh`
+| Controle | Valor atual |
+| --- | --- |
+| Escopo aceito | `test`; qualquer outro bloqueia antes de listar ou transferir |
+| Origem permitida | Apenas `homologacao/drive-backup/` no bucket `bc-prontuario-private` |
+| Escrita | Desligada por padrão; flag não habilita arquivos clínicos reais |
+| Lote | Até 12 arquivos elegíveis por execução |
+| Tamanho | Até 5.000.000 bytes por objeto (5 MB); bucket permite 8 MiB |
+| Varredura Supabase | 3.000 itens de listagem, incluindo pastas; páginas de 100 |
+| Varredura Drive | Até 12.000 arquivos e 120 páginas por pasta |
+| Tempo | Orçamento total de 105 s; até 15 s por requisição; sem repetição automática de upload |
+| Tipos | PDF, JPEG, PNG e WebP; metadados inválidos ou tipos desconhecidos não são enviados |
 
-**ATENÇÃO:** acesso Google Drive concedido ao ChatGPT não pode ser reutilizado pela função Supabase. Para o escopo mínimo `drive.file`, o novo aplicativo OAuth precisará receber acesso explícito às pastas existentes por meio de um seletor Google Drive/Picker. Um token `drive.file` sozinho **não garante acesso** às pastas criadas por outra conexão. Não usar escopo global `drive` sem avaliação de privacidade e consentimento específicos.
+Estes são limites de proteção, não promessa de capacidade produtiva. Objetos/versões acumulados podem esgotar a varredura. A ativação clínica exige controle distribuído de concorrência, índice/filas persistentes, reavaliação dos limites, tratamento de falhas recorrentes sem travar a fila e aprovação. Esta revisão **não implementa** esses componentes e não oferece uma flag que contorne o bloqueio clínico.
 
-## Pré-requisitos para habilitação futura (não realizados)
+## Proteções implementadas
 
-1. Escolher um projeto Google Cloud de propriedade da Mel/BC; habilitar Drive API e registrar cliente OAuth.
-2. Usar `https://www.googleapis.com/auth/drive.file` e selecionar/autorizá-las no aplicativo. Alternativamente, criar uma pasta própria pelo aplicativo OAuth e migrar o destino após aprovação. **Não pedir nem compartilhar tokens no chat, GitHub ou JS público.**
-3. Obter refresh token com `access_type=offline` e armazenar no **Supabase Edge Function Secrets**. Apps OAuth externas em **Testing** geralmente recebem refresh tokens com expiração de sete dias; avaliar status de publicação e requisitos de verificação antes de declarar o backup permanente.
-4. Registrar estes secrets no servidor (valores abaixo são somente nomes):
-   - `BC_DRIVE_BACKUP_RUN_SECRET`: segredo aleatório forte (pelo menos 32 caracteres), usado exclusivamente pelo acionador do servidor;
-   - `BC_DRIVE_CLIENT_ID`, `BC_DRIVE_CLIENT_SECRET`, `BC_DRIVE_REFRESH_TOKEN`;
-   - `BC_DRIVE_FOLDER_CLINICAL`, `BC_DRIVE_FOLDER_CLIENT`;
-   - `BC_DRIVE_ALLOWED_ACCOUNTS`: e-mails permitidos, separados por vírgula (configuração no servidor; mínimo duas contas); a rotina recusa pastas com acesso público, por domínio, grupo ou conta fora dessa lista;
-   - `BC_DRIVE_BACKUP_ENABLE_WRITES`: `false` até homologação; depois `true` com aprovação.
-   - `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` permanecem apenas no ambiente Supabase.
-5. Só após testes com **arquivos fictícios** e aprovação, implantar a função com invocação interna protegida por `x-bc-backup-secret` (sem CORS) e agendar via Supabase Cron/Vault. Nunca chamar pelo navegador/site ou expor o segredo à Maia.
-6. Conferir permissões de cada pasta e habilitar alertas de falha, conferência de hashes por restauração periódica e rotina de recuperação antes de declarar operação regular.
+1. Somente POST com segredo forte de servidor em `x-bc-backup-secret`. Sem CORS ou chamada pelo site/Maya. O adaptador restringe o projeto Supabase, recusa redirecionamentos e limita a leitura por streaming.
+2. Inspeção sem OAuth, download de corpos ou upload. Somente metadados do namespace fictício; arquivos não suportados tornam a inspeção malsucedida e bloqueiam o lote inteiro antes de uploads.
+3. Escopo Google estritamente `drive.file`. Antes de qualquer corpo de origem, valida as quatro pastas: proprietário `decolarbh@gmail.com`, permissões somente da conta proprietária e da Mel, conforme allowlist fechada de servidor, evidência de pasta gravável e subpastas diretamente ligadas à raiz. IDs devem ser distintos. Evidência ausente ou acesso amplo bloqueia.
+4. Lista/pagina os destinos privados, usa SHA-256 de bucket/caminho como chave e nomes sem o nome/caminho original. Filtra nomes financeiros inclusive com acentos e separadores; apenas famílias conhecidas são elegíveis.
+5. Cria objeto para conteúdo novo; não apaga ou substitui versões anteriores. Compara tamanho e `sha256Checksum` calculado pelo Google, não apenas um hash repetido em `appProperties`.
+6. Cria manifesto JSON privado por versão com projeto, bucket, caminho original, chave, data da origem, ID Drive, MIME, tamanho e SHA-256. A recuperação exige SHA-256 do manifesto e chave de origem obtidos de referência confiável separada, nunca inferidos do próprio JSON entregue. O manifesto **contém informação necessária à restauração e pode conter identificadores sensíveis no caminho**; mantém-se privado, fora de logs/frontend. Hash no nome não anonimiza o conteúdo.
+7. Marca a conclusão somente após objeto e manifesto verificados. Data alterada com conteúdo idêntico reutiliza a cópia. Falha após upload/manifesto/confirmação é reparada na próxima execução sequencial, sem duplicar o conteúdo já encontrado.
+8. `restoreBytes` verifica a referência confiável do manifesto, identidade de origem, caminho permitido, projeto, tamanho e hash, e produz bytes de recuperação. Não grava no Supabase nem sobrescreve documentos. A restauração real ainda não foi executada.
+9. Respostas contêm contadores e erro genérico, sem nome, caminho, credencial ou corpo de erro do provedor. Não há registro persistente de status ou alertas ativos.
 
-## Proteções nesta V1
-- Sem modificações no site ou DB, sem envio de dados clínicos nesta branch.
-- Bloqueio de uploads até `BC_DRIVE_BACKUP_ENABLE_WRITES=true`.
-- Leitura exclusivamente pelo `service_role` **no servidor**, nunca no frontend.
-- A V1 só aceita os prefixos conhecidos no bucket privado: `documentos/`, `assinaturas/` e `pre-anamneses/` para a pasta clínica; `arquivos-clientes/`, `identificacao/` e `fotos-clinicas/` para a pasta de arquivos da cliente. Categorias desconhecidas interrompem o lote e exigem revisão antes de qualquer cópia.
-- Exclusão defensiva de caminhos financeiros, incluindo subpastas internas.
-- Antes de cada lote de uploads, a função verifica o compartilhamento dos destinos contra a lista de contas permitidas. Isso não substitui uma política de revisão periódica nem evita que permissões mudem durante uma operação.
-- Nome dos arquivos no Drive anonimizado por hash do caminho e hash do conteúdo.
-- Novo objeto para cada versão detectada, sem sobrescrever backups antigos.
-- Lote de até 12 arquivos por execução, 12 MiB por arquivo, máximo de 3.000 nós. Exceder limites dispara alerta técnico; não declarar cobertura completa.
-- A função não exporta dados de Postgres. **Registros financeiros, cadastros e dados clínicos que existam somente no banco não estão cobertos.** Backups SQL/PITR são outro projeto e exigem autorização/regras próprias.
-- Não é cópia imutável, criptografia adicional no cliente ou disaster recovery completo; é uma cópia paralela privada sujeita às políticas e disponibilidade do Google Drive.
-- Apenas Fernando e Mel têm acesso à conta de destino segundo confirmação expressa de 23/10/2026; revalidar permissões periodicamente. O papel de Fernando no aplicativo não concede automaticamente acesso irrestrito via interface da BC — o Drive é um repositório administrativo separado.
+## Evidência obtida sem ler documentos reais
 
-## Testes locais/CI
+Consulta de configuração e agregados de metadados do projeto `tpqsmerlxquyrzrjbogj`, em 23/10/2026:
+
+- Bucket privado; limite de 8.388.608 bytes; tipos permitidos PDF/JPEG/PNG/WebP.
+- Sete objetos: 1 PDF, 4 JPEG e 2 PNG. Nenhum ultrapassava 8 MiB; maior objeto com 2.527.450 bytes.
+- Reconferência por família, sem nomes individuais: 1 em `documentos`, 3 em `arquivos-clientes`, 2 em `assinaturas`, 1 em `identificacao`. Nenhum corpo foi acessado; cobertura de todos os geradores ainda depende de homologação e inventário autorizado futuro.
+- Metadados da raiz e das quatro subpastas do handoff indicam as duas contas autorizadas (proprietária e Mel), sem permissão pública na reconferência de raiz e destinos. Isso não comprova autorização do novo cliente OAuth e não garante que as permissões permaneçam iguais depois.
+
+## Cobertura prevista pelo código do aplicativo
+
+| Gerador/uso existente | Família de caminho | Destino futuro |
+| --- | --- | --- |
+| PDF de anamnese e documentos clínicos | `documentos/...` | Clínica |
+| Ficha/rubrica de pré-anamnese | `pre-anamneses/...` | Clínica |
+| Assinatura de documento | `assinaturas/...` | Clínica |
+| Fotos de tratamento | `fotos-clinicas/...` | Arquivos de clientes, preservando a classificação existente na branch |
+| Foto de identificação | `identificacao/...` | Arquivos de clientes |
+| Anexos de cliente | `arquivos-clientes/...` | Arquivos de clientes |
+| Cadastros, questionários, agenda e registros somente PostgreSQL | Tabelas | Fora da rotina |
+| PDF somente baixado no navegador, sem persistência no bucket | Sem objeto persistido | Fora da rotina |
+| Site, vídeos e Maya | Arquivos de mídia/repositório | Fora deste worker |
+| Financeiro | Caminhos financeiros/tabelas | Fora da rotina; permissões intactas |
+
+Na homologação, cada família elegível só é lida **dentro do prefixo fictício**. O inventário agregado não prova que todos os documentos da aplicação viram arquivos no bucket. Não há backup SQL/PITR ou garantia de recuperação completa da aplicação.
+
+## Pastas de destino existentes
+
+| Pasta | ID |
+| --- | --- |
+| Raiz privada | `1Ax1FUrgxpBdgHgBTsriMtQGYK37GMK_y` |
+| 01 — Documentos clínicos | `1cnahFxCbJH06YBEAJkaqTqEIdgcwwE0Y` |
+| 02 — Arquivos de clientes | `1A8xBkQ7ws5pElNqIRNTASXeBnttOu97N` |
+| 03 — Site/Maya/mídias, fora deste worker | `1rR9CfdXLVPZZSkyYDv2tPk3jlj4RMyAQ` |
+| 04 — Manifestos/relatórios | `1s7LTdxb24dDYpzdHThKIEAEFdwwvmfjh` |
+
+A pasta antiga “BC Estética” não foi usada nem teve permissões alteradas. O problema de compartilhamento público relatado no handoff continua como tarefa separada.
+
+## Execução local e CI sem rede
 
 ```bash
-deno test supabase/functions/drive-backup/core_test.ts
-deno check --config supabase/functions/drive-backup/deno.json supabase/functions/drive-backup/index.ts
+deno task --config supabase/functions/drive-backup/deno.json test
+deno task --config supabase/functions/drive-backup/deno.json check
+deno task --config supabase/functions/drive-backup/deno.json fmt
+npm test
 ```
 
-Estas verificações cobrem regras de seleção, classificação, permissões simuladas e tipagem; **não** testam Google OAuth real, permissões das pastas, upload real ou restauração. Uma homologação E2E com dados fictícios ainda é obrigatória.
+Os testes do backup não recebem permissões Deno de rede, ambiente, leitura ou escrita. Usam somente conteúdo fictício em memória e transporte HTTP simulado. Não requerem nem aceitam credenciais reais. A suíte testa envio/retorno binário, manifesto, hash, versões, repetição, paginação, limites, autenticação, privacidade e interrupções. Ela não substitui teste com os provedores reais.
 
-## Decisão para a próxima fase
+## Homologação real futura — execução manual e isolada
 
-A função fica sem implantação até que Fernando/Mel autorizem a integração OAuth diretamente no Google (sem enviar credenciais em conversa) e aprovem um teste controlado. O trabalho não deve afetar a rotina da Mel ou das colaboradoras.
+Pré-requisitos: concluir a preparação descrita em `BC_DRIVE_OAUTH_PREPARACAO.md`, aprovação específica para implantar em ambiente reservado e confirmação de que o namespace contém apenas material fictício. Se o ambiente for compartilhado, não incluir dados reais no teste. Somente uma execução por vez, sem scheduler.
 
-## Revisão técnica de 23/10/2026 (sem leitura de conteúdo clínico)
+1. Criar PDF/PNG fictício, sem dado pessoal, em `homologacao/drive-backup/documentos/cliente-ficticio/`. Registrar hash/tamanho localmente no relatório reservado.
+2. Com escrita desligada, confirmar contadores da inspeção e ausência de uploads. Validar também namespace vazio e tipo/tamanho indevidos.
+3. Com aprovação para um envio de teste, autorizar explicitamente as quatro pastas no novo cliente OAuth, verificar privacidade e habilitar escrita somente de teste.
+4. Enviar uma versão, baixar a cópia/manifesto pelo ambiente reservado e conferir SHA-256, bytes, tamanho, pasta, permissões e caminho de recuperação. Não usar documento real como amostra.
+5. Executar novamente: nenhuma cópia adicional; alterar só metadados: reutilização; alterar bytes: nova versão e preservação da anterior.
+6. Testar falha de autorização, indisponibilidade e interrupção depois do objeto/manifesto. Confirmar reparo e que nenhuma resposta/log contém segredo ou caminho.
+7. Executar `restoreBytes` em cópia de teste, fornecer o digest confiável registrado separadamente e a chave de origem esperada, conferir corrupção detectada e recuperar para destino de homologação separado, sem sobrescrever a origem. Registrar evidências. Desligar escrita e suspender acionador ao terminar.
 
-Consulta somente aos metadados do bucket identificou sete objetos:
-3 em `arquivos-clientes/`, 2 em `assinaturas/`, 1 em `documentos/` e 1 em `identificacao/`.
-O bucket está privado, com limite de 8 MiB por arquivo e MIME types `application/pdf`,
-`image/jpeg`, `image/png`, `image/webp`.
+Para produção, obter aprovação final de Fernando e Mel depois de resolver concorrência, fila persistente, cobertura/inventário completo, status/alertas e política de restauração/retenção. Drive não é cópia imutável: as contas com permissão de edição podem modificar ou excluir arquivos. Manter referência de integridade independente e testar restauração periodicamente.
 
-Correções de segurança na branch:
-- Assinaturas clínicas agora são classificadas como documentos clínicos.
-- Pastas inesperadas não são copiadas por padrão e interrompem o backup.
-- Compartilhamento de destino é verificado antes da cópia, quando houver OAuth/configuração.
-- Testes unitários adicionais exercitam classificação, exclusão financeira e permissões.
-
-Pendências antes de produção:
-1. OAuth Google com escopo mínimo e seleção explícita dos destinos.
-2. Teste E2E com arquivo fictício, repetição e alteração de versão.
-3. Download da cópia e comparação SHA-256, demonstrando restauração correta.
-4. Monitoramento, controle de capacidade e relatório de lacunas.
-5. Projeto separado para tabelas PostgreSQL (o bucket sozinho não contém todos os dados).
+A redução de 8 MiB para 5 MB no worker segue a orientação de multipart da [API Drive](https://developers.google.com/workspace/drive/api/guides/manage-uploads). Objetos entre 5 MB e 8 MiB bloqueiam o lote: transporte resumível e teste real de capacidade continuam pendentes. Nenhum objeto do inventário agregado excedeu 5 MB. Respostas JSON têm limite de leitura e busca Drive incompleta é recusada.

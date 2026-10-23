@@ -1,5 +1,9 @@
 {
-  "imports": {
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2"
+  "nodeModulesDir": "none",
+  "lock": false,
+  "tasks": {
+    "test": "deno test --no-prompt core_test.ts source_test.ts worker_test.ts",
+    "check": "deno check index.ts",
+    "fmt": "deno fmt --check ."
   }
 }

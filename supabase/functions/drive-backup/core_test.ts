@@ -1,7 +1,19 @@
 import {
-  destination, extension, isAllowedRoot, isFinancialPath, isPrivatePermissionSet, safeFileName, secureEqual, selectPending, sha256Hex, sourceKey,
+  destination,
+  extension,
+  isAllowedRoot,
+  isFinancialPath,
+  isPrivatePermissionSet,
+  safeFileName,
+  secureEqual,
+  selectPending,
+  sha256Hex,
+  sourceKey,
 } from "./core.ts";
-import { assert, assertEquals } from "jsr:@std/assert@1";
+import {
+  deepStrictEqual as assertEquals,
+  ok as assert,
+} from "node:assert/strict";
 
 Deno.test("routes medical PDFs and client uploads into separate private folders", () => {
   assertEquals(destination("documentos/anamneses/123.pdf"), "clinical");
@@ -9,7 +21,10 @@ Deno.test("routes medical PDFs and client uploads into separate private folders"
   assertEquals(destination("arquivos-clientes/123/teste.pdf"), "client");
 });
 Deno.test("Drive filenames do not reveal patient names or filenames", () => {
-  const name = safeFileName("documentos/Ana Maria/consulta.pdf", "a".repeat(64));
+  const name = safeFileName(
+    "documentos/Ana Maria/consulta.pdf",
+    "a".repeat(64),
+  );
   assert(name.startsWith("documento-"));
   assert(name.endsWith(".pdf"));
   assert(!name.includes("Ana") && !name.includes("consulta"));
@@ -20,25 +35,59 @@ Deno.test("stable source fingerprint separates bucket and object paths", async (
   const b = await sourceKey("bc-prontuario-private", "b.pdf");
   assertEquals(a.length, 64);
   assert(a !== b);
-  assertEquals(await sha256Hex(new TextEncoder().encode("abc")),
-    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+  assertEquals(
+    await sha256Hex(new TextEncoder().encode("abc")),
+    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  );
 });
 Deno.test("unchanged objects are not uploaded again; changed objects are selected", () => {
   const hash = "b".repeat(64);
   const entries = [
-    { path: "a.pdf", updatedAt: "2026-10-22T10:00:00Z", mime: "application/pdf", size: 2, sourceKey: "a" },
-    { path: "b.pdf", updatedAt: "2026-10-22T11:00:00Z", mime: "application/pdf", size: 2, sourceKey: "b" },
+    {
+      path: "a.pdf",
+      updatedAt: "2026-10-22T10:00:00Z",
+      mime: "application/pdf",
+      size: 2,
+      sourceKey: "a",
+    },
+    {
+      path: "b.pdf",
+      updatedAt: "2026-10-22T11:00:00Z",
+      mime: "application/pdf",
+      size: 2,
+      sourceKey: "b",
+    },
   ];
-  const known = new Map([["a", { id: "drive-file-id", updatedAt: entries[0].updatedAt, hash }]]);
-  assertEquals(selectPending(entries, known, 12).map((candidate) => candidate.entry.path), ["b.pdf"]);
+  const known = new Map([["a", {
+    id: "drive-file-id",
+    updatedAt: entries[0].updatedAt,
+    hash,
+  }]]);
+  assertEquals(
+    selectPending(entries, known, 12).map((candidate) => candidate.entry.path),
+    ["b.pdf"],
+  );
   entries[0].updatedAt = "2026-10-22T12:00:00Z";
-  assertEquals(selectPending(entries, known, 1).map((candidate) => candidate.entry.path), ["a.pdf"]);
+  assertEquals(
+    selectPending(entries, known, 1).map((candidate) => candidate.entry.path),
+    ["a.pdf"],
+  );
 });
 Deno.test("invalid remote metadata is never treated as a verified backup", () => {
   const entries = [
-    { path: "a.pdf", updatedAt: "2026-10-22T10:00:00Z", mime: "application/pdf", size: 2, sourceKey: "a" },
+    {
+      path: "a.pdf",
+      updatedAt: "2026-10-22T10:00:00Z",
+      mime: "application/pdf",
+      size: 2,
+      sourceKey: "a",
+    },
   ];
-  const known = new Map([["a", { id: "fake", updatedAt: entries[0].updatedAt, hash: "" }]]);
+  const known = new Map([["a", {
+    id: "fake",
+    updatedAt: entries[0].updatedAt,
+    hash: "",
+  }]]);
   assertEquals(selectPending(entries, known, 12).length, 1);
 });
 Deno.test("job secret comparison does not accept prefixes", () => {
@@ -47,15 +96,54 @@ Deno.test("job secret comparison does not accept prefixes", () => {
   assert(!secureEqual("a".repeat(64), "a".repeat(63) + "b"));
 });
 
+Deno.test("routes signatures and preserves the existing client photo destination", () => {
+  assertEquals(
+    destination("assinaturas/documento-ficticio/paciente.png"),
+    "clinical",
+  );
+  assertEquals(
+    destination("fotos-clinicas/cliente-ficticio/sessao/antes.jpg"),
+    "client",
+  );
+  assertEquals(
+    destination("identificacao/cliente-ficticio/foto.jpg"),
+    "client",
+  );
+});
+Deno.test("a zero batch must not select the entire backlog", () => {
+  const entries = [{
+    path: "a.pdf",
+    updatedAt: "2026-10-23T10:00:00Z",
+    mime: "application/pdf",
+    size: 3,
+    sourceKey: "a",
+  }];
+  assertEquals(selectPending(entries, new Map(), 0), []);
+});
+
 Deno.test("clinical signatures and pre-anamneses go to the clinical folder", () => {
   assertEquals(destination("assinaturas/doc-1/assinatura.png"), "clinical");
   assertEquals(destination("pre-anamneses/2026/10/ficha.pdf"), "clinical");
   assertEquals(destination("identificacao/client-1/foto.jpg"), "client");
-  assertEquals(destination("fotos-clinicas/client-1/atendimento/foto.webp"), "client");
+  assertEquals(
+    destination("fotos-clinicas/client-1/atendimento/foto.webp"),
+    "client",
+  );
 });
 
 Deno.test("financial and unknown storage paths fail closed", () => {
-  assert(isFinancialPath("documentos/financeiro/recibo.pdf"));
+  for (
+    const part of [
+      "financeiro",
+      "comissões",
+      "recebimentos",
+      "repasses",
+      "faturas",
+      "comissão-paga",
+    ]
+  ) {
+    assert(isFinancialPath("documentos/" + part + "/ficha.pdf"));
+  }
   assert(isFinancialPath("arquivos-clientes/caixa/recibo.pdf"));
   assertEquals(destination("documentos/financeiro/recibo.pdf"), null);
   assertEquals(destination("financeiro/fatura.pdf"), null);
@@ -64,8 +152,11 @@ Deno.test("financial and unknown storage paths fail closed", () => {
   assertEquals(isAllowedRoot("outra-pasta/cliente.pdf"), false);
   assertEquals(isAllowedRoot("assinaturas/documento/foto.png"), true);
   let rejected = false;
-  try { safeFileName("financeiro/fatura.pdf", "a".repeat(64)); }
-  catch { rejected = true; }
+  try {
+    safeFileName("financeiro/fatura.pdf", "a".repeat(64));
+  } catch {
+    rejected = true;
+  }
   assert(rejected);
 });
 
@@ -77,7 +168,23 @@ Deno.test("Drive sharing verification rejects public, domain and third-party acc
   ];
   assert(isPrivatePermissionSet(valid, allowed));
   assert(!isPrivatePermissionSet([], allowed));
-  assert(!isPrivatePermissionSet([...valid, { type: "anyone", role: "reader" }], allowed));
-  assert(!isPrivatePermissionSet([...valid, { type: "domain", role: "reader" }], allowed));
-  assert(!isPrivatePermissionSet([...valid, { type: "user", role: "reader", emailAddress: "third@example.com" }], allowed));
+  assert(
+    !isPrivatePermissionSet(
+      [...valid, { type: "anyone", role: "reader" }],
+      allowed,
+    ),
+  );
+  assert(
+    !isPrivatePermissionSet(
+      [...valid, { type: "domain", role: "reader" }],
+      allowed,
+    ),
+  );
+  assert(
+    !isPrivatePermissionSet([...valid, {
+      type: "user",
+      role: "reader",
+      emailAddress: "third@example.com",
+    }], allowed),
+  );
 });

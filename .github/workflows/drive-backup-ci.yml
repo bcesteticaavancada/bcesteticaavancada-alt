@@ -14,12 +14,16 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
-      - name: Verify pure backup rules (no customer data)
-        run: deno test supabase/functions/drive-backup/core_test.ts
+          deno-version: v2.9.6
+      - name: Check backup formatting
+        run: deno task --config supabase/functions/drive-backup/deno.json fmt
+      - name: Verify backup and recovery using fictional data (network disabled)
+        run: deno task --config supabase/functions/drive-backup/deno.json test
       - name: Type-check draft Edge Function
-        run: deno check --node-modules-dir=auto --config supabase/functions/drive-backup/deno.json supabase/functions/drive-backup/index.ts
+        run: deno task --config supabase/functions/drive-backup/deno.json check

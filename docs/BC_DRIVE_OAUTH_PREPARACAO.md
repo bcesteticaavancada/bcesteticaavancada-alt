@@ -1,68 +1,56 @@
-# BC Estética Avançada — preparação OAuth Google Drive (homologação)
+# Google OAuth — preparação da próxima etapa
 
-**Status em 23/10/2026:** somente preparação técnica. OAuth NÃO autorizado junto ao Google, credenciais NÃO criadas, função NÃO implantada, uploads NÃO habilitados. Nenhum arquivo clínico real foi lido ou enviado.
+Data: 23/10/2026. Status: especificação e validações do worker prontas. Callback e Picker não implementados nesta branch; nenhum token real obtido ou configurado por esta revisão. A configuração Google Cloud iniciada em outra etapa precisa ser conferida e reutilizada, quando válida.
 
-## Escopo aprovado pelo responsável
+## Decisão técnica
 
-- Conta Google proprietária das pastas privadas de backup: conferir no Google Cloud Console e autorizar presencialmente com o titular.
-- Destinos: somente `01_Anamneses_e_Documentos_Clinicos` e `02_Arquivos_de_Clientes`, sob a raiz privada identificada em [BC_DRIVE_BACKUP_V1.md](./BC_DRIVE_BACKUP_V1.md).
-- Usuários autorizados para compartilhar essas pastas: somente proprietário e Mel. Guardar e-mails permitidos no secret `BC_DRIVE_ALLOWED_ACCOUNTS`, nunca no frontend.
-- Escopo OAuth de menor privilégio: `https://www.googleapis.com/auth/drive.file`. **Não solicitar** `drive` amplo, `drive.readonly` amplo, Gmail ou permissões financeiras.
-- **Proibido nesta fase:** transferir arquivos de clientes, gerar token de produção, criar agenda automática, ativar `BC_DRIVE_BACKUP_ENABLE_WRITES=true`, mesclar branch ou alterar o site.
+Usar OAuth de aplicação web com autorização da conta `decolarbh@gmail.com` e somente o escopo `https://www.googleapis.com/auth/drive.file`. O worker rejeita tokens com escopo diferente ou mais amplo. A conexão Drive do ChatGPT não fornece credenciais para este aplicativo.
 
-## Estado confirmado antes do OAuth
+As pastas existentes precisam ser selecionadas explicitamente com Google Picker usando o mesmo projeto OAuth. Selecionar somente a raiz não deve ser tratado como autorização comprovada das subpastas: selecionar e validar cada uma das quatro pastas usadas pelo worker. Não alterar permissões para tornar a integração acessível. A pasta `03_Site_Maya_e_Midias` fica fora deste worker.
 
-- Os dois destinos são filhos da raiz privada e, na checagem de 23/10, só possuem permissões para duas contas individuais: proprietário e Mel. Não consta permissão `anyone` ou de domínio.
-- A função em `supabase/functions/drive-backup` mantém o bloqueio de escrita por padrão, autenticação exclusiva de servidor, destinos classificados e verificação de compartilhamento antes dos uploads.
-- O banco Supabase é a origem principal. A V1 do Drive cobre apenas arquivos do bucket privado; linhas que existam somente no PostgreSQL requerem outro plano de backup.
-- A conexão Google Drive do ChatGPT **não** pode ser reutilizada como autorização do aplicativo.
-- O Google Cloud Console não pôde ser acessado pelo navegador automatizado desta revisão. Nenhuma credencial foi criada ou capturada.
+## Roteiro a implementar em ambiente reservado
 
-## Roteiro de preparação na conta proprietária (pendente de autorização no próprio Google)
+1. Conferir o projeto Google Cloud e cliente que já tenham sido criados pela clínica; reutilizá-los após validar conta, estado e configuração. Se necessário, completar Drive API, Picker API e tela de consentimento. Não há compra ou cobrança autorizada nesta revisão.
+2. Conferir ou registrar cliente OAuth do tipo aplicação web, origem HTTPS da interface administrativa reservada e callback HTTPS exato. Essa interface não será adicionada à página inicial da BC. Definir os endereços antes de registrar o cliente; não usar curingas.
+3. Restringir a abertura do fluxo à pessoa autorizada, confirmar a conta Google escolhida e usar authorization code, `access_type=offline`, proteção `state` vinculada à sessão e uso único. O callback deverá validar sessão, `state`, expiração e os escopos concedidos. Implementar PKCE conforme a biblioteca/fluxo adotado. Não construir autorização manual sem revisão.
+4. Selecionar as quatro pastas pelo Picker. Quando um token temporário for necessário ao Picker, restringir seu uso à página administrativa, manter somente em memória e não persistir em logs/localStorage. O refresh token e o client secret ficam exclusivamente no servidor. Validar os IDs e executar a verificação privada do worker antes do primeiro envio.
+5. Fazer a troca do código no servidor e registrar refresh token/client secret diretamente no gerenciador de secrets do Supabase. Nunca passar esses valores por chat, issue, commit, JavaScript público, relatório ou GitHub Actions.
+6. Implantação da função e de eventual callback somente depois de autorização específica. Não implantar o worker com fluxos clínicos habilitados. O gateway Supabase precisa ter uma decisão explícita de autenticação: se for desativada a validação JWT do gateway para o acionador interno, manter obrigatoriamente o segredo forte do worker e acesso apenas pelo servidor; não adicionar uma chamada pelo navegador. Esta revisão não alterou `supabase/config.toml`.
+7. Homologar manualmente uma única execução por vez, com namespace fictício e uploads inicialmente desligados; seguir o roteiro em `BC_DRIVE_BACKUP_V1.md`. Nenhum agendamento nesta etapa.
 
-1. No Google Cloud Console, selecionar um projeto de propriedade da BC ou criar um projeto dedicado `bc-estetica-backup`, sem configuração de faturamento desnecessária. Conferir conta Google ativa antes de qualquer alteração.
-2. Ativar **Google Drive API** no projeto. Se for usar o seletor para autorizar pastas já existentes, verificar necessidade da **Google Picker API**.
-3. Em **Google Auth Platform**, configurar Branding, Audience e Data Access com nome interno claro, e somente o escopo `drive.file`. Enquanto em teste, limitar o usuário de teste à conta proprietária.
-4. Projetar um callback HTTPS **servidor-servidor**, com `state` e PKCE e origem controlada. Não redirecionar código OAuth para o GitHub Pages público nem inserir client secret em HTML/JS. Não criar cliente OAuth antes de definir e revisar esse callback.
-5. Criar cliente OAuth apropriado somente após confirmação pontual. Solicitar acesso offline de forma explícita. Trocar o código por tokens no backend; registrar refresh token apenas em cofres de segredos, nunca em arquivos ou conversas.
-6. Autorizar explicitamente os **dois diretórios** pelo seletor do Google Drive (ou criar diretórios do próprio app sob controle da BC, caso a permissão a pastas existentes não funcione). Não supor que possuir `drive.file` permite listar todas as pastas privadas.
-7. Verificar o `scope` efetivamente concedido, acesso a arquivos criados pela própria integração, permissões das pastas, e capacidade de revogar o acesso.
-8. Conferir a política de vida útil do refresh token. **Apps externos em Testing costumam ter refresh tokens de sete dias** para escopos além do perfil básico; não declarar backup permanente nessa condição.
+## Configuração de servidor planejada
 
-## Secrets previstos (valores nunca no GitHub)
-
-| Nome | Finalidade |
+| Nome | Uso |
 | --- | --- |
-| `BC_DRIVE_CLIENT_ID` | ID do cliente OAuth do aplicativo |
-| `BC_DRIVE_CLIENT_SECRET` | Secret OAuth somente no backend |
-| `BC_DRIVE_REFRESH_TOKEN` | Token de atualização somente no servidor |
-| `BC_DRIVE_FOLDER_CLINICAL` | ID exato da pasta clínica autorizada |
-| `BC_DRIVE_FOLDER_CLIENT` | ID exato da pasta de arquivos autorizada |
-| `BC_DRIVE_ALLOWED_ACCOUNTS` | Lista fechada de contas permitidas, separadas por vírgula |
-| `BC_DRIVE_BACKUP_RUN_SECRET` | Segredo do acionador interno, mínimo 32 caracteres |
-| `BC_DRIVE_BACKUP_ENABLE_WRITES` | Manter `false` durante preparação e testes sem upload |
+| `BC_DRIVE_BACKUP_RUN_SECRET` | Segredo aleatório de pelo menos 32 caracteres; cabeçalho interno `x-bc-backup-secret` |
+| `BC_DRIVE_BACKUP_SCOPE` | Apenas `test` é aceito; qualquer outro valor bloqueia a execução |
+| `BC_DRIVE_BACKUP_ENABLE_WRITES` | `false` por padrão; `true` permite somente arquivos fictícios |
+| `BC_DRIVE_ALLOWED_ACCOUNTS` | Allowlist fechada de servidor com a conta proprietária e a conta da Mel, conforme metadados reconferidos; não concede compartilhamento |
+| `BC_DRIVE_CLIENT_ID` | Identificador do cliente próprio |
+| `BC_DRIVE_CLIENT_SECRET` | Segredo do cliente próprio |
+| `BC_DRIVE_REFRESH_TOKEN` | Token de renovação da conta autorizada |
+| `BC_DRIVE_FOLDER_ROOT` | `1Ax1FUrgxpBdgHgBTsriMtQGYK37GMK_y` |
+| `BC_DRIVE_FOLDER_CLINICAL` | `1cnahFxCbJH06YBEAJkaqTqEIdgcwwE0Y` |
+| `BC_DRIVE_FOLDER_CLIENT` | `1A8xBkQ7ws5pElNqIRNTASXeBnttOu97N` |
+| `BC_DRIVE_FOLDER_MANIFEST` | `1s7LTdxb24dDYpzdHThKIEAEFdwwvmfjh` |
+| `SUPABASE_URL` | URL exata do projeto `tpqsmerlxquyrzrjbogj` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Credencial de servidor existente; nunca no frontend |
 
-**Não registrar valores reais dos secrets** em Actions, issues, PR, chat ou README. Guardar exclusivamente no cofre do ambiente de execução autorizado, com acesso auditado.
+Estes são nomes/IDs, sem valores de credenciais. Nenhuma variável real foi configurada nesta revisão.
 
-## Critérios de homologação para liberar um teste futuro
+## Pontos que dependem da autorização real
 
-- [ ] Conta do Google confirmada, acesso exclusivo do proprietário/Mel revisto.
-- [ ] Projeto, permissões e callback OAuth revisados.
-- [ ] Credenciais criadas com confirmação no ato e armazenadas com segurança.
-- [ ] Pastas selecionadas explicitamente e permissões conferidas.
-- [ ] Teste negativo: sem autorização, chamada não consegue ler/escrever no Drive.
-- [ ] Teste fictício: upload, download, SHA-256, repetição sem duplicação.
-- [ ] Teste fictício: alteração produz nova versão sem sobrescrever a anterior.
-- [ ] Teste de falha de token/permissão/rede sem expor dados ou corromper arquivos.
-- [ ] Plano de revogação, alertas, capacidade e restauração documentados.
-- [ ] Aprovação final de Fernando e Mel antes de qualquer produção ou arquivo real.
+- Consentimento da conta correta e acesso efetivo `drive.file` às quatro pastas. A verificação feita pela conexão ChatGPT não comprova acesso do novo cliente OAuth.
+- Disponibilidade dos campos `permissions`, proprietário, parentesco e checksum para o token real. Ausência de evidência bloqueia o worker; não afrouxar verificações para contornar uma falha.
+- Renovação e revogação dos tokens. Aplicações externas em status Testing podem receber refresh tokens que expiram em sete dias, conforme as condições documentadas pelo Google; avaliar configuração definitiva antes de prometer continuidade.
+- Monitoramento de revogação/expiração, rotação de secrets e alertas restritos a contadores/códigos técnicos, sem dados clínicos. Não há alertas ativos.
+- Os metadados atuais das quatro pastas mostram o proprietário e a conta individual da Mel; a allowlist aceita somente essas duas contas. Segundo o handoff, Fernando e Mel também utilizam a conta proprietária. Essa situação não modifica os papéis do aplicativo. O worker não lê tabelas financeiras; a política financeira do aplicativo continua intacta.
 
-## Links oficiais de referência
+## Fontes primárias consultadas
 
-- [Google Drive — escolher escopos da API](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
-- [Google OAuth — aplicação web, consentimento e refresh token](https://developers.google.com/identity/protocols/oauth2/web-server)
-- [Google Workspace — configurar consentimento OAuth](https://developers.google.com/workspace/guides/configure-oauth-consent)
-- [Google Picker API](https://developers.google.com/workspace/drive/picker/guides/overview)
-- [Supabase — segredos de Edge Functions](https://supabase.com/docs/guides/functions/secrets)
+- [Google: escopos da API Drive](https://developers.google.com/workspace/drive/api/guides/api-specific-auth).
+- [Google: OAuth para aplicações web](https://developers.google.com/identity/protocols/oauth2/web-server).
+- [Google: validade e revogação de tokens](https://developers.google.com/identity/protocols/oauth2#expiration).
+- [Google: seleção de pastas com Picker](https://developers.google.com/workspace/drive/picker/guides/overview).
 
-**Ponto de retomada:** acesso ao Google Cloud Console pelo titular, escolha de projeto e desenho do callback seguro; parar antes de criar chaves/acesso persistente para confirmação no momento.
+A preparação OAuth já foi autorizada por Fernando. Isso não exige nova confirmação genérica. Permanecem necessários o consentimento no próprio Google para os destinos efetivos (incluindo raiz e manifestos), a configuração segura de secrets e a aprovação específica para implantação/teste real; produção clínica e agendamento exigem aprovação final de Fernando e Mel.
