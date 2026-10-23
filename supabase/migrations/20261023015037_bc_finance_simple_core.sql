@@ -130,7 +130,7 @@ begin
  where profissional_user_id=new.profissional_user_id and procedimento_id=new.procedimento_id and ativo;
  insert into private.bc_commission_items(receipt_id,professional_id,procedure_id,base_amount,rate_snapshot,amount,state)
  values(new.id,new.profissional_user_id,new.procedimento_id,new.valor,rate,round(new.valor*rate/100,2),
- case when rate is null then 'awaiting_rule' when rate=0 then 'waived' else 'pending' end);
+ case when rate is null then 'awaiting_rule' when round(new.valor*rate/100,2)=0 then 'waived' else 'pending' end);
  return new;
 end $$;
 create trigger bc_finance_receipt_commission after insert or update of status on public.recebimentos
@@ -142,7 +142,7 @@ begin
  if not private.bc_finance_simple_enabled() or not new.ativo then return new; end if;
  perform private.bc_finance_lock_professional(new.profissional_user_id);
  update private.bc_commission_items set rate_snapshot=new.percentual,amount=round(base_amount*new.percentual/100,2),
- state=case when new.percentual=0 then 'waived' else 'pending' end
+ state=case when round(base_amount*new.percentual/100,2)=0 then 'waived' else 'pending' end
  where professional_id=new.profissional_user_id and procedure_id=new.procedimento_id and state='awaiting_rule';
  return new;
 end $$;

@@ -141,7 +141,7 @@ end $$;
 
 create or replace function public.bc_finance_overview(p_from date,p_to date,p_professional uuid default null) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_overview_impl($1,$2,$3);$$;
 create or replace function public.bc_finance_my_summary(p_from date,p_to date) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_my_summary_impl($1,$2);$$;
-create or replace function public.bc_finance_appointment_summary(p_appointment_id uuid) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_appointment_summary_impl($1);$$;
+create or replace function public.bc_finance_appointment_summary(p_appointment_id uuid) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_appointment_summary_impl($1)||jsonb_build_object('actor_id',auth.uid());$$;
 create or replace function public.bc_finance_report(p_from date,p_to date) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_report_impl($1,$2);$$;
 create or replace function public.bc_finance_operation_result(p_kind text,p_request_key uuid) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_operation_result_impl($1,$2);$$;
 do $acl$ declare f record; begin

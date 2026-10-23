@@ -29,6 +29,7 @@ select ok(exists(select 1 from pg_trigger where tgname='bc_finance_begin_complet
 select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
 set local role authenticated;
 select is((public.bc_finance_appointment_summary(pg_temp.f('simple-appointment'))->>'remaining')::numeric,600::numeric,'saldo é preenchido pelo servidor');
+select is((public.bc_finance_appointment_summary(pg_temp.f('simple-appointment'))->>'actor_id')::uuid,pg_temp.f('admin'),'tentativa é particionada pela identidade autenticada');
 insert into fixture values('simple-receipt-key',gen_random_uuid());
 insert into fixture values('simple-receipt',public.bc_recebimento_registrar_v2(pg_temp.f('simple-receipt-key'),pg_temp.f('simple-attendance'),100,'nao_informado'));
 select is(public.bc_recebimento_registrar_v2(pg_temp.f('simple-receipt-key'),pg_temp.f('simple-attendance'),100,'nao_informado'),pg_temp.f('simple-receipt'),'recebimento repetido retorna mesmo UUID');
@@ -80,7 +81,12 @@ select is((pg_temp.fin_report()->'totals'->>'expense')::numeric,0::numeric,'canc
 select is((select count(*)::integer from jsonb_array_elements(pg_temp.fin_report()->'rows') r where not(r->>'included')::boolean),2,'cancelados continuam identificados no resumo');
 select lives_ok(format('select public.bc_recebimento_estornar(%L,%L)',pg_temp.f('simple-receipt'),'Correção fictícia'),'após desfazer comissão o recebimento pode ser corrigido');
 select is((pg_temp.fin_report()->'totals'->>'income')::numeric,300::numeric,'entrada cancelada fora dos totais');
+select public.bc_comissao_set(pg_temp.f('worker'),pg_temp.f('procedure'),33.3333);
+insert into fixture values('simple-precise',public.bc_recebimento_registrar_v2(gen_random_uuid(),pg_temp.f('simple-attendance'),1,'nao_informado'));
+insert into fixture values('simple-tiny',public.bc_recebimento_registrar_v2(gen_random_uuid(),pg_temp.f('simple-attendance'),0.01,'nao_informado'));
 reset role;
+select is((select rate_snapshot from private.bc_commission_items where receipt_id=pg_temp.f('simple-precise')),33.3333::numeric,'precisão acordada preservada');
+select is((select state from private.bc_commission_items where receipt_id=pg_temp.f('simple-tiny')),'waived','zero arredondado não vira comissão pendente');
 select is((select rate_snapshot from private.bc_commission_items where receipt_id=pg_temp.f('simple-receipt')),30::numeric,'snapshot guardado para histórico');
 select is((select count(*)::integer from private.bc_commission_payments),1,'um pagamento confirmado apesar dos retries');
 select is((select count(*)::integer from private.bc_finance_expenses),1,'uma despesa apesar dos retries');
