@@ -1,0 +1,15 @@
+# Execução — plano: docs/superpowers/plans/2026-10-22-app-mais-simples.md
+
+Spec aprovada por Fernando: “Ótimo pode seguir aprovado”. Execução nativa sequencial preservada; checkout isolado de auditoria existente, branch própria. Base remota71a2d87024f6f161bdca7b111035ad270325f65c; árvore d86ad08e9a084cda3cee9654cb086b78346e8ca0; spec remota b7d36789c00a7e8eeeafcf196af62e302247a065. Não tocar nos downloads de mídia não rastreados de outros trabalhos.
+
+Pre-flight 1→2: leitura da cobrança por agendamento e recebimentos v2 com chave; componente contextual deriva saldo do servidor e não altera o total assinado. Pre-flight1→3: Overview/MySummary/Report compartilham fontes e período; pagamento sempre envia IDs e total esperado; anexo usa pagamento já confirmado. Pre-flight3→4: inicialização financeira deixa de exigir formulário de atendimento global. Pre-flight4→5: navegação pública e privada têm rotas separadas; catálogo/agenda e qualificações continuam compartilhados.
+
+Ruling: manter backend legado protegido por modo, com corte explícito para novos movimentos — fechamento semanal não pode continuar apurando recebimentos do modo simples — custo: testes de compatibilidade precisam declarar o modo legado, e produção com movimento legado surgido exige transição antes da ativação.
+
+Ruling: plano detalha execução da proposta já aprovada, preservando o método nativo e autorização de continuidade — evitar nova rodada de confirmação genérica para escolhas de implementação — custo: decisões materiais fora da spec devem ser explicitadas e revistas antes de ampliar o escopo.
+
+Task 1: base local implementada; RED inicial42883 para leitura por agendamento, GREEN cobrança600/entrada0, parcela100/saldo500, comissão30 e nova80, snapshot imutável, pagamento idempotente, pago fora do pendente, nova entrada após pagar, despesas/relatório e papel criação negado. Regressões adicionais observadas RED→GREEN: ordem do BEFORE trigger para trava profissional, resolução de comissão histórica com profissional inativa, precisão legada33.3333 preservada e cobrança incompatível não apresentada como recebível. pgTAP e concorrência adicionados; aguarda PostgreSQL17/CI. Nenhuma migration nova aplicada em produção.
+
+Ruling: percentual congelado usa quatro casas como a tabela anterior — preservar acordos que já aceitam33.3333 sem arredondar o snapshot — custo: apresentação pode resumir a visualização, mas o cálculo usa a precisão armazenada.
+Ruling: modo lido por função VOLATILE e mutex BEFORE anterior à ponte operacional — mudança de modo e finalização não devem inverter agenda/profissional ou usar flag obsoleta — custo: consulta curta de configuração por operação.
+Ruling: scripts SQL locais recebem timestamp UTC gerado offline — a chamada anterior do CLI acionou telemetria bloqueada; não repetir esse acesso — custo: registrar versões reais geradas pelo conector na publicação, como nas migrations já existentes.

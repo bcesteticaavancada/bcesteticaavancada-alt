@@ -1,4 +1,6 @@
 -- Exclusivamente para o Supabase local descartável. Nunca executar em produção.
+-- Testes anteriores preservam o contrato legado; a suíte simples ativa seu modo explicitamente.
+update private.bc_finance_settings set simple_mode=false where id;
 create temporary table fixture (name text primary key, id uuid not null);
 insert into fixture values
  ('admin','a1000000-0000-4000-8000-000000000001'),
