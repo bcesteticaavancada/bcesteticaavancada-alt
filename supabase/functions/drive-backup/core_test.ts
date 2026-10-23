@@ -1,5 +1,5 @@
 import {
-  destination, extension, safeFileName, secureEqual, selectPending, sha256Hex, sourceKey,
+  destination, extension, isAllowedRoot, isFinancialPath, isPrivatePermissionSet, safeFileName, secureEqual, selectPending, sha256Hex, sourceKey,
 } from "./core.ts";
 import { assert, assertEquals } from "jsr:@std/assert@1";
 
@@ -45,4 +45,39 @@ Deno.test("job secret comparison does not accept prefixes", () => {
   assert(secureEqual("a".repeat(64), "a".repeat(64)));
   assert(!secureEqual("a".repeat(63), "a".repeat(64)));
   assert(!secureEqual("a".repeat(64), "a".repeat(63) + "b"));
+});
+
+Deno.test("clinical signatures and pre-anamneses go to the clinical folder", () => {
+  assertEquals(destination("assinaturas/doc-1/assinatura.png"), "clinical");
+  assertEquals(destination("pre-anamneses/2026/10/ficha.pdf"), "clinical");
+  assertEquals(destination("identificacao/client-1/foto.jpg"), "client");
+  assertEquals(destination("fotos-clinicas/client-1/atendimento/foto.webp"), "client");
+});
+
+Deno.test("financial and unknown storage paths fail closed", () => {
+  assert(isFinancialPath("documentos/financeiro/recibo.pdf"));
+  assert(isFinancialPath("arquivos-clientes/caixa/recibo.pdf"));
+  assertEquals(destination("documentos/financeiro/recibo.pdf"), null);
+  assertEquals(destination("financeiro/fatura.pdf"), null);
+  assertEquals(destination("outra-pasta/cliente.pdf"), null);
+  assertEquals(destination("documentos"), null);
+  assertEquals(isAllowedRoot("outra-pasta/cliente.pdf"), false);
+  assertEquals(isAllowedRoot("assinaturas/documento/foto.png"), true);
+  let rejected = false;
+  try { safeFileName("financeiro/fatura.pdf", "a".repeat(64)); }
+  catch { rejected = true; }
+  assert(rejected);
+});
+
+Deno.test("Drive sharing verification rejects public, domain and third-party access", () => {
+  const allowed = new Set(["owner@example.com", "mel@example.com"]);
+  const valid = [
+    { type: "user", role: "owner", emailAddress: "owner@example.com" },
+    { type: "user", role: "writer", emailAddress: "mel@example.com" },
+  ];
+  assert(isPrivatePermissionSet(valid, allowed));
+  assert(!isPrivatePermissionSet([], allowed));
+  assert(!isPrivatePermissionSet([...valid, { type: "anyone", role: "reader" }], allowed));
+  assert(!isPrivatePermissionSet([...valid, { type: "domain", role: "reader" }], allowed));
+  assert(!isPrivatePermissionSet([...valid, { type: "user", role: "reader", emailAddress: "third@example.com" }], allowed));
 });
