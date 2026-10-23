@@ -37,13 +37,24 @@ jobs:
       - name: Show Supabase CLI version
         run: supabase --version
 
+      - name: Require explicit Data API grants for new objects
+        run: |
+          python3 - <<'PY'
+          import tomllib
+          from pathlib import Path
+          config = tomllib.loads(Path('supabase/config.toml').read_text())
+          assert config['api']['auto_expose_new_tables'] is False
+          assert config['db']['major_version'] == 17
+          print('Secure replay: no automatic Data API grants; PostgreSQL 17.')
+          PY
+
       - name: Normalize legacy migration versions for ephemeral CI
         run: python3 scripts/prepare-supabase-ci-migrations.py
 
       - name: Start free ephemeral Supabase database
         run: supabase start --exclude edge-runtime,gotrue,imgproxy,kong,logflare,mailpit,postgres-meta,postgrest,realtime,storage-api,studio,supavisor,vector
 
-      - name: Replay migrations from scratch
+      - name: Replay migrations without automatic Data API grants
         id: replay
         run: supabase db reset
 
