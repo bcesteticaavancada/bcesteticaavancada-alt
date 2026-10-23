@@ -10,8 +10,8 @@ test('colaboradora recebe Minha agenda, Clientes globais e somente o próprio fi
   for (const id of ['collaboratorAppointmentForm','collaboratorAppointmentClient','collaboratorAppointmentProcedure','clientsSearch','clientCreateForm','clientsList','clientEditor','clientHistoryTimeline','financeiro','currentAppointmentReceiptHost','collaboratorFinanceItems','collaboratorFinancePayments']) {
     assert.match(html,new RegExp(`id=["']${id}["']`));
   }
-  assert.match(html,/clientes-panel\.js/);
-  assert.match(html,/colaborador-finance\.js/);
+  assert.match(html,/dashboard-boot\.js/);
+  assert.match(html,/dashboard-boot\.js/);
   assert.doesNotMatch(html,/appointmentCollaborator|data-toggle-client|Arquivar cliente/i);
   assert.doesNotMatch(html,/adminCommissionForm|adminPayoutCreateForm|adminFinanceReceipts/i);
 });
@@ -35,6 +35,6 @@ test('novo cliente compartilhado atualiza imediatamente o seletor da agenda da c
     readFile(htmlUrl, 'utf8'),
     readFile(agendaSourceUrl, 'utf8'),
   ]);
-  assert.match(html, /onClientsChanged\s*:\s*agenda\.refreshClients/);
+  assert.match(await readFile(new URL('../../gestao/js/dashboard-boot.js',import.meta.url),'utf8'), /onClientsChanged:[\s\S]*get\('agenda'\)\?\.refreshClients/);
   assert.match(agendaSource, /return\s*\{[\s\S]*refreshClients[\s\S]*\}/);
 });

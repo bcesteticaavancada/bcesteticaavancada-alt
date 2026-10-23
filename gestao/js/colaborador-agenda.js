@@ -11,9 +11,6 @@ import {
 } from './agenda-api.js';
 import { listClients } from './clientes-api.js';
 import { linkPublicAppointment } from './schedule-api.js';
-import { initProcedurePanel } from './procedure-panel.js';
-import { initCollaboratorSchedule } from './colaborador-schedule.js';
-import { initAdminSchedule } from './admin-schedule.js';
 import {
   clinicDayRange,
   clinicLocalDateTimeToIso,
@@ -405,13 +402,8 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   clearReceipt();
   await loadLookups();
   await refresh();
-  const procedurePanel = await initProcedurePanel({ client, profile, root });
-  const schedulePanel = manager
-    ? await initAdminSchedule({ client, profile, root, staffProvider: async () => staffRows })
-    : await initCollaboratorSchedule({ client, profile, root });
-
   return {
-    refresh, refreshClients, openAppointment, closeDetail, procedurePanel, schedulePanel,
+    refresh, refreshClients, openAppointment, closeDetail,
     getCurrentAppointment: () => {
       const appointment = appointments.get(currentAppointmentId) || null;
       return appointment && isOwnClinicalAppointment(profile, appointment) ? appointment : null;

@@ -28,6 +28,8 @@ test('módulo administrativo lista staff ativo e inicializa o formulário', asyn
 
 test('admin inicializa a identificação profissional após autenticação', async () => {
   const html = await fs.readFile(adminHtml, 'utf8');
-  assert.match(html, /initAdminStaffClinicalIdentity/);
-  assert.match(html, /await initAdminStaffClinicalIdentity\(\{client,root:document\}\)/);
+  assert.match(html, /requireRole\('admin'/);
+  const boot=await fs.readFile(new URL('../../gestao/js/dashboard-boot.js',import.meta.url),'utf8');
+  assert.match(boot, /if\(admin\)/);
+  assert.match(boot, /areas.equipe=\{init:\(\)=>initAdminStaffClinicalIdentity\(\{client,root\}\)/);
 });

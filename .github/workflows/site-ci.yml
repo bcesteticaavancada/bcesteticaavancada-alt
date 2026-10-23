@@ -17,6 +17,7 @@ on:
       - 'tests/site/**'
       - 'scripts/test-agenda-browser.mjs'
       - 'scripts/test-client-registration-browser.mjs'
+      - 'scripts/test-simple-dashboard-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -34,6 +35,7 @@ on:
       - 'tests/site/**'
       - 'scripts/test-agenda-browser.mjs'
       - 'scripts/test-client-registration-browser.mjs'
+      - 'scripts/test-simple-dashboard-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -64,6 +66,8 @@ jobs:
         run: node scripts/test-agenda-browser.mjs
       - name: Basic client registration browser tests
         run: node scripts/test-client-registration-browser.mjs
+      - name: Simple dashboard phone and tablet browser tests
+        run: node scripts/test-simple-dashboard-browser.mjs
       - name: Upload agenda browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

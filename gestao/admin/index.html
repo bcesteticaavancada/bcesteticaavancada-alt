@@ -20,16 +20,7 @@
     <aside id="gestaoMenu" class="bcg-menu-drawer" aria-hidden="true">
       <a class="bcg-menu-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
       <p class="bcg-eyebrow">NAVEGAÇÃO</p>
-      <nav class="bcg-menu-nav" aria-label="Navegação administrativa">
-        <a data-nav data-area-target="agenda" aria-current="page" href="#agenda">Agenda</a>
-        <a data-nav data-area-target="clientes" href="#clientes">Clientes</a>
-        <a data-nav data-area-target="pre-anamneses" href="#pre-anamneses">Pré-anamneses</a>
-        <a data-nav data-area-target="financeiro" href="#financeiro">Financeiro</a>
-        <p class="bcg-menu-group-label">Administração</p>
-        <a data-nav data-area-target="procedimentos" href="#procedimentos">Procedimentos</a>
-        <a data-nav data-area-target="auditoria" href="#auditoria">Auditoria</a>
-        <a href="../../instalar/">Instalar app</a>
-      </nav>
+<nav class="bcg-menu-nav" aria-label="Navegação da gestão"><a data-nav data-area-target="agenda" aria-current="page" href="#agenda">Agenda</a><a data-nav data-area-target="clientes" href="#clientes">Clientes</a><a data-nav data-area-target="financeiro" href="#financeiro">Financeiro</a><details data-menu-settings><summary>Configurações</summary><a data-nav data-area-target="disponibilidade" href="#disponibilidade">Disponibilidade e bloqueios</a><a data-nav data-area-target="procedimentos" href="#procedimentos">Procedimentos</a><a data-nav data-area-target="equipe" href="#equipe">Equipe</a><a data-nav data-area-target="pre-anamneses" href="#pre-anamneses">Pré-anamneses recebidas</a><a data-nav data-area-target="auditoria" href="#auditoria">Auditoria</a><a href="../../instalar/">Instalar app</a></details></nav>
       <div class="bcg-menu-note">Mel administra todas as agendas, o financeiro e também pode atender como profissional.</div>
     </aside>
     <button id="menuBackdrop" class="bcg-menu-backdrop" type="button" aria-label="Fechar menu" hidden></button>
@@ -46,26 +37,26 @@
       <section id="agenda" class="bcg-panel" data-area-panel>
         <div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA GERAL</p><h2>Atendimentos do dia</h2></div><div class="bcg-inline-filters"><label>Visão da agenda<select id="adminAgendaOriginFilter" class="bcg-input"><option value="all">Geral</option><option value="site">Site</option><option value="internal">Interna</option></select></label><label class="bcg-field bcg-field-compact">Profissional<select id="adminAgendaProfessionalFilter" class="bcg-input"></select></label><label class="bcg-field bcg-field-compact" for="adminAgendaDate">Data<input id="adminAgendaDate" class="bcg-input" type="date"></label></div></div>
         <p id="adminAgendaStatus" class="bcg-status" role="status" aria-live="polite"></p><div id="adminAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
-        <div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
-        <form id="appointmentForm" class="bcg-form bcg-form-grid"><label>Cliente<select id="appointmentClient" class="bcg-input" required></select></label><label>Profissional<select id="appointmentCollaborator" class="bcg-input" required></select></label><label>Procedimento<select id="appointmentProcedure" class="bcg-input" required></select></label><label>Início<input id="appointmentStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="appointmentEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="appointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="appointmentFormStatus" class="bcg-status"></span></div></form>
+        <div class="bcg-divider"></div>
+<details class="bcg-quick-create"><summary class="bcg-button">Novo agendamento</summary>        <form id="appointmentForm" class="bcg-form bcg-form-grid"><label>Cliente<select id="appointmentClient" class="bcg-input" required></select></label><label>Profissional<select id="appointmentCollaborator" class="bcg-input" required></select></label><label>Procedimento<select id="appointmentProcedure" class="bcg-input" required></select></label><label>Início<input id="appointmentStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="appointmentEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="appointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="appointmentFormStatus" class="bcg-status"></span></div></form></details>
         <form id="adminAppointmentEditForm" class="bcg-form bcg-form-grid bcg-editor-card" hidden><div class="bcg-field-wide"><p class="bcg-eyebrow">EDITAR AGENDAMENTO</p><strong id="adminEditProfessional">Profissional</strong></div><label>Procedimento<select id="adminEditProcedure" class="bcg-input" required></select></label><label>Início<input id="adminEditStart" class="bcg-input" type="datetime-local" required></label><label>Fim <span class="bcg-optional">opcional</span><input id="adminEditEnd" class="bcg-input" type="datetime-local"></label><label class="bcg-field-wide">Observação administrativa<textarea id="adminEditNote" class="bcg-input bcg-textarea" rows="2"></textarea></label><div id="adminPublicBookingField" class="bcg-field-wide" hidden><p>Reserva do site • Cadastro pendente</p><label>Vincular ao cadastro<select id="adminPublicBookingClient" class="bcg-input"></select></label><button id="adminPublicBookingLink" class="bcg-small-button" type="button">Vincular cliente</button></div><div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar alterações</button><button id="adminAppointmentEditCancel" class="bcg-small-button" type="button">Cancelar edição</button><span id="adminAppointmentEditStatus" class="bcg-status"></span></div></form>
       </section>
 
       <section id="clientes" class="bcg-panel" data-area-panel hidden>
         <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro, prontuário e arquivamento</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome, CPF ou telefone"></label></div>
         <div class="bcg-subgrid">
-          <article class="bcg-subpanel"><h3>Novo cliente</h3>
+          <details class="bcg-subpanel bcg-quick-create"><summary class="bcg-small-button">Novo cliente</summary>
             <form id="clientCreateForm" class="bcg-form">
               <p class="bcg-muted">Só nome completo e telefone são obrigatórios. Os demais dados podem ser preenchidos durante a avaliação.</p>
               <label>Nome completo<input class="bcg-input" name="nome" autocomplete="name" required></label>
               <label>Telefone<input class="bcg-input" name="telefone" type="tel" autocomplete="tel" required></label>
-              <label>CPF <span class="bcg-optional">opcional</span><input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off"></label>
+<details data-client-optional><summary>Completar cadastro (opcional)</summary>              <label>CPF <span class="bcg-optional">opcional</span><input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off"></label>
               <label>Data de nascimento <span class="bcg-optional">opcional</span><input class="bcg-input" name="data_nascimento" type="date"><small id="clientAgePreview" class="bcg-muted">Idade calculada automaticamente</small></label>
               <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" autocomplete="email"></label>
-              <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Pode ser preenchido durante a avaliação de clientes menores de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset>
+              <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Pode ser preenchido durante a avaliação de clientes menores de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset></details>
               <button class="bcg-button" type="submit">Cadastrar cliente</button><div id="clientCreateStatus" class="bcg-status" role="status" aria-live="polite"></div>
             </form>
-          </article>
+          </details>
           <article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article>
         </div>
         <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div><div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO COMPLETO</p><div id="clientHistoryTimeline"></div></div>
@@ -91,7 +82,14 @@
         <p class="bcg-eyebrow">PROCEDIMENTOS</p><h2>Cadastro de procedimentos</h2>
         <div class="bcg-subgrid"><article class="bcg-subpanel"><form id="procedureForm" class="bcg-form"><label>Nome do procedimento<input id="procedureNome" class="bcg-input" type="text" required></label><label>Duração padrão em minutos <span class="bcg-optional">opcional</span><input id="procedureDuration" class="bcg-input" type="number" inputmode="numeric" min="1" step="1"></label><button class="bcg-button" type="submit">Cadastrar procedimento</button><span id="procedureFormStatus" class="bcg-status"></span></form></article><article class="bcg-subpanel"><h3>Ativos</h3><div id="proceduresList"></div></article></div>
         <div class="bcg-divider"></div>
-        <p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h2>Identificação profissional</h2>
+      </section>
+
+      <section id="auditoria" class="bcg-panel" data-area-panel hidden>
+        <div class="bcg-section-head"><div><p class="bcg-eyebrow">AUDITORIA</p><h2>Trilha de alterações</h2></div><p>Somente leitura. Registros gerados automaticamente pelo sistema.</p></div>
+        <div class="bcg-inline-filters"><label>Entidade<select id="auditEntityType" class="bcg-input"><option value="">Todas</option><option value="clientes">Clientes</option><option value="agendamentos">Agendamentos</option><option value="atendimentos">Atendimentos</option><option value="recebimentos">Recebimentos</option><option value="livros_financeiros">Livros financeiros</option><option value="repasses">Repasses</option><option value="comissao_profissional_procedimento">Comissões</option><option value="config_repasses">Ciclos de repasse (histórico)</option><option value="commission_payments">Pagamentos de comissão</option><option value="finance_expenses">Despesas</option><option value="bc_finance_attachments">Comprovantes</option></select></label><label>ID <span class="bcg-optional">opcional</span><input id="auditEntityId" class="bcg-input" type="text"></label><button id="auditRefresh" class="bcg-small-button" type="button">Atualizar</button></div><p id="auditStatus" class="bcg-status"></p><div id="auditList"></div>
+      </section>
+
+<section id="equipe" class="bcg-panel" data-area-panel hidden>        <p class="bcg-eyebrow">DOCUMENTOS CLÍNICOS</p><h2>Identificação profissional</h2>
         <p class="bcg-muted">Esses dados são usados no snapshot dos documentos assinados. O sistema não inventa conselho ou registro.</p>
         <form id="staffClinicalIdentityForm" class="bcg-form bcg-form-grid bcg-editor-card">
           <label class="bcg-field-wide">Profissional<select id="staffClinicalProfessional" class="bcg-input" required></select></label>
@@ -101,32 +99,22 @@
           <p id="staffClinicalIdentityState" class="bcg-muted bcg-field-wide"></p>
           <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Salvar identificação profissional</button><span id="staffClinicalIdentityStatus" class="bcg-status" role="status" aria-live="polite"></span></div>
         </form>
-      </section>
-
-      <section id="auditoria" class="bcg-panel" data-area-panel hidden>
-        <div class="bcg-section-head"><div><p class="bcg-eyebrow">AUDITORIA</p><h2>Trilha de alterações</h2></div><p>Somente leitura. Registros gerados automaticamente pelo sistema.</p></div>
-        <div class="bcg-inline-filters"><label>Entidade<select id="auditEntityType" class="bcg-input"><option value="">Todas</option><option value="clientes">Clientes</option><option value="agendamentos">Agendamentos</option><option value="atendimentos">Atendimentos</option><option value="recebimentos">Recebimentos</option><option value="livros_financeiros">Livros financeiros</option><option value="repasses">Repasses</option><option value="comissao_profissional_procedimento">Comissões</option><option value="config_repasses">Ciclos de repasse (histórico)</option><option value="commission_payments">Pagamentos de comissão</option><option value="finance_expenses">Despesas</option><option value="bc_finance_attachments">Comprovantes</option></select></label><label>ID <span class="bcg-optional">opcional</span><input id="auditEntityId" class="bcg-input" type="text"></label><button id="auditRefresh" class="bcg-small-button" type="button">Atualizar</button></div><p id="auditStatus" class="bcg-status"></p><div id="auditList"></div>
-      </section>
-
+</section>
+<section id="disponibilidade" class="bcg-panel" data-area-panel hidden><h2>Disponibilidade e bloqueios</h2></section>
       <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
     </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
-    import { requireRole, signOut, installSessionGuard } from '../js/auth.js';
-    import { createBcGestaoClient } from '../js/supabase-client.js';
-    import { initAdminAgenda } from '../js/admin-agenda.js';
-    import { initClientesPanel } from '../js/clientes-panel.js?v=20261018-basic';
-    import { initAdminAudit } from '../js/admin-audit.js';
-    import { initAdminFinance } from '../js/admin-finance.js';
-    import { initAdminStaffClinicalIdentity } from '../js/admin-staff-profile.js';
-    import { initPreAnamneseInbox } from '../js/pre-anamnese-inbox.js';
-    import {startLiveRefresh} from '../js/live-refresh.js';
-    import '../js/shell.js';
-    const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('admin',client);
-    if(profile){document.getElementById('profileName').textContent=profile.display_name||'Mel';status.hidden=true;app.hidden=false;const guard=installSessionGuard({client,profile,app});try{const agenda=await initAdminAgenda({client,profile,root:document});const clientsPanel=await initClientesPanel({client,profile,root:document,canArchive:true,onClientsChanged:agenda.refreshClients});await initAdminAudit({client,root:document,staffMap:agenda.getStaffMap()});const finance=await initAdminFinance({client,profile,root:document,staffMap:agenda.getStaffMap()});await initAdminStaffClinicalIdentity({client,root:document});const inbox=await initPreAnamneseInbox({client,root:document});startLiveRefresh({root:document,authorize:guard.authorize,tasks:[{scope:()=>document.getElementById('adminAgendaList'),refresh:agenda.refreshAgenda},{scope:()=>document.getElementById('clientsList'),refresh:clientsPanel.refreshClients},{scope:()=>document.getElementById('financeiro'),refresh:finance.refresh},{scope:()=>document.getElementById('preAnamneseInbox'),refresh:inbox.refresh}]});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar o painel administrativo.';}}
-    logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
-  </script>
+import {requireRole,signOut,installSessionGuard} from '../js/auth.js';
+import {createBcGestaoClient} from '../js/supabase-client.js';
+import {startStaffDashboard as startDashboard} from '../js/dashboard-boot.js';
+import '../js/shell.js';
+const client=createBcGestaoClient(globalThis.supabase?.createClient),app=document.getElementById('gestaoApp'),status=document.getElementById('authStatus');
+const profile=await requireRole('admin',client);
+if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';const guard=installSessionGuard({client,profile,app});status.hidden=true;app.hidden=false;startDashboard({client,profile,root:document,authorize:guard.authorize});}
+document.getElementById('logoutBtn').addEventListener('click',async event=>{event.currentTarget.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
+</script>
 </body>
 </html>

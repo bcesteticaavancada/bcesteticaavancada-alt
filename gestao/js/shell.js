@@ -7,7 +7,7 @@ const menuDrawer = document.getElementById('gestaoMenu');
 const menuBackdrop = document.getElementById('menuBackdrop');
 
 function getAreaLinks() {
-  return Array.from(document.querySelectorAll('[data-area-target]'));
+  return Array.from(document.querySelectorAll('[data-area-target]')).filter(link=>!link.hidden);
 }
 
 function getAreaPanels() {
@@ -24,6 +24,7 @@ function setMenuOpen(open) {
   menuBackdrop.hidden = !open;
   menuToggle.setAttribute('aria-expanded', String(open));
   menuDrawer.setAttribute('aria-hidden', String(!open));
+  menuDrawer.inert=!open;
   document.body.classList.toggle('bcg-menu-open', open);
 }
 
@@ -58,6 +59,7 @@ function selectArea(area, { updateHash = true } = {}) {
     window.history.replaceState(null, '', `#${selected}`);
   }
 
+  document.dispatchEvent(new CustomEvent('bc:area-changed',{detail:{area:selected}}));
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

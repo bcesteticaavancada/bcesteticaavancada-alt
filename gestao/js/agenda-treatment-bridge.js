@@ -17,7 +17,7 @@ export async function getAppointmentClinicalContext({client,appointmentId}){
 }
 
 export function renderAgendaTreatmentButton(appointmentId,{status='agendado'}={}){
-  return `<button type="button" class="bcg-small-button bcg-clinical-entry-button" data-open-clinical-treatment="${escapeHtml(appointmentId)}">${status==='atendido'?'Ver atendimento':'Atender'}</button>`;
+  return `<button type="button" class="bcg-small-button bcg-clinical-entry-button" data-open-clinical-treatment="${escapeHtml(appointmentId)}">${status==='agendado'?'Atender':'Ver atendimento'}</button>`;
 }
 
 export function renderAgendaTreatmentOverlay({context={},clientRecord={},readOnlyHistory=''}={}){
@@ -25,7 +25,7 @@ export function renderAgendaTreatmentOverlay({context={},clientRecord={},readOnl
   return `<div class="bcg-clinical-overlay" data-agenda-treatment-overlay role="dialog" aria-modal="true" aria-label="Prontuário clínico">
     <div class="bcg-clinical-overlay-card">
       <header class="bcg-clinical-overlay-head"><div><p class="bcg-eyebrow">PRONTUÁRIO CLÍNICO</p><h2>${escapeHtml(clientRecord.nome||'Cliente')}</h2><p class="bcg-muted">${escapeHtml(context.procedure_name||'Procedimento')} • ${escapeHtml(context.professional_name||'Profissional')}</p></div><button type="button" class="bcg-small-button" data-agenda-treatment-close>Fechar</button></header>
-      ${writable?`<div class="bcg-clinical-overlay-note"><strong>Atendimento da profissional autenticada.</strong><span>Você pode continuar no prontuário formal deste agendamento.</span></div><div data-agenda-treatment-mount></div>`:`<div class="bcg-clinical-overlay-note"><strong>Somente visualização</strong><span>Este agendamento está atribuído a ${escapeHtml(context.professional_name||'outra profissional')}. A autoria clínica permanece com a profissional responsável.</span></div><div class="bcg-agenda-treatment-readonly"><p class="bcg-eyebrow">HISTÓRICO CLÍNICO</p>${readOnlyHistory||'<div class="bcg-empty">Nenhum atendimento clínico formal registrado.</div>'}</div>`}
+      ${writable?`<div class="bcg-clinical-overlay-note"><strong>Atendimento da profissional autenticada.</strong><span>Você pode continuar no prontuário formal deste agendamento.</span></div><div data-agenda-treatment-mount></div>`:`<div class="bcg-clinical-overlay-note"><strong>Somente visualização</strong><span>${['cancelado','faltou'].includes(context.appointment_status)?'Agendamento cancelado ou registrado como falta. Nenhuma nova sessão será criada.':`Este agendamento está atribuído a ${escapeHtml(context.professional_name||'outra profissional')}. A autoria clínica permanece com a profissional responsável.`}</span></div><div class="bcg-agenda-treatment-readonly"><p class="bcg-eyebrow">HISTÓRICO CLÍNICO</p>${readOnlyHistory||'<div class="bcg-empty">Nenhum atendimento clínico formal registrado.</div>'}</div>`}
     </div>
   </div>`;
 }
@@ -51,7 +51,8 @@ async function openOverlay({client,root,appointmentId}){
   closeOverlay(root);
   const version=openingVersions.get(root);
   const current=()=>openingVersions.get(root)===version;
-  const context=await getAppointmentClinicalContext({client,appointmentId});
+  const loaded=await getAppointmentClinicalContext({client,appointmentId});
+  const context={...loaded,can_start:loaded.can_start&&(loaded.appointment_status==='agendado'||Boolean(loaded.existing_treatment_id))};
   if(!current())return null;
   const clientRecord=await getClient({client,clienteId:context.cliente_id});
   let readOnlyHistory='';

@@ -3,8 +3,6 @@ import { linkPublicAppointment } from './schedule-api.js';
 import { agendaOriginKind } from './agenda-origin.js';
 import { listAdminAppointments,listEligibleProcedures,listStaffDirectory,createAppointment,updateAppointment,setAppointmentStatus } from './agenda-api.js';
 import { listClients } from './clientes-api.js';
-import { initProcedurePanel } from './procedure-panel.js';
-import { initAdminSchedule } from './admin-schedule.js';
 import { CLINIC_TIME_ZONE,clinicDayRange,clinicLocalDateTimeToIso,formatClinicDateTime,statusLabel } from './agenda-format.js';
 
 export function escapeHtml(value){return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
@@ -72,7 +70,5 @@ export async function initAdminAgenda({client,profile,root=document}){
     }});
     if(!agendaList.contains(host))runtime.destroy();delete details.dataset.loading;
   },true);
-  const procedurePanel=await initProcedurePanel({client,profile,root});
-  const schedulePanel=await initAdminSchedule({client,profile,root,staffProvider:staffDirectory});
-  return {openEdit,refreshAgenda,refreshClients,refreshProcedures,refreshCollaborators,getStaffMap:staffMap,getStaffDirectory:staffDirectory,procedurePanel,schedulePanel,showMyAgenda:()=>{professionalFilter.value=profile.user_id;return renderCurrentAgenda();}};
+  return {openEdit,refreshAgenda,refreshClients,refreshProcedures,refreshCollaborators,getStaffMap:staffMap,getStaffDirectory:staffDirectory,showMyAgenda:()=>{professionalFilter.value=profile.user_id;return renderCurrentAgenda();}};
 }

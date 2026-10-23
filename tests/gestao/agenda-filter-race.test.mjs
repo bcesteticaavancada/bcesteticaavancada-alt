@@ -17,7 +17,7 @@ const appointment=(id,channel)=>({id,booking_channel:channel,colaboradora_user_i
 
 for(const staleError of [false,true])test(`filtro ignora ${staleError?'erro':'resposta'} de requisição ultrapassada`,async()=>{
   const {nodes,pending,client,root}=fixture();
-  await assert.rejects(initAdminAgenda({client,profile:{user_id:'reviewer'},root}),/Área de agenda administrativa/);
+  await initAdminAgenda({client,profile:{user_id:'reviewer'},root});
   // Only the unrelated availability panel is absent; real agenda listeners exist.
   const filter=nodes.get('adminAgendaOriginFilter');
   filter.value='site';const old=filter.events.change().catch(()=>{});

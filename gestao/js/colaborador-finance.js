@@ -14,5 +14,5 @@ export async function initCollaboratorFinance({client,profile,root=document}){
   }catch(error){if(current===version&&canApply())setStatus(message,error.message,'error');throw error;}
  }
  for(const node of [from,to,el('collaboratorFinanceRefresh')])node?.addEventListener(node===from||node===to?'change':'click',()=>refresh().catch(()=>{}));
- installFinanceAttachments({client,profile,root:el('financeiro'),admin:false});await refresh();return {refresh};
+ installFinanceAttachments({client,profile,root:el('financeiro'),admin:false});await refresh().catch(()=>{});return {refresh};
 }

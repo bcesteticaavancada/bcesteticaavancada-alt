@@ -18,8 +18,8 @@ test('painel da colaboradora expõe agenda, clientes, detalhe e somente o própr
   for (const id of ['todayAgendaList','nextAgendaList','appointmentDetail','appointmentDetailContent','historyTimeline','clientsList','financeiro','currentAppointmentReceiptHost','collaboratorFinanceItems','collaboratorFinancePayments']) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
-  assert.match(html, /colaborador-agenda\.js/);
-  assert.match(html, /colaborador-finance\.js/);
+  assert.match(html, /dashboard-boot\.js/);
+  assert.match(await readFile(new URL('../../gestao/js/dashboard-boot.js',import.meta.url),'utf8'),/admin\?initAdminFinance:initCollaboratorFinance/);
   assert.doesNotMatch(html, /adminCommissionForm|adminPayoutCreateForm|adminFinanceReceipts|percentual/i);
 });
 

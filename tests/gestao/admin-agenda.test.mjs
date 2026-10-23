@@ -15,8 +15,8 @@ test('painel admin expõe agenda geral com filtro, edição e clientes compartil
   for (const id of ['adminAgendaDate','adminAgendaProfessionalFilter','adminAgendaList','adminAppointmentEditForm','appointmentForm','appointmentClient','appointmentCollaborator','appointmentProcedure','clientsSearch','clientCreateForm','clientEditor','clientHistoryTimeline','auditoria','auditList']) {
     assert.match(html,new RegExp(`id=["']${id}["']`));
   }
-  assert.match(html,/clientes-panel\.js/);
-  assert.match(html,/admin-audit\.js/);
+  assert.match(html,/dashboard-boot\.js/);
+  assert.match(await readFile(new URL('../../gestao/js/dashboard-boot.js',import.meta.url),'utf8'),/admin-audit\.js/);
   assert.doesNotMatch(html,/service_role|secret|sk_[a-z0-9]/i);
 });
 

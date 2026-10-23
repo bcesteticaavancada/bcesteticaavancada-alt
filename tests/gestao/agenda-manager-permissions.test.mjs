@@ -50,6 +50,9 @@ test('perfil autenticado apresenta Colaboradora Chefe sem criar papel clínico a
 
 test('área colaboradora mantém módulo financeiro de colaboradora, não o administrativo', async () => {
   const html = await read(collaboratorHtmlUrl);
-  assert.match(html, /colaborador-finance\.js/i);
+  assert.match(html, /dashboard-boot\.js/i);
+  const boot=await read(new URL('../../gestao/js/dashboard-boot.js',import.meta.url));
+  assert.match(boot,/const admin=profile.role==='admin'/);
+  assert.match(boot,/admin\?initAdminFinance:initCollaboratorFinance/);
   assert.doesNotMatch(html, /admin-finance\.js/i);
 });
