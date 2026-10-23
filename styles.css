@@ -176,3 +176,28 @@ button{font:inherit}
 .alice-tags span{border:1px solid rgba(184,138,69,.42);background:rgba(255,255,255,.55);border-radius:999px;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6d5636}
 @media(max-width:800px){.alice-profile .page-copy{order:2}.alice-profile .alice-portrait{order:1}.alice-portrait img{height:560px}}
 @media(max-width:520px){.alice-portrait{border-radius:120px 120px 24px 24px}.alice-portrait img{height:500px}.alice-tags{margin:20px 0 24px}}
+
+
+/* Navegação pública compacta, acessível por teclado e sem remoção de destinos antigos. */
+.drawer-nav .bc-drawer-group{min-width:0}
+.drawer-nav .bc-drawer-group > summary{
+  position:relative;list-style:none;cursor:pointer;
+  padding:14px 30px 14px 4px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.86);
+}
+.drawer-nav .bc-drawer-group > summary::-webkit-details-marker{display:none}
+.drawer-nav .bc-drawer-group > summary::after{
+  content:"+";position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  color:var(--gold2);font-size:18px;font-weight:400;
+}
+.drawer-nav .bc-drawer-group[open] > summary::after{content:"−"}
+.drawer-nav .bc-drawer-group > summary:hover,
+.drawer-nav .bc-drawer-group[open] > summary{color:var(--gold2)}
+.drawer-nav .bc-drawer-submenu{display:grid;padding:3px 0 10px 13px;border-left:1px solid rgba(184,138,69,.32)}
+.drawer-nav .bc-drawer-submenu a{padding:10px 4px;font-size:11px}
+.drawer-nav a.bc-drawer-primary-action{color:var(--gold2);font-weight:700}
+.drawer-nav a.bc-drawer-secondary{font-size:11px;letter-spacing:.045em;opacity:.78}
+.drawer-nav .bc-drawer-group > summary:focus-visible,
+.drawer-nav a:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
