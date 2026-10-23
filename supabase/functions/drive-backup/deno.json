@@ -2,8 +2,8 @@
   "nodeModulesDir": "none",
   "lock": false,
   "tasks": {
-    "test": "deno test --no-prompt core_test.ts source_test.ts worker_test.ts",
-    "check": "deno check index.ts",
+    "test": "deno test --no-prompt core_test.ts oauth_core_test.ts source_test.ts worker_test.ts",
+    "check": "deno check index.ts oauth_core.ts oauth_core_test.ts",
     "fmt": "deno fmt --check ."
   }
 }
