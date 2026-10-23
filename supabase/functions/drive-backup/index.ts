@@ -42,7 +42,7 @@ function isFinancialPath(path: string): boolean {
 function looksLikeFolderId(id: string): boolean {
   return /^[a-zA-Z0-9_-]{12,120}$/.test(id);
 }
-async function enumerateStorage(service: ReturnType<typeof createClient>): Promise<Entry[]> {
+async function enumerateStorage(service: any): Promise<Entry[]> {
   const folders = [""];
   const result: Entry[] = [];
   for (let folderNumber = 0; folderNumber < folders.length; folderNumber++) {
@@ -171,7 +171,9 @@ async function uploadToDrive(
   const prefix = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
     JSON.stringify(metadata) + "\r\n--" + boundary + "\r\nContent-Type: " + safeMime(mime) + "\r\n\r\n";
   const suffix = "\r\n--" + boundary + "--\r\n";
-  const body = new Blob([prefix, bytes, suffix], {
+  const owned = new Uint8Array(bytes.length);
+  owned.set(bytes);
+  const body = new Blob([prefix, owned, suffix], {
     type: "multipart/related; boundary=" + boundary,
   });
   const url = DRIVE_UPLOAD + "?uploadType=multipart&fields=id,size,appProperties";
