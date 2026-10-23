@@ -119,16 +119,12 @@ test('ficha só pode ser registrada enquanto o agendamento está agendado', () =
   assert.equal(canRegisterAttendance(''), false);
 });
 
-test('tela da colaboradora contém os sete campos da ficha e binding real', async () => {
+test('tela da colaboradora direciona novas sessões ao prontuário formal', async () => {
   const html = await readFile(collaboratorHtmlUrl, 'utf8');
-  assert.match(html, /id=["']attendanceForm["']/);
-  for (const name of FIELD_NAMES) {
-    assert.match(html, new RegExp(`name=["']${name}["']`));
-  }
-  assert.match(html, /data-attendance-status/);
-  assert.match(html, /atendimento-form\.js/);
-  assert.match(html, /bindAttendanceForm\s*\(/);
-  assert.match(html, /appointmentId\s*:\s*\(\)\s*=>/);
+  assert.doesNotMatch(html, /id=["']attendanceForm["']|bindAttendanceForm/);
+  assert.match(html, /id=["']currentAppointmentReceiptHost["']/);
+  const bridge=await readFile(new URL('../../gestao/js/agenda-treatment-bridge.js',import.meta.url),'utf8');
+  assert.match(bridge,/controller.startAppointment/);assert.match(bridge,/initTreatmentController/);
 });
 
 test('bindAttendanceForm envia somente appointmentId e campos aprovados', async () => {

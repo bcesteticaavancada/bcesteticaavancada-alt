@@ -1,163 +1,48 @@
-import { listActiveProcedures } from './agenda-api.js';
-import { listAdminReceipts, reverseReceipt } from './finance-receipts-api.js';
-import { listAdminCommissions, setCommission, listAdminBooks, closeBook, reopenBook, recalculateBooks } from './finance-books-api.js';
-import { listAdminPayouts, setPayoutCycle, createPayout, settlePayout, reversePayout } from './finance-payouts-api.js';
-
-const MONEY = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-function escapeHtml(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
-function money(value) { return MONEY.format(Number(value) || 0); }
-function setStatus(el, message, kind = '') { if (el) { el.textContent = message || ''; el.dataset.kind = kind; } }
-function option(label, value) { return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`; }
-function currentMonth() {
-  const now = new Date(); const y = now.getFullYear(); const m = now.getMonth() + 1; const last = new Date(y, m, 0).getDate();
-  return { start: `${y}-${String(m).padStart(2,'0')}-01`, end: `${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}` };
-}
-function aggregateBooks(rows = []) {
-  const map = new Map();
-  for (const row of rows) {
-    if (!map.has(row.livro_id)) map.set(row.livro_id, { ...row, items: [] });
-    if (row.item_id) map.get(row.livro_id).items.push(row);
-  }
-  return [...map.values()];
-}
-
-export async function initAdminFinance({ client, profile, root = document, staffMap }) {
-  if (!client?.rpc || !root || !profile || profile.role !== 'admin' || !(staffMap instanceof Map)) {
-    throw new Error('Contexto financeiro administrativo inválido.');
-  }
-  const el = (id) => root.getElementById(id);
-  const professional = el('adminFinanceProfessional');
-  const from = el('adminFinanceFrom');
-  const to = el('adminFinanceTo');
-  const refreshButton = el('adminFinanceRefresh');
-  const message = el('adminFinanceStatus');
-  if (!professional || !from || !to) throw new Error('Estrutura financeira administrativa incompleta.');
-
-  const period = currentMonth(); if (!from.value) from.value = period.start; if (!to.value) to.value = period.end;
-  let procedureMap = new Map(); let bookRows = [];
-  const staff = [...staffMap.entries()].map(([user_id, display_name]) => ({ user_id, display_name }));
-
-  function populateLookups(procedures) {
-    procedureMap = new Map(procedures.map((item) => [item.id, item.nome]));
-    for (const select of root.querySelectorAll('[data-finance-professional]')) {
-      const keepBlank = select.id === 'adminFinanceProfessional';
-      select.innerHTML = `${keepBlank ? '<option value="">Todas as profissionais</option>' : '<option value="">Selecione</option>'}${staff.map((item) => option(item.display_name, item.user_id)).join('')}`;
-    }
-    for (const select of root.querySelectorAll('[data-finance-procedure]')) {
-      select.innerHTML = '<option value="">Selecione</option>' + procedures.map((item) => option(item.nome, item.id)).join('');
-    }
-  }
-
-  function renderReceipts(rows) {
-    const target = el('adminFinanceReceipts');
-    if (!rows.length) { target.innerHTML = '<div class="bcg-empty">Nenhum recebimento no período.</div>'; return; }
-    target.innerHTML = `<div class="bcg-finance-list">${rows.map((r) => `<article class="bcg-finance-row"><div><strong>${money(r.valor)}</strong><span>${escapeHtml(staffMap.get(r.profissional_user_id) || 'Profissional')} • ${escapeHtml(procedureMap.get(r.procedimento_id) || 'Procedimento')}</span></div><div><span class="bcg-chip">${escapeHtml(r.status)}</span>${r.status === 'ativo' ? `<button class="bcg-small-button" type="button" data-reverse-receipt="${escapeHtml(r.id)}">Estornar</button>` : ''}</div></article>`).join('')}</div>`;
-  }
-
-  function renderCommissions(rows) {
-    const target = el('adminFinanceCommissions');
-    if (!rows.length) { target.innerHTML = '<div class="bcg-empty">Nenhuma comissão configurada.</div>'; return; }
-    target.innerHTML = `<div class="bcg-finance-list">${rows.filter((r) => r.ativo).map((r) => `<article class="bcg-finance-row"><div><strong>${escapeHtml(staffMap.get(r.profissional_user_id) || 'Profissional')}</strong><span>${escapeHtml(procedureMap.get(r.procedimento_id) || 'Procedimento')}</span></div><strong>${Number(r.percentual).toLocaleString('pt-BR')}%</strong></article>`).join('')}</div>`;
-  }
-
-  function renderBooks(rows) {
-    const target = el('adminFinanceBooks');
-    bookRows = aggregateBooks(rows);
-    if (!bookRows.length) { target.innerHTML = '<div class="bcg-empty">Nenhum livro no período.</div>'; }
-    else target.innerHTML = `<div class="bcg-finance-list">${bookRows.map((b) => `<article class="bcg-finance-row"><div><strong>${escapeHtml(staffMap.get(b.profissional_user_id) || 'Profissional')} • ${escapeHtml(b.periodo_inicio)} → ${escapeHtml(b.periodo_fim)}</strong><span>Produção: ${money(b.producao_recebida)} • Repasse: ${money(b.repasse_total)} • ${b.items.length} movimento(s)</span></div><div><span class="bcg-chip">${escapeHtml(b.status)}</span>${b.status === 'fechado' ? `<button class="bcg-small-button" data-reopen-book="${escapeHtml(b.livro_id)}" type="button">Reabrir</button>` : ''}</div></article>`).join('')}</div>`;
-
-    const payoutBooks = el('adminPayoutBooks');
-    if (payoutBooks) {
-      const eligible = bookRows.filter((b) => b.status === 'fechado');
-      payoutBooks.innerHTML = eligible.length ? eligible.map((b) => `<label class="bcg-check-row"><input type="checkbox" name="livro_id" value="${escapeHtml(b.livro_id)}"> <span>${escapeHtml(staffMap.get(b.profissional_user_id) || 'Profissional')} • ${escapeHtml(b.periodo_inicio)} → ${escapeHtml(b.periodo_fim)} • ${money(b.repasse_total)}</span></label>`).join('') : '<div class="bcg-empty">Nenhum livro fechado disponível no filtro atual.</div>';
-    }
-  }
-
-  function renderPayouts(rows) {
-    const target = el('adminFinancePayouts');
-    if (!rows.length) { target.innerHTML = '<div class="bcg-empty">Nenhum repasse no período.</div>'; return; }
-    target.innerHTML = `<div class="bcg-finance-list">${rows.map((r) => `<article class="bcg-finance-row"><div><strong>${money(r.valor_total)} • ${escapeHtml(staffMap.get(r.profissional_user_id) || 'Profissional')}</strong><span>${escapeHtml(r.periodo_inicio)} → ${escapeHtml(r.periodo_fim)}</span></div><div><span class="bcg-chip">${escapeHtml(r.status)}</span>${r.status === 'aberto' ? `<button class="bcg-small-button" data-settle-payout="${escapeHtml(r.id)}" type="button">Baixar</button>` : ''}${r.status !== 'estornado' ? `<button class="bcg-small-button" data-reverse-payout="${escapeHtml(r.id)}" type="button">Estornar</button>` : ''}</div></article>`).join('')}</div>`;
-  }
-
-  let refreshVersion=0;
-  async function refresh({canApply=()=>true,quiet=false}={}) {
-    const version=++refreshVersion;
-    if(!quiet)setStatus(message, 'Carregando financeiro…');
-    const args = { client, profissionalUserId: professional.value || null, periodoInicio: from.value || null, periodoFim: to.value || null };
-    try {
-      const [receipts, commissions, books, payouts] = await Promise.all([
-        listAdminReceipts(args), listAdminCommissions({ client, profissionalUserId: professional.value || null }), listAdminBooks(args), listAdminPayouts(args),
-      ]);
-      if(version!==refreshVersion || !canApply())return null;
-      renderReceipts(receipts); renderCommissions(commissions); renderBooks(books); renderPayouts(payouts);
-      const total = receipts.filter((r) => r.status === 'ativo').reduce((sum, r) => sum + Number(r.valor || 0), 0);
-      const pending = payouts.filter((r) => r.status === 'aberto').reduce((sum, r) => sum + Number(r.valor_total || 0), 0);
-      if (el('adminFinanceTotalReceived')) el('adminFinanceTotalReceived').textContent = money(total);
-      if (el('adminFinanceTotalPending')) el('adminFinanceTotalPending').textContent = money(pending);
-      setStatus(message, 'Financeiro atualizado.', 'success');
-      return { receipts, commissions, books, payouts };
-    } catch (error) { setStatus(message, error?.message || 'Erro ao carregar financeiro.', 'error'); throw error; }
-  }
-
-  el('adminCommissionForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault(); const form = event.currentTarget;
-    try { await setCommission({ client, profissionalUserId: form.profissional.value, procedimentoId: form.procedimento.value, percentual: form.percentual.value }); await refresh(); setStatus(message, 'Comissão atualizada.', 'success'); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao atualizar comissão.', 'error'); }
-  });
-
-  el('adminBookCloseForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault(); const form = event.currentTarget;
-    try { await closeBook({ client, profissionalUserId: form.profissional.value, periodoInicio: form.inicio.value, periodoFim: form.fim.value }); await refresh(); setStatus(message, 'Livro fechado.', 'success'); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao fechar livro.', 'error'); }
-  });
-
-  el('adminBookRecalcForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault(); const form = event.currentTarget;
-    try { await recalculateBooks({ client, profissionalUserId: form.profissional.value, procedimentoId: form.procedimento.value || null, periodoInicio: form.inicio.value, periodoFim: form.fim.value }); await refresh(); setStatus(message, 'Livros recalculados.', 'success'); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao recalcular livros.', 'error'); }
-  });
-
-  el('adminPayoutCycleForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault(); const form = event.currentTarget;
-    try { await setPayoutCycle({ client, profissionalUserId: form.profissional.value, cicloDias: form.ciclo.value }); setStatus(message, 'Ciclo de repasse atualizado.', 'success'); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao configurar ciclo.', 'error'); }
-  });
-
-  el('adminPayoutCreateForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault(); const form = event.currentTarget;
-    const ids = [...form.querySelectorAll('input[name="livro_id"]:checked')].map((input) => input.value);
-    try { await createPayout({ client, profissionalUserId: form.profissional.value, livroIds: ids, observacao: form.observacao.value }); await refresh(); setStatus(message, 'Repasse criado.', 'success'); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao criar repasse.', 'error'); }
-  });
-
-  el('adminFinanceReceipts')?.addEventListener('click', async (event) => {
-    const button = event.target.closest?.('[data-reverse-receipt]'); if (!button) return;
-    const motivo = globalThis.prompt?.('Motivo do estorno do recebimento:') || ''; if (!motivo.trim()) return;
-    try { await reverseReceipt({ client, recebimentoId: button.dataset.reverseReceipt, motivo }); await refresh(); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao estornar recebimento.', 'error'); }
-  });
-
-  el('adminFinanceBooks')?.addEventListener('click', async (event) => {
-    const button = event.target.closest?.('[data-reopen-book]'); if (!button) return;
-    const motivo = globalThis.prompt?.('Motivo da revisão do livro:') || ''; if (!motivo.trim()) return;
-    try { await reopenBook({ client, livroId: button.dataset.reopenBook, motivo }); await refresh(); }
-    catch (error) { setStatus(message, error?.message || 'Erro ao reabrir livro.', 'error'); }
-  });
-
-  el('adminFinancePayouts')?.addEventListener('click', async (event) => {
-    const settle = event.target.closest?.('[data-settle-payout]');
-    const reverse = event.target.closest?.('[data-reverse-payout]');
-    try {
-      if (settle) await settlePayout({ client, repasseId: settle.dataset.settlePayout });
-      if (reverse) { const motivo = globalThis.prompt?.('Motivo do estorno do repasse:') || ''; if (!motivo.trim()) return; await reversePayout({ client, repasseId: reverse.dataset.reversePayout, motivo }); }
-      if (settle || reverse) await refresh();
-    } catch (error) { setStatus(message, error?.message || 'Erro ao atualizar repasse.', 'error'); }
-  });
-
-  root.addEventListener?.('bc:finance-changed',()=>refresh().catch(()=>{}));
-  refreshButton?.addEventListener('click', refresh); professional.addEventListener('change', refresh); from.addEventListener('change', refresh); to.addEventListener('change', refresh);
-  const procedures = await listActiveProcedures({ client });
-  populateLookups(procedures);
-  await refresh();
-  return { refresh };
+import {getFinanceOverview,getFinanceReport,payCommission,createExpense,applyCommission,reverseFinance} from './finance-simple-api.js';
+import {createReceiptAttempt,receiptFailureMessage} from './receipt-attempt.js';
+import {mountAppointmentReceipt} from './finance-receipt-panel.js';
+import {installFinanceAttachments} from './finance-attachments.js';
+import {downloadFinanceReport} from './finance-report.js';
+import {esc,money,dateTime,clinicToday,defaultPeriod,setStatus,methodOptions,paymentRows} from './finance-view.js';
+const cents=items=>items.reduce((total,i)=>total+Math.round(Number(i.amount)*100),0)/100;
+export async function initAdminFinance({client,profile,root=document,storage}={}){
+ if(!client?.rpc||!profile?.user_id||profile.role!=='admin')throw Error('Contexto financeiro inválido.');
+ const el=id=>root.getElementById(id),section=el('financeiro'),from=el('adminFinanceFrom'),to=el('adminFinanceTo'),message=el('adminFinanceStatus'),operation=el('adminFinanceOperation');
+ if(storage===undefined)try{storage=root.defaultView?.sessionStorage;}catch{}
+ const attempts=createReceiptAttempt({storage}),period=defaultPeriod();from.value||=period.from;to.value||=period.to;el('adminExpenseDate').value||=clinicToday();
+ let data=null,version=0,mutating=false;const receipts=new Set();
+ function notify(){const EventCtor=root.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)root.dispatchEvent(new EventCtor('bc:finance-changed'));}
+ function render(loaded){
+  el('adminFinanceTotalReceived').textContent=money(loaded.totals.income);el('adminFinanceTotalExpense').textContent=money(loaded.totals.expense);el('adminFinanceTotalBalance').textContent=money(loaded.totals.balance);
+  el('adminFinancePending').innerHTML=loaded.pending?.length?loaded.pending.map(p=>`<article class="bcg-finance-row"><div><strong>${esc(p.professional_name)}</strong><span>${p.items.length} comissão(ões) a pagar</span></div><strong>${money(p.amount)}</strong><button type="button" class="bcg-button" data-finance-pay="${esc(p.professional_id)}">Marcar pago</button></article>`).join(''):'<div class="bcg-empty">Nenhuma comissão a pagar.</div>';
+  el('adminFinanceAwaiting').innerHTML=loaded.awaiting_rules?`<p class="bcg-status">${loaded.awaiting_rules} recebimento(s) aguardando comissão combinada. <button type="button" class="bcg-small-button" data-finance-configure>Definir comissão</button></p>`:'';
+  el('adminFinancePayments').innerHTML=paymentRows(loaded.payments,{admin:true});
+  el('adminFinanceRows').innerHTML=loaded.rows?.length?loaded.rows.map(r=>`<article class="bcg-finance-row"><div><strong>${esc(r.description)}</strong><span>${esc(dateTime(r.occurred_at))} • ${r.direction==='in'?'Entrada':'Saída'} • ${r.included?'Confirmado':'Cancelado'}</span></div><strong>${money(r.amount)}</strong><div class="bcg-actions">${r.kind==='expense'?`<button class="bcg-small-button" data-proof-open="expense:${esc(r.id)}">Comprovantes</button>`:''}${r.included&&r.kind!=='commission_payment'?`<button class="bcg-small-button" data-finance-reverse="${r.kind==='receipt'?'receipt':'expense'}:${esc(r.id)}">Corrigir</button>`:''}</div></article>`).join(''):'<div class="bcg-empty">Nenhum movimento no período.</div>';
+  for(const panel of receipts)panel.destroy();receipts.clear();
+  el('adminFinanceCharges').innerHTML=(loaded.charges||[]).map(c=>`<details data-charge-receipt="${esc(c.appointment_id)}"><summary>${esc(c.client)} • ${esc(c.procedure)} • ${money(c.remaining)} a receber</summary><div data-charge-host></div></details>`).join('')+((loaded.charge_issues||[]).length?'<p class="bcg-status">Há sessões cujo valor precisa ser conferido no atendimento pela profissional responsável.</p>':'');
+  const config=el('adminCommissionForm');if(!config.dataset.bcDirty){const select=config.querySelector('[name="professional"]'),prior=select.value;select.innerHTML='<option value="">Selecione</option>'+(loaded.people||[]).map(p=>`<option value="${esc(p.id)}"${p.id===prior?' selected':''}>${esc(p.name)}</option>`).join('');renderProcedures();}
+  el('adminFinanceRules').innerHTML=(loaded.rules||[]).map(r=>`<p>${esc(loaded.people?.find(p=>p.id===r.professional_id)?.name||'Profissional')} • ${esc(loaded.procedures?.find(p=>p.id===r.procedure_id)?.name||'Procedimento')}: ${esc(r.percent)}%</p>`).join('');
+ }
+ function renderProcedures(){const form=el('adminCommissionForm'),person=data?.people?.find(p=>p.id===form.querySelector('[name="professional"]').value);form.querySelector('[name="procedure"]').innerHTML='<option value="">Todos os procedimentos desta profissional</option>'+(data?.procedures||[]).filter(p=>person?.procedure_ids?.includes(p.id)).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');}
+ async function refresh({canApply=()=>true,quiet=false}={}){const current=++version;if(!quiet)setStatus(message,'Carregando financeiro…');try{const loaded=await getFinanceOverview({client,from:from.value,to:to.value});if(current!==version||!canApply())return null;data=loaded;render(loaded);setStatus(message,'Financeiro atualizado.','success');return loaded;}catch(error){if(current===version&&canApply())setStatus(message,error.message,'error');throw error;}}
+ async function afterConfirmed(text,kind,id){operation.innerHTML=`<article class="bcg-editor-card"><p class="bcg-status" data-kind="success" role="status">${esc(text)}</p><button class="bcg-small-button" type="button" data-proof-open="${kind}:${esc(id)}">Anexar comprovante (opcional)</button></article>`;notify();try{await refresh();}catch{setStatus(message,'Registro confirmado. Atualize a lista para conferir.','success');}}
+ function openPayment(professionalId){const p=data?.pending?.find(p=>p.professional_id===professionalId);if(!p)return;const items=p.items.slice(0,500),total=cents(items);operation.innerHTML=`<form class="bcg-form bcg-editor-card" data-finance-pay-form><h3>Confirmar pagamento para ${esc(p.professional_name)}</h3><strong class="bcg-finance-confirm-total">${money(total)}</strong><p>${items.length} comissão(ões) selecionada(s).${items.length<p.items.length?' O restante continuará pendente.':''} Marque após efetuar o pagamento.</p><details><summary>Forma de pagamento (opcional)</summary><label>Forma<select class="bcg-input" name="method">${methodOptions}</select></label></details><div class="bcg-actions"><button class="bcg-button" type="submit">Confirmar pago</button><button class="bcg-small-button" type="button" data-finance-operation-close>Voltar</button></div><p class="bcg-status" data-operation-status role="status"></p></form>`;operation.__payment={professionalId,items:items.map(i=>i.id).sort(),total};operation.scrollIntoView?.({block:'nearest',behavior:'smooth'});}
+ section.addEventListener('click',event=>{
+  const pay=event.target.closest?.('[data-finance-pay]');if(pay){if(!mutating)openPayment(pay.dataset.financePay);return;}
+  if(event.target.closest?.('[data-finance-operation-close]')){if(!mutating)operation.innerHTML='';return;}
+  if(event.target.closest?.('[data-finance-configure]')){el('adminFinanceConfiguration').open=true;el('adminCommissionForm').querySelector('select').focus();return;}
+  const reverse=event.target.closest?.('[data-finance-reverse]');if(reverse&&!mutating){const [kind,id]=reverse.dataset.financeReverse.split(':');operation.innerHTML=`<form class="bcg-form bcg-editor-card" data-finance-reverse-form><h3>Corrigir registro</h3><p>O registro será cancelado com histórico.${kind==='payment'?' As comissões voltarão a aparecer como pendentes.':''} Esta ação não movimenta a conta bancária.</p><label>Motivo<textarea class="bcg-input" name="reason" required maxlength="1000"></textarea></label><div class="bcg-actions"><button class="bcg-button">Confirmar cancelamento</button><button class="bcg-small-button" type="button" data-finance-operation-close>Voltar</button></div><p data-operation-status class="bcg-status" role="status"></p></form>`;operation.__reverse={kind,id};operation.scrollIntoView?.({block:'nearest',behavior:'smooth'});}
+ });
+ section.addEventListener('submit',async event=>{
+  const form=event.target.closest?.('[data-finance-pay-form],[data-finance-reverse-form]');if(!form)return;event.preventDefault();if(mutating)return;mutating=true;const status=form.querySelector('[data-operation-status]');for(const field of form.querySelectorAll('button,select,textarea'))field.disabled=true;let key,context,confirmed=false;
+  try{if(form.hasAttribute('data-finance-pay-form')){const p={...operation.__payment,method:String(form.querySelector('[name="method"]').value??'').trim()||null};context=`payment:${profile.user_id}:${p.professionalId}`;key=await attempts.get(context,p);const id=await payCommission({client,requestKey:key,professionalId:p.professionalId,itemIds:p.items,amount:p.total,method:p.method});confirmed=true;const released=attempts.complete(context,key);await afterConfirmed(released?'Pagamento confirmado.':'Pagamento confirmado. Permita o armazenamento do site antes de iniciar outro.','payment',id);}else{await reverseFinance({client,...operation.__reverse,reason:form.querySelector('[name="reason"]').value});confirmed=true;operation.innerHTML='<p class="bcg-status" data-kind="success">Registro cancelado com histórico.</p>';notify();try{await refresh();}catch{setStatus(message,'Cancelamento confirmado. Atualize a lista para conferir.','success');}}}
+  catch(error){if(key)attempts.fail(context,key,error);setStatus(status,confirmed?'Registro confirmado. Atualize a lista para conferir.':receiptFailureMessage(error,key).replaceAll('recebimento','pagamento'),confirmed?'success':'error');}
+  finally{mutating=false;for(const field of form.querySelectorAll('button,select,textarea'))field.disabled=false;}
+ });
+ const expense=el('adminExpenseForm');expense.addEventListener('submit',async event=>{event.preventDefault();const button=expense.querySelector('button[type="submit"]');if(button.disabled)return;button.disabled=true;let key,confirmed=false;const context=`expense:${profile.user_id}`,status=el('adminExpenseStatus');try{const p={description:expense.querySelector('[name="description"]').value.trim(),amount:Number(expense.querySelector('[name="amount"]').value),paidAt:expense.querySelector('[name="date"]').value+'T12:00:00-03:00'};key=await attempts.get(context,p);const id=await createExpense({client,requestKey:key,...p});confirmed=true;const released=attempts.complete(context,key);expense.reset();el('adminExpenseDate').value=clinicToday();setStatus(status,released?'Despesa registrada.':'Despesa registrada. Permita o armazenamento do site antes de iniciar outra.','success');await afterConfirmed('Despesa registrada.','expense',id);}catch(error){if(key)attempts.fail(context,key,error);setStatus(status,confirmed?'Despesa registrada. Atualize a lista para conferir.':receiptFailureMessage(error,key).replaceAll('recebimento','lançamento'),confirmed?'success':'error');}finally{button.disabled=false;}});
+ const commission=el('adminCommissionForm');commission.querySelector('[name="professional"]').addEventListener('change',renderProcedures);commission.addEventListener('submit',async event=>{event.preventDefault();const button=commission.querySelector('button');if(button.disabled)return;button.disabled=true;try{const p=commission.querySelector('[name="procedure"]').value;await applyCommission({client,professionalId:commission.querySelector('[name="professional"]').value,percent:commission.querySelector('[name="percent"]').value,procedureIds:p?[p]:null});commission.reset();setStatus(el('adminCommissionStatus'),'Comissão salva. Novos recebimentos usam esta regra.','success');notify();await refresh();}catch(error){setStatus(el('adminCommissionStatus'),error.message,'error');}finally{button.disabled=false;}});
+ section.addEventListener('toggle',async event=>{const details=event.target.closest?.('[data-charge-receipt]');if(!details?.open||details.dataset.loading)return;const host=details.querySelector('[data-charge-host]');if(host.__bcReceiptPanel)return;details.dataset.loading='true';const panel=await mountAppointmentReceipt({client,root:host,appointmentId:details.dataset.chargeReceipt,storage,onChanged:()=>{notify();return refresh();}});if(!section.contains(host))panel.destroy();else receipts.add(panel);delete details.dataset.loading;},true);
+ for(const format of ['pdf','csv'])el(`adminFinanceDownload${format.toUpperCase()}`)?.addEventListener('click',async event=>{const button=event.currentTarget;button.disabled=true;try{const report=await getFinanceReport({client,from:from.value,to:to.value});downloadFinanceReport({report,format,root});setStatus(message,'Resumo baixado.','success');}catch(error){setStatus(message,error.message,'error');}finally{button.disabled=false;}});
+ for(const node of [from,to,el('adminFinanceRefresh')])node?.addEventListener(node===from||node===to?'change':'click',()=>refresh().catch(()=>{}));
+ installFinanceAttachments({client,profile,root:section,admin:true,storage});await refresh();return {refresh};
 }

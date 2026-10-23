@@ -9,6 +9,13 @@ function escapeHtml(value) {
 }
 
 const ACTION_LABELS = {
+  finance_charge_created: 'Cobrança do atendimento criada',
+  finance_commission_paid: 'Comissão marcada como paga',
+  finance_commission_payment_reversed: 'Pagamento de comissão cancelado',
+  finance_expense_created: 'Despesa registrada',
+  finance_expense_reversed: 'Despesa cancelada',
+  finance_attachment_reserved: 'Envio de comprovante iniciado',
+  finance_attachment_completed: 'Comprovante anexado',
   cliente_created: 'Cliente criado',
   cliente_updated: 'Cliente atualizado',
   cliente_archived: 'Cliente arquivado',

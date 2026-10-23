@@ -15,12 +15,12 @@ async function loadHtml() { return readFile(htmlUrl, 'utf8'); }
 
 test('painel da colaboradora expõe agenda, clientes, detalhe e somente o próprio financeiro', async () => {
   const html = await loadHtml();
-  for (const id of ['todayAgendaList','nextAgendaList','appointmentDetail','appointmentDetailContent','historyTimeline','clientsList','financeiro','currentAppointmentReceiptForm','collaboratorFinanceReceipts','collaboratorFinanceBooks','collaboratorFinancePayouts']) {
+  for (const id of ['todayAgendaList','nextAgendaList','appointmentDetail','appointmentDetailContent','historyTimeline','clientsList','financeiro','currentAppointmentReceiptHost','collaboratorFinanceItems','collaboratorFinancePayments']) {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   }
   assert.match(html, /colaborador-agenda\.js/);
   assert.match(html, /colaborador-finance\.js/);
-  assert.doesNotMatch(html, /adminCommissionForm|adminPayoutCreateForm|adminFinanceReceipts|percentual|comiss[aã]o/i);
+  assert.doesNotMatch(html, /adminCommissionForm|adminPayoutCreateForm|adminFinanceReceipts|percentual/i);
 });
 
 test('renderCollaboratorAppointments mostra estado vazio útil', () => assert.match(renderCollaboratorAppointments([]), /nenhum atendimento/i));

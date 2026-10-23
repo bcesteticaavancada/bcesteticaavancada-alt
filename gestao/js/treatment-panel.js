@@ -1,4 +1,5 @@
 import { clinicLocalDateTimeToIso } from './agenda-format.js';
+import {mountAppointmentReceipt} from './finance-receipt-panel.js';
 import { listProcedures } from './procedure-api.js';
 import { listStaffDirectory } from './agenda-api.js';
 import {
@@ -253,6 +254,8 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
   let selectedComponentKeys = [];
   let pendingAppointmentId = null;
   let phase6dController = null;
+  let receiptPanel = null;
+  const appointmentStarts = new Map();
 
   const folder = () => root.closest?.('[data-client-folder]') || root;
   const panel = () => root.querySelector?.('[data-treatment-panel]') || root;
@@ -301,6 +304,11 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     const appointmentOptions = activeTreatment.agendamento_id || activeTreatment.can_resolve_appointment !== true ? [] : await listTreatmentAppointmentOptions({client,treatmentId:id});
     const pendingExternalConsent = externalConsent ? null : (folder()?.__bcPendingExternalConsent || null);
     workspace().innerHTML = renderTreatmentWizard({ step:'clinical', appointmentOptions, treatment:activeTreatment, report, consent, consentSignatures, finalSignatures, clientRecord:clientRecord(), externalConsent, pendingExternalConsent });
+    receiptPanel?.destroy();receiptPanel=null;
+    if(activeTreatment.status==='finalizado'&&activeTreatment.agendamento_id){
+      const host=root.ownerDocument.createElement('section');host.className='bcg-treatment-stage bcg-finance-current';workspace().append(host);
+      receiptPanel=await mountAppointmentReceipt({client,root:host,appointmentId:activeTreatment.agendamento_id,onChanged:()=>{const doc=root.ownerDocument;const EventCtor=doc.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)doc.dispatchEvent(new EventCtor('bc:finance-changed'));}});
+    }
     mountPads();
     await phase6dController?.loadTreatment(activeTreatment);
   }
@@ -318,6 +326,26 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     selectedProcedureId = '';
     selectedComponentKeys = [];
     workspace().innerHTML = renderTreatmentWizard({ step:'procedure', procedures, appointmentId:pendingAppointmentId });
+  }
+
+  async function startAppointment(appointmentId,procedureId){
+    if(appointmentStarts.has(appointmentId))return appointmentStarts.get(appointmentId);
+    const run=(async()=>{
+      const prior=treatments.find(t=>t.agendamento_id===appointmentId);
+      if(prior){await openTreatment(prior.id);return prior.id;}
+      const procedure=selectedProcedure(procedures,procedureId);
+      if(!procedure||procedure.can_execute!==true)throw Error('Procedimento não disponível para esta profissional.');
+      if(dynamicOptions(procedure).length){
+        pendingAppointmentId=appointmentId;selectedProcedureId=procedureId;selectedComponentKeys=[];
+        workspace().innerHTML=renderTreatmentWizard({step:'procedure',procedures,appointmentId,selectedProcedureId});return null;
+      }
+      let id;
+      try{id=await createTreatment({client,clienteId:clientRecord().id,procedureId,appointmentId});}
+      catch(error){await loadData();id=treatments.find(t=>t.agendamento_id===appointmentId)?.id;if(!id)throw error;}
+      await loadData();await openTreatment(id);return id;
+    })();
+    appointmentStarts.set(appointmentId,run);
+    try{return await run;}finally{if(appointmentStarts.get(appointmentId)===run)appointmentStarts.delete(appointmentId);}
   }
 
   root.addEventListener('change', (event) => {
@@ -477,6 +505,7 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
   return {
     async hydrate(){ await loadData(); return {treatments,procedures}; },
     showProcedureStep,
+    startAppointment,
     openTreatment,
   };
 }

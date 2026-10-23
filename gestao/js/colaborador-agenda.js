@@ -21,7 +21,7 @@ import {
   statusLabel,
   CLINIC_TIME_ZONE,
 } from './agenda-format.js';
-import { canRegisterAttendance } from './atendimento-form.js';
+import {mountAppointmentReceipt} from './finance-receipt-panel.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -104,7 +104,7 @@ export function renderCollaboratorAppointments(appointments = [], staffMap = new
     ].join('');
     const secondary = [procedureName, professionalName, phone].filter(Boolean).join(' • ');
     return `
-      <article class="bcg-appointment-card bcg-collaborator-card" data-appointment-id="${escapeHtml(appointment.id)}">
+      <article class="bcg-appointment-card bcg-collaborator-card" data-appointment-id="${escapeHtml(appointment.id)}" data-appointment-status="${escapeHtml(status)}">
         <div class="bcg-appointment-time">${escapeHtml(appointmentTime(appointment.inicio))}</div>
         <div class="bcg-appointment-main"><strong>${escapeHtml(clientName)}</strong><span>${escapeHtml(secondary)}</span></div>
         <div class="bcg-appointment-chips">${chips}</div>
@@ -189,7 +189,9 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   const detail = el('appointmentDetail');
   const detailContent = el('appointmentDetailContent');
   const historyTimeline = el('historyTimeline');
-  const attendanceFormSlot = el('attendanceFormSlot');
+  const receiptHost = el('currentAppointmentReceiptHost');
+  let receiptPanel=null;
+  function clearReceipt(){receiptPanel?.destroy();receiptPanel=null;if(receiptHost){receiptHost.hidden=true;receiptHost.innerHTML='';}}
   const agendaStatus = el('collaboratorAgendaStatus');
   const closeButton = el('closeAppointmentDetail');
   const appointmentForm = el('collaboratorAppointmentForm');
@@ -198,7 +200,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   const professionalField = el('appointmentProfessionalField');
   const professionalSelect = el('appointmentProfessional');
   const scopeText = el('collaboratorAgendaScopeText');
-  if (!todayList || !nextList || !detail || !detailContent || !historyTimeline || !attendanceFormSlot || !appointmentForm || !clientSelect || !procedureSelect) throw new Error('Estrutura da agenda da colaboradora incompleta.');
+  if (!todayList || !nextList || !detail || !detailContent || !historyTimeline || !receiptHost || !appointmentForm || !clientSelect || !procedureSelect) throw new Error('Estrutura da agenda da colaboradora incompleta.');
 
   let refreshVersion = 0;
   let eligibilityVersion = 0;
@@ -212,13 +214,6 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
 
   function canOperateClinicalAppointment(appointment) {
     return isOwnClinicalAppointment(profile, appointment) && canOpenClinicalAppointment(appointment);
-  }
-
-  function syncAttendanceForm(appointment = null) {
-    const allowed = Boolean(appointment && canOperateClinicalAppointment(appointment) && canRegisterAttendance(appointment.status));
-    attendanceFormSlot.hidden = !allowed;
-    if (allowed) attendanceFormSlot.dataset.appointmentId = appointment.id;
-    else delete attendanceFormSlot.dataset.appointmentId;
   }
 
   async function refreshClients() {
@@ -284,7 +279,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   }
 
   async function openAppointment(appointmentId) {
-    const version=++openingVersion;detail.hidden=true;syncAttendanceForm(null);
+    const version=++openingVersion;detail.hidden=true;clearReceipt();
     const appointment = appointments.get(appointmentId);
     if (!appointment) throw new Error('Atendimento não encontrado na agenda carregada.');
     const eligible=await listEligibleProcedures({client,professionalUserId:appointment.colaboradora_user_id});
@@ -292,7 +287,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     currentAppointmentId = appointment.id;
     detail.dataset.appointmentId = appointment.id;
     detailContent.innerHTML = renderAppointmentDetail(appointment, eligible, clients);
-    syncAttendanceForm(appointment);
+
     detail.hidden = false;
     if (!canOpenClinicalAppointment(appointment)) {
       historyTimeline.innerHTML = '<div class="bcg-empty">Vincule esta reserva a um cadastro oficial para liberar o fluxo clínico da profissional responsável.</div>';
@@ -311,6 +306,13 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
       }
     }
     if(version!==openingVersion)return null;
+    if(canOperateClinicalAppointment(appointment)&&appointment.status==='atendido'){
+      receiptHost.hidden=false;
+      const panel=await mountAppointmentReceipt({client,root:receiptHost,appointmentId:appointment.id,onChanged:()=>{
+        const EventCtor=root.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)root.dispatchEvent(new EventCtor('bc:finance-changed'));
+      }});
+      if(version!==openingVersion){panel.destroy();return null;}receiptPanel=panel;
+    }
     detail.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
     return appointment;
   }
@@ -322,7 +324,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
     detail.hidden = true;
     detailContent.innerHTML = '';
     historyTimeline.innerHTML = '';
-    syncAttendanceForm(null);
+    clearReceipt();
   }
 
   appointmentForm.addEventListener('submit', async (event) => {
@@ -400,7 +402,7 @@ export async function initCollaboratorAgenda({ client, profile, root = document 
   originFilter?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
   agendaDate?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
   agendaProfessional?.addEventListener('change', () => { closeDetail(); refresh().catch(() => {}); });
-  syncAttendanceForm(null);
+  clearReceipt();
   await loadLookups();
   await refresh();
   const procedurePanel = await initProcedurePanel({ client, profile, root });
