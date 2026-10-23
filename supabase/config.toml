@@ -3,3 +3,14 @@ verify_jwt = false
 
 [functions.submit-pre-anamnese]
 verify_jwt = false
+
+# Draft OAuth-only endpoints: each validates its own session/state before use.
+# Not deployed by this branch. Start/callback are top-level browser navigations.
+[functions.drive-oauth-start]
+verify_jwt = false
+
+[functions.drive-oauth-callback]
+verify_jwt = false
+
+[functions.drive-oauth-setup]
+verify_jwt = false

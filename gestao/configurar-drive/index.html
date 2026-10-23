@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="strict-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://tpqsmerlxquyrzrjbogj.supabase.co https://www.googleapis.com; frame-src https://docs.google.com https://drive.google.com https://accounts.google.com; img-src 'self' data: https://*.googleusercontent.com https://*.gstatic.com; form-action 'self' https://tpqsmerlxquyrzrjbogj.supabase.co https://accounts.google.com; base-uri 'none'; object-src 'none'">
+  <title>Conectar pastas de backup • BC Estética</title>
+  <link rel="stylesheet" href="./setup.css">
+</head>
+<body>
+  <main>
+    <p class="brand">BC <span>ESTÉTICA AVANÇADA</span></p>
+    <p class="eyebrow">CONFIGURAÇÃO RESERVADA</p>
+    <h1>Conectar as pastas de backup</h1>
+    <p>Use a conta <strong>decolarbh@gmail.com</strong> para autorizar as duas pastas privadas.</p>
+    <p class="notice">Etapa de teste. Nenhum arquivo será enviado.</p>
+    <p id="setupStatus" role="status" aria-live="polite">Conferindo sua entrada…</p>
+    <section aria-labelledby="step1">
+      <h2 id="step1"><span>1</span> Autorizar a conta</h2>
+      <p>O Google vai pedir sua confirmação para este aplicativo.</p>
+      <button id="authorizeDrive" type="button" disabled>Continuar com Google</button>
+    </section>
+    <section aria-labelledby="step2">
+      <h2 id="step2"><span>2</span> Selecionar as pastas</h2>
+      <div class="folder"><h3>Documentos clínicos</h3><p id="clinicalStatus">Aguardando seleção.</p>
+        <button id="pickClinical" type="button" disabled>Selecionar pasta clínica</button></div>
+      <div class="folder"><h3>Arquivos de clientes</h3><p id="clientStatus">Aguardando seleção.</p>
+        <button id="pickClient" type="button" disabled>Selecionar pasta de arquivos</button></div>
+    </section>
+    <section aria-labelledby="step3"><h2 id="step3"><span>3</span> Conferir a autorização</h2>
+      <p>Vamos verificar se as duas pastas continuam privadas.</p>
+      <button id="confirmFolders" type="button" disabled>Confirmar pastas</button>
+    </section>
+    <a class="back" href="../login/">Entrar ou voltar ao BC Gestão</a>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" defer></script>
+  <script type="module" src="./boot.js"></script>
+</body>
+</html>
