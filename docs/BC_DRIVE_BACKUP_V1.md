@@ -35,6 +35,7 @@ Fluxo futuro:
    - `BC_DRIVE_BACKUP_RUN_SECRET`: segredo aleatório forte (pelo menos 32 caracteres), usado exclusivamente pelo acionador do servidor;
    - `BC_DRIVE_CLIENT_ID`, `BC_DRIVE_CLIENT_SECRET`, `BC_DRIVE_REFRESH_TOKEN`;
    - `BC_DRIVE_FOLDER_CLINICAL`, `BC_DRIVE_FOLDER_CLIENT`;
+   - `BC_DRIVE_ALLOWED_ACCOUNTS`: e-mails permitidos, separados por vírgula (configuração no servidor; mínimo duas contas); a rotina recusa pastas com acesso público, por domínio, grupo ou conta fora dessa lista;
    - `BC_DRIVE_BACKUP_ENABLE_WRITES`: `false` até homologação; depois `true` com aprovação.
    - `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` permanecem apenas no ambiente Supabase.
 5. Só após testes com **arquivos fictícios** e aprovação, implantar a função com invocação interna protegida por `x-bc-backup-secret` (sem CORS) e agendar via Supabase Cron/Vault. Nunca chamar pelo navegador/site ou expor o segredo à Maia.
@@ -44,7 +45,9 @@ Fluxo futuro:
 - Sem modificações no site ou DB, sem envio de dados clínicos nesta branch.
 - Bloqueio de uploads até `BC_DRIVE_BACKUP_ENABLE_WRITES=true`.
 - Leitura exclusivamente pelo `service_role` **no servidor**, nunca no frontend.
-- Exclusão defensiva de pastas com nomes financeiros; a V1 varre somente o bucket clínico.
+- A V1 só aceita os prefixos conhecidos no bucket privado: `documentos/`, `assinaturas/` e `pre-anamneses/` para a pasta clínica; `arquivos-clientes/`, `identificacao/` e `fotos-clinicas/` para a pasta de arquivos da cliente. Categorias desconhecidas interrompem o lote e exigem revisão antes de qualquer cópia.
+- Exclusão defensiva de caminhos financeiros, incluindo subpastas internas.
+- Antes de cada lote de uploads, a função verifica o compartilhamento dos destinos contra a lista de contas permitidas. Isso não substitui uma política de revisão periódica nem evita que permissões mudem durante uma operação.
 - Nome dos arquivos no Drive anonimizado por hash do caminho e hash do conteúdo.
 - Novo objeto para cada versão detectada, sem sobrescrever backups antigos.
 - Lote de até 12 arquivos por execução, 12 MiB por arquivo, máximo de 3.000 nós. Exceder limites dispara alerta técnico; não declarar cobertura completa.
@@ -59,8 +62,28 @@ deno test supabase/functions/drive-backup/core_test.ts
 deno check --config supabase/functions/drive-backup/deno.json supabase/functions/drive-backup/index.ts
 ```
 
-Estas verificações cobrem regras de seleção e tipagem; **não** testam Google OAuth real, permissões das pastas, upload real ou restauração. Uma homologação E2E com dados fictícios ainda é obrigatória.
+Estas verificações cobrem regras de seleção, classificação, permissões simuladas e tipagem; **não** testam Google OAuth real, permissões das pastas, upload real ou restauração. Uma homologação E2E com dados fictícios ainda é obrigatória.
 
 ## Decisão para a próxima fase
 
 A função fica sem implantação até que Fernando/Mel autorizem a integração OAuth diretamente no Google (sem enviar credenciais em conversa) e aprovem um teste controlado. O trabalho não deve afetar a rotina da Mel ou das colaboradoras.
+
+## Revisão técnica de 23/10/2026 (sem leitura de conteúdo clínico)
+
+Consulta somente aos metadados do bucket identificou sete objetos:
+3 em `arquivos-clientes/`, 2 em `assinaturas/`, 1 em `documentos/` e 1 em `identificacao/`.
+O bucket está privado, com limite de 8 MiB por arquivo e MIME types `application/pdf`,
+`image/jpeg`, `image/png`, `image/webp`.
+
+Correções de segurança na branch:
+- Assinaturas clínicas agora são classificadas como documentos clínicos.
+- Pastas inesperadas não são copiadas por padrão e interrompem o backup.
+- Compartilhamento de destino é verificado antes da cópia, quando houver OAuth/configuração.
+- Testes unitários adicionais exercitam classificação, exclusão financeira e permissões.
+
+Pendências antes de produção:
+1. OAuth Google com escopo mínimo e seleção explícita dos destinos.
+2. Teste E2E com arquivo fictício, repetição e alteração de versão.
+3. Download da cópia e comparação SHA-256, demonstrando restauração correta.
+4. Monitoramento, controle de capacidade e relatório de lacunas.
+5. Projeto separado para tabelas PostgreSQL (o bucket sozinho não contém todos os dados).
