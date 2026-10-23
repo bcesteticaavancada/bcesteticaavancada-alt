@@ -78,6 +78,12 @@ jobs:
         with:
           name: agenda-browser-screenshots
           path: test-results/agenda/
+      - name: Upload public navigation screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-navigation-screenshots
+          path: test-results/public-navigation/
       - name: Public Agenda Edge Function check
         run: deno check --node-modules-dir=auto supabase/functions/public-agenda/index.ts
       - name: Public Agenda HTTP boundary tests
