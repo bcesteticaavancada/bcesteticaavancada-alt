@@ -12,11 +12,25 @@ export type DriveRecord = {
 };
 export type Candidate = { entry: Entry; sourceKey: string; current?: DriveRecord };
 
-export function destination(path: string): 'clinical' | 'client' {
-  if (/^(documentos|anamneses|pre-anamneses|consentimentos|atendimentos)\//i.test(path)) {
-    return 'clinical';
-  }
-  return 'client';
+const CLINICAL_ROOTS = new Set(['documentos', 'assinaturas', 'pre-anamneses']);
+const CLIENT_ROOTS = new Set(['arquivos-clientes', 'identificacao', 'fotos-clinicas']);
+
+export function isFinancialPath(path: string): boolean {
+  return path.split('/').some((part) =>
+    /^(financeiro|finance|comiss(?:ao|oes|ões)|comissão|recibos?|caixa|pagamentos?|payouts?|recebimentos?|repasses?|faturas?)$/i.test(part));
+}
+export function isAllowedRoot(path: string): boolean {
+  const root = path.split('/')[0].toLowerCase();
+  return CLINICAL_ROOTS.has(root) || CLIENT_ROOTS.has(root);
+}
+export function destination(path: string): 'clinical' | 'client' | null {
+  if (isFinancialPath(path)) return null;
+  const parts = path.split('/');
+  if (parts.length < 2 || parts.some((part) => !part)) return null;
+  const root = parts[0].toLowerCase();
+  if (CLINICAL_ROOTS.has(root)) return 'clinical';
+  if (CLIENT_ROOTS.has(root)) return 'client';
+  return null;
 }
 export function extension(path: string): string {
   const match = path.toLowerCase().match(/\.(pdf|png|jpe?g|webp|txt|csv|json)$/);
@@ -24,7 +38,9 @@ export function extension(path: string): string {
 }
 export function safeFileName(path: string, key: string): string {
   // Patient names and original filenames are intentionally absent from Drive filenames.
-  return (destination(path) === 'clinical' ? 'documento-' : 'arquivo-') +
+  const kind = destination(path);
+  if (!kind) throw new Error('Caminho não classificado para backup');
+  return (kind === 'clinical' ? 'documento-' : 'arquivo-') +
     key.slice(0, 32) + extension(path);
 }
 export async function sha256Hex(data: Uint8Array): Promise<string> {
@@ -55,6 +71,17 @@ export function selectPending(
   }
   return pending;
 }
+export type DrivePermission = { type?: string; role?: string; emailAddress?: string };
+
+export function isPrivatePermissionSet(
+  permissions: DrivePermission[], allowedAccounts: Set<string>,
+): boolean {
+  return permissions.length > 0 && permissions.every((permission) =>
+    permission.type === 'user' &&
+    ['owner', 'writer', 'reader', 'commenter'].includes(permission.role || '') &&
+    allowedAccounts.has((permission.emailAddress || '').toLowerCase()));
+}
+
 export function secureEqual(a: string, b: string): boolean {
   // Fixed-length secrets, resistant to a simple prefix timing leak.
   const encoder = new TextEncoder();
