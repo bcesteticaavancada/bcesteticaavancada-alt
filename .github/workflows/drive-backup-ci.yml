@@ -1,0 +1,25 @@
+name: BC Drive Backup Draft CI
+on:
+  push:
+    branches:
+      - 'backup/**'
+    paths:
+      - 'supabase/functions/drive-backup/**'
+      - '.github/workflows/drive-backup-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/drive-backup/**'
+      - '.github/workflows/drive-backup-ci.yml'
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Verify pure backup rules (no customer data)
+        run: deno test supabase/functions/drive-backup/core_test.ts
+      - name: Type-check draft Edge Function
+        run: deno check --node-modules-dir=auto --config supabase/functions/drive-backup/deno.json supabase/functions/drive-backup/index.ts
