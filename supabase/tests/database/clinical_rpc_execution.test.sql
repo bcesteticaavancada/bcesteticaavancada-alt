@@ -5,7 +5,7 @@ select no_plan();
 
 -- Catches the real 42501 observed from the published client: public invoker
 -- wrappers need narrowly granted EXECUTE on their guarded private entrypoints.
-select ok(has_function_privilege('authenticated',s,'EXECUTE'),'authenticated reaches '||s)
+select checks.result
 from unnest(array[
  'private.bc_clinical_product_list_impl(boolean)',
  'private.bc_clinical_product_upsert_impl(uuid,jsonb)',
@@ -27,10 +27,11 @@ from unnest(array[
  'private.bc_treatment_intercurrence_update_draft_impl(uuid,jsonb)',
  'private.bc_intercurrence_add_update_impl(uuid,text,text)',
  'private.bc_treatment_confirm_open_intercurrences_impl(uuid)'
-]) s;
-select ok(not has_function_privilege('anon',p.oid,'EXECUTE'),'anonymous cannot reach '||p.proname)
-from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-where n.nspname='private' and p.proname ~ '^bc_(clinical_(product|equipment)|treatment_(product|equipment|photo|intercurrence)|intercurrence_add_update)';
+]) s
+cross join lateral (values
+ (ok(has_function_privilege('authenticated',s,'EXECUTE'),'authenticated reaches '||s)),
+ (ok(not has_function_privilege('anon',s,'EXECUTE'),'anonymous cannot reach '||s))
+) checks(result);
 
 select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
 set local role authenticated;
