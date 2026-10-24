@@ -1,5 +1,19 @@
 # Estado da instalação OAuth de teste — 24/10/2026
 
+## Ensaio fictício concluído — atualização mais recente
+
+Envio/recuperação reais com PDF fictício concluídos nas duas pastas, run
+`b37e00b1-c2b2-4bdc-93aa-8564ca73c177`: quatro cópias/versionamentos de 729 bytes,
+hashes recuperados idênticos, segunda execução sem novas cópias. Função
+temporária substituída por bundle fechado com JWT; gatilho privado eliminado.
+Nenhum documento real/Storage foi lido, nenhuma migration ou cron foi criado.
+Worker automático continua ausente e gravação global permanece false.
+Relatório: [BC_DRIVE_HOMOLOGACAO_FICTICIA_2026-10-24.md](BC_DRIVE_HOMOLOGACAO_FICTICIA_2026-10-24.md).
+Não repetir OAuth/seleção/ensaio como primeira ação da próxima retomada.
+Próxima etapa: adaptação/revisão do worker de produção, sem ativar dados reais.
+As seções abaixo preservam o histórico das etapas anteriores.
+
+
 ## Estado atual — autorização e duas pastas confirmadas
 
 Em 24/10/2026, Fernando concluiu o consentimento Google, a seleção das duas

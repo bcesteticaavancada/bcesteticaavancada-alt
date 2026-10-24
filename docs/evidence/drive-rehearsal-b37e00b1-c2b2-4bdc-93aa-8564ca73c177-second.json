@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "run_id": "b37e00b1-c2b2-4bdc-93aa-8564ca73c177",
+  "fixture_only": true,
+  "backup_writes_enabled": false,
+  "created": 0,
+  "reused": 6,
+  "destinations": [
+    {
+      "kind": "clinical",
+      "v1": {
+        "id": "1lhDud2Nag2SjbMLxn25eE5Ileci1zYIF",
+        "sha256": "bf5beaecf064f916a86431bbf491843b1276e0b9611f0400a909508678ffc0c4",
+        "restored_sha256": "bf5beaecf064f916a86431bbf491843b1276e0b9611f0400a909508678ffc0c4",
+        "bytes": 729
+      },
+      "v2": {
+        "id": "1xXlhRNgeraiqym9YI-Tgl9zkIaMfYjdf",
+        "sha256": "802ac5acfcbe77dbbffb248d4edc774e2279923144047ecb94f53acc9a3138e0",
+        "restored_sha256": "802ac5acfcbe77dbbffb248d4edc774e2279923144047ecb94f53acc9a3138e0",
+        "bytes": 729
+      },
+      "previous_version_preserved": true,
+      "restored": true
+    },
+    {
+      "kind": "client",
+      "v1": {
+        "id": "1ktc8Jsz7IdftsT7WQ-7JSUMvdUUGkUuv",
+        "sha256": "bf5beaecf064f916a86431bbf491843b1276e0b9611f0400a909508678ffc0c4",
+        "restored_sha256": "bf5beaecf064f916a86431bbf491843b1276e0b9611f0400a909508678ffc0c4",
+        "bytes": 729
+      },
+      "v2": {
+        "id": "1yz9LFXODZzljzWPSmX8erIsF7fQaI1LP",
+        "sha256": "802ac5acfcbe77dbbffb248d4edc774e2279923144047ecb94f53acc9a3138e0",
+        "restored_sha256": "802ac5acfcbe77dbbffb248d4edc774e2279923144047ecb94f53acc9a3138e0",
+        "bytes": 729
+      },
+      "previous_version_preserved": true,
+      "restored": true
+    }
+  ]
+}
