@@ -60,3 +60,27 @@ built-in do Node sem typecheck de testes, com typecheck separado do código serv
 Task 4: final local checks complete. npm test: 69 frontend + 131 site + 584 gestão = 784 passed, zero failures. HTTP OAuth 12/12; SQL 9/9; UI controller 6/6 (included in gestão); Chromium TLS browser rehearsal passed after navigation corrections. Server entrypoints passed Deno check. SDK pinned 2.118.0 URL checked HTTP 200. Canonical legacy backup suite remains environment-blocked by JSR resolution, recorded in delivery docs. Review found no Critical; Important findings were corrected and checked; cookie-size Minor is documented.
 
 Ruling: retain own branch and open a draft PR against backup/drive-paralelo-v1, matching the already-authorized preparation/review scope — no merge or production deployment — cost: activation requires a separate explicit release after review and hosted Google/Picker validation.
+
+## Retomada de instalação restrita — 24/10/2026
+
+A autorização específica de Fernando de 23/10 às 19:07 (Brasília) para instalar
+somente a autorização de teste foi recuperada antes de agir. Revisão independente
+aprovou a instalação com o fluxo desabilitado. Migration instalada como versão
+`20261024043221`, com tabelas vazias/RLS e RPC restrita a service_role; o arquivo
+foi renomeado para corresponder ao servidor. A nova conferência dos vínculos
+confirmou Fernando em admin_criacao e Mel em admin, sem alterar permissões.
+
+Fernando concluiu pessoalmente o login Supabase. O digest do controle de escritas
+corresponde a false; salvo também o controle de setup=false e conferido seu
+digest. Cliente OAuth público corresponde ao código; nenhum client secret foi
+aberto. Implantados os três handlers v1 da revisão `223cc494` com verify_jwt=false
+e autenticação própria. Três chamadas pelo gateway real retornaram 503
+setup_disabled, no-store, sem redirects/cookie OAuth. Estado/conexão continuam
+vazios. Os cinco bundles anteriores e suas políticas JWT permanecem iguais.
+
+Nenhum código de aplicação mudou nesta retomada: somente documentação de estado.
+27 testes da retomada anterior e seu CI passaram; três verificações externas
+foram acrescentadas agora. Não repetir essas contagens como prova de Google real.
+A chave Picker não existe no servidor; o Google Console segue como pendência de
+acesso/configuração. Página não publicada, sem consentimento, uploads, worker,
+agendamento ou merge. Detalhes e limites: BC_DRIVE_OAUTH_INSTALACAO_TESTE.md.

@@ -3,16 +3,20 @@
 Esta branch prepara somente autorização/seleção de duas pastas. Não é backup
 ativo. Atualização em 24/10/2026: a migration privada foi instalada após a
 autorização específica de Fernando, com ACL/RLS conferidas e tabelas vazias.
-Funções e página ainda não implantadas nesta etapa; consentimento Google real,
+As três funções foram instaladas com setup e escritas explicitamente desativados,
+e os três endpoints recusaram chamadas pelo gateway real conforme esperado.
+A página ainda não foi publicada; consentimento Google real,
 acesso a documentos de clientes e uploads não ocorreram. Ver estado e bloqueios
 em `BC_DRIVE_OAUTH_INSTALACAO_TESTE.md`.
 
 ## Já informado pelo usuário
 
 Os Edge Secrets `BC_DRIVE_CLIENT_ID` e `BC_DRIVE_CLIENT_SECRET` foram cadastrados
-pelo próprio Fernando; o valor do secret novo não foi compartilhado. O usuário
-também confirmou `BC_DRIVE_BACKUP_ENABLE_WRITES=false`. As capturas comprovam
-existência dos registros, não validam os respectivos valores nem a autenticação.
+pelo próprio Fernando; o valor do secret novo não foi compartilhado. Na retomada
+de 24/10, os digests do cliente público e de `BC_DRIVE_BACKUP_ENABLE_WRITES=false`
+foram conferidos sem revelar valores secretos. Foi salvo também
+`BC_DRIVE_OAUTH_ENABLE_SETUP=false`. Isso valida os dois controles e o cliente
+público esperado, mas ainda não comprova autenticação Google válida.
 
 ## Entrega
 
@@ -57,8 +61,9 @@ clínicos ou merge de toda a branch. Não pedir a mesma aprovação novamente.
    BC/Google no próprio aparelho. Não fazer merge de toda a branch de backup
    como atalho para publicar a página.
 
-A migration do item 7 foi executada e validada; demais passos de instalação
-ainda precisam de conferência. Habilitar APIs ou
+A migration do item 7 e a instalação desabilitada do item 8 foram executadas e
+validadas. Chave Picker, demais configurações Google, publicação da página e
+fluxo habilitado ainda precisam de conferência. Habilitar APIs ou
 criar chave pode exigir ação no navegador Google Cloud do usuário. Nenhum segredo
 deve ser enviado por conversa.
 

@@ -27,32 +27,68 @@ raiz/manifestos sem consentimento específico; a ligação ao worker é etapa fu
 - A primeira chamada de instalação teve erro de sessão expirada. A consulta de
   conferência comprovou ausência dos objetos; a segunda chamada concluiu, e uma
   nova consulta confirmou os objetos, grants e contagens. Não houve dupla aplicação.
+- Após Fernando concluir o login no painel, conferido o digest de
+  `BC_DRIVE_BACKUP_ENABLE_WRITES`: corresponde exatamente a `false`. O controle
+  `BC_DRIVE_OAUTH_ENABLE_SETUP` não existia; foi criado explicitamente com `false`
+  e seu digest conferido após salvar. Nenhum valor de credencial foi revelado.
+- O digest de `BC_DRIVE_CLIENT_ID` corresponde ao cliente público previsto no
+  código. `BC_DRIVE_CLIENT_SECRET` existe, mas seu valor não foi aberto; isso
+  ainda não comprova que o Google aceitará a credencial.
+- Implantados somente os três handlers revisados, versão 1, com dependências
+  relativas e `verify_jwt=false`; a autenticação própria permanece no código.
+- Testes externos pelo gateway Supabase: três de três aprovados. Start POST,
+  callback GET e setup POST retornaram HTTP 503, `setup_disabled`, `no-store`,
+  sem redirecionamento e sem cookie OAuth. O único cookie observado foi o
+  cookie de infraestrutura `__cf_bm`; seu valor não foi registrado.
+- Consulta posterior confirmou zero estados pendentes e zero conexões OAuth.
+  Os hashes dos bundles e as políticas JWT das cinco funções anteriores
+  permaneceram iguais. A atualização global de configuração incrementou suas
+  versões de execução; não houve mudança nos respectivos códigos.
+
+## Funções instaladas, com fluxo desabilitado
+
+Código-fonte: revisão `223cc4949dce4666a7ec513afe305b9a3b6146e7` do PR59.
+Nenhum código servidor foi alterado nesta retomada; a atualização da branch
+registra somente o estado da instalação.
+
+| Função | Versão | SHA-256 do bundle informado pelo Supabase |
+| --- | --- | --- |
+| `drive-oauth-start` | 1 | `12c5cc5f881143dc3d7e3eb1dabe349de124247613eee13d5371fd09f1c1bb91` |
+| `drive-oauth-callback` | 1 | `b47e052ace40afe81399aa988100d64dfcaa55945f7d43a16162207d2954a0ea` |
+| `drive-oauth-setup` | 1 | `afd087103d9eb56253790f79e4e10f6266f8acb29642144e0d13d6e0917090a3` |
 
 ## Ponto exato de retomada
 
-Antes de implantar os três handlers, conferir explicitamente
-`BC_DRIVE_OAUTH_ENABLE_SETUP=false` e preservar
-`BC_DRIVE_BACKUP_ENABLE_WRITES=false`. O navegador Supabase está na tela de login;
-a conexão MCP permite DDL/deploy, mas não fornece gerenciamento de Edge Secrets.
-É necessária entrada segura no painel para conferir esses controles, sem enviar
-senha, token ou client secret por conversa.
+Os três handlers já estão instalados com `BC_DRIVE_OAUTH_ENABLE_SETUP=false`
+e `BC_DRIVE_BACKUP_ENABLE_WRITES=false`, conferidos no painel e pelo comportamento
+externo. O login Supabase foi concluído pelo próprio Fernando. Não reaplicar a
+migration nem reinstalar as funções como primeira ação da próxima retomada.
+
+Não existe `BC_DRIVE_PICKER_API_KEY` entre os Edge Secrets listados. Falta
+configurar a chave pública restrita do Picker no mesmo projeto Google e conferir
+APIs, callback, origem e usuários de teste. Manter ambos os controles desativados
+durante essa preparação. Não enviar credenciais por conversa.
 
 O Google Cloud Console retornou “Site Unavailable” neste navegador, inclusive
 numa única recarga de conferência. Não houve login, mudança ou criação de chave
 no Google. Reutilizar cliente OAuth existente; conferir APIs, origem/callback,
 usuários de teste e chave pública Picker com restrições antes de habilitar setup.
 
-Ainda não foram implantadas as três funções, publicada a página, obtido
-consentimento Google real ou executado upload. O backend de backup não foi instalado.
+A página ainda não foi publicada. Não houve consentimento Google real ou upload.
+O backend de backup não foi instalado.
 
 ## Instalação seguinte
 
-Usar somente `drive-oauth-start`, `drive-oauth-callback`, `drive-oauth-setup`,
-com os três módulos relativos em `_shared/drive-oauth/` e `verify_jwt=false`
-porque os handlers verificam sessão/state por conta própria. Manter configuração
-desabilitada e testar respostas negativas antes de liberar autorização real.
-Publicar somente os quatro arquivos de `gestao/configurar-drive/` quando os
-pré-requisitos estiverem conferidos; não mesclar PR59 inteiro para isso.
+Concluir a preparação Google/Picker. Publicar somente os quatro arquivos de
+`gestao/configurar-drive/` quando os pré-requisitos estiverem conferidos; não
+mesclar PR59 inteiro para isso. A autorização específica já recebida cobre esta
+instalação de teste; não repetir a mesma pergunta genérica de aprovação.
+A confirmação de consentimento será feita pelo titular no fluxo Google.
+Depois, homologar conta/pastas e cookies hospedados, sem enviar documentos.
+
+Ativar backups, transferir arquivos clínicos reais, ampliar destinos, agendar
+execuções ou mesclar a principal continua exigindo a aprovação prevista de
+Fernando e Mel. Nenhuma dessas ações foi executada.
 
 ## Limites menores e validação pendente
 
@@ -61,4 +97,8 @@ pastas é um registro histórico e pode permanecer marcada após uma reconferên
 mal sucedida. Não usar esse indicador como prova atual de privacidade ou como
 autorização para backups. A ativação futura exige reconferência de permissões.
 Gateway, cookies reais, Picker, consentimento e criptografia Vault hospedada
-ainda não foram homologados. Logout não foi provado como revogação imediata de JWT.
+ainda não foram homologados no fluxo habilitado. O bloqueio dos três endpoints
+pelo gateway real foi aprovado; isso não valida um consentimento ou transferência.
+Nenhum teste executado nesta retomada foi reprovado. Os testes de consentimento,
+Picker e recuperação real seguem pendentes, sem serem contados como aprovados.
+Logout não foi provado como revogação imediata de JWT.
