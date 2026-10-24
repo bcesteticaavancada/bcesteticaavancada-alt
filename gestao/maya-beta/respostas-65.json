@@ -1,0 +1,879 @@
+{
+  "schema": 1,
+  "locale": "pt-BR",
+  "origin": "Maya protótipo v0.8.3 / Google Drive",
+  "sourceDate": "2026-10-24",
+  "publication": "beta-interna-em-revisao",
+  "reviewAuthority": "Mel",
+  "items": [
+    {
+      "id": "botox-geral",
+      "question": "Como é feito o Botox?",
+      "triggers": [
+        "botox",
+        "toxina botulinica",
+        "como e feito o botox",
+        "como funciona o botox"
+      ],
+      "answer": "O tratamento com toxina botulínica é realizado por profissional habilitado, após avaliação, por meio de aplicações em pontos planejados. A substância reduz temporariamente a atividade de determinados músculos, suavizando algumas linhas de expressão. Resultado, duração e riscos variam de pessoa para pessoa. A indicação e os cuidados devem ser definidos em consulta.",
+      "source": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-dor",
+      "question": "A aplicação de Botox dói?",
+      "triggers": [
+        "botox doi",
+        "toxina botulinica doi",
+        "dor na aplicacao de botox"
+      ],
+      "answer": "A aplicação envolve pequenas injeções e pode causar desconforto, que varia entre pessoas. A equipe pode explicar como é conduzido o procedimento e quais cuidados são adequados após avaliação. Não é possível prometer ausência de dor ou de reações.",
+      "source": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "bioestimulador",
+      "question": "O que é um bioestimulador de colágeno?",
+      "triggers": [
+        "bioestimulador",
+        "estimular colageno",
+        "bioestimulacao"
+      ],
+      "answer": "Bioestimuladores são tratamentos usados por profissionais habilitados para estimular uma resposta gradual de colágeno na pele, de acordo com o produto e a técnica indicados. Não há resultado idêntico para todas as pessoas; benefícios, limitações e possíveis riscos precisam ser discutidos em avaliação.",
+      "source": "Revisão técnica da responsável da BC necessária antes da publicação.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "microagulhamento",
+      "question": "Como funciona o microagulhamento?",
+      "triggers": [
+        "microagulhamento",
+        "microagulhar"
+      ],
+      "answer": "O microagulhamento utiliza um dispositivo com agulhas finas para realizar microperfurações controladas na pele. O objetivo e a profundidade dependem da avaliação profissional. É importante considerar higiene, riscos, contraindicações e cuidados posteriores antes de realizar o procedimento.",
+      "source": "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "limpeza-pele",
+      "question": "O que acontece em uma limpeza de pele?",
+      "triggers": [
+        "limpeza de pele",
+        "limpar os poros"
+      ],
+      "answer": "Uma limpeza de pele pode incluir avaliação inicial, higienização e etapas adequadas às necessidades da pele. A sequência exata, a extração de comedões quando indicada e os cuidados posteriores variam conforme o protocolo e a pessoa.",
+      "source": "Revisão técnica da responsável da BC necessária antes da publicação.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "peeling",
+      "question": "O que é um peeling?",
+      "triggers": [
+        "peeling",
+        "peeling quimico"
+      ],
+      "answer": "Peeling é um nome amplo para técnicas de renovação da pele. O tipo, a intensidade, os objetivos e a recuperação dependem do produto ou método e da avaliação individual. Alguns peelings podem exigir cuidados específicos, inclusive em relação ao sol.",
+      "source": "Revisão técnica da responsável da BC necessária antes da publicação.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "black-peel",
+      "question": "Como funciona o Black Peel da BC?",
+      "triggers": [
+        "black peel",
+        "blackpeel"
+      ],
+      "answer": "Black Peel é uma denominação usada para protocolos que podem variar entre clínicas. Para explicar com precisão como a BC realiza o tratamento, é preciso que a responsável técnica confirme os produtos, equipamentos, etapas e cuidados do protocolo utilizado. Posso orientar você a solicitar essa explicação à equipe.",
+      "source": "Protocolo específico da BC ainda não validado pela responsável técnica.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "avaliacao",
+      "question": "Como saber qual procedimento combina comigo?",
+      "triggers": [
+        "qual procedimento e melhor",
+        "tratamento ideal para mim",
+        "qual tratamento devo fazer",
+        "qual procedimento devo fazer"
+      ],
+      "answer": "Não é seguro indicar um procedimento apenas por mensagem. Na avaliação, a profissional considera objetivos, histórico e características da pele para explicar as possibilidades e limitações. Posso orientar como agendar sua avaliação na BC.",
+      "source": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "contato",
+      "question": "Como agendar uma avaliação na BC?",
+      "triggers": [
+        "como agendar avaliacao",
+        "marcar avaliacao",
+        "agendamento de avaliacao"
+      ],
+      "answer": "No site da BC, acesse Agendamento, selecione o dia, a profissional e o horário disponível. Se preferir, peça orientação pelo canal oficial de contato. A Maya não confirma reservas nesta versão de testes.",
+      "source": "Orientação operacional a validar na integração com a agenda atual.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-duracao",
+      "question": "Quanto tempo dura o efeito do Botox?",
+      "triggers": [
+        "quanto tempo dura o botox",
+        "duracao do botox",
+        "efeito do botox dura",
+        "botox dura quanto tempo",
+        "dura botox",
+        "durabilidade do botox"
+      ],
+      "answer": "A duração do efeito da toxina botulínica varia entre pessoas, músculos tratados, produto e outros fatores. A equipe poderá explicar as expectativas realistas e o momento adequado para reavaliação, sem prometer um prazo exato.",
+      "source": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-terco",
+      "question": "O que é Botox no terço superior?",
+      "triggers": [
+        "botox terco superior",
+        "toxina no terco superior",
+        "botox da testa"
+      ],
+      "answer": "Terço superior é a região superior da face. O planejamento com toxina botulínica considera músculos e linhas de expressão específicas, sempre após avaliação presencial. Os pontos e a dose não são definidos por um chatbot.",
+      "source": "Revisar descrição e protocolo do terço superior com a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-full",
+      "question": "O que significa Botox full face?",
+      "triggers": [
+        "botox full face",
+        "full face botox",
+        "botox no rosto todo"
+      ],
+      "answer": "A expressão full face costuma ser usada para descrever uma avaliação mais ampla de diferentes áreas da face. Não significa aplicar em todos os músculos nem usar uma quantidade fixa. O plano deve ser individualizado pela profissional habilitada.",
+      "source": "Validar a nomenclatura comercial e o protocolo da BC com a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-nefertiti",
+      "question": "O que é Botox Nefertiti?",
+      "triggers": [
+        "botox nefertiti",
+        "nefertiti",
+        "efeito nefertiti"
+      ],
+      "answer": "Nefertiti é o nome usado para certas abordagens com toxina botulínica relacionadas ao pescoço e ao contorno da mandíbula. Indicação, técnicas e resultados variam. Para saber como a BC realiza esse protocolo, é necessária orientação da responsável técnica.",
+      "source": "Descrição específica da BC ainda depende de validação pela Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "limpeza-peeling",
+      "question": "Qual é a diferença da limpeza de pele com peeling?",
+      "triggers": [
+        "limpeza de pele com peeling",
+        "limpeza com peeling",
+        "limpeza e peeling"
+      ],
+      "answer": "A combinação associa etapas de higiene e cuidados de pele a um método de esfoliação ou renovação escolhido após avaliação. Nem toda pele deve receber as mesmas etapas na mesma sessão; a equipe define se a combinação é apropriada.",
+      "source": "Validar protocolo combinado da BC com a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "massagem-relaxante",
+      "question": "Como é uma massagem relaxante?",
+      "triggers": [
+        "massagem relaxante",
+        "massagem para relaxar"
+      ],
+      "answer": "Uma massagem relaxante costuma utilizar manobras manuais para proporcionar conforto e relaxamento. A intensidade e as áreas trabalhadas são combinadas com a profissional, considerando preferências e eventuais restrições.",
+      "source": "Validar escopo do atendimento de massagem da BC com a Kátia e a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "drenagem",
+      "question": "O que é drenagem linfática?",
+      "triggers": [
+        "drenagem linfatica",
+        "drenagem",
+        "massagem linfatica"
+      ],
+      "answer": "Drenagem linfática é uma técnica de manobras suaves com objetivos específicos. Ela não substitui avaliação ou tratamento médico e pode não ser indicada em algumas condições. A profissional orienta se a sessão é apropriada.",
+      "source": "Validar indicações e restrições com a responsável técnica da BC.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "massagem-desportiva",
+      "question": "Como é a massagem desportiva?",
+      "triggers": [
+        "massagem desportiva",
+        "massagem esportiva",
+        "massagem pos treino"
+      ],
+      "answer": "A massagem desportiva adapta manobras e intensidade à finalidade do atendimento e ao conforto da pessoa. Antes da sessão, a profissional deve conhecer queixas, histórico e possíveis restrições para escolher a abordagem.",
+      "source": "Validar serviços oferecidos pela Kátia e protocolo interno.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "skinbooster",
+      "question": "O que é Skinbooster?",
+      "triggers": [
+        "skinbooster",
+        "skin booster",
+        "hidratacao injetavel"
+      ],
+      "answer": "Skinbooster é uma denominação usada para procedimentos injetáveis voltados à qualidade e hidratação da pele, conforme o produto utilizado. Indicação, composição, modo de aplicação, benefícios e riscos precisam ser explicados pela profissional responsável.",
+      "source": "Confirmar produtos registrados e protocolo exato da BC antes da publicação.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "profhilo",
+      "question": "O que é Profhilo?",
+      "triggers": [
+        "profhilo",
+        "procedimento profhilo"
+      ],
+      "answer": "Profhilo é o nome comercial de um produto usado em determinados tratamentos estéticos. A aplicação e a finalidade dependem do produto regularizado e da avaliação da profissional. Para detalhes específicos do protocolo da BC, consulte a equipe.",
+      "source": "Validar produto, registro e orientações de uso com a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "enzimas",
+      "question": "O que é aplicação de enzimas?",
+      "triggers": [
+        "aplicacao de enzimas",
+        "enzimas",
+        "enzima estetica"
+      ],
+      "answer": "A expressão aplicação de enzimas pode ser usada para diferentes produtos e objetivos estéticos. A composição e o procedimento não podem ser presumidos pelo nome. Antes de orientar, a Maya precisa da descrição aprovada do protocolo realmente realizado na BC.",
+      "source": "Pendente de definição formal de produtos e protocolo pela Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "ultrassom",
+      "question": "O que é ultrassom microfocado?",
+      "triggers": [
+        "ultrassom microfocado",
+        "microfocado",
+        "ultraformer"
+      ],
+      "answer": "Ultrassom microfocado utiliza energia ultrassônica direcionada a profundidades definidas pelo equipamento e pelo plano de tratamento. Resultados, conforto, cuidados e restrições variam e precisam de avaliação por profissional habilitado.",
+      "source": "Confirmar equipamento, indicações e orientações usados pela BC.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "radiofrequencia",
+      "question": "Como funciona a radiofrequência estética?",
+      "triggers": [
+        "radiofrequencia",
+        "criofrequencia",
+        "radiofrequencia fracionada"
+      ],
+      "answer": "Radiofrequência é uma categoria de tecnologias que aplicam energia de forma controlada aos tecidos. Equipamentos e técnicas diferem muito, inclusive nos protocolos fracionados ou associados a resfriamento. A Maya só poderá descrever etapas específicas após validação do aparelho da BC.",
+      "source": "Pendente de identificação do equipamento e validação pela Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "despigmentacao",
+      "question": "Como funciona a despigmentação de tatuagem?",
+      "triggers": [
+        "despigmentacao de tatuagem",
+        "remocao de tatuagem",
+        "tirar tatuagem"
+      ],
+      "answer": "A remoção ou despigmentação de tatuagens envolve métodos que variam conforme pigmento, pele e técnica empregada. Podem ser necessárias várias avaliações e sessões, e há riscos que devem ser explicados presencialmente. A BC precisa confirmar o método utilizado antes de a Maya detalhá-lo.",
+      "source": "Confirmar tecnologia e protocolo da BC com a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "anamnese-explica",
+      "question": "O que é uma anamnese estética?",
+      "triggers": [
+        "o que e anamnese",
+        "para que serve anamnese",
+        "anamnese estetica"
+      ],
+      "answer": "A anamnese é um questionário de histórico e informações relevantes para uma avaliação profissional. Ajuda a equipe a identificar cuidados e restrições; respostas sensíveis devem ser enviadas somente pelo formulário privado da BC, nunca pelo chat da Maya.",
+      "source": "Fluxo de anamnese digital da BC; revisar campos e política de privacidade.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "cadastro-basico",
+      "question": "Quais dados preciso informar para agendar?",
+      "triggers": [
+        "quais dados para agendar",
+        "precisa de cpf para agendar",
+        "precisa de data de nascimento para agendar",
+        "dados obrigatorios agendamento"
+      ],
+      "answer": "O fluxo planejado da BC prevê nome completo e telefone para cadastro inicial e agendamento. Informações adicionais, como dados clínicos, devem ser completadas nos formulários privados quando necessárias. A disponibilidade dessa regra no aplicativo real precisa ser validada.",
+      "source": "Requisito operacional informado por Fernando e Mel em outubro de 2026.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "agendamento-horarios",
+      "question": "Como vejo os horários disponíveis?",
+      "triggers": [
+        "ver horarios disponiveis",
+        "horarios disponiveis",
+        "horarios livres da bc",
+        "quando tem horario",
+        "calendario da bc"
+      ],
+      "answer": "A área Agendamento da BC é o local planejado para mostrar calendário, profissionais e horários disponíveis. A Maya pode orientar como navegar, mas não consulta vagas reais nem reserva horários nesta versão.",
+      "source": "Validar interface e regras atuais de agenda com a equipe.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "peeling-diferenca",
+      "question": "Black Peel e peeling comum são iguais?",
+      "triggers": [
+        "diferenca black peel peeling",
+        "black peel e peeling",
+        "black peel versus peeling"
+      ],
+      "answer": "Não necessariamente. Peeling é um termo amplo para métodos de renovação da pele, enquanto Black Peel pode designar um protocolo específico. Para comparar os dois serviços oferecidos pela BC, a Mel deverá fornecer a composição e as etapas corretas de cada um.",
+      "source": "Pendente de aprovação dos dois protocolos específicos pela Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "antes-depois",
+      "question": "O resultado vai ficar igual ao antes e depois?",
+      "triggers": [
+        "resultado igual ao antes e depois",
+        "foto antes e depois",
+        "fotos antes e depois",
+        "resultado garantido",
+        "vou ficar igual a foto"
+      ],
+      "answer": "Fotos de antes e depois mostram experiências individuais e não garantem um resultado semelhante para outra pessoa. A avaliação profissional é a melhor ocasião para conversar sobre objetivos, possibilidades e limites de cada procedimento.",
+      "source": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "pos-cuidados",
+      "question": "Quais cuidados devo ter após um procedimento?",
+      "triggers": [
+        "cuidados depois do procedimento",
+        "pos procedimento",
+        "cuidados apos o botox",
+        "pos botox",
+        "depois do peeling"
+      ],
+      "answer": "Os cuidados dependem do procedimento realmente feito, produto utilizado e histórico da pessoa. Siga as orientações específicas fornecidas pela profissional da BC; se houver sintomas inesperados ou preocupantes, entre em contato com a equipe e procure avaliação de saúde quando necessário.",
+      "source": "Orientações pós-procedimento individuais devem ser aprovadas pela Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "recuperacao",
+      "question": "Qual é o tempo de recuperação?",
+      "triggers": [
+        "tempo de recuperacao",
+        "tempo para recuperar",
+        "voltar a rotina depois",
+        "quando volto a trabalhar"
+      ],
+      "answer": "O tempo de recuperação varia muito conforme o procedimento, a técnica e a resposta individual. A Maya não pode prometer retorno imediato às atividades; a profissional deve orientar as restrições e o acompanhamento indicados para cada caso.",
+      "source": "Pendente de diretrizes pós-procedimento validadas pela Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-preenchimento",
+      "question": "Botox e preenchimento são a mesma coisa?",
+      "triggers": [
+        "botox e preenchimento",
+        "diferenca entre botox e preenchimento",
+        "botox versus preenchimento"
+      ],
+      "answer": "Não. A toxina botulínica atua na atividade de certos músculos, enquanto preenchedores dérmicos são materiais injetáveis usados para objetivos como reposição de volume ou contorno em regiões específicas. São tratamentos diferentes e ambos exigem avaliação de benefícios e riscos pela profissional habilitada.",
+      "source": "https://www.fda.gov/consumers/consumer-updates/dermal-filler-dos-and-donts-wrinkles-lips-and-more",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "preenchimento-facial",
+      "question": "O que é preenchimento facial?",
+      "triggers": [
+        "preenchimento facial",
+        "preenchimento com acido hialuronico",
+        "preenchimento nos labios"
+      ],
+      "answer": "Preenchimento facial é uma categoria de procedimento injetável utilizada em situações específicas para modificar volume ou contorno. Produtos, técnicas e riscos variam; somente a profissional habilitada pode avaliar se é apropriado. A Maya não confirma quais preenchedores ou áreas estão disponíveis na BC.",
+      "source": "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "peeling-sol",
+      "question": "Quais cuidados com o sol depois de peeling?",
+      "triggers": [
+        "sol depois do peeling",
+        "sol apos peeling",
+        "cuidados com o sol peeling",
+        "proteger a pele depois do peeling"
+      ],
+      "answer": "Após um peeling, a pele pode precisar de proteção e cuidados específicos, que dependem da profundidade e do produto usado. Siga as recomendações individualizadas da profissional; não use uma orientação geral de internet como substituta do protocolo pós-procedimento entregue pela BC.",
+      "source": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "protetor-solar",
+      "question": "Por que usar protetor solar no cuidado da pele?",
+      "triggers": [
+        "protetor solar",
+        "fotoprotecao",
+        "como proteger a pele do sol"
+      ],
+      "answer": "A proteção solar faz parte dos cuidados gerais com a pele. Como orientação educativa, a American Academy of Dermatology recomenda protetor de amplo espectro com FPS 30 ou maior e reaplicação adequada. Após um procedimento, siga primeiro as orientações específicas da sua profissional.",
+      "source": "https://www.aad.org/public/everyday-care/sun-protection/shade-clothing-sunscreen/how-to-select-sunscreen",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "tatuagem-sessoes",
+      "question": "É possível remover uma tatuagem em uma sessão?",
+      "triggers": [
+        "remover tatuagem em uma sessao",
+        "quantas sessoes remover tatuagem",
+        "tatuagem sai na primeira sessao"
+      ],
+      "answer": "A remoção de tatuagem pode demandar mais de uma sessão, e o resultado depende do pigmento, da pele e do método utilizado. Não é possível prometer remoção total nem quantidade exata de sessões sem avaliação. A técnica específica disponível na BC deve ser confirmada pela Mel.",
+      "source": "https://www.fda.gov/consumers/consumer-updates/tattoo-removal-options-and-results",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "quantas-sessoes",
+      "question": "Quantas sessões de um procedimento vou precisar?",
+      "triggers": [
+        "quantas sessoes vou precisar",
+        "quantas sessoes sao necessarias",
+        "numero de sessoes",
+        "quantidade de sessoes"
+      ],
+      "answer": "A quantidade de sessões depende do procedimento, objetivo, produto, resposta individual e evolução acompanhada pela equipe. A Maya pode explicar o funcionamento geral, mas não deve criar pacotes ou prometer um número de sessões sem avaliação.",
+      "source": "Orientação geral: revisar protocolos e parâmetros específicos da BC com a Mel.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "produto-seguro",
+      "question": "Como conferir a segurança de um produto usado em estética?",
+      "triggers": [
+        "produto autorizado pela anvisa",
+        "como verificar produto estetico",
+        "produto seguro estetica",
+        "como saber se produto e registrado"
+      ],
+      "answer": "Antes de um procedimento, pergunte qual produto será usado e consulte as informações de regularização disponíveis nos canais oficiais da Anvisa. Produto, lote e orientações devem ser confirmados pela profissional. A Maya não valida lotes ou registros em tempo real.",
+      "source": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "skinbooster-bioestimulador",
+      "question": "Skinbooster e bioestimulador têm o mesmo objetivo?",
+      "triggers": [
+        "skinbooster e bioestimulador",
+        "diferenca skinbooster bioestimulador",
+        "skinbooster versus bioestimulador"
+      ],
+      "answer": "São nomes usados para abordagens diferentes, com produtos e finalidades que podem variar. Skinbooster costuma ser associado a qualidade e hidratação da pele; bioestimulador, ao estímulo gradual de colágeno. A diferença real depende do produto e da indicação confirmados pela Mel.",
+      "source": "Comparação educativa em rascunho; validar produtos e protocolos adotados pela BC.",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "app-senha",
+      "question": "Esqueci minha senha do aplicativo. Como recupero?",
+      "triggers": [
+        "esqueci minha senha",
+        "recuperar senha",
+        "redefinir senha",
+        "nao consigo entrar no login"
+      ],
+      "answer": "Na área de Login da BC, procure a opção de recuperação de senha, se disponível, e siga o link enviado ao e-mail cadastrado. Nunca forneça sua senha à Maya. Se o e-mail não chegar ou o acesso continuar bloqueado, solicite suporte à administração. Confirmar a tela exata no aplicativo atual.",
+      "source": "Fluxo de recuperação previsto em gestao/redefinir-senha; validar tela atual.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-cancelar",
+      "question": "Como remarcar ou cancelar um agendamento?",
+      "triggers": [
+        "cancelar agendamento",
+        "remarcar agendamento",
+        "alterar meu agendamento",
+        "desmarcar horario"
+      ],
+      "answer": "Na versão conectada, a Maya deverá orientar o caminho da agenda e conferir as regras de alteração da BC. Neste teste, nenhuma reserva é cancelada ou modificada. Para uma alteração real, confirme diretamente com a equipe até que o fluxo seja validado.",
+      "source": "Funcionalidade de remarcação/cancelamento precisa ser conferida na gestão BC.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-profissional",
+      "question": "Posso escolher a profissional ao agendar?",
+      "triggers": [
+        "escolher profissional",
+        "escolher a doutora",
+        "agendar com a mel",
+        "agendar com alice",
+        "agendar com aline",
+        "agendar com katia"
+      ],
+      "answer": "O projeto da agenda BC prevê seleção da profissional, respeitando os procedimentos habilitados e os horários disponíveis. Na versão de testes, a Maya apenas explica esse fluxo; a disponibilidade real deve ser conferida no calendário oficial.",
+      "source": "Requisito da Agenda V2 informado por Fernando; validar implementação atual.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-link-expirou",
+      "question": "O link da anamnese expirou. O que faço?",
+      "triggers": [
+        "link da anamnese expirou",
+        "link de anamnese vencido",
+        "anamnese link expirado",
+        "nao abre link anamnese"
+      ],
+      "answer": "Um link individual pode deixar de funcionar por expiração, revogação ou erro. A colaboradora deve confirmar a identidade da cliente no sistema e, se autorizada, gerar um novo link pelo fluxo oficial. Não encaminhe dados clínicos pelo chat da Maya nem reutilize links de outras clientes.",
+      "source": "Fluxo previsto de anamnese remota; validar regra de expiração e renovação no backend BC.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-completar-cadastro",
+      "question": "Posso completar CPF e data de nascimento depois?",
+      "triggers": [
+        "completar cpf depois",
+        "preencher data de nascimento depois",
+        "cadastro so nome e telefone",
+        "cadastrar sem cpf"
+      ],
+      "answer": "Para o primeiro contato, a BC solicitou que nome completo e telefone sejam suficientes para cadastro e agendamento. Os demais dados devem ser pedidos apenas quando necessários e preenchidos no formulário apropriado. Antes de afirmar que a regra já funciona, verificar o aplicativo atual.",
+      "source": "Solicitação de Mel e Fernando de 17/10/2026; pendente de teste de ponta a ponta.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-folga",
+      "question": "Como bloquear horários por férias ou folga?",
+      "triggers": [
+        "bloquear agenda ferias",
+        "inativar agenda",
+        "bloquear horarios por folga",
+        "agenda por motivos pessoais"
+      ],
+      "answer": "O planejamento da BC prevê que responsáveis autorizados possam inativar a agenda de uma profissional e registrar o motivo, como férias, saúde ou questões pessoais. A Maya deverá mostrar o fluxo conforme as permissões; esta versão não altera horários nem bloqueios reais.",
+      "source": "Requisito definido na Agenda V2; implementação atual ainda precisa de validação.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-dados-chat",
+      "question": "Posso enviar exames ou informações clínicas pelo chat da Maya?",
+      "triggers": [
+        "enviar exames pelo chat",
+        "mandar cpf para maya",
+        "passar dados clinicos no chat",
+        "enviar anamnese aqui",
+        "mandar foto de documento"
+      ],
+      "answer": "Não envie documentos, exames, fotos de prontuário, CPF nem informações clínicas sensíveis no chat de testes. Use somente os formulários privados e canais oficiais autorizados da BC. A Maya orienta o caminho, mas não coleta dados de saúde nesta versão.",
+      "source": "Regra de privacidade e segurança definida para o protótipo da Maya.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "peeling-preparo",
+      "question": "Como me preparar para uma avaliação de peeling químico?",
+      "triggers": [
+        "preparacao para peeling",
+        "como me preparar para um peeling",
+        "antes do peeling o que fazer"
+      ],
+      "answer": "Antes de um peeling químico, a profissional precisa conhecer seu histórico de saúde, medicamentos, produtos usados na pele e tratamentos recentes. Algumas pessoas recebem um plano de preparo específico. Não suspenda medicamentos nem inicie ácidos por conta própria. Confirme o preparo e a exposição solar permitida com quem realizará o procedimento.",
+      "source": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-preparation",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "estetica-perguntas-consulta",
+      "question": "O que devo perguntar antes de fazer um procedimento estético?",
+      "triggers": [
+        "o que perguntar antes do procedimento",
+        "quais perguntas fazer na avaliacao",
+        "perguntas antes de tratamento estetico"
+      ],
+      "answer": "Na avaliação, pergunte sobre a habilitação da profissional, nome do produto ou equipamento, finalidade, benefícios possíveis, riscos, alternativas, número estimado de etapas, cuidados e acompanhamento. Peça esclarecimentos se não entender alguma orientação. Nenhum tratamento deve ser decidido com base apenas na resposta da Maya.",
+      "source": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "manchas-fotoprotecao",
+      "question": "Protetor com cor pode ajudar no cuidado de manchas?",
+      "triggers": [
+        "protetor com cor para manchas",
+        "manchas escuras sol",
+        "proteger manchas do rosto"
+      ],
+      "answer": "A fotoproteção é importante quando há manchas ou tendência à hiperpigmentação. Como orientação geral, é recomendado protetor de amplo espectro com FPS 30 ou mais; versões com cor e óxidos de ferro podem ajudar a reduzir o efeito da luz visível sobre algumas manchas. A causa das manchas e o tratamento adequado precisam de avaliação.",
+      "source": "https://www.aad.org/public/everyday-care/skin-care-secrets/routine/fade-dark-spots",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "tatuagem-avaliacao",
+      "question": "Por que preciso de avaliação antes de remover uma tatuagem?",
+      "triggers": [
+        "avaliacao remover tatuagem",
+        "avaliacao antes de tirar tatuagem",
+        "cor da tatuagem influencia remocao"
+      ],
+      "answer": "A avaliação considera pigmentos e cores, profundidade, localização, características da pele, histórico de saúde e método disponível. Isso influencia o planejamento, o número de sessões e os riscos. A Maya não prevê remoção completa nem confirma a tecnologia empregada pela BC; esses detalhes dependem da responsável técnica.",
+      "source": "https://www.aad.org/public/cosmetic/hair-removal/laser-tattoo-removal",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "esfoliacao-cuidados",
+      "question": "Posso esfoliar a pele em casa após um tratamento?",
+      "triggers": [
+        "esfoliar pele em casa",
+        "esfoliar depois de procedimento",
+        "esfoliacao apos tratamento estetico"
+      ],
+      "answer": "Esfoliação não é adequada para toda pele e pode agravar irritação. Após um procedimento estético, não comece esfoliantes, ácidos ou fricção sem a liberação da profissional responsável. Se houver feridas, queimadura solar ou irritação, evite esfoliar e procure orientação adequada.",
+      "source": "https://www.aad.org/public/everyday-care/skin-care-secrets/routine/safely-exfoliate-at-home",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "clinica-segura",
+      "question": "Como avaliar se uma clínica de estética é segura?",
+      "triggers": [
+        "como saber se clinica e segura",
+        "higiene clinica estetica",
+        "alvara da clinica estetica"
+      ],
+      "answer": "É razoável conferir as condições de higiene, a regularização do estabelecimento junto à vigilância sanitária local, a habilitação de quem realiza o procedimento e a identificação dos produtos. Pergunte como materiais e equipamentos são limpos ou esterilizados quando aplicável. A Maya não faz inspeção nem certifica a situação atual de uma clínica.",
+      "source": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "app-atendimento-confirmacao",
+      "question": "Como conferir se um atendimento foi registrado?",
+      "triggers": [
+        "como conferir atendimento lancado",
+        "atendimento ficou salvo",
+        "registro de atendimento duplicado"
+      ],
+      "answer": "Após lançar um atendimento no aplicativo da BC, a colaboradora deverá conferir se o registro aparece no histórico correto, com a cliente, data e procedimento esperados. Se houver dúvida ou suspeita de duplicidade, não lance outra vez sem verificar. A Maya ainda não consulta o banco real; o caminho e os indicadores de confirmação precisam ser validados pela equipe no aplicativo atual.",
+      "source": "Guia operacional proposto; confirmar localização do histórico e regra contra duplicidade na BC Gestão.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-anamnese-status",
+      "question": "Como verificar se a cliente respondeu à anamnese?",
+      "triggers": [
+        "como verificar anamnese respondida",
+        "cliente respondeu anamnese",
+        "anamnese concluida no sistema"
+      ],
+      "answer": "No fluxo conectado, a colaboradora autorizada deverá abrir o cadastro da cliente e consultar o estado da anamnese no módulo privado correspondente. Não presuma que o formulário foi enviado ou concluído apenas porque um link foi criado. A Maya de testes não consulta status real e não solicita as respostas clínicas no chat.",
+      "source": "Fluxo operacional em elaboração; confirmar tela, status e permissões da anamnese na BC Gestão.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-agenda-expediente",
+      "question": "Qual é o horário planejado para a agenda da BC?",
+      "triggers": [
+        "ultimo horario de agendamento bc",
+        "almoco na agenda da bc",
+        "expediente da agenda bc"
+      ],
+      "answer": "O planejamento informado para a agenda das profissionais foi de segunda a sábado, das 9h às 19h, com último início de atendimento às 18h e intervalo por volta do meio-dia. Isso é uma regra proposta, não disponibilidade confirmada. Para reservar, confira a agenda oficial: procedimentos e profissionais podem ter duração, bloqueios e horários diferentes.",
+      "source": "Planejamento da Agenda V2 relatado por Fernando em 15/10/2026; validar regras atuais antes da integração.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-cadastro-duplicado",
+      "question": "O que fazer se a cliente já tiver cadastro na BC?",
+      "triggers": [
+        "cliente ja existe cadastro",
+        "cadastro duplicado cliente",
+        "duas clientes com mesmo nome"
+      ],
+      "answer": "Antes de cadastrar novamente, pesquise pelo cadastro existente usando os identificadores permitidos no sistema, confirme a identidade da cliente por canal apropriado e confira se você tem permissão para editar. Evite criar um segundo registro sem checar. A Maya não mescla cadastros nem acessa dados reais nesta demonstração.",
+      "source": "Regra operacional recomendada; validar busca, autorização e deduplicação na BC Gestão.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "produto-regularizado",
+      "question": "Como saber se um produto estético está regularizado na Anvisa?",
+      "triggers": [
+        "consultar produto na anvisa",
+        "produto registrado anvisa",
+        "produto regularizado",
+        "verificar registro do produto"
+      ],
+      "answer": "É possível consultar a situação do produto nos sistemas oficiais da Anvisa, usando dados como nome, marca ou número de registro. Confira se a situação está ativa ou válida e peça à profissional para informar o produto que será usado. A Maya não consulta nem certifica registros de produtos em tempo real.",
+      "source": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "cosmetico-injetavel",
+      "question": "Um cosmético pode ser usado como produto injetável?",
+      "triggers": [
+        "cosmetico injetavel",
+        "cosmetico pode ser injetado",
+        "injetar cosmeticos"
+      ],
+      "answer": "Não se deve presumir que um cosmético seja apropriado para injeção. A Anvisa explica que produtos destinados a procedimentos injetáveis precisam de regularização compatível com sua finalidade; cosméticos não são categoria adequada para esse uso. A equipe deve identificar o produto exato e conferir a regularização antes de qualquer indicação.",
+      "source": "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "peeling-descamacao",
+      "question": "A pele pode descamar após um peeling?",
+      "triggers": [
+        "pele descamar depois do peeling",
+        "peeling causa descamacao",
+        "descamar depois do peeling"
+      ],
+      "answer": "Dependendo do tipo e da intensidade do peeling, podem ocorrer vermelhidão e descamação durante a recuperação. Isso não permite concluir pelo chat se um caso específico está evoluindo bem. Siga as orientações dadas pela profissional; se surgir reação preocupante, entre em contato com a equipe e procure avaliação de saúde quando necessário.",
+      "source": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "peeling-riscos",
+      "question": "Peeling químico tem riscos?",
+      "triggers": [
+        "riscos do peeling quimico",
+        "peeling tem riscos",
+        "efeitos adversos do peeling"
+      ],
+      "answer": "Peelings químicos têm riscos que variam conforme profundidade, substâncias utilizadas, fototipo de pele e cuidados posteriores. Podem ocorrer alterações de pigmentação, irritação e, em alguns casos, complicações como infecção ou cicatriz. A avaliação e o cuidado pós-procedimento precisam ser individualizados pela profissional responsável.",
+      "source": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "microagulhamento-caseiro",
+      "question": "Posso fazer microagulhamento em casa?",
+      "triggers": [
+        "microagulhamento em casa",
+        "dermaroller caseiro",
+        "agulhas em casa na pele"
+      ],
+      "answer": "O microagulhamento com perfuração da pele não deve ser tratado como simples cuidado doméstico. Dispositivos usados inadequadamente podem aumentar riscos de infecção, manchas e cicatrizes. A escolha do procedimento deve envolver avaliação e profissional habilitado; a Maya não orienta técnicas de aplicação caseira.",
+      "source": "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "microagulhamento-resultado",
+      "question": "Quando aparecem os resultados do microagulhamento?",
+      "triggers": [
+        "resultado do microagulhamento aparece",
+        "quando aparece resultado microagulhamento",
+        "microagulhamento resultado quando"
+      ],
+      "answer": "As mudanças observadas após o microagulhamento podem ocorrer gradualmente, pois a resposta da pele não é imediata nem igual para todas as pessoas. Objetivo, número de sessões e acompanhamento dependem da avaliação e do protocolo realizado. A Maya não prevê resultado individual por mensagem.",
+      "source": "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-inicio",
+      "question": "Quando começam a aparecer os resultados da toxina botulínica?",
+      "triggers": [
+        "quando aparece o efeito do botox",
+        "botox faz efeito quando",
+        "quanto tempo para botox fazer efeito",
+        "inicio efeito toxina botulinica"
+      ],
+      "answer": "O início do efeito da toxina botulínica costuma ser gradual, e a resposta individual pode variar. A equipe deve explicar o acompanhamento e o momento adequado de reavaliação. Um efeito diferente do esperado não pode ser diagnosticado pela Maya.",
+      "source": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview/",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "botox-naturalidade",
+      "question": "O Botox necessariamente tira a expressão do rosto?",
+      "triggers": [
+        "botox tira expressao",
+        "botox deixa rosto sem expressao",
+        "botox fica artificial"
+      ],
+      "answer": "A proposta de um tratamento planejado não é necessariamente eliminar as expressões faciais. O efeito varia com regiões tratadas, produto e planejamento profissional. Antes de decidir, converse com a responsável sobre o resultado esperado, limitações e possíveis efeitos indesejados.",
+      "source": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+      "review": "pendente",
+      "audience": "informativo"
+    },
+    {
+      "id": "app-primeiro-acesso-guia",
+      "question": "Como começar a usar a área da colaboradora?",
+      "triggers": [
+        "primeiro acesso colaboradora",
+        "como entrar area colaboradora",
+        "login colaboradora",
+        "primeiro login no app"
+      ],
+      "answer": "Para começar, abra a área de Login do aplicativo oficial da BC e entre com sua conta individual autorizada. Depois, localize as seções de cadastro, agendamento e anamnese conforme seu perfil. Nunca informe senha, código de acesso ou dados de pacientes no chat. Esta versão offline apenas demonstra a orientação e não testa o login real.",
+      "source": "Orientação interna provisória — conferir nomes e ordem dos menus com a Mel.",
+      "review": "pendente",
+      "audience": "equipe"
+    },
+    {
+      "id": "app-confirmar-link",
+      "question": "O que conferir antes de enviar uma anamnese à cliente?",
+      "triggers": [
+        "conferir antes de enviar anamnese",
+        "confirmar destinataria anamnese",
+        "cuidado ao enviar link anamnese",
+        "enviar anamnese para cliente correta"
+      ],
+      "answer": "Antes de gerar ou encaminhar qualquer link, localize o cadastro autorizado e confira que a cliente selecionada corresponde à destinatária. Revise o destino pelo sistema oficial, peça confirmação humana antes do envio e não copie links individuais para o chat da Maya. Este protótipo cria apenas exemplos inválidos, sem envio real.",
+      "source": "Orientação interna provisória — validar fluxo definitivo de links e permissões com a Mel.",
+      "review": "pendente",
+      "audience": "equipe"
+    }
+  ]
+}
