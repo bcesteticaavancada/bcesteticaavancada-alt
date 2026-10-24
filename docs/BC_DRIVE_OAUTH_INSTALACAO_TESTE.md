@@ -1,6 +1,40 @@
 # Estado da instalação OAuth de teste — 24/10/2026
 
-## Retomada mais recente — retorno corrigido, consentimento pendente
+## Estado atual — página publicada e autorização de teste habilitada
+
+- Fernando concluiu a entrada no painel Supabase. A presença da chave Picker foi
+  confirmada somente pelo nome/digest; nenhum valor de credencial foi revelado.
+- Os digests confirmaram `BC_DRIVE_CLIENT_ID` esperado e, antes da alteração,
+  ambos os controles em `false`. Alterado somente
+  `BC_DRIVE_OAUTH_ENABLE_SETUP=true`; o novo digest foi conferido. O digest de
+  `BC_DRIVE_BACKUP_ENABLE_WRITES` permanece correspondente exatamente a `false`.
+- PR61 integrado isoladamente como `7110fb7fc310af8e75ebe6865f7daacfdaa4399c`.
+  Seu diff continha somente os quatro arquivos da página. Site CI `40125954068`
+  e Pre-anamnese CI `40125954010` aprovados. O PR59 não foi integrado.
+- Página publicada e verificada no navegador:
+  <https://bcesteticaavancada.github.io/bcesteticaavancada-alt/gestao/configurar-drive/>.
+  SDK carregou; a página exige sessão BC da conta indicada. A entrada no painel
+  Supabase não cria uma sessão no aplicativo BC Gestão.
+- Verificação hospedada com setup habilitado: start/setup sem origem/sessão
+  recusados com 403/access_denied; callback sem cookie retorna 303 para a página
+  correta com status fixo failed; preflight da origem exata retorna 204 e CORS
+  restrito. Todas essas respostas usam no-store. Zero estados e zero conexões.
+- A alteração global de configuração incrementou as versões de execução das
+  oito funções. Todos os hashes de bundle e as políticas JWT permaneceram iguais
+  aos da conferência anterior. Nenhuma função adicional foi implantada.
+- O Google Cloud Console ainda apresenta Site Unavailable neste navegador.
+  A existência/funcionamento da chave será homologada pelo fluxo real do Picker;
+  a configuração Google não foi alterada. APIs/restrições haviam sido preparadas
+  por Fernando nas capturas anteriores, sem serem tratadas como teste real.
+- Próxima ação do titular: abrir a página no seu Chrome, entrar no BC Gestão
+  com decolarbh@gmail.com se necessário, voltar à página de configuração,
+  confirmar a conta no Google, selecionar as duas pastas e confirmar. Tokens e
+  códigos não devem ser copiados para a conversa.
+- Consentimento, seleção real, Vault hospedado e recuperação permanecem
+  pendentes. Nenhum arquivo de cliente foi aberto ou enviado; worker de backup,
+  agendamento e gravações continuam desativados.
+
+## Retomada anterior — retorno corrigido, consentimento pendente
 
 - Correção salva na branch de teste como `3ce02b372d62756c928569dd97178b09f202776e`.
   O retorno agora usa `/bcesteticaavancada-alt/gestao/configurar-drive/` em sucesso,
@@ -89,35 +123,28 @@ conforme a seção mais recente no início deste documento.
 
 ## Ponto exato de retomada
 
-Os três handlers já estão instalados; o callback corrigido é a versão 3. As
-rotas continuam bloqueadas pelo comportamento externo. Na instalação inicial,
-`BC_DRIVE_OAUTH_ENABLE_SETUP=false` e `BC_DRIVE_BACKUP_ENABLE_WRITES=false` foram
-conferidos por digest no painel. O login daquela sessão expirou; a nova entrada
-deve ser feita pelo titular de forma segura. Não reaplicar a migration nem
-reinstalar as funções como primeira ação da próxima retomada.
-
-A captura posterior de Fernando mostra o nome da chave Picker cadastrado, mas
-ainda falta conferir a configuração atual pelo painel e validar seu uso real.
-Conferir APIs, callback, origem e usuários de teste. Manter os dois controles
-desativados durante essa preparação. Não enviar credenciais por conversa.
+Os três handlers já estão instalados e a página está publicada. O setup está
+habilitado; o controle de gravação continua exatamente false, conforme digests
+conferidos no painel. A chave Picker está cadastrada. Não reaplicar a migration,
+reinstalar funções ou repetir o salvamento dos controles como primeira ação.
+A próxima etapa é o consentimento do titular e a seleção real das duas pastas
+pela página publicada, com sessão BC da conta permitida.
 
 O Google Cloud Console retornou “Site Unavailable” neste navegador, inclusive
 numa única recarga de conferência. Não houve login, mudança ou criação de chave
 no Google. Reutilizar cliente OAuth existente; conferir APIs, origem/callback,
 usuários de teste e chave pública Picker com restrições antes de habilitar setup.
 
-A página ainda não foi publicada; usar o PR61 com somente seus quatro arquivos,
-sem mesclar o PR59 inteiro. Não houve consentimento Google real ou upload.
-O backend de backup não foi instalado.
+PR61 já publicado; PR59 permanece separado. Não houve consentimento Google real
+ou upload. O backend de backup não foi instalado.
 
 ## Instalação seguinte
 
-Concluir a preparação Google/Picker. Publicar somente os quatro arquivos de
-`gestao/configurar-drive/` quando os pré-requisitos estiverem conferidos; não
-mesclar PR59 inteiro para isso. A autorização específica já recebida cobre esta
-instalação de teste; não repetir a mesma pergunta genérica de aprovação.
-A confirmação de consentimento será feita pelo titular no fluxo Google.
-Depois, homologar conta/pastas e cookies hospedados, sem enviar documentos.
+Concluir a homologação Google/Picker na página já publicada. A autorização
+específica recebida cobre a instalação restrita de teste; não repetir a mesma
+pergunta genérica de aprovação. A confirmação de consentimento será feita pelo
+titular no fluxo Google. Depois, conferir metadados da conexão e confirmação das
+duas pastas no servidor, sem retornar tokens nem enviar documentos.
 
 Ativar backups, transferir arquivos clínicos reais, ampliar destinos, agendar
 execuções ou mesclar a principal continua exigindo a aprovação prevista de

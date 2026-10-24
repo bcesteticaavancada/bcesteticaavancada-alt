@@ -1,6 +1,15 @@
 # BC — OAuth de teste, rascunho pronto para revisão
 
-Atualização mais recente de 24/10: o retorno ao caminho publicado foi corrigido
+Estado atual de 24/10: a entrada no painel foi concluída; chave Picker cadastrada
+e cliente esperado conferidos por nome/digest. Publicados somente os quatro
+arquivos da página pelo PR61, commit `7110fb7`. Setup de autorização habilitado
+com digest conferido; gravações permanecem exatamente false. O gateway passou
+nos testes sem sessão e de CORS da origem permitida. A página exige sessão BC,
+distinta da entrada no painel Supabase. Falta o titular autorizar no Google e
+selecionar/confirmar as duas pastas. Não houve consentimento, upload ou backup
+real. Ver a seção inicial de `BC_DRIVE_OAUTH_INSTALACAO_TESTE.md`.
+
+Histórico da retomada anterior de 24/10: o retorno ao caminho publicado foi corrigido
 e instalado somente no callback, versão 3, mantendo as rotas bloqueadas.
 Passaram 13 testes HTTP, 9 SQL, 6 de interface, 784 gerais e o CI `40125828849`,
 incluindo navegador com serviços fictícios. A página isolada está preparada no

@@ -1,5 +1,25 @@
 # Execução — plano: docs/superpowers/plans/2026-10-23-drive-oauth-preparacao.md
 
+## Entrada retomada — página publicada e setup habilitado
+
+Fernando confirmou entrada manual no Supabase; observação fresca mostrou o
+projeto correto e a chave Picker cadastrada. Digests do client ID e de false
+nos dois controles conferidos. PR61 continha somente quatro arquivos, main não
+havia avançado e Site/Pre-anamnese CI passaram. Integrado somente PR61 como
+7110fb7, dentro da publicação restrita anteriormente autorizada; PR59 preservado.
+
+Salvo somente setup=true e conferido seu digest. Writes=false permaneceu com o
+mesmo digest. As oito funções conservaram hashes/JWT; a configuração global
+incrementou somente versões de execução. Teste hospedado: start/setup sem sessão
+403, callback sem cookie 303/failed para caminho correto e preflight exato 204.
+Zero estados/conexões. Página publicada abriu com SDK e pedido de sessão BC;
+nenhum módulo clínico foi carregado pela configuração isolada.
+
+Google Console permanece indisponível neste navegador. O titular continuará o
+consentimento pelo link publicado no seu Chrome, conforme preferência anterior.
+Entrada do painel não substitui login do BC. Nenhum consentimento Google, arquivo
+de cliente, token, backup/worker ou agendamento foi tratado como concluído.
+
 ## Continuidade de 24/10 — retorno e preparação isolada da página
 
 Recuperados o link compartilhado e o checkout existente. A correção local
