@@ -1,5 +1,19 @@
 # BC — OAuth de teste, rascunho pronto para revisão
 
+## Ensaio fictício concluído — atualização mais recente
+
+Envio/recuperação reais com PDF fictício concluídos nas duas pastas, run
+`b37e00b1-c2b2-4bdc-93aa-8564ca73c177`: quatro cópias/versionamentos de 729 bytes,
+hashes recuperados idênticos, segunda execução sem novas cópias. Função
+temporária substituída por bundle fechado com JWT; gatilho privado eliminado.
+Nenhum documento real/Storage foi lido, nenhuma migration ou cron foi criado.
+Worker automático continua ausente e gravação global permanece false.
+Relatório: [BC_DRIVE_HOMOLOGACAO_FICTICIA_2026-10-24.md](BC_DRIVE_HOMOLOGACAO_FICTICIA_2026-10-24.md).
+Não repetir OAuth/seleção/ensaio como primeira ação da próxima retomada.
+Próxima etapa: adaptação/revisão do worker de produção, sem ativar dados reais.
+As seções abaixo preservam o histórico das etapas anteriores.
+
+
 Autorização real concluída em 24/10, às 16:51:28 de Brasília: o titular fez o
 consentimento Google, selecionou as duas pastas no Picker e confirmou. Consulta
 de metadados no servidor retornou conta esperada e folders_ready=true. Nenhum

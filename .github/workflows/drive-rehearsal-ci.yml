@@ -1,0 +1,28 @@
+name: BC Drive Fictional Rehearsal CI
+on:
+  push:
+    branches: ['backup/**']
+    paths:
+      - 'supabase/functions/drive-backup-rehearsal/**'
+      - 'supabase/functions/drive-backup/core.ts'
+      - 'supabase/functions/_shared/drive-oauth/protocol.ts'
+      - '.github/workflows/drive-rehearsal-ci.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/drive-backup-rehearsal/**'
+      - 'supabase/functions/drive-backup/core.ts'
+      - 'supabase/functions/_shared/drive-oauth/protocol.ts'
+      - '.github/workflows/drive-rehearsal-ci.yml'
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno test --no-lock --no-check --no-remote supabase/functions/drive-backup-rehearsal/core_test.ts
+      - run: deno check --no-lock supabase/functions/drive-backup-rehearsal/core.ts supabase/functions/drive-backup-rehearsal/runtime.ts supabase/functions/drive-backup-rehearsal/closed.ts
