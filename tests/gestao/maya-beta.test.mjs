@@ -61,3 +61,21 @@ test('Todo texto enviado pelo usuário é exibido como texto, não HTML',()=>{
  assert.match(source,/node.textContent=value/);
  assert.doesNotMatch(source,/dangerouslySetInnerHTML|\.innerHTML/);
 });
+
+test('Texto digitado não aparece no histórico da conversa',()=>{
+ assert.doesNotMatch(source,/line\(trimmed,\s*'person'\)/);
+ assert.match(source,/const selected=classify\(trimmed\)/);
+ assert.match(source,/line\('Assunto: '\+\(topicLabels\[selected\]/);
+ assert.match(source,/node.textContent=value/);
+});
+test('Limpar conversa não grava dados e remove a conversa anterior',()=>{
+ assert.match(source,/id="clearChat"/);
+ assert.match(source,/clearChat\.addEventListener\('click'/);
+ assert.match(source,/chat\.replaceChildren\(\)/);
+ assert.match(source,/question\.value=''/);
+});
+test('Atalhos dão informações administrativas sem liberar conteúdo clínico',()=>{
+ assert.match(source,/protocolos ainda aguardam a revisão responsável da Mel/);
+ assert.match(source,/não emite orientações clínicas/);
+ assert.match(source,/não consulta valores nem executa lançamentos/);
+});
