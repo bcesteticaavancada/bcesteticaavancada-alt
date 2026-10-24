@@ -9,9 +9,9 @@ insert into public.client_files(id,cliente_id,title,category,origin,storage_path
 values('b3000000-0000-4000-8000-000000000099',pg_temp.f('client'),'TCLE fictício CI','tcle_externo','upload_manual','arquivos-clientes/ci/consentimento.pdf','application/pdf',3,repeat('0',64),pg_temp.f('worker'));
 select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
 set local role authenticated;
-insert into fixture values('free-proc',public.bc_procedure_save_draft(null,'{"nome":"Avaliação gratuita CI","classe_documental":"nao_injetavel","price_mode":"fixed","base_price":0,"protocol_mode":"simple","requires_general_anamnesis":false}'));
+insert into fixture values('free-proc',public.bc_procedure_save_draft(null,'{"nome":"Avaliação gratuita CI","classe_documental":"nao_injetavel","price_mode":"fixed","base_price":0,"protocol_mode":"simple","suggested_duration":30,"requires_general_anamnesis":false}'));
 select lives_ok(format('select public.bc_procedure_publish(%L)',pg_temp.f('free-proc')),'publicar gratuito explícito');
-insert into fixture values('unknown-proc',public.bc_procedure_save_draft(null,'{"nome":"Valor a definir CI","classe_documental":"nao_injetavel","price_mode":"fixed","base_price":null,"protocol_mode":"simple","requires_general_anamnesis":false}'));
+insert into fixture values('unknown-proc',public.bc_procedure_save_draft(null,'{"nome":"Valor a definir CI","classe_documental":"nao_injetavel","price_mode":"fixed","base_price":null,"protocol_mode":"simple","suggested_duration":30,"requires_general_anamnesis":false}'));
 select lives_ok(format('select public.bc_procedure_publish(%L)',pg_temp.f('unknown-proc')),'publicar com valor a definir');
 select set_config('request.jwt.claim.sub',pg_temp.f('worker')::text,true);
 insert into fixture values('free-agenda',public.bc_agendamento_create(pg_temp.f('client'),pg_temp.f('worker'),pg_temp.f('free-proc'),(select slot from test_clock)));
