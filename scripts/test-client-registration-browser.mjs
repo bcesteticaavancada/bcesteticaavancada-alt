@@ -73,6 +73,7 @@ try {
           document.querySelectorAll('[data-area-panel]').forEach(node => { node.hidden = node.id !== 'clientes'; });
           await initClientesPanel({ client, profile: { user_id: 'fictitious-staff' }, canArchive: area === 'admin' });
         }, area);
+        await page.locator('details.bcg-quick-create > summary').filter({hasText:'Novo cliente'}).click();
         const form = page.locator('#clientCreateForm');
         await form.locator('[name=nome]').fill('Pessoa Fictícia');
         await form.locator('[name=telefone]').fill('(31) 90000-0000');
@@ -100,6 +101,7 @@ try {
         assert.equal(await edit.locator('[name=email]').inputValue(), 'ficticia@example.invalid');
         await form.locator('[name=nome]').fill('Outra Pessoa Fictícia');
         await form.locator('[name=telefone]').fill('31900000001');
+        await form.locator('[data-client-optional] > summary').click();
         await form.locator('[name=cpf]').fill('abc');
         await form.getByRole('button', { name: 'Cadastrar cliente', exact: true }).click();
         await page.locator('#clientCreateStatus[data-kind=error]').waitFor();

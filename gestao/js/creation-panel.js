@@ -74,5 +74,5 @@ export async function initCreationPanel({client,root=document}){
   el('creationRefresh').addEventListener('click',()=>refresh());
   prev.addEventListener('click',()=>{offset=Math.max(0,offset-50);refresh();});
   next.addEventListener('click',()=>{if(hasMore){offset+=50;refresh();}});
-  await refresh();return {refresh};
+  await refresh();return {refresh,openSection(key){if(!Object.hasOwn(CREATION_SECTIONS,key))throw Error('Área não disponível.');section.value=key;offset=0;search.value='';return refresh();}};
 }

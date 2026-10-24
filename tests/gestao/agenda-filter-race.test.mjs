@@ -4,7 +4,7 @@ import {initAdminAgenda} from '../../gestao/js/admin-agenda.js';
 
 function fixture() {
   const ids=['adminAgendaOriginFilter','adminAgendaDate','adminAgendaProfessionalFilter','adminAgendaList','adminAgendaStatus','appointmentForm','appointmentClient','appointmentCollaborator','appointmentProcedure','adminAppointmentEditForm','adminEditProfessional','adminEditProcedure','adminEditStart','adminEditEnd','adminEditNote'];
-  const nodes=new Map(ids.map(id=>[id,{value:'',dataset:{},innerHTML:'',events:{},addEventListener(type,fn){this.events[type]=fn;}}]));
+  const nodes=new Map(ids.map(id=>[id,{value:'',dataset:{},innerHTML:'',events:{},querySelectorAll(){return [];},addEventListener(type,fn){this.events[type]=fn;}}]));
   nodes.get('adminAgendaDate').value='2026-10-16';nodes.get('adminAgendaOriginFilter').value='all';
   const pending=new Map();
   const client={from(){return {select(){return this;},eq(){return this;},order(){return Promise.resolve({data:[],error:null});}};},rpc(name,args){
@@ -17,7 +17,7 @@ const appointment=(id,channel)=>({id,booking_channel:channel,colaboradora_user_i
 
 for(const staleError of [false,true])test(`filtro ignora ${staleError?'erro':'resposta'} de requisição ultrapassada`,async()=>{
   const {nodes,pending,client,root}=fixture();
-  await assert.rejects(initAdminAgenda({client,profile:{user_id:'reviewer'},root}),/Área de agenda administrativa/);
+  await initAdminAgenda({client,profile:{user_id:'reviewer'},root});
   // Only the unrelated availability panel is absent; real agenda listeners exist.
   const filter=nodes.get('adminAgendaOriginFilter');
   filter.value='site';const old=filter.events.change().catch(()=>{});

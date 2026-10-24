@@ -1,4 +1,5 @@
 import { clinicLocalDateTimeToIso } from './agenda-format.js';
+import {mountAppointmentReceipt} from './finance-receipt-panel.js';
 import { listProcedures } from './procedure-api.js';
 import { listStaffDirectory } from './agenda-api.js';
 import {
@@ -178,10 +179,10 @@ function renderAppointmentResolution(treatment,options) {
 function renderClinicalStep({ appointmentOptions = [], treatment = {}, consent = null, consentSignatures = [], finalSignatures = [], clientRecord = {}, report = null, externalConsent = null, pendingExternalConsent = null } = {}) {
   const status = treatment.status || 'rascunho';
   const readonly = status === 'finalizado' || treatment.pending_document_id ? ' disabled' : '';
-  const startingAt = treatment.price_mode_snapshot === 'starting_at';
+  const startingAt = treatment.price_mode_snapshot === 'starting_at'||treatment.base_price_snapshot===null;
   const finalizationReasons = Array.isArray(treatment.finalization_gate_reasons) ? treatment.finalization_gate_reasons : [];
   const finalizeDisabled = finalizationReasons.length ? ' disabled' : '';
-  return `<section class="bcg-treatment-wizard" data-treatment-wizard="clinical" data-treatment-id="${escapeHtml(treatment.id || '')}"><div class="bcg-treatment-head"><div><p class="bcg-eyebrow">ATENDIMENTO CLÍNICO</p><h3>${escapeHtml(treatment.procedure_version?.nome || 'Procedimento')}</h3></div><span class="bcg-chip">${escapeHtml(STATUS_LABELS[status] || status)}</span></div>${renderAppointmentResolution(treatment,appointmentOptions)}${renderTreatmentGateChecklist(treatment.gate_reasons || [])}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">SAÚDE HOJE</p><h4>Houve mudança desde a última avaliação?</h4><form class="bcg-form" data-treatment-health-form><label><input type="radio" name="changed" value="false" required> Não</label><label><input type="radio" name="changed" value="true" required> Sim</label><label class="bcg-field-wide">Se sim, descreva<textarea class="bcg-input" name="details" rows="2"></textarea></label><button class="bcg-small-button" type="submit"${readonly}>Confirmar saúde hoje</button></form></section><section class="bcg-treatment-stage"><p class="bcg-eyebrow">ALERTAS CLÍNICOS</p><h4>Revisão antes do procedimento</h4><p class="bcg-muted">O sistema copia os alertas ativos do prontuário no momento da confirmação. Mudança de saúde não é contraindicação automática: exige avaliação profissional.</p><button type="button" class="bcg-small-button" data-treatment-alerts-confirm${readonly}>Confirmar revisão dos alertas</button></section>${renderConsentSection({consent,signatures:consentSignatures,clientRecord,externalConsent,pendingExternalConsent})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FICHA DO ATENDIMENTO</p><h4>Registro técnico da sessão</h4><form class="bcg-form bcg-form-grid" data-treatment-draft-form><label class="bcg-field-wide">Queixa / condição do dia<textarea class="bcg-input" name="queixa_dia" rows="2"${readonly}>${escapeHtml(treatment.queixa_dia || '')}</textarea></label><label class="bcg-field-wide">Objetivo da sessão<textarea class="bcg-input" name="objetivo" rows="2" required${readonly}>${escapeHtml(treatment.objetivo || '')}</textarea></label><label>Área / região<input class="bcg-input" name="regiao" value="${escapeHtml(treatment.regiao || '')}" required${readonly}></label><label class="bcg-field-wide">Avaliação profissional<textarea class="bcg-input" name="avaliacao_profissional" rows="2"${readonly}>${escapeHtml(treatment.avaliacao_profissional || '')}</textarea></label>${renderSpecificFields(treatment)}${startingAt ? `<label>Valor final da sessão<input class="bcg-input" type="number" step="0.01" min="0.01" name="final_price" value="${escapeHtml(treatment.final_price ?? '')}" required${readonly}></label>` : ''}<label class="bcg-field-wide">Resposta imediata<textarea class="bcg-input" name="resposta_imediata" rows="2"${readonly}>${escapeHtml(treatment.resposta_imediata || '')}</textarea></label><label class="bcg-field-wide">Orientações<textarea class="bcg-input" name="orientacoes" rows="2"${readonly}>${escapeHtml(treatment.orientacoes || '')}</textarea></label><label class="bcg-field-wide">Retorno / evolução<textarea class="bcg-input" name="retorno" rows="2"${readonly}>${escapeHtml(treatment.retorno || '')}</textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-small-button" type="submit"${readonly}>Salvar ficha</button><span class="bcg-status" data-treatment-status></span></div></form></section><div data-treatment-6d-slot>${renderTreatment6dCards({treatment})}</div>${renderTreatmentReport({treatment,report})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FINALIZAR</p><h4>Fluxo do atendimento</h4>${status === 'em_atendimento' ? renderFinalizationGates(finalizationReasons) : ''}<div class="bcg-form-actions">${status === 'rascunho' ? '<button type="button" class="bcg-small-button" data-treatment-ready>Verificar e deixar pronto</button>' : ''}${status === 'pronto_para_iniciar' ? '<button type="button" class="bcg-button" data-treatment-start>Iniciar atendimento</button>' : ''}${status === 'em_atendimento' && !treatment.pending_document_id ? `<button type="button" class="bcg-button" data-treatment-finalize${finalizeDisabled}>Preparar finalização</button>` : ''}${status === 'finalizado' ? '<span class="bcg-status" data-kind="success">Atendimento finalizado e versionado.</span>' : ''}<button type="button" class="bcg-small-button" data-treatment-close>Voltar ao histórico</button></div></section>${renderFinalSignature(treatment,finalSignatures)}</section>`;
+  return `<section class="bcg-treatment-wizard" data-treatment-wizard="clinical" data-treatment-id="${escapeHtml(treatment.id || '')}"><div class="bcg-treatment-head"><div><p class="bcg-eyebrow">ATENDIMENTO CLÍNICO</p><h3>${escapeHtml(treatment.procedure_version?.nome || 'Procedimento')}</h3></div><span class="bcg-chip">${escapeHtml(STATUS_LABELS[status] || status)}</span></div>${renderAppointmentResolution(treatment,appointmentOptions)}${renderTreatmentGateChecklist(treatment.gate_reasons || [])}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">SAÚDE HOJE</p><h4>Houve mudança desde a última avaliação?</h4><form class="bcg-form" data-treatment-health-form><label><input type="radio" name="changed" value="false" required> Não</label><label><input type="radio" name="changed" value="true" required> Sim</label><label class="bcg-field-wide">Se sim, descreva<textarea class="bcg-input" name="details" rows="2"></textarea></label><button class="bcg-small-button" type="submit"${readonly}>Confirmar saúde hoje</button></form></section><section class="bcg-treatment-stage"><p class="bcg-eyebrow">ALERTAS CLÍNICOS</p><h4>Revisão antes do procedimento</h4><p class="bcg-muted">O sistema copia os alertas ativos do prontuário no momento da confirmação. Mudança de saúde não é contraindicação automática: exige avaliação profissional.</p><button type="button" class="bcg-small-button" data-treatment-alerts-confirm${readonly}>Confirmar revisão dos alertas</button></section>${renderConsentSection({consent,signatures:consentSignatures,clientRecord,externalConsent,pendingExternalConsent})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FICHA DO ATENDIMENTO</p><h4>Registro técnico da sessão</h4><form class="bcg-form bcg-form-grid" data-treatment-draft-form><label class="bcg-field-wide">Queixa / condição do dia<textarea class="bcg-input" name="queixa_dia" rows="2"${readonly}>${escapeHtml(treatment.queixa_dia || '')}</textarea></label><label class="bcg-field-wide">Objetivo da sessão<textarea class="bcg-input" name="objetivo" rows="2" required${readonly}>${escapeHtml(treatment.objetivo || '')}</textarea></label><label>Área / região<input class="bcg-input" name="regiao" value="${escapeHtml(treatment.regiao || '')}" required${readonly}></label><label class="bcg-field-wide">Avaliação profissional<textarea class="bcg-input" name="avaliacao_profissional" rows="2"${readonly}>${escapeHtml(treatment.avaliacao_profissional || '')}</textarea></label>${renderSpecificFields(treatment)}${startingAt ? `<label>Valor da sessão <span class="bcg-optional">opcional</span><input class="bcg-input" type="number" step="0.01" min="0" name="final_price" value="${escapeHtml(treatment.final_price ?? '')}"${readonly}><small>0 para sessão sem cobrança; vazio mantém o valor a definir pela administração.</small></label>` : ''}<label class="bcg-field-wide">Resposta imediata<textarea class="bcg-input" name="resposta_imediata" rows="2"${readonly}>${escapeHtml(treatment.resposta_imediata || '')}</textarea></label><label class="bcg-field-wide">Orientações<textarea class="bcg-input" name="orientacoes" rows="2"${readonly}>${escapeHtml(treatment.orientacoes || '')}</textarea></label><label class="bcg-field-wide">Retorno / evolução<textarea class="bcg-input" name="retorno" rows="2"${readonly}>${escapeHtml(treatment.retorno || '')}</textarea></label><div class="bcg-form-actions bcg-field-wide"><button class="bcg-small-button" type="submit"${readonly}>Salvar ficha</button><span class="bcg-status" data-treatment-status></span></div></form></section><div data-treatment-6d-slot>${renderTreatment6dCards({treatment})}</div>${renderTreatmentReport({treatment,report})}<section class="bcg-treatment-stage"><p class="bcg-eyebrow">FINALIZAR</p><h4>Fluxo do atendimento</h4>${status === 'em_atendimento' ? renderFinalizationGates(finalizationReasons) : ''}<div class="bcg-form-actions">${status === 'rascunho' ? '<button type="button" class="bcg-small-button" data-treatment-ready>Verificar e deixar pronto</button>' : ''}${status === 'pronto_para_iniciar' ? '<button type="button" class="bcg-button" data-treatment-start>Iniciar atendimento</button>' : ''}${status === 'em_atendimento' && !treatment.pending_document_id ? `<button type="button" class="bcg-button" data-treatment-finalize${finalizeDisabled}>Preparar finalização</button>` : ''}${status === 'finalizado' ? '<span class="bcg-status" data-kind="success">Atendimento finalizado e versionado.</span>' : ''}<button type="button" class="bcg-small-button" data-treatment-close>Voltar ao histórico</button></div></section>${renderFinalSignature(treatment,finalSignatures)}</section>`;
 }
 
 export function renderTreatmentWizard(options = {}) {
@@ -253,6 +254,8 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
   let selectedComponentKeys = [];
   let pendingAppointmentId = null;
   let phase6dController = null;
+  let receiptPanel = null;
+  const appointmentStarts = new Map();
 
   const folder = () => root.closest?.('[data-client-folder]') || root;
   const panel = () => root.querySelector?.('[data-treatment-panel]') || root;
@@ -301,6 +304,11 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     const appointmentOptions = activeTreatment.agendamento_id || activeTreatment.can_resolve_appointment !== true ? [] : await listTreatmentAppointmentOptions({client,treatmentId:id});
     const pendingExternalConsent = externalConsent ? null : (folder()?.__bcPendingExternalConsent || null);
     workspace().innerHTML = renderTreatmentWizard({ step:'clinical', appointmentOptions, treatment:activeTreatment, report, consent, consentSignatures, finalSignatures, clientRecord:clientRecord(), externalConsent, pendingExternalConsent });
+    receiptPanel?.destroy();receiptPanel=null;
+    if(activeTreatment.status==='finalizado'&&activeTreatment.agendamento_id){
+      const host=root.ownerDocument.createElement('section');host.className='bcg-treatment-stage bcg-finance-current';workspace().append(host);
+      receiptPanel=await mountAppointmentReceipt({client,root:host,appointmentId:activeTreatment.agendamento_id,onChanged:()=>{const doc=root.ownerDocument;const EventCtor=doc.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)doc.dispatchEvent(new EventCtor('bc:finance-changed'));}});
+    }
     mountPads();
     await phase6dController?.loadTreatment(activeTreatment);
   }
@@ -318,6 +326,26 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     selectedProcedureId = '';
     selectedComponentKeys = [];
     workspace().innerHTML = renderTreatmentWizard({ step:'procedure', procedures, appointmentId:pendingAppointmentId });
+  }
+
+  async function startAppointment(appointmentId,procedureId){
+    if(appointmentStarts.has(appointmentId))return appointmentStarts.get(appointmentId);
+    const run=(async()=>{
+      const prior=treatments.find(t=>t.agendamento_id===appointmentId);
+      if(prior){await openTreatment(prior.id);return prior.id;}
+      const procedure=selectedProcedure(procedures,procedureId);
+      if(!procedure||procedure.can_execute!==true)throw Error('Procedimento não disponível para esta profissional.');
+      if(dynamicOptions(procedure).length){
+        pendingAppointmentId=appointmentId;selectedProcedureId=procedureId;selectedComponentKeys=[];
+        workspace().innerHTML=renderTreatmentWizard({step:'procedure',procedures,appointmentId,selectedProcedureId});return null;
+      }
+      let id;
+      try{id=await createTreatment({client,clienteId:clientRecord().id,procedureId,appointmentId});}
+      catch(error){await loadData();id=treatments.find(t=>t.agendamento_id===appointmentId)?.id;if(!id)throw error;}
+      await loadData();await openTreatment(id);return id;
+    })();
+    appointmentStarts.set(appointmentId,run);
+    try{return await run;}finally{if(appointmentStarts.get(appointmentId)===run)appointmentStarts.delete(appointmentId);}
   }
 
   root.addEventListener('change', (event) => {
@@ -477,6 +505,7 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
   return {
     async hydrate(){ await loadData(); return {treatments,procedures}; },
     showProcedureStep,
+    startAppointment,
     openTreatment,
   };
 }

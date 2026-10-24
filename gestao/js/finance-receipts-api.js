@@ -56,12 +56,20 @@ export async function registerReceiptForAppointment({client,appointmentId,reques
   const {data,error}=await client.rpc('bc_recebimento_registrar_agendamento_v2',{
     p_agendamento_id:cleanRequired(appointmentId,'Agendamento'),
     p_valor:positiveMoney(valor),
-    p_forma_pagamento:cleanRequired(formaPagamento,'Forma de pagamento'),
+    p_forma_pagamento:cleanOptional(formaPagamento)||'nao_informado',
     p_recebido_at:recebidoAt?String(recebidoAt).trim():null,
     p_observacao:cleanOptional(observacao),
     p_request_key:cleanRequired(requestKey,'Chave da tentativa'),
   });
   throwIfError(error,'Não foi possível registrar o recebimento.');
+  return data;
+}
+
+export async function getAppointmentFinancialSummary({client,appointmentId}){
+  ensureClient(client);
+  const {data,error}=await client.rpc('bc_finance_appointment_summary',{p_appointment_id:cleanRequired(appointmentId,'Agendamento')});
+  throwIfError(error,'Não foi possível conferir o saldo do atendimento.');
+  if(!data||typeof data!=='object')throw Error('Não foi possível conferir o saldo do atendimento.');
   return data;
 }
 

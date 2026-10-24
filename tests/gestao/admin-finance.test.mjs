@@ -9,20 +9,21 @@ async function load() { return Promise.all([readFile(htmlUrl,'utf8'), readFile(s
 
 test('admin finance exposes filters, consolidated indicators and all phase 5 controls', async () => {
   const [html, source] = await load();
-  for (const id of ['adminFinanceProfessional','adminFinanceFrom','adminFinanceTo','adminFinanceTotalReceived','adminFinanceTotalPending','adminCommissionForm','adminBookCloseForm','adminBookRecalcForm','adminPayoutCycleForm','adminPayoutCreateForm','adminFinanceReceipts','adminFinanceBooks','adminFinancePayouts']) {
+  for (const id of ['adminFinanceFrom','adminFinanceTo','adminFinanceTotalReceived','adminFinanceTotalExpense','adminFinanceTotalBalance','adminCommissionForm','adminExpenseForm','adminFinancePending','adminFinancePayments','adminFinanceRows']) {
     assert.match(html, new RegExp(`id=["']${id}["']`, 'i'));
   }
-  for (const action of ['setCommission','closeBook','reopenBook','recalculateBooks','reverseReceipt','setPayoutCycle','createPayout','settlePayout','reversePayout']) {
+  for (const action of ['applyCommission','payCommission','createExpense','reverseFinance','downloadFinanceReport']) {
     assert.match(source, new RegExp(action));
   }
 });
 
-test('admin finance receives authenticated admin profile and agenda staff map', async () => {
+test('admin finance usa perfil admin e nomes retornados pelo servidor', async () => {
   const [html, source] = await load();
-  assert.match(source, /initAdminFinance\s*\(\s*\{[\s\S]*profile[\s\S]*staffMap/);
-  assert.match(source, /profile\.role\s*!==\s*['"]admin['"]/);
-  assert.match(source, /staffMap\s+instanceof\s+Map/);
-  assert.match(html, /initAdminFinance\s*\(\s*\{\s*client\s*,\s*profile\s*,\s*root\s*:\s*document\s*,\s*staffMap\s*:\s*agenda\.getStaffMap\(\)/);
+  assert.match(source, /initAdminFinance[\s\S]*profile/);
+  assert.match(source, /profile.role!=='admin'/);
+  assert.match(source, /professional_name/);
+  assert.match(html, /requireRole\('admin'/);
+
 });
 
 test('finance panel loads its own stylesheet and audit financial entities remain readonly', async () => {

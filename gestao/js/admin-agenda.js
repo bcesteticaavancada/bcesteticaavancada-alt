@@ -1,11 +1,8 @@
-import {createReceiptAttempt,receiptFailureMessage,receiptStorageMessage} from './receipt-attempt.js';
-import { registerReceiptForAppointment } from './finance-receipts-api.js';
+import {mountAppointmentReceipt} from './finance-receipt-panel.js';
 import { linkPublicAppointment } from './schedule-api.js';
 import { agendaOriginKind } from './agenda-origin.js';
 import { listAdminAppointments,listEligibleProcedures,listStaffDirectory,createAppointment,updateAppointment,setAppointmentStatus } from './agenda-api.js';
 import { listClients } from './clientes-api.js';
-import { initProcedurePanel } from './procedure-panel.js';
-import { initAdminSchedule } from './admin-schedule.js';
 import { CLINIC_TIME_ZONE,clinicDayRange,clinicLocalDateTimeToIso,formatClinicDateTime,statusLabel } from './agenda-format.js';
 
 export function escapeHtml(value){return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
@@ -30,8 +27,8 @@ export function renderAdminAppointments(appointments=[],staffMap=new Map()){
     const disabled=status==='atendido'?' disabled':'';
     const detail=[procedureName,staffName,phone].filter(Boolean).join(' • ');
     const chips=`<span class="bcg-chip ${statusClass(status)}">${escapeHtml(statusLabel(status))}</span>${isSite?'<span class="bcg-chip">Site</span>':''}${pendingSite?'<span class="bcg-chip bcg-status-pending">Cadastro pendente</span>':''}`;
-    const receiptForm=status==='atendido'&&appointment.cliente_id?`<details class="bcg-field-wide"><summary>Registrar recebimento</summary><form class="bcg-form bcg-form-grid" data-admin-receipt-form="${escapeHtml(appointment.id)}"><label>Valor recebido<input class="bcg-input" name="valor" type="number" min="0.01" step="0.01" required></label><label>Forma de pagamento<select class="bcg-input" name="forma" required><option value="">Selecione</option><option value="pix">Pix</option><option value="dinheiro">Dinheiro</option><option value="cartao_credito">Cartão de crédito</option><option value="cartao_debito">Cartão de débito</option></select></label><button type="submit" class="bcg-small-button">Registrar recebimento</button><span class="bcg-status" data-receipt-status></span></form></details>`:'';
-    return `<article class="bcg-appointment-card" data-appointment-id="${escapeHtml(appointment.id)}"><div class="bcg-appointment-time">${escapeHtml((formatClinicDateTime(appointment.inicio).match(/\b\d{2}:\d{2}\b/)||[formatClinicDateTime(appointment.inicio)])[0])}</div><div class="bcg-appointment-main"><strong>${escapeHtml(clientName)}</strong><span>${escapeHtml(detail)}</span></div><div class="bcg-appointment-chips">${chips}</div><div class="bcg-actions"><button type="button" class="bcg-small-button" data-admin-edit="${escapeHtml(appointment.id)}"${disabled}>Editar</button><button type="button" class="bcg-small-button" data-admin-status="agendado"${disabled}>Agendado</button><button type="button" class="bcg-small-button" data-admin-status="atendido"${disabled}>Atendido</button><button type="button" class="bcg-small-button" data-admin-status="faltou"${disabled}>Faltou</button><button type="button" class="bcg-small-button" data-admin-status="cancelado"${disabled}>Cancelar</button></div>${receiptForm}</article>`;
+    const receiptForm=status==='atendido'&&appointment.cliente_id?`<details class="bcg-field-wide" data-agenda-receipt="${escapeHtml(appointment.id)}"><summary>Recebimento da cliente</summary><div data-agenda-receipt-host></div></details>`:'';
+    return `<article class="bcg-appointment-card" data-appointment-id="${escapeHtml(appointment.id)}" data-appointment-status="${escapeHtml(status)}"><div class="bcg-appointment-time">${escapeHtml((formatClinicDateTime(appointment.inicio).match(/\b\d{2}:\d{2}\b/)||[formatClinicDateTime(appointment.inicio)])[0])}</div><div class="bcg-appointment-main"><strong>${escapeHtml(clientName)}</strong><span>${escapeHtml(detail)}</span></div><div class="bcg-appointment-chips">${chips}</div><div class="bcg-actions"><button type="button" class="bcg-small-button" data-admin-edit="${escapeHtml(appointment.id)}"${disabled}>Editar</button><button type="button" class="bcg-small-button" data-admin-status="agendado"${disabled}>Agendado</button><button type="button" class="bcg-small-button" data-admin-status="atendido"${disabled}>Atendido</button><button type="button" class="bcg-small-button" data-admin-status="faltou"${disabled}>Faltou</button><button type="button" class="bcg-small-button" data-admin-status="cancelado"${disabled}>Cancelar</button></div>${receiptForm}</article>`;
   }).join('')}</div>`;
 }
 function setMessage(element,message,kind=''){if(!element)return;element.textContent=message||'';element.dataset.kind=kind;}
@@ -48,7 +45,7 @@ export async function initAdminAgenda({client,profile,root=document}){
   async function refreshCollaborators(){const priorFilter=professionalFilter.value;staff=await listStaffDirectory({client});collaboratorSelect.innerHTML=renderProfessionalOptions(staff);professionalFilter.innerHTML=renderProfessionalOptions(staff,{includeAll:true,selected:priorFilter});return staff;}
   function staffMap(){return new Map(staff.map((item)=>[item.user_id,item.display_name]));}
   function staffDirectory(){return staff.map((item)=>({...item}));}
-  function renderCurrentAgenda(){const filtered=filterAdminAppointments(allAppointments,professionalFilter.value);agendaList.innerHTML=renderAdminAppointments(filtered,staffMap());setMessage(agendaStatus,`${filtered.length} atendimento(s) nesta visão.`,'success');return filtered;}
+  function renderCurrentAgenda(){agendaList.querySelectorAll('[data-agenda-receipt-host]').forEach(host=>host.__bcReceiptPanel?.destroy());const filtered=filterAdminAppointments(allAppointments,professionalFilter.value);agendaList.innerHTML=renderAdminAppointments(filtered,staffMap());setMessage(agendaStatus,`${filtered.length} atendimento(s) nesta visão.`,'success');return filtered;}
   async function refreshAgenda({canApply=()=>true,quiet=false}={}){const version=++refreshVersion;if(!quiet){setMessage(agendaStatus,'Carregando agenda…');agendaList.innerHTML='<div class="bcg-empty">Carregando agenda…</div>';}try{const rows=await listAdminAppointments({client,...dateRangeFromInput(agendaDate.value),origin:originFilter?.value||'all'});if(version!==refreshVersion || !canApply())return [];allAppointments=rows;appointmentMap=new Map(allAppointments.map((item)=>[item.id,item]));return renderCurrentAgenda();}catch(error){if(version!==refreshVersion || !canApply())return [];agendaList.innerHTML='<div class="bcg-empty">Não foi possível carregar a agenda.</div>';setMessage(agendaStatus,error?.message||'Erro ao carregar agenda.','error');throw error;}}
   async function openEdit(id){const version=++editVersion;const appointment=appointmentMap.get(id);if(!appointment)throw new Error('Agendamento não encontrado.');editForm.hidden=true;const eligible=await listEligibleProcedures({client,professionalUserId:appointment.colaboradora_user_id});if(version!==editVersion)return null;editForm.dataset.appointmentId=appointment.id;editProfessional.textContent=staffMap().get(appointment.colaboradora_user_id)||'Profissional';editProcedure.innerHTML=renderNamedOptions(eligible,appointment.procedimento_id,'Selecione o procedimento');editStart.value=localInputValue(appointment.inicio);editEnd.value=localInputValue(appointment.fim);editNote.value=appointment.observacao_administrativa||'';const linkField=el('adminPublicBookingField');if(linkField){linkField.hidden=!(agendaOriginKind(appointment)==='site'&&!appointment.cliente_id);el('adminPublicBookingClient').innerHTML=renderNamedOptions(clients,'','Selecione o cadastro correto');}editForm.hidden=false;editForm.scrollIntoView?.({behavior:'smooth',block:'nearest'});return appointment;}
   el('adminPublicBookingLink')?.addEventListener('click',async(event)=>{
@@ -63,22 +60,15 @@ export async function initAdminAgenda({client,profile,root=document}){
   appointmentForm.addEventListener('submit',async(event)=>{event.preventDefault();const start=el('appointmentStart').value;const end=el('appointmentEnd').value;try{await withSubmitState(appointmentForm,el('appointmentFormStatus'),()=>createAppointment({client,clienteId:clientSelect.value,colaboradoraUserId:collaboratorSelect.value,procedimentoId:procedureSelect.value,inicioIso:clinicLocalDateTimeToIso(start),fimIso:end?clinicLocalDateTimeToIso(end):null,observacao:el('appointmentNote').value}));appointmentForm.reset();await refreshProcedures();await refreshAgenda();}catch{}});
   editForm.addEventListener('submit',async(event)=>{event.preventDefault();try{await withSubmitState(editForm,el('adminAppointmentEditStatus'),()=>updateAppointment({client,appointmentId:editForm.dataset.appointmentId,procedimentoId:editProcedure.value,inicioIso:clinicLocalDateTimeToIso(editStart.value),fimIso:editEnd.value?clinicLocalDateTimeToIso(editEnd.value):null,observacao:editNote.value}));editForm.hidden=true;await refreshAgenda();}catch{}});el('adminAppointmentEditCancel')?.addEventListener('click',()=>{editVersion++;editForm.hidden=true;});
   agendaList.addEventListener('click',async(event)=>{const editButton=event.target.closest?.('[data-admin-edit]');if(editButton){try{await openEdit(editButton.dataset.adminEdit);}catch(error){setMessage(agendaStatus,error?.message||'Não foi possível editar.','error');}return;}const button=event.target.closest?.('[data-admin-status]');if(!button)return;const id=button.closest('[data-appointment-id]')?.dataset?.appointmentId;if(!id)return;button.disabled=true;try{await setAppointmentStatus({client,appointmentId:id,status:button.dataset.adminStatus});await refreshAgenda();}catch(error){setMessage(agendaStatus,error?.message||'Não foi possível atualizar o status.','error');button.disabled=false;}});
-  let receiptStorage;try{receiptStorage=root.defaultView?.sessionStorage;}catch{}
-  const receiptAttempts=createReceiptAttempt({storage:receiptStorage});
-  agendaList.addEventListener('submit',async(event)=>{
-    const form=event.target.closest?.('[data-admin-receipt-form]');if(!form)return;event.preventDefault();
-    const button=form.querySelector('[type="submit"]');if(button.disabled)return;button.disabled=true;
-    const context=`${profile.user_id}:${form.dataset.adminReceiptForm}`;let requestKey;
-    try{
-      const values={valor:Number(form.querySelector('[name="valor"]').value),formaPagamento:form.querySelector('[name="forma"]').value.trim(),recebidoAt:null,observacao:null};
-      requestKey=await receiptAttempts.get(context,values);
-      await registerReceiptForAppointment({client,appointmentId:form.dataset.adminReceiptForm,requestKey,...values});
-      const released=receiptAttempts.complete(context,requestKey);form.reset();setMessage(form.querySelector('[data-receipt-status]'),released?'Recebimento confirmado.':receiptStorageMessage,'success');
+  agendaList.addEventListener('toggle',async(event)=>{
+    const details=event.target.closest?.('[data-agenda-receipt]');
+    if(!details?.open||details.dataset.loading||details.querySelector('[data-agenda-receipt-host]').__bcReceiptPanel)return;
+    details.dataset.loading='true';
+    const host=details.querySelector('[data-agenda-receipt-host]');
+    const runtime=await mountAppointmentReceipt({client,root:host,appointmentId:details.dataset.agendaReceipt,onChanged:()=>{
       const EventCtor=root.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)root.dispatchEvent(new EventCtor('bc:finance-changed'));
-    }catch(error){if(requestKey)receiptAttempts.fail(context,requestKey,error);setMessage(form.querySelector('[data-receipt-status]'),receiptFailureMessage(error,requestKey),'error');}
-    finally{button.disabled=false;}
-  });
-  const procedurePanel=await initProcedurePanel({client,profile,root});
-  const schedulePanel=await initAdminSchedule({client,profile,root,staffProvider:staffDirectory});
-  return {openEdit,refreshAgenda,refreshClients,refreshProcedures,refreshCollaborators,getStaffMap:staffMap,getStaffDirectory:staffDirectory,procedurePanel,schedulePanel,showMyAgenda:()=>{professionalFilter.value=profile.user_id;return renderCurrentAgenda();}};
+    }});
+    if(!agendaList.contains(host))runtime.destroy();delete details.dataset.loading;
+  },true);
+  return {openEdit,refreshAgenda,refreshClients,refreshProcedures,refreshCollaborators,getStaffMap:staffMap,getStaffDirectory:staffDirectory,showMyAgenda:()=>{professionalFilter.value=profile.user_id;return renderCurrentAgenda();}};
 }

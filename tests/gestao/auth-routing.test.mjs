@@ -165,6 +165,8 @@ test('login and role pages are wired to real authentication without hardcoded st
   assert.match(colaborador, /id=["']gestaoApp["'][^>]*hidden/i);
   assert.match(colaborador, /id=["']logoutBtn["']/);
   assert.match(colaborador, /id=["']financeiro["']/i);
-  assert.match(colaborador, /colaborador-finance\.js/i);
+  assert.match(colaborador, /dashboard-boot\.js/i);
+  const boot=fs.readFileSync(path.join(root,'gestao/js/dashboard-boot.js'),'utf8');
+  assert.match(boot,/admin\?initAdminFinance:initCollaboratorFinance/);
   assert.doesNotMatch(colaborador, /service_role|secret|sk_[a-z0-9]/i);
 });

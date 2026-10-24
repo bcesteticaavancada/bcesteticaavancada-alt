@@ -1,39 +1,4 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-
-const htmlUrl = new URL('../../gestao/colaborador/index.html', import.meta.url);
-const sourceUrl = new URL('../../gestao/js/colaborador-finance.js', import.meta.url);
-
-async function load() {
-  return Promise.all([readFile(htmlUrl, 'utf8'), readFile(sourceUrl, 'utf8')]);
-}
-
-test('Meu financeiro mostra Produção recebida, A receber e Pago sem comissão/percentual', async () => {
-  const [html, source] = await load();
-  assert.match(html, />Meu financeiro</i);
-  assert.match(html, /Produção recebida/i);
-  assert.match(html, />A receber</i);
-  assert.match(html, />Pago</i);
-  assert.match(html, /id=["']collaboratorFinanceReceipts["']/);
-  assert.match(html, /id=["']collaboratorFinanceBooks["']/);
-  assert.match(html, /id=["']collaboratorFinancePayouts["']/);
-  assert.doesNotMatch(html, /percentual|comissão/i);
-  assert.doesNotMatch(source, /percentual|comiss[aã]o/i);
-});
-
-test('registro de recebimento usa o atendimento atualmente aberto na agenda', async () => {
-  const [html, source] = await load();
-  assert.match(html, /id=["']currentAppointmentReceiptForm["']/);
-  assert.match(source, /getCurrentAppointment/);
-  assert.match(source, /const\s+appointment\s*=\s*getCurrentAppointment\(\)/);
-  assert.match(source, /appointmentId\s*:\s*appointment\.id/);
-  assert.doesNotMatch(source, /listOwnAttendances/);
-});
-
-test('inicialização financeira recebe getCurrentAppointment da agenda e expõe refreshReceipts', async () => {
-  const [html, source] = await load();
-  assert.match(html, /getCurrentAppointment\s*:\s*agenda\.getCurrentAppointment/);
-  assert.match(source, /export\s+async\s+function\s+initCollaboratorFinance\s*\(\s*\{[\s\S]*getCurrentAppointment/);
-  assert.match(source, /return\s*\{[\s\S]*refresh[\s\S]*refreshReceipts[\s\S]*\}/);
-});
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
+const read=name=>readFile(new URL('../../'+name,import.meta.url),'utf8');
+test('Minha comissão mostra pendente e pago sem percentual interno',async()=>{const [html,js]=await Promise.all([read('gestao/colaborador/index.html'),read('gestao/js/colaborador-finance.js')]);assert.match(html,/>Minha comissão</);for(const id of ['collaboratorTotalPending','collaboratorTotalPaid','collaboratorFinanceItems','collaboratorFinancePayments'])assert.ok(html.includes(`id="${id}"`));assert.doesNotMatch(html,/name="percent"|collaboratorFinanceBooks|collaboratorFinancePayouts/);assert.match(js,/getOwnFinance/);assert.doesNotMatch(js,/rate_snapshot|percentual|listAdmin|listOwnBooks/);});
+test('recebimento contextual pertence à agenda, independentemente do resumo individual',async()=>{const [html,agenda,finance]=await Promise.all([read('gestao/colaborador/index.html'),read('gestao/js/colaborador-agenda.js'),read('gestao/js/colaborador-finance.js')]);assert.match(html,/id="currentAppointmentReceiptHost"/);assert.match(agenda,/canOperateClinicalAppointment\(appointment\)/);assert.match(agenda,/mountAppointmentReceipt/);assert.match(agenda,/appointmentId:appointment.id/);assert.doesNotMatch(finance,/registerReceipt|listOwnAttendances|currentAppointmentReceiptForm/);});

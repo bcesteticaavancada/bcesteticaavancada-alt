@@ -13,7 +13,7 @@ test('colaboradora chefe alterna para visão da equipe sem trocar o papel de log
   const source = await read(agendaUrl);
   assert.match(source, /pode_gerenciar_agendas/);
   assert.match(source, /listAdminAppointments/);
-  assert.match(source, /initAdminSchedule/);
+  assert.match(await read(new URL('../../gestao/js/dashboard-boot.js',import.meta.url)), /manager\?initAdminSchedule/);
   assert.match(source, /colaboradora_user_id/);
 });
 

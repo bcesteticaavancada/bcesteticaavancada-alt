@@ -17,6 +17,8 @@ on:
       - 'tests/site/**'
       - 'scripts/test-agenda-browser.mjs'
       - 'scripts/test-client-registration-browser.mjs'
+      - 'scripts/test-simple-dashboard-browser.mjs'
+      - 'scripts/test-public-navigation-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -34,6 +36,8 @@ on:
       - 'tests/site/**'
       - 'scripts/test-agenda-browser.mjs'
       - 'scripts/test-client-registration-browser.mjs'
+      - 'scripts/test-simple-dashboard-browser.mjs'
+      - 'scripts/test-public-navigation-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -64,12 +68,22 @@ jobs:
         run: node scripts/test-agenda-browser.mjs
       - name: Basic client registration browser tests
         run: node scripts/test-client-registration-browser.mjs
+      - name: Simple dashboard phone and tablet browser tests
+        run: node scripts/test-simple-dashboard-browser.mjs
+      - name: Public navigation phone and tablet browser tests
+        run: node scripts/test-public-navigation-browser.mjs
       - name: Upload agenda browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agenda-browser-screenshots
           path: test-results/agenda/
+      - name: Upload public navigation screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-navigation-screenshots
+          path: test-results/public-navigation/
       - name: Public Agenda Edge Function check
         run: deno check --node-modules-dir=auto supabase/functions/public-agenda/index.ts
       - name: Public Agenda HTTP boundary tests

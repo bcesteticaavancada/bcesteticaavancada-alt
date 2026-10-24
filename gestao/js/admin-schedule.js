@@ -163,9 +163,9 @@ function renderInactivations(items = []) {
   return `<div class="bcg-compact-list">${active.map((item) => `<div><strong>${escapeHtml(item.starts_on)}${item.planned_ends_on ? ` → ${escapeHtml(item.planned_ends_on)}` : ' → sem data final'}</strong><br><span>${escapeHtml(REASONS.find(([value]) => value === item.reason)?.[1] || item.reason || 'Motivo interno')}${item.internal_note ? ` • ${escapeHtml(item.internal_note)}` : ''}</span><br><button type="button" class="bcg-small-button" data-reactivate-schedule="${escapeHtml(item.id)}">Reativar agenda agora</button></div>`).join('')}</div>`;
 }
 
-export async function initAdminSchedule({ client, profile, root = document, staffProvider }) {
+export async function initAdminSchedule({ client, profile, root = document, areaId = 'agenda', staffProvider }) {
   if (!client || !profile?.user_id || !root?.getElementById) throw new Error('Contexto da disponibilidade administrativa inválido.');
-  const agendaRoot = root.getElementById('agenda');
+  const agendaRoot = root.getElementById(areaId);
   if (!agendaRoot) throw new Error('Área de agenda administrativa não encontrada.');
   ensureStyles(root);
   if (!root.getElementById('adminScheduleRoot')) agendaRoot.insertAdjacentHTML('beforeend', `<div class="bcg-divider"></div>${renderAdminSchedulePanel()}`);

@@ -39,7 +39,7 @@ function hasDynamicComponentOptions(schema) {
 }
 
 export function normalizeProcedureDraft(input = {}) {
-  const basePrice = parseMoney(input.base_price);
+  const basePrice = input.base_price===null||input.base_price===undefined||cleanText(input.base_price)===''?null:parseMoney(input.base_price);
   const duration = parseDuration(input.suggested_duration);
   return {
     ...input,
@@ -66,8 +66,8 @@ export function validateProcedureDraft(input = {}) {
   if (!PRICE_MODES.has(draft.price_mode)) {
     errors.price_mode = 'Modo de preço inválido.';
   }
-  if (!Number.isFinite(draft.base_price) || draft.base_price <= 0) {
-    errors.base_price = 'Preço-base deve ser maior que zero.';
+  if (draft.base_price!==null&&(!Number.isFinite(draft.base_price)||draft.base_price<0||draft.base_price>=1e10||draft.base_price!==Number(draft.base_price.toFixed(2)))) {
+    errors.base_price = 'Informe valor válido em reais e centavos, zero para gratuito ou deixe a definir.';
   }
   if (draft.suggested_duration !== null
       && (!Number.isInteger(draft.suggested_duration) || draft.suggested_duration <= 0)) {
@@ -97,6 +97,8 @@ export function deriveConsentClass({ procedureVersion = {}, componentVersions = 
 }
 
 export function formatProcedurePrice(procedureVersion = {}) {
+  if(procedureVersion.base_price===null||procedureVersion.base_price===undefined)return 'Valor a definir';
+  if(Number(procedureVersion.base_price)===0)return 'Sem cobrança';
   const value = parseMoney(procedureVersion.base_price);
   if (!Number.isFinite(value)) return '';
   const formatted = new Intl.NumberFormat('pt-BR', {

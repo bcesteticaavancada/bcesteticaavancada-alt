@@ -20,12 +20,7 @@
   <aside id="gestaoMenu" class="bcg-menu-drawer" aria-hidden="true">
     <a class="bcg-menu-brand" href="../" aria-label="BC Gestão"><span class="bcg-brand-mark">BC</span><span>BC Gestão</span></a>
     <p class="bcg-eyebrow">NAVEGAÇÃO</p>
-    <nav class="bcg-menu-nav" aria-label="Navegação da colaboradora">
-      <a data-nav data-area-target="agenda" aria-current="page" href="#agenda">Agenda</a>
-      <a data-nav data-area-target="clientes" href="#clientes">Clientes</a>
-      <a data-nav data-area-target="financeiro" href="#financeiro">Financeiro</a>
-      <a href="../../instalar/">Instalar app</a>
-    </nav>
+    <nav class="bcg-menu-nav" aria-label="Navegação da gestão"><a data-nav data-area-target="agenda" aria-current="page" href="#agenda">Agenda</a><a data-nav data-area-target="clientes" href="#clientes">Clientes</a><a data-nav data-area-target="financeiro" href="#financeiro">Minha comissão</a><details data-menu-settings><summary>Configurações</summary><a data-nav data-area-target="disponibilidade" href="#disponibilidade">Disponibilidade e bloqueios</a><a id="procedureLibraryNav" data-nav data-area-target="procedimentos" href="#procedimentos" hidden>Procedimentos</a><a href="../../instalar/">Instalar app</a></details></nav>
     <div class="bcg-menu-note">A agenda pode incluir gestão da equipe quando autorizada. Ficha clínica e financeiro continuam restritos à profissional responsável.</div>
   </aside>
   <button id="menuBackdrop" class="bcg-menu-backdrop" type="button" aria-label="Fechar menu" hidden></button>
@@ -44,8 +39,8 @@
       <div class="bcg-section-head"><div><p class="bcg-eyebrow">AGENDA</p><h2>Atendimentos</h2></div><p id="collaboratorAgendaScopeText">Você pode criar ou alterar os seus próprios horários.</p></div>
       <div class="bcg-inline-filters"><label>Visão da agenda<select id="collaboratorAgendaOriginFilter" class="bcg-input"><option value="all">Geral</option><option value="site">Site</option><option value="internal">Interna</option></select></label><label>Data<input id="collaboratorAgendaDate" class="bcg-input" type="date"></label><label id="collaboratorAgendaProfessionalField" hidden>Profissional<select id="collaboratorAgendaProfessionalFilter" class="bcg-input"><option value="">Todas as profissionais</option></select></label></div><h3>Dia selecionado</h3><div id="todayAgendaList"><div class="bcg-empty">Carregando agenda…</div></div>
       <div class="bcg-divider"></div><h3>Próximos atendimentos</h3><div id="nextAgendaList"></div>
-      <div class="bcg-divider"></div><p class="bcg-eyebrow">NOVO AGENDAMENTO</p>
-      <form id="collaboratorAppointmentForm" class="bcg-form bcg-form-grid">
+      <div class="bcg-divider"></div>
+      <details class="bcg-quick-create"><summary class="bcg-button">Novo agendamento</summary><form id="collaboratorAppointmentForm" class="bcg-form bcg-form-grid">
         <label id="appointmentProfessionalField" hidden>Profissional<select id="appointmentProfessional" class="bcg-input"></select></label>
         <label>Cliente<select id="collaboratorAppointmentClient" class="bcg-input" required></select></label>
         <label>Procedimento<select id="collaboratorAppointmentProcedure" class="bcg-input" required></select></label>
@@ -53,54 +48,31 @@
         <label>Fim <span class="bcg-optional">opcional</span><input id="collaboratorAppointmentEnd" class="bcg-input" type="datetime-local"></label>
         <label class="bcg-field-wide">Observação administrativa <span class="bcg-optional">opcional</span><textarea id="collaboratorAppointmentNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
         <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Criar agendamento</button><span id="collaboratorAppointmentStatus" class="bcg-status"></span></div>
-      </form>
+      </form></details>
     </section>
 
     <section id="appointmentDetail" class="bcg-panel bcg-detail-panel" data-area-context="agenda" hidden>
       <div class="bcg-detail-toolbar"><p class="bcg-eyebrow">DETALHE DO ATENDIMENTO</p><button id="closeAppointmentDetail" type="button" class="bcg-small-button">Fechar</button></div>
       <div id="appointmentDetailContent"></div>
       <div class="bcg-detail-history"><p class="bcg-eyebrow">HISTÓRICO DA CLIENTE</p><h2>Atendimentos anteriores na BC</h2><div id="historyTimeline"></div></div>
-      <div id="attendanceFormSlot" class="bcg-detail-history" hidden>
-        <p class="bcg-eyebrow">REGISTRO DA SESSÃO</p><h2>Ficha do atendimento atual</h2>
-        <form id="attendanceForm" class="bcg-form bcg-form-grid" novalidate>
-          <label class="bcg-field bcg-field-wide">Queixa / objetivo da sessão<textarea class="bcg-textarea" name="queixa_objetivo" rows="3"></textarea></label>
-          <label class="bcg-field bcg-field-wide">Observações<textarea class="bcg-textarea" name="observacoes" rows="3"></textarea></label>
-          <label class="bcg-field">Reações<textarea class="bcg-textarea" name="reacoes" rows="3"></textarea></label>
-          <label class="bcg-field">Intercorrências<textarea class="bcg-textarea" name="intercorrencias" rows="3"></textarea></label>
-          <label class="bcg-field">Feedback da cliente<textarea class="bcg-textarea" name="feedback_cliente" rows="3"></textarea></label>
-          <label class="bcg-field">Orientações<textarea class="bcg-textarea" name="orientacoes" rows="3"></textarea></label>
-          <label class="bcg-field bcg-field-wide">Recomendação para a próxima sessão<textarea class="bcg-textarea" name="recomendacao_proxima_sessao" rows="3"></textarea></label>
-          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar atendimento</button><p class="bcg-status" data-attendance-status></p></div>
-        </form>
-      </div>
-      <div class="bcg-detail-history bcg-finance-current">
-        <p class="bcg-eyebrow">RECEBIMENTO DO ATENDIMENTO ATUAL</p><h2>Registrar pagamento</h2>
-        <p class="bcg-muted">O lançamento será vinculado automaticamente ao atendimento que está aberto acima.</p>
-        <form id="currentAppointmentReceiptForm" class="bcg-form bcg-form-grid">
-          <label>Valor recebido<input id="currentAppointmentReceiptValue" class="bcg-input" type="number" min="0.01" step="0.01" inputmode="decimal" required></label>
-          <label>Forma de pagamento<select id="currentAppointmentReceiptMethod" class="bcg-input" required><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="cartao_credito">Cartão de crédito</option><option value="cartao_debito">Cartão de débito</option><option value="transferencia">Transferência</option><option value="outro">Outro</option></select></label>
-          <label>Recebido em <span class="bcg-optional">opcional</span><input id="currentAppointmentReceiptAt" class="bcg-input" type="datetime-local"></label>
-          <label>Observação <span class="bcg-optional">opcional</span><textarea id="currentAppointmentReceiptNote" class="bcg-input bcg-textarea" rows="2"></textarea></label>
-          <div class="bcg-form-actions bcg-field-wide"><button class="bcg-button" type="submit">Registrar recebimento</button><span id="currentAppointmentReceiptStatus" class="bcg-status"></span></div>
-        </form>
-      </div>
+      <div id="currentAppointmentReceiptHost" class="bcg-detail-history bcg-finance-current" hidden></div>
     </section>
 
     <section id="clientes" class="bcg-panel" data-area-panel hidden>
       <div class="bcg-section-head"><div><p class="bcg-eyebrow">CLIENTES DA CLÍNICA</p><h2>Cadastro e prontuário compartilhados</h2></div><label class="bcg-field bcg-field-compact">Buscar<input id="clientsSearch" class="bcg-input" type="search" placeholder="Nome, CPF ou telefone"></label></div>
       <div class="bcg-subgrid">
-        <article class="bcg-subpanel"><h3>Novo cliente</h3>
+        <details class="bcg-subpanel bcg-quick-create"><summary class="bcg-small-button">Novo cliente</summary>
           <form id="clientCreateForm" class="bcg-form">
             <p class="bcg-muted">Só nome completo e telefone são obrigatórios. Os demais dados podem ser preenchidos durante a avaliação.</p>
             <label>Nome completo<input class="bcg-input" name="nome" autocomplete="name" required></label>
             <label>Telefone<input class="bcg-input" name="telefone" type="tel" autocomplete="tel" required></label>
-            <label>CPF <span class="bcg-optional">opcional</span><input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off"></label>
+            <details data-client-optional><summary>Completar cadastro (opcional)</summary><label>CPF <span class="bcg-optional">opcional</span><input class="bcg-input" name="cpf" inputmode="numeric" autocomplete="off"></label>
             <label>Data de nascimento <span class="bcg-optional">opcional</span><input class="bcg-input" name="data_nascimento" type="date"><small id="clientAgePreview" class="bcg-muted">Idade calculada automaticamente</small></label>
             <label>E-mail <span class="bcg-optional">opcional</span><input class="bcg-input" name="email" type="email" autocomplete="email"></label>
-            <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Pode ser preenchido durante a avaliação de clientes menores de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset>
+            <fieldset id="clientGuardianFields" class="bcg-guardian-fields" hidden><legend>Responsável legal</legend><p class="bcg-muted">Pode ser preenchido durante a avaliação de clientes menores de 18 anos.</p><label>Nome do responsável<input class="bcg-input" name="responsavel_nome"></label><label>CPF do responsável<input class="bcg-input" name="responsavel_cpf" inputmode="numeric"></label><label>Parentesco / vínculo<input class="bcg-input" name="responsavel_parentesco"></label><label>Telefone do responsável<input class="bcg-input" name="responsavel_telefone" type="tel"></label></fieldset></details>
             <button class="bcg-button" type="submit">Cadastrar cliente</button><div id="clientCreateStatus" class="bcg-status" role="status" aria-live="polite"></div>
           </form>
-        </article>
+        </details>
         <article class="bcg-subpanel"><h3>Clientes</h3><div id="clientsList"></div></article>
       </div>
       <div class="bcg-divider"></div><div id="clientEditor"><div class="bcg-empty">Selecione um cliente para abrir a ficha.</div></div>
@@ -108,41 +80,25 @@
     </section>
 
     <section id="financeiro" class="bcg-panel" data-area-panel hidden>
-      <div class="bcg-section-head">
-        <div><p class="bcg-eyebrow">MEU FINANCEIRO</p><h2>Produção, valores e repasses</h2></div>
-        <div class="bcg-inline-filters"><label>De<input id="collaboratorFinanceFrom" class="bcg-input" type="date"></label><label>Até<input id="collaboratorFinanceTo" class="bcg-input" type="date"></label><button id="collaboratorFinanceRefresh" class="bcg-small-button" type="button">Atualizar</button></div>
-      </div>
-      <p class="bcg-muted">Aqui aparecem somente seus próprios valores. Regras internas de cálculo permanecem reservadas à administração.</p>
-      <div class="bcg-metric-grid">
-        <article class="bcg-metric"><span>Produção recebida</span><strong id="collaboratorTotalReceived">R$ 0,00</strong></article>
-        <article class="bcg-metric"><span>A receber</span><strong id="collaboratorTotalEarned">R$ 0,00</strong></article>
-        <article class="bcg-metric"><span>Pago</span><strong id="collaboratorTotalPaid">R$ 0,00</strong></article>
-      </div>
-      <p id="collaboratorFinanceStatus" class="bcg-status"></p>
-      <div class="bcg-subgrid">
-        <article class="bcg-subpanel"><p class="bcg-eyebrow">MOVIMENTOS</p><h3>Meus recebimentos</h3><div id="collaboratorFinanceReceipts"></div></article>
-        <article class="bcg-subpanel"><p class="bcg-eyebrow">LIVROS SEMANAIS</p><h3>Valores apurados</h3><div id="collaboratorFinanceBooks"></div></article>
-      </div>
-      <div class="bcg-divider"></div>
-      <article class="bcg-subpanel"><p class="bcg-eyebrow">REPASSES</p><h3>Histórico de pagamentos da clínica</h3><div id="collaboratorFinancePayouts"></div></article>
+      <div class="bcg-section-head"><div><p class="bcg-eyebrow">MINHA COMISSÃO</p><h2>Valores a receber e pagos</h2></div><div class="bcg-inline-filters"><label>De<input id="collaboratorFinanceFrom" class="bcg-input" type="date"></label><label>Até<input id="collaboratorFinanceTo" class="bcg-input" type="date"></label><button id="collaboratorFinanceRefresh" class="bcg-small-button" type="button">Atualizar</button></div></div>
+      <p id="collaboratorFinanceStatus" class="bcg-status" role="status"></p><div class="bcg-metric-grid"><article class="bcg-metric"><span>A receber (todos os pendentes)</span><strong id="collaboratorTotalPending">R$ 0,00</strong></article><article class="bcg-metric"><span>Pago no período</span><strong id="collaboratorTotalPaid">R$ 0,00</strong></article></div>
+      <h3>Minha comissão pendente</h3><div id="collaboratorFinanceItems"></div><details class="bcg-finance-details"><summary>Pagamentos no período</summary><div id="collaboratorFinancePayments"></div></details>
     </section>
 
-    <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
+    <section id="disponibilidade" class="bcg-panel" data-area-panel hidden><h2>Disponibilidade e bloqueios</h2></section><section id="procedimentos" class="bcg-panel" data-area-panel hidden></section>
+<footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
-import { requireRole, signOut, installSessionGuard } from '../js/auth.js';
-import { createBcGestaoClient } from '../js/supabase-client.js';
-import { initCollaboratorAgenda } from '../js/colaborador-agenda.js';
-import { initClientesPanel } from '../js/clientes-panel.js?v=20261018-basic';
-import { bindAttendanceForm } from '../js/atendimento-form.js';
-import { initCollaboratorFinance } from '../js/colaborador-finance.js';
-import {startLiveRefresh} from '../js/live-refresh.js';
-    import '../js/shell.js';
-const app=document.getElementById('gestaoApp'); const status=document.getElementById('authStatus'); const logout=document.getElementById('logoutBtn'); const attendanceForm=document.getElementById('attendanceForm'); const client=createBcGestaoClient(globalThis.supabase?.createClient); const profile=await requireRole('colaborador',client);
-if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';status.hidden=true;app.hidden=false;const guard=installSessionGuard({client,profile,app});try{const agenda=await initCollaboratorAgenda({client,profile,root:document});const clientsPanel=await initClientesPanel({client,profile,root:document,canArchive:false,onClientsChanged:agenda.refreshClients});bindAttendanceForm({form:attendanceForm,client,appointmentId:()=>agenda.getCurrentAppointment()?.id,onSuccess:async()=>{const id=agenda.getCurrentAppointment()?.id;await agenda.refresh();if(id)await agenda.openAppointment(id);}});const finance=await initCollaboratorFinance({client,profile,root:document,getCurrentAppointment:agenda.getCurrentAppointment});startLiveRefresh({root:document,authorize:guard.authorize,tasks:[{scope:()=>document.getElementById('agenda'),refresh:agenda.refresh},{scope:()=>document.getElementById('clientsList'),refresh:clientsPanel.refreshClients},{scope:()=>document.getElementById('financeiro'),refresh:finance.refresh}]});}catch(error){status.hidden=false;status.textContent=error?.message||'Não foi possível iniciar sua área.';}}
-logout.addEventListener('click',async()=>{logout.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
+import {requireRole,signOut,installSessionGuard} from '../js/auth.js';
+import {createBcGestaoClient} from '../js/supabase-client.js';
+import {startStaffDashboard as startDashboard} from '../js/dashboard-boot.js';
+import '../js/shell.js';
+const client=createBcGestaoClient(globalThis.supabase?.createClient),app=document.getElementById('gestaoApp'),status=document.getElementById('authStatus');
+const profile=await requireRole('colaborador',client);
+if(profile){document.getElementById('profileName').textContent=profile.display_name||'Profissional';const guard=installSessionGuard({client,profile,app});status.hidden=true;app.hidden=false;startDashboard({client,profile,root:document,authorize:guard.authorize});}
+document.getElementById('logoutBtn').addEventListener('click',async event=>{event.currentTarget.disabled=true;try{await signOut(client);}finally{window.location.replace('../login/');}});
 </script>
 </body>
 </html>

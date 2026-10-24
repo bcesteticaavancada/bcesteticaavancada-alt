@@ -13,14 +13,17 @@ export function renderPreAnamneseInbox(items=[],clients=[]){
 
 export async function initPreAnamneseInbox({client,root=document}){
   const host=root.getElementById('preAnamneseInbox');if(!host)return null;
-  let items=[];let offset=0;let refreshVersion=0;
+  let items=[],cachedClients=[],clientContext=null;let offset=0;let refreshVersion=0;
+  const context=root.createElement('div');context.className='bcg-muted';host.before(context);
+  function render(){let rows=items;context.replaceChildren();if(clientContext){const digits=value=>String(value??'').replace(/\D/g,'');const phone=digits(clientContext.telefone);rows=items.filter(item=>phone?digits(item.patient_phone)===phone:String(item.patient_name??'').trim().toLocaleLowerCase('pt-BR')===String(clientContext.nome??'').trim().toLocaleLowerCase('pt-BR'));const label=root.createElement('p');label.textContent=`Pasta: ${clientContext.nome}. Revise a ficha e escolha o cadastro antes de confirmar o vínculo.`;context.append(label);const clear=root.createElement('button');clear.type='button';clear.className='bcg-small-button';clear.textContent='Ver todas as pré-anamneses';clear.onclick=()=>{clientContext=null;render();};context.append(clear);}host.innerHTML=renderPreAnamneseInbox(rows,cachedClients);}
+
   const pager=root.createElement('div');pager.className='bcg-form-actions';
   const previous=root.createElement('button'),next=root.createElement('button');
   for(const button of [previous,next]){button.type='button';button.className='bcg-small-button';pager.appendChild(button);}
   previous.textContent='Fichas mais recentes';next.textContent='Fichas anteriores';host.after(pager);
   async function refresh({canApply=()=>true}={}){
     const version=++refreshVersion;
-    const [rows,clients]=await Promise.all([listPreAnamneses({client,offset}),listClients({client})]);if(version!==refreshVersion || !canApply())return;items=rows;host.innerHTML=renderPreAnamneseInbox(items,clients);previous.disabled=offset===0;next.disabled=items.length<100;
+    const [rows,clients]=await Promise.all([listPreAnamneses({client,offset}),listClients({client})]);if(version!==refreshVersion || !canApply())return;items=rows;cachedClients=clients;render();previous.disabled=offset===0;next.disabled=items.length<100;
   }
   previous.addEventListener('click',()=>{offset=Math.max(0,offset-100);refresh().catch(error=>{host.textContent=error.message;});});
   next.addEventListener('click',()=>{offset+=100;refresh().catch(error=>{host.textContent=error.message;});});
@@ -41,5 +44,5 @@ export async function initPreAnamneseInbox({client,root=document}){
     }catch(error){status.textContent=error.message||'Não foi possível concluir.';status.dataset.kind='error';}
     finally{button.disabled=false;}
   });
-  await refresh();return {refresh};
+  await refresh();return {refresh,setClientContext(record){clientContext=record||null;render();}};
 }
