@@ -36,3 +36,17 @@ Não há link no menu atual. Não incluir até concluir validações e obter apr
 
 ## Publicação
 Nesta etapa, nenhum merge no main, nenhum deploy de Pages e nenhuma alteração em Supabase foram feitos.
+
+## Revisão de 24/10 — privacidade e navegação
+- A pergunta original não é repetida no histórico; a Maya mostra apenas o assunto classificado. O campo é esvaziado após envio e há um botão de limpar a conversa.
+- Adicionados testes de execução com DOM simulado: acesso anônimo/inativo, perfis, privacidade, descarte de dados pessoais, limpeza e bloqueio após revogação.
+- Os três painéis internos (administração, colaboradora e criação) receberam um atalho para a Maya **somente na ramificação do PR #63**. Nenhuma alteração foi publicada no site.
+- O conteúdo permanece pré-escrito e a Maya não usa IA generativa nesta etapa.
+
+## Plano de homologação interna
+1. Confirmar todos os workflows do PR #63 aprovados.
+2. Mel confere as orientações administrativas e limitações de escopo.
+3. Testar em sessão real da própria equipe após liberação controlada, sem digitar dados de clientes.
+4. Conferir login, expiração, troca de identidade e bloqueio de perfil inativo.
+5. Avaliar Android e iPhone físicos, incluindo teclado, zoom, toque, retorno à gestão e limpeza do chat.
+6. Só após aprovação expressa, mesclar e publicar a página com o atalho interno. Manter dúvidas clínicas e atendimento a clientes desativados.
