@@ -22,7 +22,7 @@ async function render(profile,{allow=()=>true}={}){
     document,
     globalThis:{supabase:{createClient:()=>({})}},
     createBcGestaoClient:()=>client,
-    getCurrentProfile:async()=>profile,
+    getCurrentProfile:async()=>profile?.active===true?profile:null,
     installSessionGuard:()=>{
       signedGuard=true;
       return {authorize:async()=>{calls++;return allow()}};
@@ -100,4 +100,10 @@ test('Limpar conversa remove conteúdo sem gerar novo armazenamento',async()=>{
   trigger(x,'#clearChat');
   assert.ok(!x.document.querySelector('#chat').textContent.includes('Assunto: Cadastro'));
   assert.match(x.document.querySelector('#chat').textContent,/Conversa limpa/);
+});
+
+test('Perfil inativo não vê a Maya Beta',async()=>{
+  const x=await render({user_id:'blocked',role:'colaborador',active:false,display_name:'Teste inativo'});
+  assert.ok(x.document.querySelector('#status').textContent.includes('Acesso restrito'));
+  assert.equal(x.guardInstalled(),false);
 });
