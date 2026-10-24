@@ -34,7 +34,7 @@ test('Maya revoga o acesso e revalida sessão ao responder',()=>{
  assert.match(source,/if\(!await guard.authorize\(\)\)return/);
 });
 test('Maya não integra serviços clínicos, financeiros ou IA externa',()=>{
- for(const word of ['localStorage','sessionStorage','fetch(','.from(','.rpc(','.storage.','openai.com','innerHTML'])
+ for(const word of ['localStorage','sessionStorage','.from(','.rpc(','.storage.','openai.com','innerHTML'])
   assert.equal(source.includes(word),false,'prohibited '+word);
 });
 test('Não aceita identificadores e relatos sensíveis',()=>{
@@ -74,8 +74,23 @@ test('Limpar conversa não grava dados e remove a conversa anterior',()=>{
  assert.match(source,/chat\.replaceChildren\(\)/);
  assert.match(source,/question\.value=''/);
 });
-test('Atalhos dão informações administrativas sem liberar conteúdo clínico',()=>{
- assert.match(source,/protocolos ainda aguardam a revisão responsável da Mel/);
- assert.match(source,/não emite orientações clínicas/);
+test('Conteúdo técnico é consultável internamente, mas permanece em revisão',()=>{
+ assert.match(source,/As 65 respostas da biblioteca podem ser consultadas pela equipe/);
+ assert.match(source,/revisão técnica pela Mel/);
+ assert.match(source,/não são indicação individual de tratamento/);
  assert.match(source,/não consulta valores nem executa lançamentos/);
+});
+
+test('Biblioteca de 65 exige autorização para abrir e traz aviso de revisão',()=>{
+ assert.match(source,/id="knowledgePanel"[^>]*hidden/);
+ assert.match(source,/async function openKnowledge\(\)\{\s*if\(!await guard.authorize\(\)\)return/);
+ assert.match(source,/Conteúdo técnico ainda em revisão pela Mel/);
+ assert.match(source,/id="knowledgeSearch"/);
+ assert.match(source,/id="knowledgeOpen"/);
+});
+test('Maya importa apenas o arquivo local de respostas, sem APIs clínicas',()=>{
+ assert.match(source,/fetch\('\.\/respostas-65\.json'/);
+ assert.equal((source.match(/fetch\(/g)||[]).length,1);
+ assert.doesNotMatch(source,/fetch\(['"]https?:|\.from\(|\.rpc\(/);
+ assert.match(source,/item\.answer|found\.answer/);
 });
