@@ -75,7 +75,7 @@ CLOSE=f"select public.bc_livro_fechar('{WORKER}','{START}','{END}');"
 sql("update private.bc_finance_settings set simple_mode=true where id;")
 legacy_clear=clear
 def clear():
- sql(f"delete from private.bc_commission_items where professional_id='{WORKER}';delete from private.bc_commission_payments where professional_id='{WORKER}';delete from private.bc_finance_expenses where created_by='{ADMIN}';")
+ sql(f"delete from private.bc_finance_abandoned_attempts where actor_id='{ADMIN}';delete from private.bc_commission_items where professional_id='{WORKER}';delete from private.bc_commission_payments where professional_id='{WORKER}';delete from private.bc_finance_expenses where created_by='{ADMIN}';")
  legacy_clear()
  sql('begin; '+auth(f"select public.bc_finance_commissions_apply('{WORKER}',30,array['{PROCEDURE}'::uuid]);")+' commit;')
 def item_ids():return sql(f"select id from private.bc_commission_items where professional_id='{WORKER}' and state='pending' order by id;").splitlines()
@@ -113,4 +113,17 @@ with ThreadPoolExecutor(max_workers=8) as pool:ids=list(pool.map(lambda _:first_
 assert len(set(ids))==1,ids
 assert sql(f"select count(*) from private.bc_finance_expenses where created_by='{ADMIN}';")=='1'
 print('PASS simple expense: eight retries, one expense',flush=True)
+# Recovery either sees an in-flight commit or atomically closes its key.
+for kind in ('receipt','expense','payment'):
+ for recovery_first in (False,True):
+  clear()
+  if kind=='payment':single_receipt();items=item_ids()
+  number={'receipt':601,'expense':602,'payment':603}[kind]
+  write=receipt(number) if kind=='receipt' else (f"select public.bc_finance_expense_create('{key(number)}','Late expense fixture',25);" if kind=='expense' else pay(number,items))
+  context=f"'{APPOINTMENT}'::uuid" if kind=='receipt' else 'null::uuid'
+  recover=f"select public.bc_finance_attempt_reconcile('{kind}','{key(number)}',{context});"
+  overlap(recover if recovery_first else write,write if recovery_first else recover,'22023' if recovery_first else None)
+  table={'receipt':'public.recebimentos','expense':'private.bc_finance_expenses','payment':'private.bc_commission_payments'}[kind]
+  assert sql(f"select count(*) from {table} where request_key='{key(number)}';")==('0' if recovery_first else '1')
+  print(f'PASS {kind}: recovery/arrival order {recovery_first} never duplicates money',flush=True)
 print('All simple financial concurrency checks passed. Disposable database only.',flush=True)
