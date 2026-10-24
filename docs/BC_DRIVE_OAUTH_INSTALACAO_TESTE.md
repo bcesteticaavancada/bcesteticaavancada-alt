@@ -1,6 +1,33 @@
 # Estado da instalação OAuth de teste — 24/10/2026
 
-## Estado atual — página publicada e autorização de teste habilitada
+## Estado atual — autorização e duas pastas confirmadas
+
+Em 24/10/2026, Fernando concluiu o consentimento Google, a seleção das duas
+pastas e a confirmação no próprio Chrome. A captura enviada mostra
+“Autorização validada para as duas pastas. Etapa de teste, sem envio de arquivos”.
+Uma consulta somente de metadados confirmou no servidor:
+
+- `account = decolarbh@gmail.com`;
+- `folders_ready = true`;
+- `updated_at = 2026-10-24 19:51:28.690867+00` (16:51:28, Brasília).
+
+A conferência anterior, após o consentimento e antes da confirmação, retornou
+`folders_ready=false` às 19:49:27 UTC. A transição para true comprova o registro
+da confirmação. Na versão instalada, essa gravação ocorre somente depois da
+validação dos dois IDs e das permissões privadas pelo servidor, usando a
+credencial guardada no Vault. O fluxo real de consentimento/Picker/confirmação
+foi concluído; nenhum valor de token ou client secret foi consultado.
+
+Isso não comprova backup, transferência, restauração ou operação contínua.
+`folders_ready` é histórico; permissões devem ser reconferidas antes da futura
+ativação. O controle de gravação permanece false e o worker não está instalado.
+
+Próxima etapa técnica: preparar em branch a integração do worker com Vault e
+um ensaio de envio/recuperação de arquivo inteiramente fictício. Não ampliar
+destinos, ativar gravações, agendar ou transferir documentos reais por causa
+desta confirmação de pastas. Respeitar a autorização específica de cada etapa.
+
+## Histórico — página publicada e autorização de teste habilitada
 
 - Fernando concluiu a entrada no painel Supabase. A presença da chave Picker foi
   confirmada somente pelo nome/digest; nenhum valor de credencial foi revelado.
@@ -123,28 +150,30 @@ conforme a seção mais recente no início deste documento.
 
 ## Ponto exato de retomada
 
-Os três handlers já estão instalados e a página está publicada. O setup está
-habilitado; o controle de gravação continua exatamente false, conforme digests
-conferidos no painel. A chave Picker está cadastrada. Não reaplicar a migration,
-reinstalar funções ou repetir o salvamento dos controles como primeira ação.
-A próxima etapa é o consentimento do titular e a seleção real das duas pastas
-pela página publicada, com sessão BC da conta permitida.
+Os três handlers e a página estão instalados. O setup está habilitado, a chave
+Picker está cadastrada e o titular já concluiu consentimento e confirmação das
+duas pastas. O servidor confirmou folders_ready=true às 16:51:28 de Brasília.
+O controle de gravação continua false conforme a conferência do painel; o worker
+não está instalado. Não repetir login/consentimento/seleção, migration ou deploy
+como primeira ação. Preparar a integração Vault/worker em branch e o ensaio
+inteiramente fictício, com sua liberação específica antes de qualquer envio.
 
 O Google Cloud Console retornou “Site Unavailable” neste navegador, inclusive
 numa única recarga de conferência. Não houve login, mudança ou criação de chave
 no Google. Reutilizar cliente OAuth existente; conferir APIs, origem/callback,
 usuários de teste e chave pública Picker com restrições antes de habilitar setup.
 
-PR61 já publicado; PR59 permanece separado. Não houve consentimento Google real
-ou upload. O backend de backup não foi instalado.
+PR61 já publicado; PR59 permanece separado. Consentimento e confirmação reais
+das duas pastas concluídos. Não houve upload pelo fluxo de autorização. O backend
+de backup não foi instalado.
 
 ## Instalação seguinte
 
-Concluir a homologação Google/Picker na página já publicada. A autorização
-específica recebida cobre a instalação restrita de teste; não repetir a mesma
-pergunta genérica de aprovação. A confirmação de consentimento será feita pelo
-titular no fluxo Google. Depois, conferir metadados da conexão e confirmação das
-duas pastas no servidor, sem retornar tokens nem enviar documentos.
+Homologação Google/Picker desta etapa concluída pelo titular e confirmada por
+metadados no servidor. A autorização recebida cobre a instalação restrita de
+teste. A integração do worker e o ensaio fictício são a etapa seguinte; sua
+preparação não ativa escrita nem libera documentos reais. Nenhuma credencial
+precisa ser copiada pelo titular ou lida em conversa para essa preparação.
 
 Ativar backups, transferir arquivos clínicos reais, ampliar destinos, agendar
 execuções ou mesclar a principal continua exigindo a aprovação prevista de

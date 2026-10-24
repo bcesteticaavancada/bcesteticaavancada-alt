@@ -1,5 +1,18 @@
 # Execução — plano: docs/superpowers/plans/2026-10-23-drive-oauth-preparacao.md
 
+## Homologação da autorização concluída pelo titular
+
+Consentimento real confirmado por metadados às 19:49:27 UTC, folders_ready=false.
+Após selecionar as duas pastas e confirmar, Fernando enviou a captura de sucesso.
+Consulta fresca retornou account=decolarbh@gmail.com, folders_ready=true e
+updated_at=2026-10-24 19:51:28.690867+00. Nenhuma coluna de credencial foi lida.
+Na versão instalada, ready depende da validação dos IDs e permissões pelo Google.
+
+Etapa OAuth/Picker/duas pastas concluída. Não confundir com backup/restauração:
+worker ausente, escrita false, nenhum arquivo enviado por este fluxo. Próxima
+etapa é a preparação da ponte Vault/worker e de ensaio inteiramente fictício em
+branch, respeitando a liberação específica antes de enviar qualquer arquivo.
+
 ## Entrada retomada — página publicada e setup habilitado
 
 Fernando confirmou entrada manual no Supabase; observação fresca mostrou o

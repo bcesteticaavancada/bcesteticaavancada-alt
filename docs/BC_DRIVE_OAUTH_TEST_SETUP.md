@@ -1,5 +1,13 @@
 # BC — OAuth de teste, rascunho pronto para revisão
 
+Autorização real concluída em 24/10, às 16:51:28 de Brasília: o titular fez o
+consentimento Google, selecionou as duas pastas no Picker e confirmou. Consulta
+de metadados no servidor retornou conta esperada e folders_ready=true. Nenhum
+token/secret foi lido. A validação de autorização não é teste de transferência
+ou restauração: gravações false, worker ausente e backups automáticos inativos.
+O ponto atual está no início de `BC_DRIVE_OAUTH_INSTALACAO_TESTE.md`; os parágrafos
+abaixo preservam o histórico da instalação.
+
 Estado atual de 24/10: a entrada no painel foi concluída; chave Picker cadastrada
 e cliente esperado conferidos por nome/digest. Publicados somente os quatro
 arquivos da página pelo PR61, commit `7110fb7`. Setup de autorização habilitado
