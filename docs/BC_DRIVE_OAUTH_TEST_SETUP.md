@@ -1,5 +1,13 @@
 # BC — OAuth de teste, rascunho pronto para revisão
 
+Atualização mais recente de 24/10: o retorno ao caminho publicado foi corrigido
+e instalado somente no callback, versão 3, mantendo as rotas bloqueadas.
+Passaram 13 testes HTTP, 9 SQL, 6 de interface, 784 gerais e o CI `40125828849`,
+incluindo navegador com serviços fictícios. A página isolada está preparada no
+PR61, ainda sem publicação. A captura posterior de Fernando mostra a chave
+Picker cadastrada; a conferência atual no painel está bloqueada pelo login.
+Consultar o estado detalhado em `BC_DRIVE_OAUTH_INSTALACAO_TESTE.md` antes de agir.
+
 Esta branch prepara somente autorização/seleção de duas pastas. Não é backup
 ativo. Atualização em 24/10/2026: a migration privada foi instalada após a
 autorização específica de Fernando, com ACL/RLS conferidas e tabelas vazias.

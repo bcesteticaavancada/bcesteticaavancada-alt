@@ -1,5 +1,35 @@
 # Estado da instalação OAuth de teste — 24/10/2026
 
+## Retomada mais recente — retorno corrigido, consentimento pendente
+
+- Correção salva na branch de teste como `3ce02b372d62756c928569dd97178b09f202776e`.
+  O retorno agora usa `/bcesteticaavancada-alt/gestao/configurar-drive/` em sucesso,
+  cancelamento e falha. O checkout local `fd1efdb` tem o mesmo conteúdo desta correção.
+- Validação fresca: 13 testes HTTP OAuth, 9 testes SQL, 6 testes da interface e
+  784 testes gerais aprovados; os 6 de interface já integram os 784 gerais.
+  Tipagem dos três entrypoints aprovada. Revisão independente sem bloqueios novos.
+- CI `40125828849`: SUCCESS, incluindo ensaio Chromium com serviços fictícios.
+  Isso não homologa consentimento, Picker, cookies ou permissões Google reais.
+- Atualizado somente `drive-oauth-callback`, versão 3. Código recuperado pelo
+  conector é idêntico aos quatro arquivos enviados. SHA-256 do bundle:
+  `4a5065b85ab2a7e281f592496b0f14720377e2fd8a180bdbde5591ab346bae04`.
+  As outras sete funções conservaram os hashes, versões e políticas JWT da
+  conferência imediatamente anterior desta retomada.
+- Página isolada preparada no PR rascunho
+  [61](https://github.com/bcesteticaavancada/bcesteticaavancada-alt/pull/61), sobre
+  `main` em `5fdeef1b41711833d6187b71f3f6953071dcf637`. Comparação confirmou somente
+  quatro adições em `gestao/configurar-drive/`; o config.js da principal exporta
+  a URL e a chave publicável esperadas. Nenhum merge nem publicação da página.
+- Fernando enviou captura com o nome `BC_DRIVE_PICKER_API_KEY` cadastrado depois
+  da instalação inicial descrita abaixo. Não repetir a afirmação histórica de
+  que a chave inexiste como se fosse uma conferência atual.
+- O painel Supabase pede login nesta sessão. A presença atual da chave, os
+  controles no painel e os pré-requisitos Google ainda precisam de conferência.
+  Nenhum valor secreto foi aberto, copiado ou incluído neste relatório.
+- Após a atualização, as três rotas continuaram retornando HTTP 503,
+  `setup_disabled`, `no-store`, sem redirecionamento/cookie OAuth. As tabelas
+  continuam com zero estados e zero conexões. Nenhum documento foi acessado.
+
 ## Autorização e limites
 
 Fernando aprovou instalar somente a autorização de teste em resposta à proposta
@@ -45,11 +75,11 @@ raiz/manifestos sem consentimento específico; a ligação ao worker é etapa fu
   permaneceram iguais. A atualização global de configuração incrementou suas
   versões de execução; não houve mudança nos respectivos códigos.
 
-## Funções instaladas, com fluxo desabilitado
+## Registro da instalação inicial, com fluxo desabilitado
 
-Código-fonte: revisão `223cc4949dce4666a7ec513afe305b9a3b6146e7` do PR59.
-Nenhum código servidor foi alterado nesta retomada; a atualização da branch
-registra somente o estado da instalação.
+Código-fonte inicial: revisão `223cc4949dce4666a7ec513afe305b9a3b6146e7` do PR59.
+A tabela registra a instalação original. O callback foi atualizado posteriormente
+conforme a seção mais recente no início deste documento.
 
 | Função | Versão | SHA-256 do bundle informado pelo Supabase |
 | --- | --- | --- |
@@ -59,22 +89,25 @@ registra somente o estado da instalação.
 
 ## Ponto exato de retomada
 
-Os três handlers já estão instalados com `BC_DRIVE_OAUTH_ENABLE_SETUP=false`
-e `BC_DRIVE_BACKUP_ENABLE_WRITES=false`, conferidos no painel e pelo comportamento
-externo. O login Supabase foi concluído pelo próprio Fernando. Não reaplicar a
-migration nem reinstalar as funções como primeira ação da próxima retomada.
+Os três handlers já estão instalados; o callback corrigido é a versão 3. As
+rotas continuam bloqueadas pelo comportamento externo. Na instalação inicial,
+`BC_DRIVE_OAUTH_ENABLE_SETUP=false` e `BC_DRIVE_BACKUP_ENABLE_WRITES=false` foram
+conferidos por digest no painel. O login daquela sessão expirou; a nova entrada
+deve ser feita pelo titular de forma segura. Não reaplicar a migration nem
+reinstalar as funções como primeira ação da próxima retomada.
 
-Não existe `BC_DRIVE_PICKER_API_KEY` entre os Edge Secrets listados. Falta
-configurar a chave pública restrita do Picker no mesmo projeto Google e conferir
-APIs, callback, origem e usuários de teste. Manter ambos os controles desativados
-durante essa preparação. Não enviar credenciais por conversa.
+A captura posterior de Fernando mostra o nome da chave Picker cadastrado, mas
+ainda falta conferir a configuração atual pelo painel e validar seu uso real.
+Conferir APIs, callback, origem e usuários de teste. Manter os dois controles
+desativados durante essa preparação. Não enviar credenciais por conversa.
 
 O Google Cloud Console retornou “Site Unavailable” neste navegador, inclusive
 numa única recarga de conferência. Não houve login, mudança ou criação de chave
 no Google. Reutilizar cliente OAuth existente; conferir APIs, origem/callback,
 usuários de teste e chave pública Picker com restrições antes de habilitar setup.
 
-A página ainda não foi publicada. Não houve consentimento Google real ou upload.
+A página ainda não foi publicada; usar o PR61 com somente seus quatro arquivos,
+sem mesclar o PR59 inteiro. Não houve consentimento Google real ou upload.
 O backend de backup não foi instalado.
 
 ## Instalação seguinte

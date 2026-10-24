@@ -1,5 +1,28 @@
 # Execução — plano: docs/superpowers/plans/2026-10-23-drive-oauth-preparacao.md
 
+## Continuidade de 24/10 — retorno e preparação isolada da página
+
+Recuperados o link compartilhado e o checkout existente. A correção local
+`fd1efdb` estava concluída, mas não enviada. Validação fresca: HTTP 13/13,
+SQL 9/9, UI 6/6, suíte geral 784/784 e tipagem dos três entrypoints aprovadas.
+Revisão independente read-only sem achados novos que impeçam instalação
+desativada. Configuração pública da main conferida pelo conector após a revisão.
+
+Correção salva remotamente como `3ce02b3`, com o mesmo conteúdo, sem alterar
+outros trabalhos. CI 40125828849 aprovado, incluindo ensaio Chromium com mocks.
+Callback atualizado para v3; os quatro arquivos recuperados do servidor são
+idênticos ao payload revisado. Nenhuma outra função mudou de hash/versão/JWT.
+As três rotas hospedadas permaneceram em setup_disabled; zero estados/conexões.
+
+PR61 acrescenta somente quatro arquivos da página sobre main 5fdeef1; comparação
+confirmou ausência de home, worker ou migrations. Continua em rascunho, sem merge.
+O painel Supabase exige nova entrada segura do titular para conferir a chave
+Picker cadastrada na captura e os controles. Consentimento/Picker reais seguem
+pendentes; nenhum teste simulado é registrado como homologação de provedor.
+
+Os limites conhecidos de cookie, indicador histórico de pastas e revogação após
+logout permanecem documentados. Não foram ampliados escopos, destinos ou acesso.
+
 Base remota: `ea84ee6b206a2f67e733d716b0fd90b01ce90ce2`, branch própria
 `backup/drive-oauth-preparacao`. Checkout separado; alterações não commitadas de
 outro trabalho em `09ae9550eef1` foram preservadas. Nenhum AGENTS.md encontrado.
