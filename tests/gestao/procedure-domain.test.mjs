@@ -120,3 +120,7 @@ test('formata preco fixo e a partir de em pt-BR', () => {
   assert.equal(formatProcedurePrice({ price_mode: 'fixed', base_price: 180 }), 'R$ 180,00');
   assert.equal(formatProcedurePrice({ price_mode: 'starting_at', base_price: 195 }), 'A partir de R$ 195,00');
 });
+test('procedimento gratuito ou valor a definir não exige preço fictício',()=>{
+ for(const base_price of [0,null,'']){const result=validateProcedureDraft({nome:'Avaliação',classe_documental:'nao_injetavel',price_mode:'fixed',base_price,protocol_mode:'simple'});assert.equal(result.valid,true);assert.equal(result.value.base_price,base_price===0?0:null);}
+ for(const base_price of [-1,NaN,Infinity,'1.001'])assert.equal(validateProcedureDraft({nome:'Avaliação',classe_documental:'nao_injetavel',price_mode:'fixed',base_price,protocol_mode:'simple'}).valid,false);
+});

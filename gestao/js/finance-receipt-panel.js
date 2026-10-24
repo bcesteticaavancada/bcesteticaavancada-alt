@@ -1,3 +1,4 @@
+import {reconcileFinanceAttempt} from './finance-simple-api.js';
 import {getAppointmentFinancialSummary,registerReceiptForAppointment} from './finance-receipts-api.js';
 import {createReceiptAttempt,receiptFailureMessage,receiptStorageMessage} from './receipt-attempt.js';
 import {clinicLocalDateTimeToIso} from './agenda-format.js';
@@ -31,10 +32,14 @@ export async function mountAppointmentReceipt({client,root,appointmentId,onChang
   if(destroyed||(!force&&(dirty||inFlight)))return null;
   const current=++version;
   try{
-   const loaded=await getAppointmentFinancialSummary({client,appointmentId});
+   let loaded=await getAppointmentFinancialSummary({client,appointmentId});
    if(destroyed||current!==version)return null;
    if(!loaded?.actor_id)throw Error('Não foi possível confirmar a sessão. Atualize a página.');
-   summary=loaded;root.hidden=false;root.innerHTML=render(summary);dirty=false;return summary;
+   let recovered=null;try{recovered=await reconcileFinanceAttempt({client,attempts,context:`receipt:${loaded.actor_id}:${appointmentId}`,kind:'receipt',appointmentId});}catch(error){if(error.code!=='BC_STORAGE')throw error;}
+   if(recovered)loaded=await getAppointmentFinancialSummary({client,appointmentId});
+   if(destroyed||current!==version)return null;
+
+   summary=loaded;root.hidden=false;root.innerHTML=render(summary);dirty=false;if(recovered?.status==='found')message('Recebimento anterior conferido. Saldo atualizado.','success');return summary;
   }catch(error){if(!destroyed&&current===version){summary=null;renderError(error);}throw error;}
  }
  async function onSubmit(event){
@@ -63,7 +68,7 @@ export async function mountAppointmentReceipt({client,root,appointmentId,onChang
  const onInput=()=>{dirty=true;};
  const onClick=event=>{if(event.target.closest?.('[data-receipt-refresh]'))refresh({force:true}).catch(()=>{});};
  root.addEventListener('submit',onSubmit);root.addEventListener('input',onInput);root.addEventListener('change',onInput);root.addEventListener('click',onClick);
- const runtime={refresh,destroy(){if(destroyed)return;destroyed=true;++version;root.removeEventListener('submit',onSubmit);root.removeEventListener('input',onInput);root.removeEventListener('change',onInput);root.removeEventListener('click',onClick);if(root.__bcReceiptPanel===runtime)delete root.__bcReceiptPanel;}};
+ const runtime={refresh,get protected(){return dirty||inFlight;},destroy(){if(destroyed)return;destroyed=true;++version;root.removeEventListener('submit',onSubmit);root.removeEventListener('input',onInput);root.removeEventListener('change',onInput);root.removeEventListener('click',onClick);if(root.__bcReceiptPanel===runtime)delete root.__bcReceiptPanel;}};
  root.__bcReceiptPanel=runtime;root.innerHTML='<p class="bcg-status">Conferindo saldo…</p>';
  await refresh().catch(()=>{});return runtime;
 }

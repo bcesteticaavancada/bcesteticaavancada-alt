@@ -52,6 +52,7 @@ try {
    assert.equal(await page.evaluate(()=>window.injected),undefined);
    if(role==='admin'){await page.getByRole('button',{name:'Marcar pago',exact:true}).click();await page.getByRole('button',{name:'Confirmar pago',exact:true}).click();await page.locator('#adminFinancePending').getByText('Nenhuma comissão a pagar.').waitFor();assert.equal(await page.evaluate(()=>window.testCalls.filter(([n])=>n==='bc_finance_commission_pay').length),1);}
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${engine}/${role}/${device}: no horizontal overflow`);
+   await page.waitForFunction(()=>document.getElementById('gestaoMenu').getBoundingClientRect().right<=0);
    await page.screenshot({path:`test-results/agenda/${engine}-${role}-simple-${device}.png`,fullPage:true});
    await page.locator('#menuToggle').click();await page.getByRole('link',{name:'Clientes',exact:true}).click();assert.equal(await page.locator('#clientCreateForm [name=nome]').inputValue(),'Rascunho preservado');
    assert.deepEqual(errors,[],`${engine}/${role}/${device}`);await page.evaluate(()=>window.dashboard.destroy());await page.close();console.log(`PASS ${engine}/${role}/${device}: lazy areas, isolated failure, draft, optional fields, own finance/direct payment`);

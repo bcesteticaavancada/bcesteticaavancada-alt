@@ -102,12 +102,12 @@ begin
  into charges from public.pagamentos p join public.atendimentos a on a.id=p.atendimento_id join public.clientes c on c.id=p.cliente_id
  join public.staff_profiles s on s.user_id=a.colaboradora_user_id join public.procedimentos pr on pr.id=a.procedimento_id
  where p.status in ('pendente','parcial') and p.valor_total>p.valor_recebido and (p_professional is null or a.colaboradora_user_id=p_professional);
- select coalesce(jsonb_agg(jsonb_build_object('treatment_id',t.id,'appointment_id',t.agendamento_id,'professional',s.display_name,'client',c.nome) order by t.id),'[]'::jsonb)
+ select coalesce(jsonb_agg(jsonb_build_object('treatment_id',t.id,'appointment_id',t.agendamento_id,'professional',s.display_name,'client',c.nome,'procedure',v.snapshot->'procedure_version'->>'nome','can_define',(v.snapshot->'treatment'->>'final_price' is null and not exists(select 1 from public.pagamentos q where q.atendimento_id=t.operational_attendance_id or (q.atendimento_id is null and q.agendamento_id=t.agendamento_id)))) order by t.id),'[]'::jsonb)
  into issues from public.clinical_treatments t join public.staff_profiles s on s.user_id=t.profissional_user_id join public.clientes c on c.id=t.cliente_id
  left join public.clinical_treatment_versions v on v.id=t.current_version_id and v.treatment_id=t.id
  where t.status='finalizado' and (p_professional is null or t.profissional_user_id=p_professional)
  and (select count(*) from public.pagamentos p where p.atendimento_id=t.operational_attendance_id or (p.atendimento_id is null and p.agendamento_id=t.agendamento_id))<>1
- and coalesce(v.snapshot->'treatment'->>'final_price','') !~ '^0+(\\.0+)?$';
+ and coalesce(v.snapshot->'treatment'->>'final_price','') !~ '^0+([.]0+)?$';
  return result||jsonb_build_object('pending',pending,'awaiting_rules',n,'awaiting',awaiting,'payments',payments,'rules',rules,'people',people,'procedures',procedures,'charges',charges,'charge_issues',issues);
 end $$;
 
@@ -153,3 +153,35 @@ do $acl$ declare f record; begin
  if f.sch='public' or f.name not in ('bc_finance_period','bc_finance_rows') then execute format('grant execute on function %s to authenticated',f.sig); end if;
  end loop;
 end $acl$;
+
+create or replace function private.bc_finance_attempt_reconcile_impl(p_kind text,p_request_key uuid,p_appointment_id uuid default null) returns jsonb
+language plpgsql security definer set search_path='' as $$
+declare result jsonb;actor uuid;appointment uuid;prefix text;
+begin
+ if p_kind in ('payment','expense') then perform private.bc_finance_require_admin();else perform private.bc_finance_require_staff();end if;
+ if p_kind is null or p_kind not in ('receipt','payment','expense') or p_request_key is null then raise exception 'Tentativa inválida.' using errcode='22023';end if;
+ if p_kind='receipt' then
+  if p_appointment_id is null then raise exception 'Agendamento obrigatório.' using errcode='22023';end if;
+  perform private.bc_finance_appointment_summary_impl(p_appointment_id);
+ end if;
+ prefix:=case p_kind when 'receipt' then 'bc_receipt:' when 'payment' then 'bc_simple_payment:' else 'bc_simple_expense:' end;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(prefix||p_request_key::text,0));
+ if p_kind='payment' then
+  select jsonb_build_object('id',id,'amount',amount,'state',state),created_by into result,actor from private.bc_commission_payments where request_key=p_request_key;
+ elsif p_kind='expense' then
+  select jsonb_build_object('id',id,'amount',amount,'state',state),created_by into result,actor from private.bc_finance_expenses where request_key=p_request_key;
+ else
+  select jsonb_build_object('id',id,'amount',valor,'state',status),created_by,agendamento_id into result,actor,appointment from public.recebimentos where request_key=p_request_key;
+ end if;
+ if result is not null then
+  if actor is distinct from auth.uid() or (p_kind='receipt' and appointment is distinct from p_appointment_id) then raise exception 'Acesso negado à tentativa.' using errcode='42501';end if;
+  return result||jsonb_build_object('status','found','request_key',p_request_key);
+ end if;
+ select a.actor_id into actor from private.bc_finance_abandoned_attempts a where a.kind=p_kind and a.request_key=p_request_key;
+ if found and actor is distinct from auth.uid() then raise exception 'Acesso negado à tentativa.' using errcode='42501';end if;
+ insert into private.bc_finance_abandoned_attempts(kind,request_key,actor_id,context_id) values(p_kind,p_request_key,auth.uid(),p_appointment_id) on conflict do nothing;
+ return jsonb_build_object('status','abandoned','request_key',p_request_key);
+end $$;
+create or replace function public.bc_finance_attempt_reconcile(p_kind text,p_request_key uuid,p_appointment_id uuid default null) returns jsonb language sql security invoker set search_path='' as $$select private.bc_finance_attempt_reconcile_impl($1,$2,$3);$$;
+revoke all on function private.bc_finance_attempt_reconcile_impl(text,uuid,uuid),public.bc_finance_attempt_reconcile(text,uuid,uuid) from public,anon,authenticated;
+grant execute on function private.bc_finance_attempt_reconcile_impl(text,uuid,uuid),public.bc_finance_attempt_reconcile(text,uuid,uuid) to authenticated,service_role;

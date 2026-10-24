@@ -171,7 +171,7 @@ export function renderClientFolder({
     : '';
 
   return `<article class="bcg-client-folder" data-client-folder data-client-id="${escapeHtml(client.id)}">
-    <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">CENTRAL DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div>${renderHeaderActions(active)}</header>
+    <header class="bcg-folder-header"><div class="bcg-folder-identity">${photo}<div><p class="bcg-eyebrow">CENTRAL DA CLIENTE</p><h2>${escapeHtml(client.nome || 'Cliente')}</h2><p class="bcg-muted">${escapeHtml(identity)}</p>${status}</div></div>${renderHeaderActions(active)}</header>${canArchive?`<button type="button" class="bcg-small-button" data-client-intakes="${escapeHtml(client.id)}" data-intake-client-name="${escapeHtml(client.nome)}" data-intake-client-phone="${escapeHtml(client.telefone)}">Pré-anamneses desta cliente</button>`:''}
     <nav class="bcg-folder-tabs" aria-label="Central da cliente">
       <button type="button" class="bcg-folder-tab is-active" data-folder-tab="resumo">Resumo</button>
       <button type="button" class="bcg-folder-tab" data-folder-tab="atendimentos">Atendimentos</button>

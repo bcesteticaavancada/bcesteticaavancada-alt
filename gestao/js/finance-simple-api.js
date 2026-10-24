@@ -28,3 +28,13 @@ export async function createExpense({client,requestKey,description,amount:total,
 }
 export const applyCommission=({client,professionalId,percent,procedureIds=null})=>financeRpc(client,'bc_finance_commissions_apply',{p_professional:professionalId,p_percent:Number(percent),p_procedure_ids:procedureIds});
 export const reverseFinance=({client,kind,id,reason})=>financeRpc(client,kind==='payment'?'bc_finance_commission_reverse':kind==='receipt'?'bc_recebimento_estornar':'bc_finance_expense_reverse',kind==='payment'?{p_payment_id:id,p_reason:reason}:kind==='receipt'?{p_recebimento_id:id,p_motivo:reason}:{p_expense_id:id,p_reason:reason});
+
+export async function reconcileFinanceAttempt({client,attempts,context,kind,appointmentId=null}){
+ const prior=attempts.peek(context);if(!prior)return null;
+ const result=await financeRpc(client,'bc_finance_attempt_reconcile',{p_kind:kind,p_request_key:prior.key,p_appointment_id:appointmentId});
+ if(!['found','abandoned'].includes(result?.status)||result.request_key!==prior.key||(result.status==='found'&&!result.id))throw Error('Não foi possível conferir a tentativa anterior. Atualize e tente novamente.');
+ if(!attempts.complete(context,prior.key))throw Object.assign(Error('Tentativa conferida. Permita o armazenamento do site para liberar o próximo registro.'),{code:'BC_STORAGE'});
+ return result;
+}
+
+export const defineCharge=({client,appointmentId,total})=>financeRpc(client,'bc_finance_charge_define',{p_appointment_id:appointmentId,p_total:amount(total)});

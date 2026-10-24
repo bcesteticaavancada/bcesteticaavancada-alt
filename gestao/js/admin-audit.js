@@ -9,6 +9,7 @@ function escapeHtml(value) {
 }
 
 const ACTION_LABELS = {
+  finance_charge_defined: 'Cobrança definida pela administração',
   finance_charge_created: 'Cobrança do atendimento criada',
   finance_commission_paid: 'Comissão marcada como paga',
   finance_commission_payment_reversed: 'Pagamento de comissão cancelado',

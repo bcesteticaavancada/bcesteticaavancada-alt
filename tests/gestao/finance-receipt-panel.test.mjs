@@ -74,3 +74,14 @@ test('leitura clínica sem acesso financeiro não mostra painel nem botão de te
  const h=host();await mountAppointmentReceipt({...h,client:{rpc:async()=>({data:null,error:{code:'42501',message:'Acesso negado'}})},appointmentId:appointment,storage:storage()});
  assert.equal(h.root.hidden,true);assert.equal(h.root.textContent,'');
 });
+
+test('reabrir após resposta perdida reconcilia entrada400 e libera novo recebimento200',async()=>{
+ const shared=storage(),writes=[];let committed=false,reconciles=0;
+ const client={rpc:async(name,p)=>{
+  if(name==='bc_finance_appointment_summary')return {data:{...charge(),total:600,received:committed?400:0,remaining:committed?200:600},error:null};
+  if(name==='bc_finance_attempt_reconcile'){reconciles++;return {data:{status:'found',id:receipt,amount:400,state:'ativo',request_key:p.p_request_key},error:null};}
+  writes.push(p);if(!committed){committed=true;return {data:null,error:{message:'Resposta perdida'}};}return {data:receipt,error:null};
+ }};
+ const a=host();await mountAppointmentReceipt({...a,client,appointmentId:appointment,storage:shared});a.root.querySelector('[name="amount"]').value='400';submit(a.root,a.window);await settle(()=>a.root.textContent.includes('Resultado não confirmado'));
+ a.root.__bcReceiptPanel.destroy();const b=host();await mountAppointmentReceipt({...b,client,appointmentId:appointment,storage:shared});assert.equal(reconciles,1);assert.equal(b.root.querySelector('[name="amount"]').value,'200');submit(b.root,b.window);await settle(()=>writes.length===2);assert.notEqual(writes[0].p_request_key,writes[1].p_request_key);assert.equal(writes[1].p_valor,200);
+});

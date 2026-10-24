@@ -70,6 +70,21 @@ insert into fixture values('simple-expense-key',gen_random_uuid());
 insert into fixture values('simple-expense',public.bc_finance_expense_create(pg_temp.f('simple-expense-key'),'Material fictício',25));
 select is(public.bc_finance_expense_create(pg_temp.f('simple-expense-key'),'Material fictício',25),pg_temp.f('simple-expense'),'despesa repetida não duplica');
 
+
+select is(public.bc_finance_attempt_reconcile('payment',pg_temp.f('simple-payment-key'))->>'id',pg_temp.f('simple-payment')::text,'recuperar pagamento pela chave');
+select is(public.bc_finance_attempt_reconcile('receipt',pg_temp.f('simple-receipt-key'),pg_temp.f('simple-appointment'))->>'id',pg_temp.f('simple-receipt')::text,'recuperar entrada no seu agendamento');
+select is(public.bc_finance_attempt_reconcile('expense',pg_temp.f('simple-expense-key'))->>'id',pg_temp.f('simple-expense')::text,'recuperar despesa sem redigitar');
+insert into fixture values('abandoned-receipt',gen_random_uuid()),('abandoned-expense',gen_random_uuid()),('abandoned-payment',gen_random_uuid());
+select is(public.bc_finance_attempt_reconcile('receipt',pg_temp.f('abandoned-receipt'),pg_temp.f('simple-appointment'))->>'status','abandoned','ausência encerra chave');
+select throws_ok(format('select public.bc_recebimento_registrar_v2(%L,%L,1,%L)',pg_temp.f('abandoned-receipt'),pg_temp.f('simple-attendance'),'nao_informado'),'22023',null,'entrada tardia não é registrada');
+select is(public.bc_finance_attempt_reconcile('expense',pg_temp.f('abandoned-expense'))->>'status','abandoned','encerrar despesa sem resultado');
+select throws_ok(format('select public.bc_finance_expense_create(%L,%L,1)',pg_temp.f('abandoned-expense'),'Requisição antiga'),'22023',null,'despesa tardia não é registrada');
+reset role;insert into fixture select 'simple-item-2',id from private.bc_commission_items where receipt_id=pg_temp.f('simple-receipt-2');set local role authenticated;
+select is(public.bc_finance_attempt_reconcile('payment',pg_temp.f('abandoned-payment'))->>'status','abandoned','encerrar pagamento sem resultado');
+select throws_ok(format('select public.bc_finance_commission_pay(%L,%L,array[%L::uuid],80)',pg_temp.f('abandoned-payment'),pg_temp.f('worker'),pg_temp.f('simple-item-2')),'22023',null,'pagamento tardio não é registrado');
+select set_config('request.jwt.claim.sub',pg_temp.f('ordinary')::text,true);
+select throws_ok(format('select public.bc_finance_attempt_reconcile(%L,%L,%L)','receipt',pg_temp.f('simple-receipt-key'),pg_temp.f('simple-appointment')),'42501',null,'outra profissional não reconcilia entrada alheia');
+select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
 -- Anexos opcionais: apenas metadados fictícios no banco descartável; nunca Storage real.
 insert into fixture values('proof-key',gen_random_uuid());
 insert into fixture select 'proof-expense',(public.bc_finance_attachment_reserve('expense',pg_temp.f('simple-expense'),'Comprovante.pdf','application/pdf',3,pg_temp.f('proof-key'))->>'id')::uuid;
@@ -112,7 +127,9 @@ select is((pg_temp.fin_report()->'totals'->>'expense')::numeric,0::numeric,'canc
 select is((select count(*)::integer from jsonb_array_elements(pg_temp.fin_report()->'rows') r where not(r->>'included')::boolean),2,'cancelados continuam identificados no resumo');
 select lives_ok(format('select public.bc_recebimento_estornar(%L,%L)',pg_temp.f('simple-receipt'),'Correção fictícia'),'após desfazer comissão o recebimento pode ser corrigido');
 select is((pg_temp.fin_report()->'totals'->>'income')::numeric,300::numeric,'entrada cancelada fora dos totais');
-select public.bc_comissao_set(pg_temp.f('worker'),pg_temp.f('procedure'),33.3333);
+select lives_ok(format('select public.bc_finance_commissions_apply(%L,33.3333,array[%L::uuid])',pg_temp.f('worker'),pg_temp.f('procedure')),'RPC novo aceita percentual4 casas');
+select throws_ok(format('select public.bc_finance_commissions_apply(%L,33.33333,array[%L::uuid])',pg_temp.f('worker'),pg_temp.f('procedure')),'22023',null,'precisão excessiva recusada');
+select throws_ok(format('select public.bc_finance_commissions_apply(%L,''NaN''::numeric,array[%L::uuid])',pg_temp.f('worker'),pg_temp.f('procedure')),'22023',null,'percentual não finito recusado');
 insert into fixture values('simple-precise',public.bc_recebimento_registrar_v2(gen_random_uuid(),pg_temp.f('simple-attendance'),1,'nao_informado'));
 insert into fixture values('simple-tiny',public.bc_recebimento_registrar_v2(gen_random_uuid(),pg_temp.f('simple-attendance'),0.01,'nao_informado'));
 reset role;

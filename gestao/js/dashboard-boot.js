@@ -24,6 +24,8 @@ export function startStaffDashboard({client,profile,root=document,authorize}){
  if(canManageProcedureLibrary(profile))areas.procedimentos={init:()=>initProcedurePanel({client,profile,root})};
  if(admin){areas.auditoria={init:()=>initAdminAudit({client,root})};areas['pre-anamneses']={init:()=>initPreAnamneseInbox({client,root})};areas.equipe={init:()=>initAdminStaffClinicalIdentity({client,root})};}
  dashboard=startDashboard({root,areas,authorize});
+ const openIntakes=async event=>{const button=event.target.closest?.('[data-client-intakes]');if(!admin||!button)return;button.disabled=true;try{await dashboard.open('pre-anamneses');dashboard.get('pre-anamneses')?.setClientContext?.({id:button.dataset.clientIntakes,nome:button.dataset.intakeClientName,telefone:button.dataset.intakeClientPhone});root.defaultView?.history?.replaceState(null,'','#pre-anamneses');}finally{button.disabled=false;}};
+ root.addEventListener('click',openIntakes);
  const live=startLiveRefresh({root,authorize,tasks:Object.keys(areas).map(name=>({scope:()=>root.getElementById(name),refresh:options=>dashboard.refresh(name,options)}))});
- return {...dashboard,destroy(){live.stop();dashboard.destroy();}};
+ return {...dashboard,destroy(){root.removeEventListener('click',openIntakes);live.stop();dashboard.destroy();}};
 }

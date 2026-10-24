@@ -252,8 +252,7 @@ language plpgsql security definer set search_path='' as $$
 declare ids uuid[]; proc uuid; n integer:=0; rule_id uuid; old_percent numeric;
 begin
  perform private.bc_finance_require_admin();
- perform private.bc_finance_valid_amount(p_percent,true);
- if p_percent>100 or p_professional is null then raise exception 'Informe profissional e percentual entre 0 e 100.' using errcode='22023'; end if;
+ if p_percent is null or p_percent::text in ('NaN','Infinity','-Infinity') or p_percent<0 or p_percent>100 or p_percent<>round(p_percent,4) or p_professional is null then raise exception 'Informe profissional e percentual entre 0 e 100.' using errcode='22023'; end if;
  perform private.bc_finance_lock_professional(p_professional);
  select array_agg(p.id order by p.id) into ids from public.procedimentos p where
  (p_procedure_ids is null or p.id=any(p_procedure_ids)) and
@@ -293,3 +292,52 @@ do $acl$ declare f record; begin
  then execute format('grant execute on function %s to authenticated',f.sig); end if;
  end loop;
 end $acl$;
+
+-- Uma tentativa encerrada sem resultado não pode chegar tardiamente e lançar dinheiro.
+create table private.bc_finance_abandoned_attempts(
+ kind text not null check(kind in ('receipt','payment','expense')),request_key uuid not null,
+ actor_id uuid not null references auth.users(id),context_id uuid,created_at timestamptz not null default now(),primary key(kind,request_key)
+);
+create index bc_finance_abandoned_actor_idx on private.bc_finance_abandoned_attempts(actor_id);
+alter table private.bc_finance_abandoned_attempts enable row level security;
+revoke all on private.bc_finance_abandoned_attempts from public,anon,authenticated;
+grant all on private.bc_finance_abandoned_attempts to service_role;
+create or replace function private.bc_finance_attempt_guard() returns trigger
+language plpgsql security definer set search_path='' as $$
+declare attempt_kind text:=tg_argv[0];prefix text;
+begin
+ if new.request_key is null then return new;end if;
+ prefix:=case attempt_kind when 'receipt' then 'bc_receipt:' when 'payment' then 'bc_simple_payment:' else 'bc_simple_expense:' end;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(prefix||new.request_key::text,0));
+ if exists(select 1 from private.bc_finance_abandoned_attempts a where a.kind=attempt_kind and a.request_key=new.request_key) then
+ raise exception 'Esta tentativa já foi encerrada sem lançamento. Confira o saldo e confirme novamente.' using errcode='22023';end if;return new;
+end $$;
+create trigger bc_finance_receipt_attempt_guard before insert or update of request_key on public.recebimentos for each row execute function private.bc_finance_attempt_guard('receipt');
+create trigger bc_finance_payment_attempt_guard before insert on private.bc_commission_payments for each row execute function private.bc_finance_attempt_guard('payment');
+create trigger bc_finance_expense_attempt_guard before insert on private.bc_finance_expenses for each row execute function private.bc_finance_attempt_guard('expense');
+revoke all on function private.bc_finance_attempt_guard() from public,anon,authenticated;
+
+-- Define apenas uma cobrança administrativa quando o documento assinado não contém valor.
+create or replace function private.bc_finance_charge_define_impl(p_appointment_id uuid,p_total numeric) returns uuid
+language plpgsql security definer set search_path='' as $$
+declare t public.clinical_treatments%rowtype;a public.atendimentos%rowtype;ids uuid[];known text;result uuid;existing_total numeric;
+begin
+ perform private.bc_finance_require_admin();perform private.bc_finance_valid_amount(p_total);
+ select * into t from public.clinical_treatments where agendamento_id=p_appointment_id and status='finalizado';
+ if not found or t.operational_attendance_id is null then raise exception 'Atendimento concluído não encontrado.' using errcode='22023';end if;
+ perform private.bc_finance_lock_professional(t.profissional_user_id);
+ select * into a from public.atendimentos where id=t.operational_attendance_id for update;
+ if not found or a.agendamento_id is distinct from t.agendamento_id or a.cliente_id is distinct from t.cliente_id or a.colaboradora_user_id is distinct from t.profissional_user_id or a.procedimento_id is distinct from t.procedimento_id then raise exception 'Confira o vínculo deste atendimento.' using errcode='55000';end if;
+ select v.snapshot->'treatment'->>'final_price' into known from public.clinical_treatment_versions v where v.id=t.current_version_id and v.treatment_id=t.id;
+ if not found or nullif(trim(known),'') is not null then raise exception 'A sessão já possui valor no documento clínico. Confira o atendimento antes de alterar a cobrança.' using errcode='55000';end if;
+ select array_agg(p.id order by p.id) into ids from public.pagamentos p where p.atendimento_id=a.id or (p.atendimento_id is null and p.agendamento_id=t.agendamento_id);
+ if cardinality(ids)=1 then
+  select valor_total into existing_total from public.pagamentos where id=ids[1];if existing_total=p_total then return ids[1];end if;
+  raise exception 'A cobrança já foi definida. Confira o valor antes de continuar.' using errcode='55000';
+ elsif cardinality(ids)>1 then raise exception 'Há cobranças a conferir neste atendimento.' using errcode='55000';end if;
+ insert into public.pagamentos(agendamento_id,atendimento_id,cliente_id,valor_total,valor_recebido,status,created_by) values(t.agendamento_id,a.id,t.cliente_id,p_total,0,'pendente',auth.uid()) returning id into result;
+ insert into public.audit_log(actor_user_id,action,entity_type,entity_id,new_data) values(auth.uid(),'finance_charge_defined','pagamentos',result,jsonb_build_object('treatment_id',t.id,'amount',p_total));return result;
+end $$;
+create or replace function public.bc_finance_charge_define(p_appointment_id uuid,p_total numeric) returns uuid language sql security invoker set search_path='' as $$select private.bc_finance_charge_define_impl($1,$2);$$;
+revoke all on function private.bc_finance_charge_define_impl(uuid,numeric),public.bc_finance_charge_define(uuid,numeric) from public,anon,authenticated;
+grant execute on function private.bc_finance_charge_define_impl(uuid,numeric),public.bc_finance_charge_define(uuid,numeric) to authenticated,service_role;
