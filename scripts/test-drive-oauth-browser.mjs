@@ -32,7 +32,8 @@ const server=createServer({key:await readFile(join(temporary,'key.pem')),cert:aw
       back.search=new URLSearchParams({code:'fake-code',state:url.searchParams.get('state')}).toString();
       res.writeHead(302,{location:back.href});res.end();return;
     }
-    let path=url.pathname;if(path.endsWith('/'))path+='index.html';const file=resolve(root,'.'+path);
+    assert(url.pathname.startsWith('/bcesteticaavancada-alt/'), 'The published app only serves its repository path');
+    let path=url.pathname.slice('/bcesteticaavancada-alt'.length);if(path.endsWith('/'))path+='index.html';const file=resolve(root,'.'+path);
     assert(url.origin===origin&&file.startsWith(root+'/')&&['.html','.js','.css'].includes(extname(file)));
     // Same code and policy, translated to isolated TLS hosts for the fixture.
     const content=(await readFile(file,'utf8')).replaceAll('https://tpqsmerlxquyrzrjbogj.supabase.co',base).replaceAll('https://accounts.google.com',googleOrigin);
@@ -77,8 +78,8 @@ try{
     errors.push('Unplanned origin '+u.origin);return route.abort();});
   const page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>errors.push(e.message));
   page.on('console',e=>{if(e.type()==='error')errors.push(e.text())});
-  await page.goto(origin+'/gestao/configurar-drive/');await page.getByRole('status').filter({hasText:'Comece autorizando'}).waitFor();
-  try{await Promise.all([page.waitForURL('**/gestao/configurar-drive/?status=authorized',{timeout:10000}),page.getByRole('button',{name:'Continuar com Google'}).click()]);}
+  await page.goto(origin+'/bcesteticaavancada-alt/gestao/configurar-drive/');await page.getByRole('status').filter({hasText:'Comece autorizando'}).waitFor();
+  try{await Promise.all([page.waitForURL(origin+'/bcesteticaavancada-alt/gestao/configurar-drive/?status=authorized',{timeout:10000}),page.getByRole('button',{name:'Continuar com Google'}).click()]);}
   catch(e){throw Error('Mock authorization failed: '+errors.join(' | '),{cause:e});}
   await page.getByRole('status').filter({hasText:'Conta Google autorizada'}).waitFor();assert.equal(nativePosts,1);
   assert.equal((await context.cookies(base)).filter(c=>c.name==='__Secure-bc-drive-oauth').length,0);

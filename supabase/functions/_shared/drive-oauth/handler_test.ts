@@ -144,6 +144,17 @@ Deno.test("valid callback checks same session/account and persists refresh only 
   assert(r.headers.get("set-cookie")!.includes("Max-Age=0"));
 });
 
+Deno.test("all callback outcomes return to BC Gestão inside its published repository path", async () => {
+  const target = "https://bcesteticaavancada.github.io/bcesteticaavancada-alt/gestao/configurar-drive/";
+  for (const status of ["authorized", "cancelled", "failed"]) {
+    const f = fixture(); const b = await f.begin();
+    const r = await f.callback(b.state, status === "failed" ? "" : b.cookie,
+      status === "cancelled" ? "error=access_denied" : "code=fake-auth-code");
+    assert.equal(r.status, 303);
+    assert.equal(r.headers.get("location"), target + "?status=" + status);
+  }
+});
+
 Deno.test("missing, altered, expired, mismatching or repeated browser state cannot save a token", async () => {
   for (const mode of ["missing", "tampered", "expired", "mismatch", "repeated", "duplicate"]) {
     const f = fixture(); const b = await f.begin();

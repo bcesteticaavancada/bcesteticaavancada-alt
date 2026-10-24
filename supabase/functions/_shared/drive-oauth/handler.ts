@@ -18,7 +18,7 @@ const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const DRIVE = "https://www.googleapis.com/drive/v3/";
 
 export function createOAuthHandler(kind: "start" | "callback" | "setup", config: Config, deps: Dependencies) {
-  const returnUrl = config.appOrigin + "/gestao/configurar-drive/";
+  const returnUrl = config.appOrigin + "/bcesteticaavancada-alt/gestao/configurar-drive/";
   const redirectUri = config.baseUrl + COOKIE_PATH;
   function headers(req: Request): Headers {
     const h = new Headers({ "Cache-Control": "no-store", Pragma: "no-cache",
