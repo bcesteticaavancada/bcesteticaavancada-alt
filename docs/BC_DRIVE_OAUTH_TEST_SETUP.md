@@ -1,8 +1,11 @@
 # BC — OAuth de teste, rascunho pronto para revisão
 
 Esta branch prepara somente autorização/seleção de duas pastas. Não é backup
-ativo. Não houve deploy, migration no projeto ativo, consentimento Google real,
-acesso a documentos de clientes ou upload. A página não foi publicada.
+ativo. Atualização em 24/10/2026: a migration privada foi instalada após a
+autorização específica de Fernando, com ACL/RLS conferidas e tabelas vazias.
+Funções e página ainda não implantadas nesta etapa; consentimento Google real,
+acesso a documentos de clientes e uploads não ocorreram. Ver estado e bloqueios
+em `BC_DRIVE_OAUTH_INSTALACAO_TESTE.md`.
 
 ## Já informado pelo usuário
 
@@ -15,7 +18,7 @@ existência dos registros, não validam os respectivos valores nem a autenticaç
 
 - Página separada `gestao/configurar-drive/`, sem modificar home/menu.
 - Três funções: `drive-oauth-start`, `drive-oauth-callback`, `drive-oauth-setup`.
-- Migration aditiva `20261023213235_bc_drive_oauth_test_setup.sql`: duas tabelas
+- Migration aditiva `20261024043221_bc_drive_oauth_test_setup.sql`: duas tabelas
   privadas e RPC limitada a `service_role`; nenhum acesso anon/authenticated.
 - Cookie criptografado e state de uso único, PKCE S256, sessão BC revalidada,
   conta Google exata, escopo único `drive.file`, retornos sem tokens/códigos.
@@ -28,10 +31,11 @@ existência dos registros, não validam os respectivos valores nem a autenticaç
 - Picker mostra somente a pasta esperada e o servidor valida os dois IDs e
   compartilhamento. Não solicita raiz, manifestos ou mídias.
 
-## Antes de instalar — aprovação específica ainda necessária
+## Instalação restrita — aprovação recebida, pré-requisitos técnicos pendentes
 
-Revisar o PR e liberar somente esta autorização de teste. A autorização anterior
-permite preparar; não permite publicar novas funções nem ativar produção.
+Fernando autorizou especificamente instalar somente esta autorização de teste
+em 23/10/2026 às 19:07 (Brasília). Essa autorização não libera backups, dados
+clínicos ou merge de toda a branch. Não pedir a mesma aprovação novamente.
 
 1. Conferir Drive API e Google Picker API habilitadas no projeto Google escolhido.
 2. Manter OAuth External/Testing e `decolarbh@gmail.com` como usuário de teste.
@@ -44,7 +48,8 @@ permite preparar; não permite publicar novas funções nem ativar produção.
    ao mesmo projeto do cliente (`530925228983`). Não usar service account ou PAT.
 6. Guardar essa chave em `BC_DRIVE_PICKER_API_KEY`. Só depois da liberação, usar
    `BC_DRIVE_OAUTH_ENABLE_SETUP=true`; manter `BC_DRIVE_BACKUP_ENABLE_WRITES=false`.
-7. Aplicar somente a migration desta entrega, com plano de rollback revisado;
+7. Migration desta entrega já aplicada como versão `20261024043221`; não reaplicar
+   no projeto ativo. Em ambiente novo, usar somente esta migration e rollback revisado;
    não aplicar indiscriminadamente migrations pendentes de outras branches.
 8. Implantar somente as três funções, com configuração JWT declarada no arquivo
    `supabase/config.toml`; handlers fazem a autenticação/CSRF necessária.
@@ -52,7 +57,8 @@ permite preparar; não permite publicar novas funções nem ativar produção.
    BC/Google no próprio aparelho. Não fazer merge de toda a branch de backup
    como atalho para publicar a página.
 
-Nenhum desses passos foi executado pelo Roque nesta entrega. Habilitar APIs ou
+A migration do item 7 foi executada e validada; demais passos de instalação
+ainda precisam de conferência. Habilitar APIs ou
 criar chave pode exigir ação no navegador Google Cloud do usuário. Nenhum segredo
 deve ser enviado por conversa.
 
