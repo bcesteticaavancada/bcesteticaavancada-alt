@@ -11,6 +11,7 @@ const html=readFileSync(resolve(dir,'../../gestao/maya-beta/index.html'),'utf8')
 const moduleScript=html.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1];
 assert.ok(moduleScript,'Inline module found');
 const executable=moduleScript.replace(/^import .*?;?\s*$/gm,'').trim();
+const library=JSON.parse(readFileSync(resolve(dir,'../../gestao/maya-beta/respostas-65.json'),'utf8'));
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 
 async function render(profile,{allow=()=>true}={}){
@@ -26,6 +27,10 @@ async function render(profile,{allow=()=>true}={}){
     installSessionGuard:()=>{
       signedGuard=true;
       return {authorize:async()=>{calls++;return allow()}};
+    },
+    fetch:async url=>{
+      assert.equal(url,'./respostas-65.json');
+      return {ok:true,json:async()=>library};
     },
   };
   await runInNewContext('(async()=>{\n'+executable+'\n})()',context,{timeout:2000});
@@ -106,4 +111,35 @@ test('Perfil inativo não vê a Maya Beta',async()=>{
   const x=await render({user_id:'blocked',role:'colaborador',active:false,display_name:'Teste inativo'});
   assert.ok(x.document.querySelector('#status').textContent.includes('Acesso restrito'));
   assert.equal(x.guardInstalled(),false);
+});
+
+test('Biblioteca mostra 65 respostas com busca e revisão pendente',async()=>{
+ const x=await render({user_id:'u5',role:'colaborador',active:true,display_name:'Teste'});
+ trigger(x,'#knowledgeOpen');
+ await settle();await settle();
+ const panel=x.document.querySelector('#knowledgePanel');
+ assert.equal(panel.hidden,false);
+ assert.match(x.document.querySelector('#knowledgeCount').textContent,/20 primeiras de 65/);
+ assert.equal(x.document.querySelectorAll('#knowledgeItems details').length,20);
+ x.document.querySelector('#knowledgeSearch').value='botox';
+ trigger(x,'#knowledgeSearch','input');
+ const match=x.document.querySelectorAll('#knowledgeItems details');
+ assert.ok(match.length>=1);
+ assert.ok(Array.from(match).some(x=>x.textContent.includes('revisão técnica pendente')));
+});
+test('Pergunta reconhecida consulta resposta original da biblioteca sem diagnóstico',async()=>{
+ const x=await render({user_id:'u6',role:'colaborador',active:true,display_name:'Teste'});
+ x.document.querySelector('#question').value='Como é feito o Botox?';
+ trigger(x,'#ask','submit');
+ await settle();await settle();
+ const text=x.document.querySelector('#chat').textContent;
+ assert.match(text,/toxina botulínica/i);
+ assert.match(text,/revisão técnica pendente/);
+ assert.doesNotMatch(text,/Como é feito o Botox\?/);
+});
+test('Pessoa sem autorização não consegue abrir a biblioteca',async()=>{
+ const x=await render({user_id:'u7',role:'colaborador',active:true,display_name:'Teste'},{allow:()=>false});
+ trigger(x,'#knowledgeOpen');
+ await settle();await settle();
+ assert.equal(x.document.querySelector('#knowledgePanel').hidden,true);
 });
