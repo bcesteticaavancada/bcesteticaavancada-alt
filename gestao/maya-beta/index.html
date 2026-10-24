@@ -58,7 +58,7 @@ function line(value,cls){
  chat.scrollTop=chat.scrollHeight;
 }
 function sensitive(input){
- return /@|(?:\d[\s().-]?){6,}|cpf|rg\b|senha|email|e-mail|laudo|prontu[aá]rio de|diagn[oó]stic|foto de (cliente|paciente)|nome da (cliente|paciente)/i.test(input);
+ return /@|(?:\d[\s().-]?){6,}|(?:senha\s*[:=]\s*\S+)|(?:meu\s+(?:cpf|rg|e-mail|email)\s*(?:é|:))|(?:nome\s+(?:completo|da\s+cliente)\s*[:=])|(?:prontu[aá]rio\s+(?:da|do|de)\s+\w+)|(?:diagn[oó]stico\s+(?:da|do|de)\s+\w+)|(?:foto\s+(?:da|do|de)\s+(?:cliente|paciente))|(?:sintomas?|sangramento|febre|rea[cç][aã]o\s+adversa|dor\s+intensa)/i.test(input);
 }
 const replies={
  acesso:'Para entrar na BC Gestão, use o e-mail cadastrado pela administração e sua senha. Se não conseguir acessar, utilize a recuperação de senha na entrada. Não envie senhas à Maya nem às colegas.',
@@ -113,7 +113,7 @@ try{
   const target=profile.role==='admin'?'../admin/':profile.role==='colaborador'?'../colaborador/':'../criacao/';
   document.getElementById('dashboardLink').href=target;
   status.hidden=true;app.hidden=false;
-  line('Bom dia! Posso explicar as funções do BC Gestão. Escolha um assunto ou digite uma pergunta sem dados de clientes.','maya');
+  line('Olá! Posso explicar as funções do BC Gestão. Escolha um assunto ou digite uma pergunta sem dados de clientes.','maya');
   document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{void answer('',b.dataset.topic);}));
   form.addEventListener('submit',e=>{e.preventDefault();const t=question.value;question.value='';void answer(t);});
  }
