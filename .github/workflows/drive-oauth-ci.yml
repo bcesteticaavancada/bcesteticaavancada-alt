@@ -1,0 +1,53 @@
+name: BC Drive OAuth Draft CI
+on:
+  push:
+    branches: ['backup/**']
+    paths:
+      - 'supabase/functions/_shared/drive-oauth/**'
+      - 'supabase/functions/drive-oauth-*/**'
+      - 'supabase/migrations/*_bc_drive_oauth_test_setup.sql'
+      - 'gestao/configurar-drive/**'
+      - 'tests/gestao/drive-oauth-setup.test.mjs'
+      - 'scripts/test-drive-oauth-*'
+      - '.github/workflows/drive-oauth-ci.yml'
+      - 'package*.json'
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/drive-oauth/**'
+      - 'supabase/functions/drive-oauth-*/**'
+      - 'supabase/migrations/*_bc_drive_oauth_test_setup.sql'
+      - 'gestao/configurar-drive/**'
+      - 'tests/gestao/drive-oauth-setup.test.mjs'
+      - 'scripts/test-drive-oauth-*'
+      - '.github/workflows/drive-oauth-ci.yml'
+      - 'package*.json'
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: npm ci --ignore-scripts
+      - run: node --test scripts/test-drive-oauth-db.mjs
+      - run: node --test tests/gestao/drive-oauth-setup.test.mjs
+      - run: deno test --no-check --no-remote supabase/functions/_shared/drive-oauth/handler_test.ts
+      - run: deno check supabase/functions/drive-oauth-start/index.ts supabase/functions/drive-oauth-callback/index.ts supabase/functions/drive-oauth-setup/index.ts
+      - run: npx playwright install --with-deps chromium
+      - name: Rehearse browser redirects and cookies with local TLS fixtures
+        env:
+          BC_OAUTH_SCREENSHOT_DIR: test-results/drive-oauth
+        run: node --experimental-transform-types scripts/test-drive-oauth-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: drive-oauth-phone
+          path: test-results/drive-oauth/
