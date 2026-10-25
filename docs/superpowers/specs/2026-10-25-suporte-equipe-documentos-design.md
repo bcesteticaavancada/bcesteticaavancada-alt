@@ -1,6 +1,6 @@
 # Apoio operacional — equipe, cadastro e documentos
 
-Estado: levantamento concluído; ampliação de acesso e novo fluxo documental ainda não implementados. Falta definir com Fernando o momento obrigatório da assinatura GOV.BR antes de fechar o desenho dos bloqueios clínicos.
+Estado: levantamento concluído e fluxo manual esclarecido por Fernando em25/10/2026. Ampliação de acesso ainda não implementada. O app coleta as assinaturas, gera o PDF e recebe a cópia devolvida; a assinatura GOV.BR ocorre externamente, por iniciativa da própria cliente.
 
 ## Pedido e escopo
 
@@ -17,7 +17,7 @@ Consulta somente a metadados e à biblioteca de procedimentos no projeto atual; 
 - A pasta aceita PDF, JPEG, PNG e WebP de até8MB, com título, categoria, origem e data opcional. Upload registra SHA-256 e utiliza armazenamento privado, sem sobrescrever o arquivo.
 - Há categoria TCLE externo e origem GOV.BR. O vínculo como consentimento exige PDF da mesma cliente, não anulado, compatível com o atendimento e revisado pela própria profissional responsável, antes de iniciar o procedimento.
 - Hoje o bloqueio clínico aceita consentimento interno finalizado OU TCLE externo compatível. Não existem duas etapas obrigatórias sucessivas tela → GOV.BR.
-- A origem GOV.BR é declarada no upload. Não foi encontrada validação criptográfica GOV.BR/ITI no fluxo de arquivos, nem ligação da cópia assinada ao documento original por signed_copy_of_document_id. O hash de armazenamento comprova integridade dos bytes registrados, não autentica por si só a assinatura digital.
+- A origem GOV.BR é declarada no upload. Não foi encontrada validação criptográfica GOV.BR/ITI no fluxo de arquivos, nem ligação da cópia assinada ao documento original por signed_copy_of_document_id. O hash de armazenamento comprova integridade dos bytes registrados, não autentica por si só a assinatura digital. A ausência de integração/validação automática não é um defeito a corrigir neste escopo manual confirmado.
 - A área admin_criacao permanece de consulta: ainda não oferece edição de paciente, convite de colaboradora ou download clínico. O endpoint antigo de manutenção de identidade foi encerrado com HTTP410; não constitui gestão permanente de equipe.
 
 Evidências no código: gestao/js/anamnese-controller.js, treatment-panel.js, client-documents-panel.js, client-files-api.js, clinical-documents-api.js; supabase/migrations/20261014014000_bc_gestao_external_consents.sql; supabase/functions/staff-identity-maintenance/index.ts. A biblioteca/colunas e funções pertinentes foram confirmadas por consultas somente de leitura ao banco.
@@ -40,26 +40,29 @@ Permissões operacionais específicas no perfil de criação, com funções pró
 - Apoio urgente registra motivo, sem autorizar assinatura, avaliação clínica ou desbloqueio de exigências clínicas no lugar da profissional.
 - Disponibilizar cópias clínicas permitidas, com confirmação da cliente/destinatário. Controles financeiros permanecem excluídos. Arquivos externos não devem ganhar acesso irrestrito apenas por estarem anexados.
 
-### Fichas e assinatura GOV.BR
+### Consentimento: assinaturas no app e devolução manual
 
-1. Profissional revisa o conteúdo e a versão da ficha/TCLE do procedimento e esclarece as dúvidas da cliente.
-2. Cliente/responsável e profissional assinam na tela; documento é fechado e PDF original preservado.
-3. Profissional baixa e entrega o PDF à cliente para assinatura no serviço oficial GOV.BR, com a conta da própria cliente.
-4. O PDF digital assinado é devolvido. Conferir identidade do signatário e a validação no serviço oficial ITI. Recebido não equivale a verificado.
-5. Anexar os bytes originais do PDF assinado como uma nova cópia vinculada à cliente, ao atendimento e à versão do documento de origem; guardar autoria, data e resultado da conferência. Preservar o PDF anterior e os dois hashes, que naturalmente diferem.
-6. Manter a sequência visível e simples: assinatura na tela → aguardando GOV.BR → recebido → conferido. Não regenerar, editar, comprimir ou imprimir em PDF a cópia já assinada digitalmente.
+Fluxo confirmado por Fernando:
 
-O documento de ciência dos riscos do procedimento deve ser identificado como Termo de Consentimento Livre e Esclarecido (TCLE). Uma avaliação de risco cirúrgico, quando indicada e apresentada, é outro documento clínico; não é o nome genérico do consentimento estético. Textos específicos devem descrever o procedimento efetivamente planejado e passar pela responsável técnica, sem prometer resultado nem criar exoneração de responsabilidade.
+1. A profissional revisa a ficha de consentimento do procedimento e esclarece as dúvidas da cliente.
+2. Cliente/responsável e profissional assinam na tela do aplicativo.
+3. O app gera o PDF com essas assinaturas. A profissional baixa o arquivo e o encaminha manualmente à cliente.
+4. A cliente assina o PDF pelo GOV.BR, fora do aplicativo, baixa o documento assinado e o devolve à clínica.
+5. A profissional ou o apoio autorizado anexa o PDF devolvido à ficha da mesma cliente. Preservar o PDF gerado pelo app e a cópia devolvida como arquivos separados, com autoria e data de anexação.
 
-Para assinaturas devolvidas após o encerramento, a solução precisa preservar o atendimento imutável e registrar a cópia como documento posterior; não retroagir consentimento nem modificar a versão original assinada.
+O documento é um Termo de Consentimento Livre e Esclarecido (TCLE), com informações e riscos do procedimento. A revisão dos conteúdos específicos continua sob a responsável técnica.
 
-## Decisão pendente
+O escopo do aplicativo termina em gerar/baixar o PDF e receber/guardar o anexo devolvido. Não desenvolver integração, login, API, validação automática, consulta a GOV.BR/ITI, assinatura em nome da cliente nem envio automático. Não introduzir bloqueio do atendimento ou acompanhamento obrigatório de etapas GOV.BR. A origem declarada de um anexo não deve ser apresentada como verificação automática de assinatura.
 
-GOV.BR deve ser exigido antes de iniciar o procedimento, ou será uma confirmação documental complementar após a assinatura na tela? A resposta define se existe bloqueio clínico adicional ou apenas acompanhamento de pendência documental. O sistema atual não foi alterado nessa matéria.
+Para cópias devolvidas após o encerramento, preservar o atendimento e os documentos originais imutáveis; anexar o arquivo como registro posterior, sem retroagir datas nem modificar a versão assinada.
 
-## Próxima execução, após fechar essa decisão
+## Definição encerrada
 
-Primeiro implementar convites e apoio cadastral com permissões e auditoria; depois vincular cópias assinadas e estados de conferência. Testes de acesso devem negar criação de administrador, dados financeiros, assinatura por terceiros e troca de documento entre clientes. Testes documentais devem preservar os bytes do PDF e o atendimento encerrado. Não exigir uma integração automática ao GOV.BR para o fluxo manual funcionar.
+Fernando esclareceu que a assinatura externa é uma etapa manual da cliente. A pergunta anterior sobre tornar GOV.BR obrigatório antes do procedimento foi retirada do escopo. Permanecem as regras clínicas já existentes do aplicativo; nenhuma exigência GOV.BR nova deve ser criada.
+
+## Execução delimitada
+
+Implementar os convites e o apoio cadastral autorizados com permissões e auditoria. Na parte documental, priorizar a simplicidade das ações já descritas: assinar no app, baixar/enviar o PDF e anexar a cópia devolvida. Testes de acesso devem negar criação de administrador, dados financeiros, assinatura por terceiros e troca de documento entre clientes. Testes documentais devem preservar os bytes dos dois arquivos e o atendimento encerrado. Qualquer integração automática a GOV.BR/ITI está fora desta entrega.
 
 ## Fontes oficiais consultadas
 
