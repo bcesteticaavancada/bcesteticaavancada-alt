@@ -43,7 +43,7 @@
 
 **Interfaces:** testar HTML/controlador reais da Task1 com RPC fictícia; adicionar execução ao Site CI e capturas ao artefato existente.
 
-- [ ] Exercitar Chromium/WebKit em 320 e 768px: atalhos, secundárias, histórico, retorno de filtro/página, detalhes após refresh, erro e recuperação, nomes longos e nenhuma consulta financeira.
-- [ ] Rodar npm test e node scripts/test-creation-dashboard-browser.mjs. Expected: aprovação e nenhuma exceção/overflow.
-- [ ] Commit; revisão independente única da alteração inteira; corrigir achados relevantes com regressão.
-- [ ] Abrir PR, verificar Site CI, integrar e confirmar versão publicada. Registrar evidências no ledger.
+- [x] Exercitar Chromium/WebKit em 320 e 768px: atalhos, secundárias, histórico, retorno de filtro/página, detalhes após refresh, erro e recuperação, nomes longos e nenhuma consulta financeira.
+- [x] Rodar npm test e node scripts/test-creation-dashboard-browser.mjs. Expected: aprovação e nenhuma exceção/overflow. Navegadores executados pelo CI, conforme limitação local registrada.
+- [x] Commit; revisão independente única da alteração inteira; corrigir achados relevantes com regressão.
+- [x] Abrir PR, verificar Site CI, integrar e confirmar versão publicada. Registrar evidências no ledger.
