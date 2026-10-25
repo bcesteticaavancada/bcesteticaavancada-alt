@@ -1,7 +1,7 @@
 # Revisão da Maya — PR #63
 
 Data: 25/10/2026. Base examinada: `2380b7f9b9b0a24782a6628cc14a33ba4a03659f`.
-Estado: desenvolvimento na branch do PR, sem merge ou publicação no site.
+Estado: desenvolvimento na branch do PR, sem merge do PR na principal nem publicação da Maya no site.
 
 ## Resultado
 
@@ -15,13 +15,15 @@ A Beta pode avançar para homologação interna após as checagens do último co
 - Falha na revalidação da sessão mostra aviso recuperável e bloqueia o conteúdo solicitado, sem rejeição assíncrona não tratada.
 - Perguntas como “O que é microagulhamento?”, “Como funciona o peeling?” e “O que é radiofrequência?” reconhecem gatilhos existentes. A introdução é removida de forma limitada e o assunto precisa corresponder a um gatilho exato e único; não há geração de texto médico. Pedidos de dose e alternativas com “ou” sem correspondência cadastrada não selecionam uma explicação por trecho.
 - Criado `scripts/test-maya-browser.mjs` e incluída sua execução no Site CI, com Chromium e WebKit e capturas de tela somente de fixtures.
+- Sincronizada a branch com a principal em `2dd75f934d972f5d1e1dde2a478bc85fe5ca3012`, resolvendo conflito no painel de criação. O painel atualizado foi preservado integralmente, acrescentando somente o atalho interno da Maya já previsto no PR. A principal não foi modificada.
 
 ## Testes e evidências
 
 | Verificação | Resultado local |
 |---|---|
 | Suíte antes das alterações | 846 aprovados: 69 anamnese, 133 site, 644 gestão |
-| Suíte final `npm test` | 865 aprovados: 69 anamnese, 133 site, 663 gestão; zero falhas |
+| Suíte após correções da Maya | 865 aprovados: 69 anamnese, 133 site, 663 gestão; zero falhas |
+| Suíte final após sincronizar a principal | 870 aprovados: 69 anamnese, 133 site, 668 gestão; zero falhas |
 | Maya + revogação de sessão | 58 aprovados; incluídos no total acima |
 | Novas regressões de runtime | 19 testes adicionais; casos com biblioteca adiada reproduziram falhas antes das correções |
 | Correspondência da biblioteca | As 65 perguntas e os 219 gatilhos foram exercitados, com 284 correspondências corretas |

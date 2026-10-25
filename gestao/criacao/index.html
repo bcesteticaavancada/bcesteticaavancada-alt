@@ -9,19 +9,22 @@
   <link rel="stylesheet" href="../assets/creation.css">
   <link rel="manifest" href="../../manifest.webmanifest">
 </head>
-<body class="bcg-page bcg-dashboard-page">
+<body class="bcg-page bcg-dashboard-page bcg-creation-page">
   <p id="authStatus" class="bcg-status" role="status" aria-live="polite">Validando acesso…</p>
   <div id="gestaoApp" class="bcg-dashboard-main" hidden>
-<aside id="gestaoMenu" class="bcg-menu-drawer" aria-hidden="true"><a class="bcg-menu-brand" href="../">BC Gestão</a><nav class="bcg-menu-nav" aria-label="Navegação de criação"><a href="#agenda" data-creation-target="agenda">Agenda</a><a href="#clientes" data-creation-target="clientes">Clientes</a><details data-menu-settings><summary>Acompanhamento</summary><a href="#equipe" data-creation-target="equipe">Equipe</a><a href="#procedimentos" data-creation-target="procedimentos">Procedimentos</a><a href="#atendimentos" data-creation-target="atendimentos">Atendimentos</a><a href="#auditoria" data-creation-target="auditoria">Eventos da operação</a></details><a href="../maya-beta/" data-maya-beta-link>Maya Beta (uso interno)</a></nav><p class="bcg-menu-note">Admin de Criação • consulta da operação</p></aside><button id="menuBackdrop" class="bcg-menu-backdrop" type="button" aria-label="Fechar menu" hidden></button>
-    <header class="bcg-topbar"><button id="menuToggle" class="bcg-menu-toggle" type="button" aria-controls="gestaoMenu" aria-expanded="false" aria-label="Abrir menu"><span></span><span></span><span></span></button><div><p class="bcg-eyebrow">BC ESTÉTICA AVANÇADA</p><h1>Admin de Criação</h1><p>Olá, <strong id="profileName"></strong>.</p></div><button id="logoutBtn" class="bcg-button" type="button">Sair</button></header>
-    <main class="bcg-panel">
-      <div class="bcg-section-head"><div><p class="bcg-eyebrow">ACOMPANHAMENTO DA OPERAÇÃO</p><h2>Visão geral</h2></div><button id="creationRefresh" type="button" class="bcg-small-button">Atualizar</button></div>
-      <p class="bcg-muted">Seu perfil permite consultar a operação da clínica. Alterações clínicas e financeiras são realizadas pelas responsáveis.</p>
-      <form id="creationFilters" class="bcg-inline-filters"><label>Área<select id="creationSection" class="bcg-input"></select></label><label>Buscar<input id="creationSearch" class="bcg-input" type="search" maxlength="80" placeholder="Nome, data ou situação"></label><button class="bcg-button" type="submit">Buscar</button></form>
-      <p class="bcg-muted">Documentos e anamneses mostram identificação e situação. PDFs, anexos e formulários completos ficam com a equipe clínica, pois podem conter valores.</p>
+<aside id="gestaoMenu" class="bcg-menu-drawer" aria-hidden="true" inert><a class="bcg-menu-brand" href="../">BC Gestão</a><nav class="bcg-menu-nav" aria-label="Navegação de criação"><a href="#agenda" data-creation-target="agenda">Agenda</a><a href="#clientes" data-creation-target="clientes">Clientes</a><details data-menu-settings><summary>Acompanhamento</summary><a href="#equipe" data-creation-target="equipe">Equipe</a><a href="#procedimentos" data-creation-target="procedimentos">Procedimentos</a><a href="#atendimentos" data-creation-target="atendimentos">Atendimentos</a><a href="#auditoria" data-creation-target="auditoria">Eventos da operação</a></details><a href="../maya-beta/" data-maya-beta-link>Maya Beta (uso interno)</a></nav><p class="bcg-menu-note">Admin de Criação • consulta da operação</p></aside><button id="menuBackdrop" class="bcg-menu-backdrop" type="button" aria-label="Fechar menu" hidden></button>
+    <header class="bcg-topbar"><div class="bcg-topbar-main"><button id="menuToggle" class="bcg-menu-toggle" type="button" aria-controls="gestaoMenu" aria-expanded="false" aria-label="Abrir menu"><span></span><span></span><span></span></button><div class="bcg-topbar-copy"><p class="bcg-eyebrow">Admin de Criação</p><h1>Minha gestão</h1><p class="bcg-welcome">Olá, <strong id="profileName"></strong>.</p></div></div><button id="logoutBtn" class="bcg-small-button" type="button">Sair</button></header>
+    <main id="creationWorkspace" class="bcg-panel" aria-labelledby="creationTitle">
+      <div class="bcg-creation-navigation">
+        <nav class="bcg-creation-shortcuts" aria-label="Consultas principais"><a href="#agenda" data-creation-target="agenda">Agenda</a><a href="#clientes" data-creation-target="clientes">Clientes</a><a href="#equipe" data-creation-target="equipe">Equipe</a></nav>
+        <details class="bcg-creation-areas bcg-inline-filters"><summary>Todas as áreas</summary><label class="bcg-field" for="creationSection">O que deseja consultar?</label><select id="creationSection" class="bcg-input"></select></details>
+      </div>
+      <div class="bcg-section-head bcg-creation-heading"><h2 id="creationTitle">Agenda geral</h2><button id="creationRefresh" type="button" class="bcg-small-button">Atualizar</button></div>
+      <form id="creationFilters" class="bcg-inline-filters bcg-creation-filters" role="search"><label class="bcg-field" for="creationSearch">Buscar nesta área<input id="creationSearch" class="bcg-input" type="search" maxlength="80" placeholder="Nome, data ou situação" autocomplete="off"></label><button class="bcg-button" type="submit">Buscar</button><button id="creationClear" class="bcg-small-button" type="button" hidden>Limpar busca</button></form>
       <p id="creationStatus" class="bcg-status" role="status" aria-live="polite"></p>
       <div id="creationList" class="bcg-creation-list"></div>
-      <div class="bcg-form-actions"><button id="creationPrevious" class="bcg-small-button" type="button" disabled>Anterior</button><button id="creationNext" class="bcg-small-button" type="button" disabled>Próxima</button></div>
+      <div id="creationPagination" class="bcg-form-actions" hidden><button id="creationPrevious" class="bcg-small-button" type="button" disabled>Anterior</button><button id="creationNext" class="bcg-small-button" type="button" disabled>Próxima</button></div>
+      <details class="bcg-creation-access"><summary>Sobre seu acesso</summary><p>Você acompanha a operação da clínica. Alterações ficam com as responsáveis de cada área.</p><p>Documentos e anamneses mostram identificação e situação. PDFs, anexos e formulários completos ficam com a equipe clínica, pois podem conter valores.</p></details>
     </main>
     <footer class="bcg-footer">BC Estética Avançada • <span data-current-year></span></footer>
   </div>
@@ -41,8 +44,7 @@
       const guard=installSessionGuard({client,profile,app});
       status.hidden=true;app.hidden=false;
       const panel=await initCreationPanel({client,root:document});
-      document.addEventListener('click',event=>{const link=event.target.closest?.('[data-creation-target]');if(!link)return;event.preventDefault();panel.openSection(link.dataset.creationTarget);if(document.getElementById('menuToggle').getAttribute('aria-expanded')==='true')document.getElementById('menuToggle').click();});
-      startLiveRefresh({root:document,authorize:guard.authorize,tasks:[{scope:()=>document.getElementById('creationList'),refresh:panel.refresh}]});
+      startLiveRefresh({root:document,authorize:guard.authorize,tasks:[{scope:()=>document.getElementById('creationWorkspace'),refresh:panel.refresh}]});
     }
   </script>
 </body>

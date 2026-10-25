@@ -28,6 +28,12 @@ const LABELS={
   moment:'Momento',severity:'Gravidade',action_taken:'Conduta',occurred_at:'Ocorrido em',closed_at:'Encerrado em',action:'Evento',entity_type:'Área',entity_id:'Identificador do registro',
 };
 const VALUES={admin_criacao:'Admin de Criação',admin:'Administradora',colaborador:'Colaboradora',all:'Todos',explicit:'Seleção individual',rascunho:'Rascunho',finalizado:'Finalizado',em_atendimento:'Em atendimento',agendado:'Agendado',confirmado:'Confirmado',cancelado:'Cancelado',atendido:'Atendido',site:'Site',internal:'Interna'};
+const SECTION_GROUPS={
+  'Dia a dia':['agenda','clientes','equipe','procedimentos','disponibilidade','bloqueios'],
+  'Atendimentos e documentos':['atendimentos','anamneses','preanamneses','documentos','alertas','intercorrencias'],
+  'Materiais e equipamentos':['produtos','lotes','equipamentos'],
+  'Histórico da operação':['auditoria'],
+};
 function valueLabel(value){
   if(typeof value==='boolean')return value?'Sim':'Não';
   const text=String(value);
@@ -41,38 +47,86 @@ export function renderCreationRows(rows=[]){
   if(!rows.length)return '<div class="bcg-empty">Nenhum registro encontrado nesta consulta.</div>';
   return rows.map(row=>{
     const title=row.cliente||row.nome||row.name||row.display_name||row.patient_name||row.profissional||row.document_code||'Registro';
-    const subtitle=[row.procedimento,row.status&&valueLabel(row.status),row.inicio&&valueLabel(row.inicio),row.local_date&&valueLabel(row.local_date)].filter(Boolean).join(' • ');
+    const subtitle=[row.procedimento,row.profissional!==title&&row.profissional,row.inicio&&valueLabel(row.inicio),row.local_date&&valueLabel(row.local_date)].filter(Boolean).join(' • ');
     const fields=Object.entries(row).filter(([key,value])=>LABELS[key] && value!==null && value!=='' && !key.endsWith('_id') && key!=='id');
-    return `<article class="bcg-subpanel"><h3>${escapeHtml(title)}</h3>${subtitle?`<p class="bcg-muted">${escapeHtml(subtitle)}</p>`:''}<details><summary>Ver detalhes</summary><dl class="bcg-creation-details">${fields.map(([key,value])=>`<div><dt>${escapeHtml(LABELS[key])}</dt><dd>${escapeHtml(valueLabel(value))}</dd></div>`).join('')}<div><dt>Identificador</dt><dd>${escapeHtml(row.id||row.user_id||'')}</dd></div></dl></details></article>`;
+    return `<article class="bcg-creation-row" data-creation-record="${escapeHtml(row.id||row.user_id||'')}"><div class="bcg-creation-record-head"><h3>${escapeHtml(title)}</h3>${row.status?`<span class="bcg-creation-state">${escapeHtml(valueLabel(row.status))}</span>`:''}</div>${subtitle?`<p class="bcg-muted">${escapeHtml(subtitle)}</p>`:''}<details><summary>Ver detalhes</summary><dl class="bcg-creation-details">${fields.map(([key,value])=>`<div><dt>${escapeHtml(LABELS[key])}</dt><dd>${escapeHtml(valueLabel(value))}</dd></div>`).join('')}<div><dt>Identificador</dt><dd>${escapeHtml(row.id||row.user_id||'')}</dd></div></dl></details></article>`;
   }).join('');
 }
-export async function initCreationPanel({client,root=document}){
+export async function initCreationPanel({client,root=document,view=root.defaultView||globalThis.window}){
   const el=id=>root.getElementById(id);
   const section=el('creationSection'),search=el('creationSearch'),list=el('creationList'),status=el('creationStatus');
-  const prev=el('creationPrevious'),next=el('creationNext');
-  let offset=0,version=0,hasMore=false;
-  section.innerHTML=Object.entries(CREATION_SECTIONS).map(([key,label])=>`<option value="${key}">${label}</option>`).join('');
-  async function refresh({canApply=()=>true}={}){
+  const prev=el('creationPrevious'),next=el('creationNext'),clear=el('creationClear');
+  const states=new Map();
+  const valid=key=>Object.hasOwn(CREATION_SECTIONS,key);
+  const fromHash=()=>view?.location?.hash?.slice(1);
+  let selected=valid(fromHash())?fromHash():'agenda',version=0,hasMore=false,busy=false,rendered='';
+  const state=()=>{if(!states.has(selected))states.set(selected,{offset:0,search:''});return states.get(selected);};
+  section.innerHTML=Object.entries(SECTION_GROUPS).map(([group,keys])=>`<optgroup label="${group}">${keys.map(key=>`<option value="${key}">${CREATION_SECTIONS[key]}</option>`).join('')}</optgroup>`).join('');
+  function syncNavigation(){
+    section.value=selected;search.value=state().search;
+    el('creationTitle').textContent=CREATION_SECTIONS[selected];
+    root.querySelectorAll('[data-creation-target]').forEach(link=>{if(link.dataset.creationTarget===selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+    updateControls();
+  }
+  function updateControls(){
+    const draft=search.value.trim()!==state().search;
+    clear.hidden=!search.value;
+    prev.disabled=busy||draft||state().offset===0;next.disabled=busy||draft||!hasMore;
+    el('creationPagination').hidden=state().offset===0&&!hasMore;
+  }
+  function updateHash(method='replaceState'){
+    if(view?.location && fromHash()!==selected)view.history?.[method]?.(null,'',`#${selected}`);
+  }
+  function renderRows(rows){
+    const html=renderCreationRows(rows);
+    if(html===rendered)return;
+    const open=new Set([...list.querySelectorAll('details[open]')].map(detail=>detail.closest('[data-creation-record]').dataset.creationRecord));
+    list.innerHTML=html;rendered=html;
+    list.querySelectorAll('[data-creation-record]').forEach(row=>{if(open.has(row.dataset.creationRecord))row.querySelector('details').setAttribute('open','');});
+  }
+  async function refresh({quiet=false,canApply=()=>true}={}){
+    if(quiet&&busy)return;
     const current=++version;
-    status.textContent='Carregando…';prev.disabled=true;next.disabled=true;
+    const query={p_section:selected,p_offset:state().offset,p_search:state().search,p_cliente_id:null};
+    if(!quiet){busy=true;list.setAttribute('aria-busy','true');status.textContent='Carregando…';updateControls();}
     try{
-      const {data,error}=await client.rpc('bc_creation_list',{p_section:section.value,p_offset:offset,p_search:search.value.trim(),p_cliente_id:null});
+      const {data,error}=await client.rpc('bc_creation_list',query);
       if(current!==version || !canApply())return;
       if(error)throw error;
       if(!data || !Array.isArray(data.rows))throw new Error('Resposta de consulta inválida.');
-      list.innerHTML=renderCreationRows(data.rows);hasMore=data.has_more===true;
-      status.textContent=data.total?`${offset+1}–${offset+data.rows.length} de ${data.total} registros`:'0 registros';
-      prev.disabled=offset===0;next.disabled=!hasMore;
+      renderRows(data.rows);hasMore=data.has_more===true;
+      status.textContent=data.total?`${query.p_offset+1}–${query.p_offset+data.rows.length} de ${data.total} registros`:'0 registros';
+      delete status.dataset.kind;
     }catch(error){
       if(current!==version || !canApply())return;
-      list.replaceChildren();status.textContent=error?.message||'Não foi possível consultar. Tente atualizar.';
-      prev.disabled=offset===0;next.disabled=true;
+      if(!quiet){list.replaceChildren();rendered='';hasMore=false;}
+      status.textContent=error?.message||'Não foi possível consultar. Tente atualizar.';
+      status.dataset.kind='error';
+    }finally{
+      if(current===version){busy=false;list.setAttribute('aria-busy','false');updateControls();}
     }
   }
-  el('creationFilters').addEventListener('submit',event=>{event.preventDefault();offset=0;refresh();});
-  section.addEventListener('change',()=>{offset=0;search.value='';refresh();});
+  function openSection(key,{history=true}={}){
+    if(!valid(key))throw Error('Área não disponível.');
+    const changed=selected!==key;
+    selected=key;
+    if(changed){hasMore=false;rendered='';list.replaceChildren();}
+    syncNavigation();if(history)updateHash('pushState');
+    return refresh();
+  }
+  el('creationFilters').addEventListener('submit',event=>{event.preventDefault();state().offset=0;state().search=search.value.trim();search.value=state().search;refresh();});
+  search.addEventListener('input',updateControls);
+  clear.addEventListener('click',()=>{state().offset=0;state().search='';search.value='';refresh();search.focus();});
+  section.addEventListener('change',()=>openSection(section.value));
+  root.addEventListener('click',event=>{
+    const link=event.target.closest?.('[data-creation-target]');if(!link)return;
+    event.preventDefault();openSection(link.dataset.creationTarget);
+    const toggle=el('menuToggle');if(toggle?.getAttribute('aria-expanded')==='true')toggle.click();
+  });
+  view?.addEventListener('hashchange',()=>{const key=valid(fromHash())?fromHash():'agenda';if(key!==selected)openSection(key,{history:false});updateHash();});
   el('creationRefresh').addEventListener('click',()=>refresh());
-  prev.addEventListener('click',()=>{offset=Math.max(0,offset-50);refresh();});
-  next.addEventListener('click',()=>{if(hasMore){offset+=50;refresh();}});
-  await refresh();return {refresh,openSection(key){if(!Object.hasOwn(CREATION_SECTIONS,key))throw Error('Área não disponível.');section.value=key;offset=0;search.value='';return refresh();}};
+  prev.addEventListener('click',()=>{state().offset=Math.max(0,state().offset-50);refresh();});
+  next.addEventListener('click',()=>{if(hasMore){state().offset+=50;refresh();}});
+  syncNavigation();updateHash();
+  await refresh();return {refresh,openSection};
 }
