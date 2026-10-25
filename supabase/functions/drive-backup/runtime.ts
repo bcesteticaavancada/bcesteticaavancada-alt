@@ -42,7 +42,7 @@ export async function handler(request: Request): Promise<Response> {
     }, {
       now: Date.now,
       fetch,
-      store: (op, p) => rpc("bc_drive_backup_store", op, p),
+      store: (op, p) => rpc("bc_drive_backup_store_v2", op, p),
       oauth: (op, p) => rpc("bc_drive_oauth_store", op, p),
       list: async (prefix, offset) =>
         JSON.parse(

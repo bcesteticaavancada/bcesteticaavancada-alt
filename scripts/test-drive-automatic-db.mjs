@@ -27,11 +27,11 @@ test('automatic worker store protects credentials, leases and durable version ID
   const uid='00000000-0000-4000-8000-000000000001',client='530925228983-23076omi6omga78n5vavvkfub0v7uaq5.apps.googleusercontent.com';
   await db.exec(`insert into private.bc_drive_oauth_connection(user_id,account,client_id,refresh_secret_id,folders_ready) values('${uid}','decolarbh@gmail.com','${client}',gen_random_uuid(),true)`);
   async function role(as,fn){await db.exec('set role '+as);try{return await fn();}finally{await db.exec('reset role');}}
-  async function store(op,p={},as='service_role'){return await role(as,async()=> (await db.query('select public.bc_drive_backup_store($1,$2::jsonb) as data',[op,JSON.stringify(p)])).rows[0].data);}
+  async function store(op,p={},as='service_role'){return await role(as,async()=> (await db.query('select public.bc_drive_backup_store_v2($1,$2::jsonb) as data',[op,JSON.stringify(p)])).rows[0].data);}
   for(const actor of ['anon','authenticated'])await t.test(actor+' cannot read or invoke private backup functions',async()=>{
    await assert.rejects(store('begin',{},actor),e=>e.code==='42501');
    await assert.rejects(role(actor,()=>db.query('select * from private.bc_drive_backup_versions')),e=>e.code==='42501');
-   await assert.rejects(role(actor,()=>db.query('select private.bc_drive_backup_invoke()')),e=>e.code==='42501');
+   await assert.rejects(role(actor,()=>db.query('select private.bc_drive_backup_invoke_v2()')),e=>e.code==='42501');
   });
   await t.test('default disabled, invalid capability rejected without leaking secret',async()=>{
    assert.deepEqual(await store('begin'),{disabled:true});assert.equal(await store('authorize',{secret_hash:'0'.repeat(64)}),false);
@@ -43,8 +43,10 @@ test('automatic worker store protects credentials, leases and durable version ID
    await db.query("insert into private.bc_drive_backup_invocations(token_hash,expires_at) values($1,clock_timestamp()+interval '2 minutes')",[hash]);
    assert.equal(await store('authorize',{secret_hash:hash}),true);
    assert.equal(await store('authorize',{secret_hash:hash}),false);
-   await db.query("insert into private.bc_drive_backup_invocations(token_hash,expires_at) values($1,clock_timestamp()-interval '1 second')",[hash]);
-   assert.equal(await store('authorize',{secret_hash:hash}),false);
+   assert.equal((await db.query('select used_at is not null as used from private.bc_drive_backup_invocations where token_hash=$1',[hash])).rows[0].used,true);
+   const expiredHash=createHash('sha256').update('fictional-expired-invocation').digest('hex');
+   await db.query("insert into private.bc_drive_backup_invocations(token_hash,expires_at) values($1,clock_timestamp()-interval '1 second')",[expiredHash]);
+   assert.equal(await store('authorize',{secret_hash:expiredHash}),false);
    for(const as of ['anon','authenticated'])await assert.rejects(role(as,()=>db.query('select * from private.bc_drive_backup_invocations')),e=>e.code==='42501');
   });
   await db.exec('update private.bc_drive_backup_control set enabled=true');
@@ -80,10 +82,10 @@ test('automatic worker store protects credentials, leases and durable version ID
   });
   await t.test('SQL invoker issues an expiring ticket instead of using the permanent Vault value',async()=>{
    await db.exec('update private.bc_drive_backup_control set enabled=false');
-   await assert.rejects(db.query('select private.bc_drive_backup_invoke()'));
+   await assert.rejects(db.query('select private.bc_drive_backup_invoke_v2()'));
    await db.exec('update private.bc_drive_backup_control set enabled=true');
-   assert.equal((await db.query('select private.bc_drive_backup_invoke() as id')).rows[0].id,1);
-   const tickets=(await db.query('select count(*)::int as n,bool_and(expires_at>clock_timestamp()) as fresh from private.bc_drive_backup_invocations')).rows[0];
+   assert.equal((await db.query('select private.bc_drive_backup_invoke_v2() as id')).rows[0].id,1);
+   const tickets=(await db.query('select count(*)::int as n,bool_and(expires_at>clock_timestamp()) as fresh from private.bc_drive_backup_invocations where used_at is null and expires_at>clock_timestamp()')).rows[0];
    assert.equal(tickets.n,1);assert.equal(tickets.fresh,true);
    const fakeHash=createHash('sha256').update('ab'.repeat(32)).digest('hex');
    assert.equal(await store('authorize',{secret_hash:fakeHash}),true);

@@ -32,7 +32,9 @@ nenhuma credencial/permissão é obtida ou ampliada por esse ajuste.
 ## Controle e integridade
 
 Cada acionamento gera um ticket aleatório de uso único, válido por dois minutos.
-Seu hash e validade ficam em tabela privada; a RPC interna o consome atomicamente.
+Seu hash e validade ficam em tabela privada; a RPC interna V2 o marca como usado
+atomicamente, preservando o histórico. RPC e acionador V2 são aditivos, sem
+substituição das funções anteriores. As funções legadas não são agendadas.
 O pg_net transporta somente esse ticket descartável, não a credencial OAuth nem
 uma chave permanente. Não aparece em Git, outputs, chat ou frontend.
 RLS e ausência de grants bloqueiam usuários nas tabelas privadas. A RPC pública
