@@ -55,3 +55,18 @@ test('assinatura registra apenas metadados e caminho privado via RPC', async () 
   assert.deepEqual(calls[0].args, { p_document_id: 'd1', p_signer_kind: 'profissional', p_storage_path: 'assinaturas/d1/profissional.png', p_sha256: 'abc123' });
   assert.doesNotMatch(JSON.stringify(calls[0].args), /user_id|role|profissao|conselho/);
 });
+ 
+test('via profissional para assinatura externa pede PDF sem finalizar documento', async () => {
+  const { generateProfessionalSignedConsentPdf } = await loadDocs();
+  const calls=[];
+  const client={functions:{invoke:async (name,options)=>{calls.push({name,options});return {data:new Blob(['%PDF-1.7'],{type:'application/pdf'}),error:null};}}};
+  const pdf=await generateProfessionalSignedConsentPdf({client,documentId:'d1'});
+  assert.equal(pdf.type,'application/pdf');
+  assert.deepEqual(calls,[{name:'generate-clinical-pdf',options:{body:{documentId:'d1',mode:'professional_signed_for_external'}}}]);
+});
+
+test('via externa rejeita payload que não seja PDF', async () => {
+  const { generateProfessionalSignedConsentPdf } = await loadDocs();
+  const client={functions:{invoke:async()=>({data:{ok:true},error:null})}};
+  await assert.rejects(()=>generateProfessionalSignedConsentPdf({client,documentId:'d1'}),/não retornou o PDF/i);
+});

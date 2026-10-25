@@ -94,6 +94,26 @@ export async function generateClinicalPdf({ client, documentId }) {
   }));
 }
 
+// Via intermediária: devolve somente o PDF da profissional, sem emitir/finalizar o TCLE.
+export async function generateProfessionalSignedConsentPdf({ client, documentId }) {
+  const result = await client.functions.invoke('generate-clinical-pdf', {
+    body: {
+      documentId: cleanRequired(documentId, 'Documento'),
+      mode: 'professional_signed_for_external',
+    },
+  });
+  if (result?.error) throw result.error;
+  const payload = result?.data;
+  if (payload instanceof Blob) {
+    if (payload.type && payload.type !== 'application/pdf') throw new Error('O serviço não retornou um PDF.');
+    return payload;
+  }
+  if (payload instanceof ArrayBuffer || payload instanceof Uint8Array) {
+    return new Blob([payload], { type: 'application/pdf' });
+  }
+  throw new Error('O serviço não retornou o PDF para assinatura externa.');
+}
+
 export async function getClinicalDocumentUrl({ client, storagePath, expiresIn = 300, downloadFilename = null }) {
   const options = downloadFilename ? { download: cleanRequired(downloadFilename, 'Nome do arquivo') } : undefined;
   const data = unwrap(await client.storage.from(BUCKET).createSignedUrl(storagePath, expiresIn, options));

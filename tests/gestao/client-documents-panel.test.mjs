@@ -56,3 +56,13 @@ test('painel oferece upload sem ZIP e com categorias/origens aprovadas',()=>{
 test('controller compartilhado existe para hidratação lazy da Central',()=>{
   assert.equal(typeof initClientDocumentsPanel,'function');
 });
+
+test('painel tem coleta específica do PDF devolvido, sem integração automática com o GOV',()=>{
+  const html=renderClientDocumentsPanel({items:[]});
+  assert.match(html,/data-returned-consent/);
+  assert.match(html,/name="category" value="tcle_externo"/);
+  assert.match(html,/name="origin" value="gov_br"/);
+  assert.ok(html.includes('accept=".pdf,application/pdf"'));
+  assert.match(html,/revisado pela profissional/);
+  assert.doesNotMatch(html,/oauth|token do gov|conectar conta/i);
+});
