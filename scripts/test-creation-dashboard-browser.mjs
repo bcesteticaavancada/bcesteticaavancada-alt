@@ -64,10 +64,17 @@ try{
         await page.getByRole('button',{name:'Limpar busca',exact:true}).click();
         await page.locator('#creationStatus').filter({hasText:'1–50 de 60'}).waitFor();
         assert.equal(await page.evaluate(()=>window.calls.length),beforeClear+1);
+        await page.evaluate(async()=>{
+          const {startLiveRefresh}=await import('/gestao/js/live-refresh.js');
+          window.secondaryLive=startLiveRefresh({root:document,authorize:async()=>true,tasks:[{scope:()=>document.getElementById('creationWorkspace'),refresh:window.panel.refresh}]});
+        });
         await page.getByText('Todas as áreas',{exact:true}).click();
         await page.locator('#creationSection').selectOption('produtos');
         await page.getByRole('heading',{name:'Produtos',exact:true}).waitFor();
         assert.equal(new URL(page.url()).hash,'#produtos');
+        await page.locator('#creationTitle').click();
+        const secondaryRefresh=await page.evaluate(async()=>{const before=window.calls.length;await window.secondaryLive.refresh();window.secondaryLive.stop();return window.calls.length-before;});
+        assert.equal(secondaryRefresh,1,'secondary navigation remains eligible for live refresh');
         await page.locator('#menuToggle').click();await page.locator('[data-menu-settings]>summary').click();
         await page.getByRole('link',{name:'Eventos da operação',exact:true}).click();
         await page.getByRole('heading',{name:'Eventos da operação',exact:true}).waitFor();

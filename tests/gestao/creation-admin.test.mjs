@@ -61,6 +61,7 @@ async function creationFixture(rpc){
   const {initCreationPanel}=await import('../../gestao/js/creation-panel.js');
   const {document,window}=parseHTML(await readFile(new URL('../../gestao/criacao/index.html',import.meta.url),'utf8'));
   nativeSelect(document);
+  document.getElementById('gestaoApp').hidden=false;
   const panel=await initCreationPanel({client:{rpc},root:document});
   return {document,window,panel};
 }
@@ -68,7 +69,7 @@ const settle=()=>new Promise(resolve=>setImmediate(resolve));
 function nativeSelect(document){
   // Linkedom omits native select.value assignment; keep the controller real.
   const select=document.getElementById('creationSection');
-  Object.defineProperty(select,'value',{configurable:true,get(){return [...this.querySelectorAll('option')].find(option=>option.selected)?.value||'';},set(value){for(const option of this.querySelectorAll('option'))option.selected=option.value===value;}});
+  Object.defineProperty(select,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.value||'';},set(value){for(const option of this.querySelectorAll('option')){if(option.value===value)option.setAttribute('selected','');else option.removeAttribute('selected');}}});
 }
 
 test('creation shortcuts restore each area search and page instead of losing the consultation',async()=>{
@@ -125,4 +126,18 @@ test('discarded quiet creation refresh leaves count and pagination unchanged',as
   await panel.refresh({quiet:true,canApply:()=>false});
   assert.equal(document.getElementById('creationStatus').textContent,count);
   assert.equal(document.getElementById('creationNext').disabled,false);
+});
+
+test('choosing a secondary creation area remains eligible for automatic refresh',async()=>{
+  const {startLiveRefresh}=await import('../../gestao/js/live-refresh.js');
+  const calls=[];
+  const {document,window,panel}=await creationFixture(async(name,args)=>{calls.push(args);return {data:{rows:[],total:0,has_more:false}};});
+  const live=startLiveRefresh({root:document,view:window,authorize:async()=>true,tasks:[{scope:()=>document.getElementById('creationWorkspace'),refresh:panel.refresh}]});
+  try{
+    document.getElementById('creationSection').value='produtos';
+    document.getElementById('creationSection').dispatchEvent(new window.Event('change',{bubbles:true}));await settle();
+    const before=calls.length;await live.refresh();
+    assert.equal(calls.length,before+1);
+    assert.equal(calls.at(-1).p_section,'produtos');
+  }finally{live.stop();}
 });
