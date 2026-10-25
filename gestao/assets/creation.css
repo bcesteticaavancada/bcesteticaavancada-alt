@@ -1,2 +1,37 @@
-.bcg-creation-list{display:grid;gap:1rem;margin:1rem 0}.bcg-creation-details{display:grid;gap:.8rem}.bcg-creation-details div{min-width:0}.bcg-creation-details dt{font-weight:600;color:#4b3b32}.bcg-creation-details dd{margin:.2rem 0 0;overflow-wrap:anywhere;white-space:pre-wrap}.bcg-creation-list summary{cursor:pointer;padding:.5rem 0}.bcg-dashboard-main:has(#creationList){max-width:1200px;margin:auto}
+.bcg-creation-page .bcg-dashboard-main{max-width:1100px;margin:auto}
+.bcg-creation-page .bcg-topbar{align-items:center;padding-bottom:18px}
+.bcg-creation-page .bcg-topbar h1{font-size:clamp(28px,4vw,40px)}
+.bcg-creation-page .bcg-small-button{min-height:44px;padding:10px 16px;font-size:11px;text-transform:none;letter-spacing:0}
+.bcg-creation-page .bcg-panel{margin-top:0;box-shadow:none}
+.bcg-creation-navigation{display:flex;align-items:start;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid #e5d8ca}
+.bcg-creation-shortcuts{display:flex;gap:6px;flex-wrap:wrap}
+.bcg-creation-shortcuts a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:1px solid transparent;border-radius:12px;color:#6b5542;text-decoration:none;font-size:14px;font-weight:650}
+.bcg-creation-shortcuts a:hover{background:#f4eadd}
+.bcg-creation-shortcuts a[aria-current="page"]{background:#3b2920;color:#fffaf4}
+.bcg-creation-areas{min-width:190px;max-width:100%}
+.bcg-creation-areas summary,.bcg-creation-access summary{cursor:pointer;min-height:44px;padding:12px 4px;color:#6b5542;font-size:13px}
+.bcg-creation-areas .bcg-field{margin:6px 0 8px}
+.bcg-creation-areas select{max-width:100%;font-size:14px}
+.bcg-creation-heading{display:flex;align-items:center;gap:12px;margin:22px 0 18px}
+.bcg-creation-heading h2{font-size:clamp(25px,3vw,32px);overflow-wrap:anywhere}
+.bcg-creation-filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.bcg-creation-filters label{flex:1;min-width:min(240px,100%)}
+.bcg-creation-filters input{font-size:16px}
+.bcg-creation-filters .bcg-button{box-shadow:none;min-height:46px}
+.bcg-creation-filters [hidden],#creationPagination[hidden]{display:none}
+.bcg-creation-page .bcg-status{color:#6f6258;overflow-wrap:anywhere}
+.bcg-creation-list{display:grid;margin:0 0 16px}
+.bcg-creation-row{min-width:0;padding:18px 0;border-bottom:1px solid #e5d8ca}
+.bcg-creation-record-head{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.bcg-creation-row h3{font:650 16px/1.45 Inter,ui-sans-serif,system-ui,sans-serif;color:#3b2920;margin:0;overflow-wrap:anywhere;min-width:0}
+.bcg-creation-row .bcg-muted{margin:6px 0;overflow-wrap:anywhere}
+.bcg-creation-state{font-size:12px;line-height:1.5;background:#eee6db;color:#5c4838;border-radius:6px;padding:4px 8px;flex-shrink:0;max-width:45%;overflow-wrap:anywhere}
+.bcg-creation-row summary{cursor:pointer;min-height:44px;padding:12px 0;color:#6b5542;font-size:13px}
+.bcg-creation-details{display:grid;gap:16px;margin:8px 0 10px;padding:16px;background:#f5eee5;border-radius:10px;font-size:13px}
+.bcg-creation-details div{min-width:0}
+.bcg-creation-details dt{font-weight:600;color:#4b3b32}
+.bcg-creation-details dd{margin:4px 0 0;overflow-wrap:anywhere;white-space:pre-wrap;color:#6f6258}
+.bcg-creation-access{margin-top:24px;border-top:1px solid #e5d8ca;padding-top:8px;color:#6f6258;font-size:13px;line-height:1.6}
+.bcg-creation-page a:focus-visible,.bcg-creation-page button:focus-visible,.bcg-creation-page summary:focus-visible{outline:3px solid #9b784d;outline-offset:3px}
 @media(min-width:800px){.bcg-creation-details{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.bcg-creation-page .bcg-panel{padding:16px}.bcg-creation-page .bcg-topbar-main{align-items:center}.bcg-creation-page .bcg-topbar>.bcg-small-button{padding:10px 12px}.bcg-creation-shortcuts{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.bcg-creation-shortcuts a{padding:10px 8px}.bcg-creation-areas{width:100%}.bcg-creation-navigation{gap:6px;padding-bottom:12px}.bcg-creation-heading{margin-top:18px}.bcg-creation-filters label{flex-basis:100%}.bcg-creation-filters .bcg-button{flex:1}.bcg-creation-record-head{gap:8px}}
