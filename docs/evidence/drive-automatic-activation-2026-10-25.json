@@ -1,0 +1,96 @@
+{
+  "activated_at": "2026-10-25T04:29:26.017551+00:00",
+  "checked_at": "2026-10-25T04:31:53.22682+00:00",
+  "enabled": true,
+  "job": {
+    "id": 1,
+    "name": "bc-drive-backup-hourly-v1",
+    "active": true,
+    "command": "select private.bc_drive_backup_invoke_v2();",
+    "schedule": "0 * * * *",
+    "username": "postgres"
+  },
+  "coverage": {
+    "bytes": 10148553,
+    "covered": 10,
+    "current_objects": 10,
+    "timestamp_comparison": "milliseconds"
+  },
+  "by_destination": {
+    "client": 5,
+    "clinical": 5
+  },
+  "runs": [
+    {
+      "id": "da96360f-d259-46be-96e0-d25368d233c3",
+      "status": "success",
+      "counters": {
+        "failed": 0,
+        "reused": 0,
+        "audited": 10,
+        "pending": 0,
+        "scanned": 10,
+        "eligible": 10,
+        "excluded": 0,
+        "selected": 0,
+        "uploaded": 0,
+        "verified": 0,
+        "oversized": 0,
+        "remaining": 0
+      },
+      "error_code": null,
+      "started_at": "2026-10-25T04:31:10.89096+00:00",
+      "finished_at": "2026-10-25T04:31:29.307213+00:00"
+    },
+    {
+      "id": "e71d5455-914f-4fae-8679-74e7b62a99d8",
+      "status": "success",
+      "counters": {
+        "failed": 0,
+        "reused": 0,
+        "audited": 0,
+        "pending": 10,
+        "scanned": 10,
+        "eligible": 10,
+        "excluded": 0,
+        "selected": 10,
+        "uploaded": 10,
+        "verified": 10,
+        "oversized": 0,
+        "remaining": 0
+      },
+      "error_code": null,
+      "started_at": "2026-10-25T04:29:28.538467+00:00",
+      "finished_at": "2026-10-25T04:30:16.9123+00:00"
+    }
+  ],
+  "http_responses": [
+    {
+      "id": 1,
+      "body": "{\"ok\":true,\"run_id\":\"e71d5455-914f-4fae-8679-74e7b62a99d8\",\"scanned\":10,\"eligible\":10,\"pending\":10,\"selected\":10,\"uploaded\":10,\"reused\":0,\"verified\":10,\"audited\":0,\"failed\":0,\"oversized\":0,\"excluded\":0,\"remaining\":0}",
+      "error": null,
+      "status": 200,
+      "timed_out": false
+    },
+    {
+      "id": 2,
+      "body": "{\"ok\":true,\"run_id\":\"da96360f-d259-46be-96e0-d25368d233c3\",\"scanned\":10,\"eligible\":10,\"pending\":0,\"selected\":0,\"uploaded\":0,\"reused\":0,\"verified\":0,\"audited\":10,\"failed\":0,\"oversized\":0,\"excluded\":0,\"remaining\":0}",
+      "error": null,
+      "status": 200,
+      "timed_out": false
+    }
+  ],
+  "bundle_sha": "04572201527588967b9ed64a102cbc2fbf4946250aec21c7dc2162874624b898",
+  "source_commit": "4b84513852dd0cd4908f1b72ca31d36b7b446679",
+  "auth_probes": {
+    "unauthenticated": 401,
+    "browser_origin": 403,
+    "invalid_ticket": 401
+  },
+  "validation": {
+    "deno": 24,
+    "sql": 10,
+    "existing_app": 784,
+    "typecheck": true
+  }
+}

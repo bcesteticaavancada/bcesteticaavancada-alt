@@ -24,21 +24,21 @@
 ### Task 1: Worker testável
 **Files:** `supabase/functions/drive-backup/{worker.ts,worker_test.ts,index.ts,runtime.ts,deno.json}`.
 **Interfaces:** `createBackupHandler(config,deps)` usa `store(op,payload)`, `oauth(op,payload)`, `fetch`, `now`; retorna somente contadores e run ID.
-- [ ] Escrever testes de autenticação, gates, classificação, integridade, dedup, IDs reservados, falhas e limites; observar RED sem worker.
-- [ ] Implementar worker e runtime usando REST server-only e helpers existentes.
-- [ ] Observar GREEN de testes Deno e typecheck.
+- [x] Escrever testes de autenticação, gates, classificação, integridade, dedup, IDs reservados, falhas e limites; observar RED sem worker.
+- [x] Implementar worker e runtime usando REST server-only e helpers existentes.
+- [x] Observar GREEN de testes Deno e typecheck.
 
 ### Task 2: Journal e acionador
 **Files:** migration `bc_drive_automatic_backup`; `supabase/tests/drive-automatic.test.mjs`.
-**Interfaces:** `public.bc_drive_backup_store(text,jsonb)` server-only: authorize/begin/snapshot/reserve/record/assert/finish. `private.bc_drive_backup_invoke()` é o acionador SQL.
-- [ ] Testes PGlite exercitam grants, lease, reserva imutável, finish, rejeição de chamadas fora do servidor; observar RED.
-- [ ] Implementar controle desativado, journal, runs, Vault secreto e acionador; cron não é ativado na migration.
-- [ ] Executar testes SQL e npm test; ajustar workflow de CI.
+**Interfaces:** `public.bc_drive_backup_store_v2(text,jsonb)` server-only: authorize/begin/snapshot/reserve/record/assert/finish. `private.bc_drive_backup_invoke_v2()` é o acionador SQL.
+- [x] Testes PGlite exercitam grants, lease, reserva imutável, finish, rejeição de chamadas fora do servidor; observar RED.
+- [x] Implementar controle desativado, journal, runs, Vault secreto e acionador; cron não é ativado na migration.
+- [x] Executar testes SQL e npm test; ajustar workflow de CI.
 
 ### Task 3: Revisão, implantação e ativação
 **Files:** relatório `docs/BC_DRIVE_AUTOMATICO_ATIVACAO_2026-10-24.md`, ledger e evidências agregadas.
-- [ ] Revisão única da mudança completa; corrigir bloqueadores com teste RED/GREEN.
-- [ ] Persistir fonte em branch própria; aplicar migration e verificar ACL/RLS.
-- [ ] Implantar worker desativado; obter bundle e conferir com fonte revisada.
-- [ ] Habilitar controle privado DB e cron `0 * * * *`; disparar mesmo acionador. Ver ruling do ledger: gate Edge legado é exclusivo da preparação OAuth.
-- [ ] Verificar primeira execução e repetição, contadores de integridade e ausência de duplicatas; registrar horário/status e rollback.
+- [x] Revisão única da mudança completa; corrigir bloqueadores com teste RED/GREEN.
+- [x] Persistir fonte em branch própria; aplicar migration e verificar ACL/RLS.
+- [x] Implantar worker desativado; obter bundle e conferir com fonte revisada.
+- [x] Habilitar controle privado DB e cron `0 * * * *`; disparar mesmo acionador. Ver ruling do ledger: gate Edge legado é exclusivo da preparação OAuth.
+- [x] Verificar primeira execução e repetição, contadores de integridade e ausência de duplicatas; registrar horário/status e rollback.
