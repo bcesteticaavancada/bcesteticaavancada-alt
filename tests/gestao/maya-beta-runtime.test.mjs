@@ -125,7 +125,7 @@ test('Biblioteca mostra 65 respostas com busca e revisão pendente',async()=>{
  trigger(x,'#knowledgeSearch','input');
  const match=x.document.querySelectorAll('#knowledgeItems details');
  assert.ok(match.length>=1);
- assert.ok(Array.from(match).some(x=>x.textContent.includes('revisão técnica pendente')));
+ assert.ok(Array.from(match).some(x=>x.textContent.includes('validação da Mel pendente')));
 });
 test('Pergunta reconhecida consulta resposta original da biblioteca sem diagnóstico',async()=>{
  const x=await render({user_id:'u6',role:'colaborador',active:true,display_name:'Teste'});
