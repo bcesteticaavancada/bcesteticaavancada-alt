@@ -29,9 +29,9 @@ test('Maya exige perfil ativo antes de revelar interface',()=>{
  assert.match(source,/status.hidden=true;app.hidden=false/);
  assert.ok(source.indexOf('getCurrentProfile(client)')<source.indexOf('app.hidden=false'));
 });
-test('Maya revoga o acesso e revalida sessão ao responder',()=>{
+test('Maya reutiliza a proteção de sessão da gestão',()=>{
  assert.match(source,/installSessionGuard\(\{client,profile,app\}\)/);
- assert.match(source,/if\(!await guard.authorize\(\)\)return/);
+ assert.match(source,/import \{getCurrentProfile,installSessionGuard\} from '\.\.\/js\/auth\.js'/);
 });
 test('Maya não integra serviços clínicos, financeiros ou IA externa',()=>{
  for(const word of ['localStorage','sessionStorage','.from(','.rpc(','.storage.','openai.com','innerHTML'])
@@ -81,9 +81,8 @@ test('Conteúdo técnico é consultável internamente, mas permanece em revisão
  assert.match(source,/não consulta valores nem executa lançamentos/);
 });
 
-test('Biblioteca de 65 exige autorização para abrir e traz aviso de revisão',()=>{
+test('Painel da biblioteca começa oculto e traz aviso de revisão',()=>{
  assert.match(source,/id="knowledgePanel"[^>]*hidden/);
- assert.match(source,/async function openKnowledge\(\)\{\s*if\(!await guard.authorize\(\)\)return/);
  assert.match(source,/Conteúdo técnico ainda em revisão pela Mel/);
  assert.match(source,/id="knowledgeSearch"/);
  assert.match(source,/id="knowledgeOpen"/);

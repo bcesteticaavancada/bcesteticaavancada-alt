@@ -2,6 +2,8 @@
 Data: 24/10/2026
 Estado: **ramificação de desenvolvimento / PR rascunho**. **Não publicado**.
 
+Revisão técnica de 25/10: [correções, testes, riscos e próxima autonomia](maya-pr63-revisao-2026-10-25.md). Não publicado significa sem deploy no site; o repositório GitHub é público e permite consultar os arquivos da branch.
+
 ## Objetivo
 Iniciar uso interno controlado: responder dúvidas administrativas sobre acesso, cadastro, agenda, anamnese, atendimento, documentos e permissões com linguagem pt-BR, dentro do contexto do BC Gestão.
 

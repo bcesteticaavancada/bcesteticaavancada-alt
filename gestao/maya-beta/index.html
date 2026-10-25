@@ -68,12 +68,23 @@ const knowledgeItems=document.getElementById('knowledgeItems');
 const knowledgeCount=document.getElementById('knowledgeCount');
 let knowledgeBank=null;
 let client,profile,guard;
+let chatVersion=0,knowledgeVersion=0;
 function line(value,cls){
  const node=document.createElement('div');
  node.className='bubble '+cls;
  node.textContent=value;
  chat.append(node);
  chat.scrollTop=chat.scrollHeight;
+}
+async function authorize(){
+ try{return await guard.authorize() && !app.hidden;}
+ catch{
+  if(!app.hidden){
+   knowledgePanel.hidden=true;knowledgeItems.replaceChildren();
+   line('Não foi possível confirmar seu acesso. Confira a conexão e tente novamente; se continuar, entre pelo login da BC Gestão.','maya');
+  }
+  return false;
+ }
 }
 function sensitive(input){
  return /@|(?:\d[\s().-]?){6,}|(?:senha\s*[:=]\s*\S+)|(?:meu\s+(?:cpf|rg|e-mail|email)\s*(?:é|:))|(?:nome\s+(?:completo|da\s+cliente)\s*[:=])|(?:prontu[aá]rio\s+(?:da|do|de)\s+\w+)|(?:diagn[oó]stico\s+(?:da|do|de)\s+\w+)|(?:foto\s+(?:da|do|de)\s+(?:cliente|paciente))|(?:sintomas?|sangramento|febre|rea[cç][aã]o\s+adversa|dor\s+intensa)/i.test(input);
@@ -90,6 +101,23 @@ const replies={
  contato:'Em caso de dificuldade, procure a Mel ou a administração. A Maya Beta é um guia interno e não substitui os responsáveis pelo atendimento.',
 };
 const topicLabels={acesso:'Acesso',cadastro:'Cadastro',agenda:'Agenda',anamnese:'Anamnese',atendimento:'Atendimento',documentos:'Documentos',procedimentos:'Procedimentos',financeiro:'Financeiro',contato:'Ajuda geral'};
+const creationReplies={
+ cadastro:'Seu perfil de criação permite apenas consulta dos cadastros disponíveis no painel de criação. Para cadastrar ou alterar uma cliente, procure a Mel ou uma colaboradora autorizada. Não digite dados pessoais aqui.',
+ agenda:'Seu perfil de criação permite apenas consulta da agenda disponível no painel de criação. Para criar, remarcar, cancelar ou bloquear horários, procure a Mel ou a equipe autorizada.',
+ anamnese:'Seu perfil de criação permite apenas consulta da identificação e situação das anamneses no painel permitido. As respostas clínicas completas e a geração ou o envio de links ficam com a Mel ou a equipe clínica autorizada.',
+ atendimento:'Seu perfil de criação permite apenas consulta da operação no painel de criação. Para registrar, corrigir ou finalizar um atendimento, procure a profissional responsável; a Maya não altera registros.',
+ documentos:'Seu perfil de criação permite apenas consulta da identificação e situação dos documentos no painel permitido. PDFs, anexos, assinaturas e compartilhamentos ficam com a equipe clínica autorizada.',
+};
+const creationKnowledgeTopics={
+ 'app-cancelar':'agenda','app-profissional':'agenda','app-folga':'agenda',
+ 'app-link-expirou':'anamnese','app-anamnese-status':'anamnese','app-confirmar-link':'anamnese',
+ 'app-completar-cadastro':'cadastro','app-cadastro-duplicado':'cadastro',
+ 'app-atendimento-confirmacao':'atendimento',
+};
+function knowledgeAnswer(item){
+ const topic=creationKnowledgeTopics[item.id];
+ return profile?.role==='admin_criacao'&&topic?getReply(topic):item.answer;
+}
 function normalizeKnowledge(s){
  return String(s||'').toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 }
@@ -115,7 +143,7 @@ function renderKnowledge(){
   const details=document.createElement('details');details.className='kb-item';
   const summary=document.createElement('summary');summary.textContent=item.question;
   const notice=document.createElement('div');notice.className='kb-note';notice.textContent='Informação para a equipe · validação da Mel pendente';
-  const answer=document.createElement('p');answer.textContent=item.answer;
+  const answer=document.createElement('p');answer.textContent=knowledgeAnswer(item);
   const evidence=document.createElement('p');evidence.className='kb-source';
   evidence.textContent='Base científica: '+(item.evidence_level||'Avaliação técnica pendente');
   const source=document.createElement('div');source.className='kb-source';
@@ -130,16 +158,25 @@ function renderKnowledge(){
    });
   }else source.textContent='Fonte: conferir procedimento no BC Gestão.';
   details.append(summary,notice,answer,evidence,source);
-  details.addEventListener('toggle',async()=>{if(details.open&& !await guard.authorize())details.open=false;});
+  details.addEventListener('toggle',async()=>{if(details.open&& !await authorize())details.open=false;});
   knowledgeItems.append(details);
  }
 }
 async function openKnowledge(){
- if(!await guard.authorize())return;
+ const version=++knowledgeVersion;
+ if(!await authorize()||version!==knowledgeVersion)return;
  knowledgePanel.hidden=false;
  knowledgeCount.textContent='Carregando respostas...';
- try{await loadKnowledge();renderKnowledge();knowledgePanel.scrollIntoView?.({behavior:'smooth',block:'start'});}
- catch{knowledgeCount.textContent='Biblioteca temporariamente indisponível. Procure a administração.';knowledgeItems.replaceChildren();}
+ let loaded=false;
+ try{await loadKnowledge();loaded=true;}catch{}
+ if(!await authorize()||version!==knowledgeVersion||knowledgePanel.hidden)return;
+ if(loaded){renderKnowledge();knowledgePanel.scrollIntoView?.({behavior:'smooth',block:'start'});}
+ else{knowledgeCount.textContent='Biblioteca temporariamente indisponível. Procure a administração.';knowledgeItems.replaceChildren();}
+}
+async function searchKnowledge(){
+ const version=knowledgeVersion;
+ if(!knowledgeBank||knowledgePanel.hidden||!await authorize()||version!==knowledgeVersion)return;
+ renderKnowledge();
 }
 function findKnowledge(query){
  if(!knowledgeBank)return null;
@@ -147,6 +184,14 @@ function findKnowledge(query){
  if(q.length<5)return null;
  const exact=knowledgeBank.find(i=>normalizeKnowledge(i.question)===q||i.triggers.some(t=>normalizeKnowledge(t)===q));
  if(exact)return exact;
+ // Só remove introduções conhecidas; o assunto restante precisa ser um gatilho exato e único.
+ const subject=q.replace(/^(?:o que e|como funciona|como e feito|como e feita|me explique)\s+(?:(?:o|a|um|uma)\s+)?/,'');
+ if(subject!==q){
+  const matches=knowledgeBank.filter(i=>i.triggers.some(t=>normalizeKnowledge(t)===subject));
+  if(matches.length===1)return matches[0];
+ }
+ // Perguntas de dose e alternativas não cadastradas não podem escolher uma resposta por trecho.
+ if(/\b(?:dose|dosagem|unidades|ou|versus|vs)\b/.test(q))return null;
  const possibles=knowledgeBank.filter(i=>i.triggers.some(t=>{
   const token=normalizeKnowledge(t);
   return token.length>=9&&(q.includes(token)||token.includes(q))&&(token.split(' ').length>=2);
@@ -156,7 +201,7 @@ function findKnowledge(query){
 function getReply(topic){
  if(topic==='financeiro' && profile?.role==='admin_criacao')return 'Seu perfil de criação não possui acesso ao financeiro, mesmo para consultas. A Maya também não acessa esses dados. Consulte a administradora.';
  if(topic==='financeiro' && profile?.role==='colaborador')return 'Na área Minha comissão você pode consultar apenas os valores que seu perfil já permite. A Maya não visualiza valores nem realiza pagamentos.';
- if(topic==='anamnese' && profile?.role==='admin_criacao')return 'Seu perfil de criação não tem acesso aos dados clínicos completos. Consulte apenas os painéis permitidos; a Mel deve revisar as anamneses.';
+ if(profile?.role==='admin_criacao'&&Object.hasOwn(creationReplies,topic))return creationReplies[topic];
  return replies[topic]||replies.contato;
 }
 function classify(s){
@@ -172,7 +217,8 @@ function classify(s){
  return 'contato';
 }
 async function answer(text,topic){
- if(!await guard.authorize())return;
+ const version=chatVersion;
+ if(!await authorize()||version!==chatVersion)return;
  const trimmed=String(text||'').trim().slice(0,180);
  if(topic){line('Assunto: '+(topicLabels[topic]||'Ajuda geral'),'person');line(getReply(topic),'maya');return;}
  if(!trimmed)return;
@@ -182,11 +228,10 @@ async function answer(text,topic){
  }
  const selected=classify(trimmed);
  line('Assunto: '+(topicLabels[selected]||'Ajuda geral'),'person');
- try{
-  if(!knowledgeBank)await loadKnowledge();
-  const found=findKnowledge(trimmed);
-  if(found){line(found.answer+'\n\nOrientação geral interna — revisão técnica pendente. Consulte a Mel para indicações individuais.','maya');return;}
- }catch{}
+ try{if(!knowledgeBank)await loadKnowledge();}catch{}
+ if(!await authorize()||version!==chatVersion)return;
+ const found=findKnowledge(trimmed);
+ if(found){line(knowledgeAnswer(found)+'\n\nOrientação geral interna — revisão técnica pendente. Consulte a Mel para indicações individuais.','maya');return;}
  line(getReply(selected),'maya');
 }
 try{
@@ -204,10 +249,10 @@ try{
   line('Olá! Posso explicar as funções do BC Gestão. Escolha um assunto ou digite uma pergunta sem dados de clientes.','maya');
   document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{void answer('',b.dataset.topic);}));
   form.addEventListener('submit',e=>{e.preventDefault();const t=question.value;question.value='';void answer(t);});
-  clearChat.addEventListener('click',()=>{chat.replaceChildren();line('Conversa limpa. Como posso ajudar?','maya');question.value='';question.focus();});
+  clearChat.addEventListener('click',()=>{++chatVersion;chat.replaceChildren();line('Conversa limpa. Como posso ajudar?','maya');question.value='';question.focus();});
   knowledgeOpen.addEventListener('click',()=>{void openKnowledge();});
-  knowledgeClose.addEventListener('click',()=>{knowledgePanel.hidden=true;knowledgeSearch.value='';knowledgeItems.replaceChildren();});
-  knowledgeSearch.addEventListener('input',()=>{if(knowledgeBank)renderKnowledge();});
+  knowledgeClose.addEventListener('click',()=>{++knowledgeVersion;knowledgePanel.hidden=true;knowledgeSearch.value='';knowledgeItems.replaceChildren();});
+  knowledgeSearch.addEventListener('input',()=>{void searchKnowledge();});
  }
 }catch(e){status.textContent='Não foi possível validar a sessão. Abra o login da BC Gestão e tente novamente.';}
 </script>

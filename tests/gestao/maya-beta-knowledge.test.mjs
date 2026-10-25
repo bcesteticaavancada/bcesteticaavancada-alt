@@ -39,14 +39,12 @@ test('Biblioteca não contém tokens HTML ou campos de cliente',()=>{
   assert.equal(Object.keys(item).sort().join('|'),'answer|audience|evidence_level|id|publication_approval|question|references|research_date|review|review_notes|source|source_original|triggers',item.id);
  }
 });
-test('Busca e diálogo dependem da autorização do BC Gestão',()=>{
- assert.match(html,/async function openKnowledge\(\)\{\s*if\(!await guard.authorize\(\)\)return/);
- assert.match(html,/async function answer\(text,topic\)\{\s*if\(!await guard.authorize\(\)\)return/);
+test('Biblioteca é carregada do JSON local sem cache persistente',()=>{
  assert.match(html,/fetch\('\.\/respostas-65\.json',\{cache:'no-store'\}\)/);
  assert.match(html,/response\.json\(\)/);
 });
 test('Exibição não interpreta respostas como HTML e não publica conteúdo no banco',()=>{
- assert.match(html,/answer\.textContent=item\.answer/);
+ assert.match(html,/answer\.textContent=knowledgeAnswer\(item\)/);
  assert.match(html,/evidence\.textContent='Base científica:/);
  assert.match(html,/a\.rel='noopener noreferrer'/);
  assert.doesNotMatch(html,/\.innerHTML|\.from\(|\.rpc\(|localStorage/);

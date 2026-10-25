@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { parseHTML } from 'linkedom';
+import { getCurrentProfile, installSessionGuard } from '../../gestao/js/auth.js';
 
 const dir=dirname(fileURLToPath(import.meta.url));
 const html=readFileSync(resolve(dir,'../../gestao/maya-beta/index.html'),'utf8');
@@ -14,28 +15,42 @@ const executable=moduleScript.replace(/^import .*?;?\s*$/gm,'').trim();
 const library=JSON.parse(readFileSync(resolve(dir,'../../gestao/maya-beta/respostas-65.json'),'utf8'));
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 
-async function render(profile,{allow=()=>true}={}){
+async function render(profile,{allow=()=>true,load=async()=>library,realAuth=false}={}){
   const {document,window}=parseHTML(html);
   let calls=0;
   let signedGuard=false;
-  const client={};
+  let current=profile,authListener,sessionError=null;
+  const redirects=[];
+  const client={
+    auth:{
+      getSession:async()=>({data:{session:current?{user:{id:current.user_id}}:null},error:sessionError}),
+      onAuthStateChange(fn){authListener=fn;return {data:{subscription:{unsubscribe(){}}}};},
+    },
+    from(table){
+      assert.equal(table,'staff_profiles','Somente o perfil da própria equipe pode ser lido');
+      return {select(){return this;},eq(){return this;},maybeSingle:async()=>({data:current})};
+    },
+  };
   const context={
     document,
     globalThis:{supabase:{createClient:()=>({})}},
     createBcGestaoClient:()=>client,
-    getCurrentProfile:async()=>profile?.active===true?profile:null,
-    installSessionGuard:()=>{
+    getCurrentProfile:realAuth?getCurrentProfile:async()=>profile?.active===true?profile:null,
+    installSessionGuard:options=>{
       signedGuard=true;
-      return {authorize:async()=>{calls++;return allow()}};
+      const guard=realAuth?installSessionGuard({...options,view:{location:{replace:url=>redirects.push(url)}}}):null;
+      return {authorize:async()=>{calls++;return guard?guard.authorize():allow()}};
     },
     fetch:async url=>{
       assert.equal(url,'./respostas-65.json');
-      return {ok:true,json:async()=>library};
+      return {ok:true,json:load};
     },
   };
-  await runInNewContext('(async()=>{\n'+executable+'\n})()',context,{timeout:2000});
-  return {document,window,calls:()=>calls,guardInstalled:()=>signedGuard};
+  const actions=await runInNewContext('(async()=>{\n'+executable+'\nreturn {answer,openKnowledge};\n})()',context,{timeout:2000});
+  return {document,window,...actions,calls:()=>calls,guardInstalled:()=>signedGuard,
+    changeProfile:value=>{current=value;},failSession:error=>{sessionError=error;},authEvent:(...args)=>authListener?.(...args),redirects};
 }
+function deferred(){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 function trigger({document,window},target,type='click'){
   const el=document.querySelector(target);
   assert.ok(el,'Expected element '+target);
@@ -123,8 +138,10 @@ test('Biblioteca mostra 65 respostas com busca e revisão pendente',async()=>{
  assert.equal(x.document.querySelectorAll('#knowledgeItems details').length,20);
  x.document.querySelector('#knowledgeSearch').value='botox';
  trigger(x,'#knowledgeSearch','input');
+ await settle();
  const match=x.document.querySelectorAll('#knowledgeItems details');
- assert.ok(match.length>=1);
+ const expected=library.items.filter(i=>/botox/i.test(i.question+' '+i.triggers.join(' '))).map(i=>i.question);
+ assert.deepEqual(Array.from(match,item=>item.querySelector('summary').textContent),expected);
  assert.ok(Array.from(match).some(x=>x.textContent.includes('validação da Mel pendente')));
 });
 test('Pergunta reconhecida consulta resposta original da biblioteca sem diagnóstico',async()=>{
@@ -142,4 +159,143 @@ test('Pessoa sem autorização não consegue abrir a biblioteca',async()=>{
  trigger(x,'#knowledgeOpen');
  await settle();await settle();
  assert.equal(x.document.querySelector('#knowledgePanel').hidden,true);
+});
+
+test('Perfil de criação recebe orientação de consulta nos cinco assuntos da operação',async()=>{
+ const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
+ for(const topic of ['cadastro','agenda','anamnese','atendimento','documentos']){
+  trigger(x,'[data-topic="'+topic+'"]');await settle();
+  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/apenas consulta/i,topic);
+  assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/escolha Novo cliente|Para criar agendamento|Registros clínicos.*devem ser feitos/i,topic);
+ }
+});
+test('Pergunta operacional da biblioteca respeita a consulta do perfil de criação',async()=>{
+ const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
+ for(const id of ['app-cancelar','app-profissional','app-link-expirou','app-completar-cadastro','app-folga','app-atendimento-confirmacao','app-anamnese-status','app-cadastro-duplicado','app-confirmar-link']){
+  await x.answer(library.items.find(i=>i.id===id).question);
+  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/apenas consulta/i,id);
+  assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/abrir o cadastro da cliente e consultar o estado da anamnese/i,id);
+ }
+});
+test('Biblioteca apresenta ressalva por perfil sem mudar as 65 respostas de origem',async()=>{
+ const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
+ await x.openKnowledge();
+ x.document.querySelector('#knowledgeSearch').value='Como verificar se a cliente respondeu';
+ trigger(x,'#knowledgeSearch','input');await settle();
+ const item=x.document.querySelector('#knowledgeItems details');
+ assert.match(item.textContent,/apenas consulta/i);
+ assert.match(item.textContent,/validação da Mel pendente/);
+});
+for(const action of ['answer','openKnowledge'])for(const [change,nextProfile] of [
+ ['inativado',{user_id:'equipe',role:'colaborador',active:false}],
+ ['com papel alterado',{user_id:'equipe',role:'admin_criacao',active:true}],
+ ['substituído por outra conta',{user_id:'outra-conta',role:'colaborador',active:true}],
+]){
+ test('Perfil '+change+' durante a espera não recebe conteúdo: '+action,async()=>{
+  const wait=deferred();
+  const x=await render({user_id:'equipe',role:'colaborador',active:true},{realAuth:true,load:()=>wait.promise});
+  const pending=action==='answer'?x.answer('Como é feito o Botox?'):x.openKnowledge();
+  await settle();
+  x.changeProfile(nextProfile);
+  wait.resolve(library);await pending;
+  assert.equal(x.document.querySelector('#app').hidden,true);
+  assert.equal(x.document.querySelector('#app').textContent,'');
+  assert.deepEqual(x.redirects,['../login/']);
+ });
+}
+test('Logout durante a consulta impede que uma resposta repovoe o DOM removido',async()=>{
+ const wait=deferred();
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{realAuth:true,load:()=>wait.promise});
+ const oldChat=x.document.querySelector('#chat');
+ const pending=x.answer('Como é feito o Botox?');await settle();
+ x.authEvent('SIGNED_OUT',null);
+ const before=oldChat.textContent;
+ wait.resolve(library);await pending;
+ assert.equal(oldChat.textContent,before);
+ assert.equal(x.document.querySelector('#app').hidden,true);
+});
+test('Limpar conversa cancela o resultado de uma pergunta ainda carregando',async()=>{
+ const wait=deferred();
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{load:()=>wait.promise});
+ const pending=x.answer('Como é feito o Botox?');await settle();
+ trigger(x,'#clearChat');
+ wait.resolve(library);await pending;
+ assert.equal(x.document.querySelector('#chat').children.length,1);
+ assert.equal(x.document.querySelector('#chat').textContent,'Conversa limpa. Como posso ajudar?');
+});
+test('Fechar biblioteca cancela a renderização que ainda está carregando',async()=>{
+ const wait=deferred();
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{load:()=>wait.promise});
+ const pending=x.openKnowledge();await settle();
+ trigger(x,'#knowledgeClose');
+ wait.resolve(library);await pending;
+ assert.equal(x.document.querySelector('#knowledgePanel').hidden,true);
+ assert.equal(x.document.querySelector('#knowledgeItems').children.length,0);
+});
+test('Busca na biblioteca revalida perfil ativo com a proteção real da gestão',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{realAuth:true});
+ await x.openKnowledge();
+ x.changeProfile({user_id:'equipe',role:'colaborador',active:false});
+ x.document.querySelector('#knowledgeSearch').value='botox';
+ trigger(x,'#knowledgeSearch','input');await settle();await settle();
+ assert.equal(x.document.querySelector('#app').hidden,true);
+ assert.deepEqual(x.redirects,['../login/']);
+});
+test('Erro ao revalidar sessão é tratado sem responder nem rejeitar a ação',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{realAuth:true});
+ x.failSession(Error('falha simulada de conexão'));
+ await assert.doesNotReject(()=>x.answer('Como cadastrar cliente?'));
+ assert.doesNotMatch(x.document.querySelector('#chat').textContent,/abra Clientes e escolha Novo cliente/);
+ assert.match(x.document.querySelector('#chat').textContent,/Não foi possível confirmar seu acesso/);
+ await assert.doesNotReject(()=>x.openKnowledge());
+ assert.equal(x.document.querySelector('#knowledgeItems').children.length,0);
+});
+test('Biblioteca indisponível mantém orientação administrativa sem afirmar conteúdo clínico',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{load:async()=>{throw Error('offline fictício');}});
+ await x.answer('Como cadastrar cliente?');
+ assert.match(x.document.querySelector('#chat').textContent,/abra Clientes e escolha Novo cliente/);
+ await x.openKnowledge();
+ assert.match(x.document.querySelector('#knowledgeCount').textContent,/temporariamente indisponível/);
+ assert.equal(x.document.querySelector('#knowledgeItems').children.length,0);
+});
+test('Variações diretas de pergunta encontram um assunto conhecido sem inventar resposta',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true});
+ for(const [question,id] of [
+  ['O que é microagulhamento?','microagulhamento'],
+  ['Como funciona o peeling?','peeling'],
+  ['O que é radiofrequência?','radiofrequencia'],
+  ['Me explique a drenagem linfática','drenagem'],
+ ]){
+  await x.answer(question);
+  assert.ok(x.document.querySelector('#chat').lastElementChild.textContent.startsWith(library.items.find(i=>i.id===id).answer),question);
+ }
+});
+test('Pergunta com dois procedimentos ou pedido de dose não recebe resposta inferida',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true});
+ for(const question of ['O que é botox ou peeling?','O que é black peel ou peeling?','Qual dose de botox devo usar?','Qual dose de toxina botulínica devo usar?']){
+  await x.answer(question);
+  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/não são indicação individual|procure a Mel|administração/);
+  assert.ok(!library.items.some(i=>x.document.querySelector('#chat').lastElementChild.textContent.startsWith(i.answer)));
+ }
+});
+test('Biblioteca renderiza texto literal e rejeita links fora das fontes autorizadas',async()=>{
+ const altered=structuredClone(library);
+ altered.items[0].question='<img src=x onerror="alert(1)">';
+ altered.items[0].answer='<script>alert(1)</script>';
+ altered.items[0].references=['javascript:alert(1)','https://www.aad.org.evil.example/','https://www.aad.org/public/'];
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{load:async()=>altered});
+ await x.openKnowledge();
+ const item=x.document.querySelector('#knowledgeItems details');
+ assert.equal(item.querySelectorAll('img,script').length,0);
+ assert.ok(item.textContent.includes('<script>alert(1)</script>'));
+ assert.deepEqual(Array.from(item.querySelectorAll('a'),a=>a.getAttribute('href')),['https://www.aad.org/public/']);
+});
+test('As 65 perguntas e os 219 gatilhos preservam a resposta correspondente para a equipe clínica',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true});
+ let checked=0;
+ for(const item of library.items)for(const text of [item.question,...item.triggers]){
+  await x.answer(text);checked++;
+  assert.ok(x.document.querySelector('#chat').lastElementChild.textContent.startsWith(item.answer),item.id+': '+text);
+ }
+ assert.equal(checked,284);
 });
