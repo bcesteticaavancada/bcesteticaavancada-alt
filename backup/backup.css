@@ -1,0 +1,31 @@
+:root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #171310; color: #f6eee7; line-height: 1.65; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.page { max-width: 780px; margin: 0 auto; padding: 36px 24px; }
+header { padding-bottom: 46px; }
+.brand { display: inline-flex; gap: 18px; align-items: center; color: #e6b8a7; text-decoration: none; font-size: 11px; font-weight: 650; letter-spacing: .16em; }
+.brand span { font: 400 42px/1 Georgia, serif; letter-spacing: 0; }
+.eyebrow { color: #d2a48f; font-size: 11px; letter-spacing: .15em; }
+h1 { font: 400 clamp(32px, 7vw, 48px)/1.15 Georgia, serif; margin: 14px 0 24px; overflow-wrap: anywhere; }
+h2 { font-size: 20px; line-height: 1.35; margin: 0 0 14px; }
+p, li { color: #d0c4bd; }
+p { margin: 12px 0; }
+.lead { font-size: 19px; line-height: 1.6; color: #f0ddd0; }
+section { border-top: 1px solid #49392e; padding-top: 26px; margin-top: 30px; }
+ul { padding-left: 23px; }
+li { margin: 14px 0; }
+strong { color: #f0ddd0; }
+a { color: #efb99f; text-underline-offset: 4px; overflow-wrap: anywhere; }
+a:hover { color: #fff4e9; }
+a:focus-visible { outline: 2px solid #efb99f; outline-offset: 5px; border-radius: 2px; }
+code { font-size: .95em; color: #f0ddd0; }
+.notice { margin: 30px 0; padding: 8px 20px; border-left: 3px solid #c2957c; background: #241e19; }
+.button { display: inline-block; background: #efb99f; color: #251811; padding: 13px 23px; border-radius: 7px; text-decoration: none; font-weight: 650; }
+.button:hover { color: #251811; background: #f4c9b4; }
+.muted, footer { font-size: 14px; }
+footer { border-top: 1px solid #49392e; padding-top: 24px; margin-top: 44px; }
+nav { display: flex; flex-wrap: wrap; gap: 14px 24px; }
+footer p { color: #b5a59a; margin-top: 22px; }
+.skip { position: fixed; left: 16px; top: 12px; transform: translateY(-180%); background: #171310; padding: 10px 16px; border: 1px solid #efb99f; }
+.skip:focus { transform: translateY(0); }
+@media (max-width: 420px) { .page { padding: 28px 20px; } header { padding-bottom: 32px; } .lead { font-size: 18px; } }

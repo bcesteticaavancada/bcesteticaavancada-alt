@@ -53,9 +53,9 @@ export function createDriveSetup({ root, auth, fetcher = fetch, pick = pickFolde
           'Não foi possível concluir esta autorização. Toque em Continuar com Google para tentar novamente.');
         return;
       }
-      if (result.folders_ready === true && connected) message('Autorização validada para as duas pastas. Etapa de teste, sem envio de arquivos.');
+      if (result.folders_ready === true && connected) message('Autorização validada para as duas pastas. Configuração concluída, sem envio de arquivos por esta tela.');
       else if (connected) message('Conta Google autorizada. Agora selecione cada uma das duas pastas.');
-      else message('Comece autorizando sua conta Google. Nenhum arquivo será enviado.');
+      else message('Comece autorizando sua conta Google para conectar as pastas do backup.');
     });
   }
   async function start() {
@@ -87,7 +87,7 @@ export function createDriveSetup({ root, auth, fetcher = fetch, pick = pickFolde
     await run(async () => {
       const result = await api('confirm', { clinical: selected.clinical, client: selected.client });
       if (result.connected !== true || result.folders_ready !== true) throw new Error('server');
-      message('Autorização validada para as duas pastas. Etapa de teste, sem envio de arquivos.');
+      message('Autorização validada para as duas pastas. Configuração concluída, sem envio de arquivos por esta tela.');
     });
   }
   buttons[0].addEventListener('click', start);
