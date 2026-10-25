@@ -22,6 +22,8 @@ test('automatic worker store protects credentials, leases and durable version ID
   let sql=await readFile(new URL(names.find(n=>n.endsWith('_bc_drive_automatic_backup.sql')),migrations),'utf8');
   sql=sql.replace(/^create extension[^;]+;/gm,'');
   await db.exec(sql);
+  const invocationMigration=names.find(n=>n.endsWith('_bc_drive_backup_one_time_invocation.sql'));
+  await db.exec(await readFile(new URL(invocationMigration,migrations),'utf8'));
   const uid='00000000-0000-4000-8000-000000000001',client='530925228983-23076omi6omga78n5vavvkfub0v7uaq5.apps.googleusercontent.com';
   await db.exec(`insert into private.bc_drive_oauth_connection(user_id,account,client_id,refresh_secret_id,folders_ready) values('${uid}','decolarbh@gmail.com','${client}',gen_random_uuid(),true)`);
   async function role(as,fn){await db.exec('set role '+as);try{return await fn();}finally{await db.exec('reset role');}}
@@ -33,8 +35,17 @@ test('automatic worker store protects credentials, leases and durable version ID
   });
   await t.test('default disabled, invalid capability rejected without leaking secret',async()=>{
    assert.deepEqual(await store('begin'),{disabled:true});assert.equal(await store('authorize',{secret_hash:'0'.repeat(64)}),false);
-   const secret=(await db.query('select secret from vault.secrets')).rows[0].secret;
-   assert.equal(await store('authorize',{secret_hash:createHash('sha256').update(secret).digest('hex')}),true);
+   const legacySecret=(await db.query('select secret from vault.secrets')).rows[0].secret;
+   assert.equal(await store('authorize',{secret_hash:createHash('sha256').update(legacySecret).digest('hex')}),false);
+  });
+  await t.test('invocation capability expires and can only be consumed once',async()=>{
+   const hash=createHash('sha256').update('fictional-one-time-invocation').digest('hex');
+   await db.query("insert into private.bc_drive_backup_invocations(token_hash,expires_at) values($1,clock_timestamp()+interval '2 minutes')",[hash]);
+   assert.equal(await store('authorize',{secret_hash:hash}),true);
+   assert.equal(await store('authorize',{secret_hash:hash}),false);
+   await db.query("insert into private.bc_drive_backup_invocations(token_hash,expires_at) values($1,clock_timestamp()-interval '1 second')",[hash]);
+   assert.equal(await store('authorize',{secret_hash:hash}),false);
+   for(const as of ['anon','authenticated'])await assert.rejects(role(as,()=>db.query('select * from private.bc_drive_backup_invocations')),e=>e.code==='42501');
   });
   await db.exec('update private.bc_drive_backup_control set enabled=true');
   let run;
@@ -66,6 +77,17 @@ test('automatic worker store protects credentials, leases and durable version ID
    const current=(await store('begin')).run_id;assert.notEqual(current,old);
    await assert.rejects(store('reserve',{...payload,run_id:old}));
    assert.equal((await db.query('select status from private.bc_drive_backup_runs where id=$1',[old])).rows[0].status,'abandoned');
+  });
+  await t.test('SQL invoker issues an expiring ticket instead of using the permanent Vault value',async()=>{
+   await db.exec('update private.bc_drive_backup_control set enabled=false');
+   await assert.rejects(db.query('select private.bc_drive_backup_invoke()'));
+   await db.exec('update private.bc_drive_backup_control set enabled=true');
+   assert.equal((await db.query('select private.bc_drive_backup_invoke() as id')).rows[0].id,1);
+   const tickets=(await db.query('select count(*)::int as n,bool_and(expires_at>clock_timestamp()) as fresh from private.bc_drive_backup_invocations')).rows[0];
+   assert.equal(tickets.n,1);assert.equal(tickets.fresh,true);
+   const fakeHash=createHash('sha256').update('ab'.repeat(32)).digest('hex');
+   assert.equal(await store('authorize',{secret_hash:fakeHash}),true);
+   assert.equal(await store('authorize',{secret_hash:fakeHash}),false);
   });
  }finally{await db.close();}
 });

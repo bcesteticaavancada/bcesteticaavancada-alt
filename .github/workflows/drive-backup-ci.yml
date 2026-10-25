@@ -6,6 +6,7 @@ on:
     paths:
       - 'supabase/functions/drive-backup/**'
       - 'supabase/migrations/*bc_drive_automatic_backup.sql'
+      - 'supabase/migrations/*bc_drive_backup_one_time_invocation.sql'
       - 'scripts/test-drive-automatic-db.mjs'
       - '.github/workflows/drive-backup-ci.yml'
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'supabase/functions/drive-backup/**'
       - 'supabase/migrations/*bc_drive_automatic_backup.sql'
+      - 'supabase/migrations/*bc_drive_backup_one_time_invocation.sql'
       - 'scripts/test-drive-automatic-db.mjs'
       - '.github/workflows/drive-backup-ci.yml'
 jobs:

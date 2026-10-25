@@ -31,8 +31,10 @@ nenhuma credencial/permissão é obtida ou ampliada por esse ajuste.
 
 ## Controle e integridade
 
-Um segredo aleatório nasce no Vault e é enviado pelo pg_net; só seu hash é
-comparado pela RPC interna. Não aparece em Git, outputs, chat ou frontend.
+Cada acionamento gera um ticket aleatório de uso único, válido por dois minutos.
+Seu hash e validade ficam em tabela privada; a RPC interna o consome atomicamente.
+O pg_net transporta somente esse ticket descartável, não a credencial OAuth nem
+uma chave permanente. Não aparece em Git, outputs, chat ou frontend.
 RLS e ausência de grants bloqueiam usuários nas tabelas privadas. A RPC pública
 é apenas adaptador PostgREST, invoker, EXECUTE exclusivo de service_role.
 
@@ -64,6 +66,15 @@ O Google ainda estava em Testing na configuração inicial: o refresh token pode
 expirar em sete dias. Ativação operacional não significa conexão permanente.
 Falha de renovação deve ser registrada; publicar o app Google e reautorizar é
 uma etapa administrativa distinta se ainda necessária.
+
+O pg_net usa uma fila pertencente à plataforma. A tentativa inicial de REVOKE
+não removeu os grants que pertencem a supabase_admin; a verificação real detectou
+isso antes de qualquer acionamento. Por isso o protocolo foi reduzido para tickets
+descartáveis. Um operador SQL que lesse a fila poderia tentar antecipar a mesma
+execução permitida enquanto o ticket ainda estivesse válido, mas não obteria
+credenciais de Google/Supabase nem uma autorização reutilizável. O endpoint aceita
+somente a ação fixa e os destinos já consentidos. Nenhum papel de aplicação possui
+login SQL direto. A fila não é usada para transportar documentos.
 
 Backups do banco SQL/PITR, mídias do site e desastre completo não são entregues
 por esta rotina. Não mesclar as branches de preparação inteiras em main.
