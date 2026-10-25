@@ -99,8 +99,8 @@ async function loadKnowledge(){
  const response=await fetch('./respostas-65.json',{cache:'no-store'});
  if(!response.ok)throw new Error('A biblioteca não está disponível.');
  const json=await response.json();
- if(json?.locale!=='pt-BR'||!Array.isArray(json.items)||json.items.length!==65||new Set(json.items.map(i=>i.id)).size!==65)throw new Error('Formato da biblioteca inválido.');
- if(json.items.some(i=>typeof i.question!=='string'||typeof i.answer!=='string'||!Array.isArray(i.triggers)||i.review!=='pendente'))throw new Error('Biblioteca requer revisão.');
+ if(json?.schema!==2||json?.locale!=='pt-BR'||!Array.isArray(json.items)||json.items.length!==65||new Set(json.items.map(i=>i.id)).size!==65)throw new Error('Formato da biblioteca inválido.');
+ if(json.items.some(i=>typeof i.question!=='string'||typeof i.answer!=='string'||!Array.isArray(i.triggers)||i.review!=='pendente'||i.publication_approval!==false))throw new Error('Biblioteca requer revisão.');
  knowledgeBank=json.items;
  return knowledgeBank;
 }
@@ -114,10 +114,22 @@ function renderKnowledge(){
  for(const item of visible){
   const details=document.createElement('details');details.className='kb-item';
   const summary=document.createElement('summary');summary.textContent=item.question;
-  const notice=document.createElement('div');notice.className='kb-note';notice.textContent='Orientação informativa interna · revisão técnica pendente';
+  const notice=document.createElement('div');notice.className='kb-note';notice.textContent='Informação para a equipe · validação da Mel pendente';
   const answer=document.createElement('p');answer.textContent=item.answer;
-  const source=document.createElement('p');source.className='kb-source';source.textContent='Referência / observação: '+item.source;
-  details.append(summary,notice,answer,source);
+  const evidence=document.createElement('p');evidence.className='kb-source';
+  evidence.textContent='Base científica: '+(item.evidence_level||'Avaliação técnica pendente');
+  const source=document.createElement('div');source.className='kb-source';
+  if(Array.isArray(item.references)&&item.references.length){
+   const heading=document.createElement('span');heading.textContent='Fontes: ';
+   source.append(heading);
+   item.references.forEach((url,index)=>{
+    if(!/^https:\/\/(www\.aad\.org|www\.gov\.br|www\.fda\.gov|pubmed\.ncbi\.nlm\.nih\.gov|pmc\.ncbi\.nlm\.nih\.gov|doi\.org)\//.test(url))return;
+    const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+    a.textContent='Estudo / diretriz '+(index+1);
+    source.append(a,document.createTextNode('  '));
+   });
+  }else source.textContent='Fonte: conferir procedimento no BC Gestão.';
+  details.append(summary,notice,answer,evidence,source);
   details.addEventListener('toggle',async()=>{if(details.open&& !await guard.authorize())details.open=false;});
   knowledgeItems.append(details);
  }
