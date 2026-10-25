@@ -1,15 +1,21 @@
-name: BC Drive Backup Draft CI
+name: BC Drive Automatic Backup CI
 on:
   push:
     branches:
       - 'backup/**'
     paths:
       - 'supabase/functions/drive-backup/**'
+      - 'supabase/migrations/*bc_drive_automatic_backup.sql'
+      - 'supabase/migrations/*bc_drive_backup_one_time_invocation.sql'
+      - 'scripts/test-drive-automatic-db.mjs'
       - '.github/workflows/drive-backup-ci.yml'
   pull_request:
     branches: [main]
     paths:
       - 'supabase/functions/drive-backup/**'
+      - 'supabase/migrations/*bc_drive_automatic_backup.sql'
+      - 'supabase/migrations/*bc_drive_backup_one_time_invocation.sql'
+      - 'scripts/test-drive-automatic-db.mjs'
       - '.github/workflows/drive-backup-ci.yml'
 jobs:
   unit:
@@ -20,6 +26,13 @@ jobs:
         with:
           deno-version: v2.x
       - name: Verify pure backup rules (no customer data)
-        run: deno test supabase/functions/drive-backup/core_test.ts
-      - name: Type-check draft Edge Function
-        run: deno check --node-modules-dir=auto --config supabase/functions/drive-backup/deno.json supabase/functions/drive-backup/index.ts
+        run: deno test supabase/functions/drive-backup/core_test.ts supabase/functions/drive-backup/worker_test.ts
+      - name: Type-check scheduled Edge Function
+        run: deno check supabase/functions/drive-backup/index.ts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Test private journal and lease SQL
+        run: node --test scripts/test-drive-automatic-db.mjs

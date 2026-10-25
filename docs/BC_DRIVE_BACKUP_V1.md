@@ -1,5 +1,10 @@
 # BC Estética Avançada — cópia paralela para Google Drive (V1, preparação)
 
+> **Atualização de 25/10/2026: backup horário ATIVO.** Primeira execução com
+> 10/10 objetos verificados; repetição com zero novos uploads e dez auditorias.
+> Consulte [a ativação V2 e seus limites](BC_DRIVE_AUTOMATICO_ATIVACAO_2026-10-25.md).
+> O restante deste arquivo é o registro histórico da preparação V1 de 23/10.
+
 > **Não está publicado, implantado ou agendado.** Esta branch é um ensaio técnico.
 > O site, Maya, agenda, banco e documentos de produção permanecem intactos.
 

@@ -14,3 +14,7 @@ verify_jwt = false
 
 [functions.drive-oauth-setup]
 verify_jwt = false
+
+# Internal cron worker authenticates the Vault capability before claiming a DB lease.
+[functions.drive-backup]
+verify_jwt = false
