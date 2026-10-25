@@ -1,7 +1,10 @@
 import {
   destination, extension, isAllowedRoot, isFinancialPath, isPrivatePermissionSet, safeFileName, secureEqual, selectPending, sha256Hex, sourceKey,
 } from "./core.ts";
-import { assert, assertEquals } from "jsr:@std/assert@1";
+function assert(value: unknown): asserts value { if (!value) throw new Error('Assertion failed'); }
+function assertEquals(actual: unknown, expected: unknown) {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error('Values differ');
+}
 
 Deno.test("routes medical PDFs and client uploads into separate private folders", () => {
   assertEquals(destination("documentos/anamneses/123.pdf"), "clinical");
