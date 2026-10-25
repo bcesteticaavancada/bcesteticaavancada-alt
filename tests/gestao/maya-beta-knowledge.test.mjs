@@ -10,6 +10,7 @@ const html=readFileSync(resolve(folder,'../../gestao/maya-beta/index.html'),'utf
 const items=data.items;
 
 test('A biblioteca contém 65 perguntas únicas, todas com resposta e fonte',()=>{
+ assert.equal(data.schema,2);
  assert.equal(data.locale,'pt-BR');
  assert.equal(items.length,65);
  assert.equal(new Set(items.map(x=>x.id)).size,65);
@@ -18,6 +19,9 @@ test('A biblioteca contém 65 perguntas únicas, todas com resposta e fonte',()=
   assert.ok(item.answer.length>=30,item.id);
   assert.ok(item.source.length>0,item.id);
   assert.ok(item.triggers.length>=1,item.id);
+  assert.ok(item.evidence_level.length>10,item.id);
+  assert.ok(item.review_notes.length>10,item.id);
+  assert.equal(item.publication_approval,false,item.id);
  }
 });
 test('Liberação é exclusivamente para consulta da Beta interna, sem homologação clínica',()=>{
@@ -32,7 +36,7 @@ test('Biblioteca não contém tokens HTML ou campos de cliente',()=>{
  for(const item of items){
   const corpus=item.question+' '+item.answer+' '+item.source;
   assert.doesNotMatch(corpus,/<script|<iframe|onerror\s*=/i,item.id);
-  assert.equal(Object.keys(item).sort().join('|'),'answer|audience|id|question|review|source|triggers',item.id);
+  assert.equal(Object.keys(item).sort().join('|'),'answer|audience|evidence_level|id|publication_approval|question|references|research_date|review|review_notes|source|source_original|triggers',item.id);
  }
 });
 test('Busca e diálogo dependem da autorização do BC Gestão',()=>{
@@ -43,6 +47,20 @@ test('Busca e diálogo dependem da autorização do BC Gestão',()=>{
 });
 test('Exibição não interpreta respostas como HTML e não publica conteúdo no banco',()=>{
  assert.match(html,/answer\.textContent=item\.answer/);
- assert.match(html,/source\.textContent='Referência/);
+ assert.match(html,/evidence\.textContent='Base científica:/);
+ assert.match(html,/a\.rel='noopener noreferrer'/);
  assert.doesNotMatch(html,/\.innerHTML|\.from\(|\.rpc\(|localStorage/);
+});
+
+test('52 respostas informativas vinculam referências e registram limites',()=>{
+ const information=items.filter(x=>x.audience==='informativo');
+ assert.equal(information.length,52);
+ assert.ok(information.every(x=>Array.isArray(x.references)&&x.references.length>0));
+ assert.ok(information.every(x=>x.answer.length>=350));
+ assert.equal(new Set(information.flatMap(x=>x.references)).size,29);
+});
+test('13 respostas administrativas não simulam fundamentação biomédica',()=>{
+ const operational=items.filter(x=>x.audience==='equipe');
+ assert.equal(operational.length,13);
+ assert.ok(operational.every(x=>x.evidence_level.startsWith('Operacional:')));
 });
