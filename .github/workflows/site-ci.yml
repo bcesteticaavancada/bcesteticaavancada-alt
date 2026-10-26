@@ -106,6 +106,8 @@ jobs:
           path: test-results/creation/
       - name: Public Agenda Edge Function check
         run: deno check --node-modules-dir=auto supabase/functions/public-agenda/index.ts
+      - name: Support Edge Function check
+        run: deno check --config supabase/functions/client-support/deno.json supabase/functions/client-support/index.ts
       - name: Public Agenda HTTP boundary tests
         run: deno test --allow-env supabase/functions/public-agenda/handler_test.ts
       - name: Anamnese PDF Edge Function tests

@@ -23,6 +23,7 @@
 .maya-character[data-motion="off"] *{animation:none!important;transition:none!important}
 .maya-state{display:block;min-height:20px;font-size:12px;color:#625344;line-height:1.5;margin:3px 0 8px}
 .maya-motion{font-size:11px;min-height:36px;background:transparent;border-color:#cbbbA8}.maya-motion:disabled{cursor:default;color:#71675f}
+.guide-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px;margin:12px 0}.guide-choice{border:1px solid #d7c3ad;border-radius:10px;background:#fffdfb;padding:12px;text-align:left;color:#483327}.guide-choice:focus-visible{outline:3px solid #a4774d;outline-offset:2px}.guide-selected{border-top:1px solid #e6d9cb;padding-top:12px}.guide-selected h3{font-size:15px}.guide-panel{margin-bottom:18px}.guide-panel[hidden],#guideAction[hidden]{display:none}
 @keyframes maya-wave{0%,100%{transform:rotate(0)}25%,65%{transform:rotate(9deg)}45%,85%{transform:rotate(-4deg)}}
 @keyframes maya-nod{0%,100%{transform:rotate(0)}45%{transform:rotate(3deg)}}
 @keyframes maya-blink{0%,72%,78%,100%{transform:scaleY(1)}75%{transform:scaleY(.08)}}
@@ -103,8 +104,15 @@
 <button class="topic" type="button" data-topic="documentos">📄 Documentos</button>
 <button class="topic" type="button" data-topic="financeiro">💰 Comissões e caixa</button>
 <button class="topic" type="button" data-topic="procedimentos">✨ Procedimentos</button>
+<button class="topic" id="guidesOpen" type="button">🧭 Ajuda com o aplicativo</button>
 <button class="topic" id="knowledgeOpen" type="button">📚 Consultar 67 respostas</button>
 </div>
+<section id="guidePanel" class="panel guide-panel" aria-label="Guias do aplicativo" hidden>
+<div class="chat-head"><h2>Escolha uma tarefa</h2><button id="guidesClose" class="clear" type="button">Fechar guias</button></div>
+<div id="guideChoices" class="guide-choices"></div>
+<div class="guide-selected"><h3 id="guideTitle">Orientação por etapas</h3><a id="guideAction" class="secondary" hidden>Abrir área no aplicativo</a></div>
+<p class="footnote">Os guias explicam o caminho. Confira e conclua cada operação no painel autorizado; a Maya não altera registros.</p>
+</section>
 <section class="panel" aria-label="Conversa com a Maya">
 <div class="chat-head"><h2>Orientação da Maya</h2><button id="clearChat" class="clear" type="button">Limpar conversa</button></div>
 <div id="chat" class="chat" role="log" aria-live="polite" aria-relevant="additions text"></div>
@@ -128,6 +136,7 @@
 <script type="module">
 import {getCurrentProfile,installSessionGuard} from '../js/auth.js';
 import {createBcGestaoClient} from '../js/supabase-client.js';
+import {listAppGuides,findAppGuide} from './app-guides.js';
 const status=document.getElementById('status');
 const app=document.getElementById('app');
 const chat=document.getElementById('chat');
@@ -140,6 +149,31 @@ const knowledgeClose=document.getElementById('knowledgeClose');
 const knowledgeSearch=document.getElementById('knowledgeSearch');
 const knowledgeItems=document.getElementById('knowledgeItems');
 const knowledgeCount=document.getElementById('knowledgeCount');
+const guidePanel=document.getElementById('guidePanel');
+const guideChoices=document.getElementById('guideChoices');
+const guideTitle=document.getElementById('guideTitle');
+const guideAction=document.getElementById('guideAction');
+function resetGuide(){guidePanel.hidden=true;guideAction.hidden=true;guideAction.removeAttribute('href');guideTitle.textContent='Orientação por etapas';guideChoices.replaceChildren();}
+function renderGuideChoices(){
+ guideChoices.replaceChildren();
+ for(const guide of listAppGuides(profile)){
+  const button=document.createElement('button');button.type='button';button.className='guide-choice';button.textContent=guide.title;
+  button.addEventListener('click',async()=>{const activity=++mayaVersion;if(await authorize(()=>activity===mayaVersion))showGuide(guide,true,activity);});
+  guideChoices.append(button);
+ }
+}
+function showGuide(guide,addMessage=true,activity=mayaVersion){
+ if(app.hidden||activity!==mayaVersion||!listAppGuides(profile).some(item=>item.id===guide.id))return;
+ guidePanel.hidden=false;renderGuideChoices();guideTitle.textContent=guide.title;
+ guideAction.setAttribute('href',guide.href);guideAction.hidden=false;
+ if(addMessage)line(guide.title+'\n\n'+guide.steps.map((step,index)=>(index+1)+'. '+step).join('\n\n'),'maya');
+ setMayaState('answered',activity);
+}
+async function openGuides(){
+ const activity=++mayaVersion;
+ if(!await authorize(()=>activity===mayaVersion)||activity!==mayaVersion)return;
+ guidePanel.hidden=false;renderGuideChoices();setMayaState('answered',activity);
+}
 const mayaCharacter=document.getElementById('mayaCharacter');
 const mayaState=document.getElementById('mayaState');
 const mayaMotionToggle=document.getElementById('mayaMotionToggle');
@@ -331,6 +365,7 @@ async function answer(text,topic){
  const activity=++mayaVersion;
  if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion)return;
  const trimmed=String(text||'').trim().slice(0,180);
+ if(topic||trimmed)resetGuide();
  if(topic){line('Assunto: '+(topicLabels[topic]||'Ajuda geral'),'person');line(getReply(topic),'maya');setMayaState('answered',activity);return;}
  if(!trimmed)return;
  if(sensitive(trimmed)){
@@ -345,14 +380,16 @@ async function answer(text,topic){
  try{if(!knowledgeBank)await loadKnowledge();}catch{loaded=false;}
  if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion)return;
  const found=findKnowledge(trimmed);
- if(found){line(knowledgeAnswer(found)+'\n\n'+knowledgeNotice(found),'maya');setMayaState('answered',activity);return;}
+ const guide=findAppGuide(trimmed,profile);
+ if(found){line(knowledgeAnswer(found)+'\n\n'+knowledgeNotice(found),'maya');if(guide)showGuide(guide,false,activity);setMayaState('answered',activity);return;}
+ if(guide){showGuide(guide,true,activity);return;}
  line(asksSportsMassageAvailability(trimmed)?replies.massagemIndisponivel:getReply(selected),'maya');
  setMayaState(loaded?'answered':'unavailable',activity);
 }
 try{
  client=createBcGestaoClient(globalThis.supabase?.createClient);
  profile=await getCurrentProfile(client);
- if(!profile || !['admin','colaborador','admin_criacao'].includes(profile.role)){
+ if(!profile || profile.role!=='colaborador'){
   status.textContent='Acesso restrito à equipe autorizada. Entre pelo BC Gestão.';
   const a=document.createElement('a');a.href='../login/';a.textContent='Ir para login';status.append(document.createTextNode(' '),a);
  }else{
@@ -365,10 +402,12 @@ try{
   mayaMotionToggle.addEventListener('click',()=>{if(motionPreference?.matches)return;motionRequested=!motionRequested;renderMayaMotion();});
   motionPreference?.addEventListener?.('change',renderMayaMotion);
   document.addEventListener('visibilitychange',renderMayaMotion);
+  document.getElementById('guidesOpen').addEventListener('click',()=>{void openGuides();});
+  document.getElementById('guidesClose').addEventListener('click',()=>{++mayaVersion;resetGuide();setMayaState('ready');});
   line('Olá! Posso explicar as funções do BC Gestão. Escolha um assunto ou digite uma pergunta sem dados de clientes.','maya');
   document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{void answer('',b.dataset.topic);}));
   form.addEventListener('submit',e=>{e.preventDefault();const t=question.value;question.value='';void answer(t);});
-  clearChat.addEventListener('click',()=>{++chatVersion;++mayaVersion;setMayaState('ready');chat.replaceChildren();line('Conversa limpa. Como posso ajudar?','maya');question.value='';question.focus();});
+  clearChat.addEventListener('click',()=>{++chatVersion;++mayaVersion;resetGuide();setMayaState('ready');chat.replaceChildren();line('Conversa limpa. Como posso ajudar?','maya');question.value='';question.focus();});
   knowledgeOpen.addEventListener('click',()=>{void openKnowledge();});
   knowledgeClose.addEventListener('click',()=>{++knowledgeVersion;++mayaVersion;setMayaState('ready');knowledgePanel.hidden=true;knowledgeSearch.value='';knowledgeItems.replaceChildren();});
   knowledgeSearch.addEventListener('input',()=>{void searchKnowledge();});

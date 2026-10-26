@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Conheça o backup privado do BC Gestão, a autorização do Google Drive e o tratamento dos dados da conexão.">
+  <meta name="referrer" content="strict-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>BC Estética - Backup</title>
+  <link rel="canonical" href="https://bcesteticaavancada.github.io/bcesteticaavancada-alt/backup/">
+  <link rel="stylesheet" href="./backup.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <div class="page">
+    <header><a class="brand" href="../" aria-label="BC Estética Avançada — site"><span>BC</span> ESTÉTICA AVANÇADA</a></header>
+    <main id="conteudo">
+      <p class="eyebrow">SERVIÇO PRIVADO DO BC GESTÃO</p>
+      <h1>BC Estética - Backup</h1>
+      <p class="lead">Cópias dos documentos e arquivos de clientes em duas pastas privadas do Google Drive, para apoiar a recuperação dos arquivos da clínica.</p>
+      <section aria-labelledby="funcionamento">
+        <h2 id="funcionamento">Como funciona</h2>
+        <p>O BC Gestão mantém os arquivos originais no seu armazenamento principal, no Supabase. O serviço de backup verifica periodicamente os arquivos elegíveis e grava cópias no Google Drive autorizado pela administração da BC Estética Avançada.</p>
+        <p>A verificação está programada para ocorrer a cada hora e funciona no servidor, mesmo com o navegador fechado. Alterações geram novas versões; as cópias anteriores não são substituídas automaticamente. Cada cópia é conferida após o envio.</p>
+        <p>Esta versão abrange documentos clínicos e arquivos de clientes armazenados no BC Gestão. A cópia de arquivos não representa um backup completo do banco de dados do sistema.</p>
+      </section>
+      <section aria-labelledby="google">
+        <h2 id="google">Você escolhe as pastas</h2>
+        <p>A conexão exige uma conta administrativa autorizada no BC Gestão e a confirmação da conta Google. A administração seleciona as duas pastas de destino pelo seletor do Google e o serviço confere suas permissões antes de utilizá-las.</p>
+        <p>O aplicativo solicita a permissão <code>drive.file</code>, para trabalhar com os arquivos criados ou abertos por ele e as pastas selecionadas. A conexão é usada para criar, conferir e recuperar as cópias do backup.</p>
+        <p>Os arquivos permanecem sujeitos às permissões das pastas no Google Drive. Estas páginas públicas apresentam o serviço e suas regras de uso; não exibem os documentos da clínica.</p>
+      </section>
+      <aside class="notice" aria-label="Sobre sua autorização">
+        <p>Antes de conectar a conta, leia a <a href="./privacidade/">Política de Privacidade</a> e os <a href="./termos/">Termos de Uso</a>. Você pode revogar o acesso pela sua conta Google. A revogação interrompe o acesso do aplicativo, mas não apaga as cópias já guardadas.</p>
+      </aside>
+      <p><a class="button" href="../gestao/configurar-drive/">Configurar a conexão</a></p>
+      <p class="muted">A configuração é reservada à administração autorizada da clínica. Dúvidas: <a href="mailto:decolarbh@gmail.com">decolarbh@gmail.com</a>.</p>
+    </main>
+    <footer><nav aria-label="Informações do backup"><a href="./privacidade/">Privacidade</a><a href="./termos/">Termos de uso</a><a href="../">Site da BC Estética</a></nav><p>BC Estética Avançada · Atualizado em 25 de outubro de 2026</p></footer>
+  </div>
+</body>
+</html>

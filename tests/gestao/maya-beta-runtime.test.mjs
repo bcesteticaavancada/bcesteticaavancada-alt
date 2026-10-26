@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { parseHTML } from 'linkedom';
 import { getCurrentProfile, installSessionGuard } from '../../gestao/js/auth.js';
+import { listAppGuides, findAppGuide } from '../../gestao/maya-beta/app-guides.js';
 
 const dir=dirname(fileURLToPath(import.meta.url));
 const html=readFileSync(resolve(dir,'../../gestao/maya-beta/index.html'),'utf8');
@@ -35,6 +36,7 @@ async function render(profile,{allow=()=>true,load=async()=>library,realAuth=fal
     },
   };
   const context={
+    listAppGuides,findAppGuide,
     document,
     globalThis:{supabase:{createClient:()=>({})},matchMedia:()=>motionPreference},
     createBcGestaoClient:()=>client,
@@ -75,18 +77,11 @@ test('Perfil ativo autorizado: Maya abre sem carregar informação de clientes',
   assert.equal(x.document.querySelector('#app').hidden,false);
   assert.ok(x.document.querySelector('#chat').textContent.includes('Posso explicar'));
 });
-test('Papéis separam orientação financeira da criação e da colaboradora',async()=>{
-  for(const [role,expected] of [
-    ['admin_criacao','não possui acesso ao financeiro'],
-    ['colaborador','Na área Minha comissão'],
-    ['admin','administradora consulta o caixa'],
-  ]){
-    const x=await render({role,display_name:'Teste',user_id:role,active:true});
-    trigger(x,'[data-topic="financeiro"]');
-    await settle();
-    assert.ok(x.document.querySelector('#chat').textContent.includes(expected),role);
-    assert.ok(x.calls()>0);
-  }
+test('Colaboradora recebe somente orientação da própria comissão',async()=>{
+ const x=await render({role:'colaborador',display_name:'Teste',user_id:'colab',active:true});
+ trigger(x,'[data-topic="financeiro"]');await settle();
+ assert.match(x.document.querySelector('#chat').textContent,/Na área Minha comissão/);
+ assert.doesNotMatch(x.document.querySelector('#chat').textContent,/administradora consulta o caixa/);
 });
 test('Texto da pergunta nunca é espelhado no histórico da Maya',async()=>{
   const x=await render({role:'colaborador',display_name:'Teste',user_id:'u1',active:true});
@@ -165,31 +160,14 @@ test('Pessoa sem autorização não consegue abrir a biblioteca',async()=>{
  assert.equal(x.document.querySelector('#knowledgePanel').hidden,true);
 });
 
-test('Perfil de criação recebe orientação de consulta nos cinco assuntos da operação',async()=>{
- const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
- for(const topic of ['cadastro','agenda','anamnese','atendimento','documentos']){
-  trigger(x,'[data-topic="'+topic+'"]');await settle();
-  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/apenas consulta/i,topic);
-  assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/escolha Novo cliente|Para criar agendamento|Registros clínicos.*devem ser feitos/i,topic);
- }
-});
-test('Pergunta operacional da biblioteca respeita a consulta do perfil de criação',async()=>{
- const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
- for(const id of ['app-cancelar','app-profissional','app-link-expirou','app-completar-cadastro','app-folga','app-atendimento-confirmacao','app-anamnese-status','app-cadastro-duplicado','app-confirmar-link']){
-  await x.answer(library.items.find(i=>i.id===id).question);
-  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/apenas consulta/i,id);
-  assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/abrir o cadastro da cliente e consultar o estado da anamnese/i,id);
- }
-});
-test('Biblioteca distingue orientação adaptada ao perfil do texto de origem revisado',async()=>{
- const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
- await x.openKnowledge();
- x.document.querySelector('#knowledgeSearch').value='Como verificar se a cliente respondeu';
- trigger(x,'#knowledgeSearch','input');await settle();
- const item=x.document.querySelector('#knowledgeItems details');
- assert.match(item.textContent,/apenas consulta/i);
- assert.match(item.textContent,/Orientação adaptada ao perfil de criação/);
- assert.match(item.textContent,/Texto de origem revisado pela Mel/);
+for(const role of ['admin','admin_criacao'])test('Papel fora da liberação não consulta biblioteca nem recebe orientação: '+role,async()=>{
+ let loads=0;
+ const x=await render({user_id:role,role,active:true},{load:async()=>{loads++;return library;}});
+ await x.answer('Como é feito o Botox?');await x.openKnowledge();
+ assert.equal(x.document.querySelector('#app').hidden,true);
+ assert.equal(x.document.querySelector('#chat').children.length,0);
+ assert.equal(x.document.querySelector('#knowledgePanel').hidden,true);
+ assert.equal(loads,0);
 });
 for(const action of ['answer','openKnowledge'])for(const [change,nextProfile] of [
  ['inativado',{user_id:'equipe',role:'colaborador',active:false}],
@@ -473,4 +451,41 @@ test('Falha de busca no chat mantém fallback seguro e informa indisponibilidade
  assert.equal(character(x).dataset.state,'unavailable');
  assert.match(x.document.querySelector('#mayaState').textContent,/Tente novamente/);
  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/67 respostas da biblioteca/);
+});
+for(const role of ['admin','admin_criacao'])test('Primeira liberação não abre a Maya para '+role,async()=>{
+ const x=await render({user_id:'restrito',role,active:true});
+ assert.equal(x.document.querySelector('#app').hidden,true);
+ assert.equal(x.guardInstalled(),false);
+});
+test('Guia de documento GOV orienta fluxo manual e oferece somente navegação',async()=>{
+ const x=await render(visualProfile);
+ await x.answer('Como anexar o PDF assinado pelo GOV?');
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/Anexar documento/);
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/GOV.BR/);
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/Revisar e vincular/);
+ assert.equal(x.document.querySelector('#guideAction').getAttribute('href'),'../colaborador/#clientes');
+ assert.equal(x.document.querySelector('#guideAction').hidden,false);
+});
+test('Guia de comissão não encaminha colaboradora ao caixa administrativo',async()=>{
+ const x=await render(visualProfile);
+ await x.answer('Onde vejo minha comissão?');
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/Minha comissão/);
+ assert.equal(x.document.querySelector('#guideAction').getAttribute('href'),'../colaborador/#financeiro');
+ assert.ok(!x.document.querySelector('#guideAction').getAttribute('href').includes('admin'));
+});
+test('Guia de agenda da equipe só aparece para colaboradora chefe autorizada',async()=>{
+ for(const canManage of [false,true]){
+  const x=await render({...visualProfile,pode_gerenciar_agendas:canManage});
+  trigger(x,'#guidesOpen');await settle();
+  const options=x.document.querySelector('#guideChoices').textContent;
+  assert.equal(options.includes('Agenda da equipe'),canManage);
+ }
+});
+test('Limpar conversa remove também atalho da orientação anterior',async()=>{
+ const x=await render(visualProfile);
+ await x.answer('Como anexar o PDF assinado pelo GOV?');
+ trigger(x,'#clearChat');
+ assert.equal(x.document.querySelector('#guidePanel').hidden,true);
+ assert.equal(x.document.querySelector('#guideAction').hidden,true);
+ assert.equal(x.document.querySelector('#guideAction').hasAttribute('href'),false);
 });

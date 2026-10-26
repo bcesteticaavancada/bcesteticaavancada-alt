@@ -42,12 +42,12 @@ async function bounded(promise,label){
  try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Tempo esgotado: '+label)),15000);})]);}
  finally{clearTimeout(timer);}
 }
-async function pageFixture(browser,role,viewport={width:390,height:844}){
+async function pageFixture(browser,role,viewport={width:390,height:844},capabilities={}){
  const page=await browser.newPage({viewport,reducedMotion:'reduce'}),errors=[],external=[];
  page.on('pageerror',e=>errors.push(e.message));
- await page.addInitScript(role=>{
-  window.mayaFixture={profile:role?{user_id:'ficticio-'+role,display_name:'Equipe fictícia',role,active:true}:null,tables:[],authError:false};
- },role);
+ await page.addInitScript(({role,capabilities})=>{
+  window.mayaFixture={profile:role?{user_id:'ficticio-'+role,display_name:'Equipe fictícia',role,active:true,...capabilities}:null,tables:[],authError:false};
+ },{role,capabilities});
  await page.route('**/*',route=>{
   const request=route.request().url();
   if(request.startsWith(origin+'/'))return route.continue();
@@ -66,8 +66,9 @@ try{
   assert.ok(['chromium','webkit'].includes(engine),'Motor de teste conhecido');
   const browser=await ({chromium,webkit})[engine].launch(engine==='chromium'?chromiumOptions:{});
   try{
-   for(const role of ['admin','colaborador','admin_criacao'])for(const [device,width,height] of [['phone',320,740],['desktop',1280,900]]){
-    const fixture=await pageFixture(browser,role,{width,height}),{page}=fixture;
+   for(const chief of [false,true])for(const [device,width,height] of [['phone',320,740],['desktop',1280,900]]){
+    const role='colaborador',label=chief?'colaborador-chefe':'colaborador';
+    const fixture=await pageFixture(browser,role,{width,height},{pode_gerenciar_agendas:chief,pode_gerenciar_procedimentos:chief}),{page}=fixture;
     try{
      await page.goto(entry);await page.locator('#app').waitFor();
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'ready');
@@ -98,8 +99,16 @@ try{
      assert.match(await details.innerText(),/Revisado pela Mel em 25\/10\/2026/);
      assert.ok(await details.locator('a').count()>0,'Fontes disponíveis');
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Sem rolagem horizontal');
-     await page.screenshot({path:`test-results/maya/${engine}-${role}-${device}.png`,fullPage:true});
+     await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}.png`,fullPage:true});
      await page.locator('#knowledgeClose').click();
+     await page.locator('#guidesOpen').click();await page.locator('#guideChoices button').first().waitFor();
+     assert.equal(await page.locator('#guideChoices button').filter({hasText:'Agenda da equipe'}).count(),chief?1:0);
+     await page.locator('#question').fill('Como anexar o PDF assinado pelo GOV?');await page.locator('#question').press('Enter');
+     await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('Revisar e vincular'));
+     assert.equal(await page.locator('#guideAction').getAttribute('href'),'../colaborador/#clientes');
+     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Guias sem rolagem horizontal');
+     await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}-guides.png`,fullPage:true});
+
      await page.locator('#question').fill('Meu CPF é 123.456.789-09');await page.locator('#question').press('Enter');
      await page.waitForFunction(()=>document.querySelector('#chat').textContent.includes('Para proteger a privacidade'));
      assert.ok(!(await page.locator('#chat').innerText()).includes('123.456.789-09'));
@@ -107,8 +116,8 @@ try{
      await page.locator('#clearChat').click();await page.locator('#question').waitFor({state:'visible'});
      assert.equal(await page.locator('#chat .bubble').count(),1);
      assert.equal(await page.locator('#question').evaluate(el=>document.activeElement===el),true);
-     await assertIsolated(fixture);pass(`${engine}/${role}/${device}: acesso, permissões, diálogo, busca, teclado, privacidade e largura`);
-    }catch(error){await page.screenshot({path:`test-results/maya/${engine}-${role}-${device}-failure.png`,fullPage:true});throw error;}
+     await assertIsolated(fixture);pass(`${engine}/${label}/${device}: acesso, permissões, diálogo, busca, teclado, privacidade e largura`);
+    }catch(error){await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}-failure.png`,fullPage:true});throw error;}
     finally{await page.close();}
    }
    {
@@ -141,6 +150,10 @@ try{
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Personagem não gera rolagem horizontal');
      await assertIsolated(fixture);pass(engine+'/2D: consulta, pausa por teclado, redução de movimento e retomada');
     }finally{release();await page.close();}
+   }
+   for(const role of ['admin','admin_criacao']){
+    const fixture=await pageFixture(browser,role),{page}=fixture;
+    try{await page.goto(entry);await page.getByText('Acesso restrito à equipe autorizada.').waitFor();assert.equal(await page.locator('#app').isVisible(),false);await assertIsolated(fixture);pass(engine+'/'+role+': fora da primeira liberação');}finally{await page.close();}
    }
    {
     const fixture=await pageFixture(browser,null),{page}=fixture;
