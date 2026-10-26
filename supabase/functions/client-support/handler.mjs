@@ -16,7 +16,10 @@ async function boundedBody(request,limit){
 function sessionClaims(token){try{const part=token.split('.')[1];const claims=JSON.parse(atob(part.replaceAll('-','+').replaceAll('_','/')));if(!UUID.test(claims.session_id)||!UUID.test(claims.sub))throw Error();return claims;}catch{throw new PublicError('Sessão inválida.',401);}}
 function filename(name){return 'BC_'+String(name||'Cliente').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,100)+'_documento.pdf';}
 
-export function createSupportHandler({makeClients,crypto=globalThis.crypto}={}){
+/**
+ * @param {{makeClients:(options:{authorization:string})=>{caller:import('@supabase/supabase-js').SupabaseClient,service:import('@supabase/supabase-js').SupabaseClient},crypto?:Crypto}} options
+ */
+export function createSupportHandler({makeClients,crypto=globalThis.crypto}){
   return async request=>{
     const origin=request.headers.get('origin');
     const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Headers':'authorization,content-type,apikey,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS',Vary:'Origin'};
