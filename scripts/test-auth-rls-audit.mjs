@@ -30,7 +30,7 @@ export async function runAuthAudit(config){
    const created=await request('/auth/v1/admin/users',{method:'POST',body:{email,password,email_confirm:true,user_metadata:{purpose:'auditoria-efemera-ci'}}});
    assert.ok(created.ok&&created.data?.id,'Criar identidade efêmera '+role);
    const user={id:created.data.id,role,email,password};users.push(user);
-   const profile=await request('/rest/v1/staff_profiles',{method:'POST',body:{user_id:user.id,display_name:'Auditoria CI '+role,role,active:true,atende_clientes:false}});
+   const profile=await request('/rest/v1/staff_profiles',{method:'POST',body:{user_id:user.id,display_name:'Auditoria CI '+role,role,active:true,atende_clientes:false,pode_gerenciar_agendas:false,pode_gerenciar_procedimentos:false,procedure_scope:role==='admin_criacao'?'explicit':'all'}});
    assert.ok(profile.ok,'Provisionar perfil local '+role);
    const login=await request('/auth/v1/token?grant_type=password',{method:'POST',key:anon,body:{email,password}});
    assert.ok(login.ok&&login.data?.access_token&&login.data?.user?.id===user.id,'Autenticar conta de teste '+role);

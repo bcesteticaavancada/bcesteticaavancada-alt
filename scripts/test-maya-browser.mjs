@@ -103,6 +103,10 @@ try{
      await page.locator('#knowledgeClose').click();
      await page.locator('#guidesOpen').click();await page.locator('#guideChoices button').first().waitFor();
      assert.equal(await page.locator('#guideChoices button').filter({hasText:'Agenda da equipe'}).count(),chief?1:0);
+     await page.locator('#guideChoices button').first().focus();await page.keyboard.press('Enter');
+     await page.waitForFunction(()=>document.activeElement===document.querySelector('#guideTitle'));
+     assert.equal(await page.locator('#guideChoices').isVisible(),false,'Opções recolhidas após escolha');
+     await page.locator('#guideChooseAgain').click();await page.locator('#guideChoices button').first().waitFor({state:'visible'});
      await page.locator('#question').fill('Como anexar o PDF assinado pelo GOV?');await page.locator('#question').press('Enter');
      await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('Revisar e vincular'));
      assert.equal(await page.locator('#guideAction').getAttribute('href'),'../colaborador/#clientes');

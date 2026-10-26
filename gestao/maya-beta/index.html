@@ -23,7 +23,7 @@
 .maya-character[data-motion="off"] *{animation:none!important;transition:none!important}
 .maya-state{display:block;min-height:20px;font-size:12px;color:#625344;line-height:1.5;margin:3px 0 8px}
 .maya-motion{font-size:11px;min-height:36px;background:transparent;border-color:#cbbbA8}.maya-motion:disabled{cursor:default;color:#71675f}
-.guide-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px;margin:12px 0}.guide-choice{border:1px solid #d7c3ad;border-radius:10px;background:#fffdfb;padding:12px;text-align:left;color:#483327}.guide-choice:focus-visible{outline:3px solid #a4774d;outline-offset:2px}.guide-selected{border-top:1px solid #e6d9cb;padding-top:12px}.guide-selected h3{font-size:15px}.guide-panel{margin-bottom:18px}.guide-panel[hidden],#guideAction[hidden]{display:none}
+.guide-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px;margin:12px 0}.guide-choice{border:1px solid #d7c3ad;border-radius:10px;background:#fffdfb;padding:12px;text-align:left;color:#483327}.guide-choice:focus-visible{outline:3px solid #a4774d;outline-offset:2px}.guide-selected{border-top:1px solid #e6d9cb;padding-top:12px}.guide-selected h3{font-size:15px}.guide-panel{margin-bottom:18px}.guide-panel[hidden],.guide-choices[hidden],#guideAction[hidden],#guideChooseAgain[hidden]{display:none}
 @keyframes maya-wave{0%,100%{transform:rotate(0)}25%,65%{transform:rotate(9deg)}45%,85%{transform:rotate(-4deg)}}
 @keyframes maya-nod{0%,100%{transform:rotate(0)}45%{transform:rotate(3deg)}}
 @keyframes maya-blink{0%,72%,78%,100%{transform:scaleY(1)}75%{transform:scaleY(.08)}}
@@ -110,7 +110,7 @@
 <section id="guidePanel" class="panel guide-panel" aria-label="Guias do aplicativo" hidden>
 <div class="chat-head"><h2>Escolha uma tarefa</h2><button id="guidesClose" class="clear" type="button">Fechar guias</button></div>
 <div id="guideChoices" class="guide-choices"></div>
-<div class="guide-selected"><h3 id="guideTitle">Orientação por etapas</h3><a id="guideAction" class="secondary" hidden>Abrir área no aplicativo</a></div>
+<div class="guide-selected"><h3 id="guideTitle" tabindex="-1">Orientação por etapas</h3><a id="guideAction" class="secondary" hidden>Abrir área no aplicativo</a> <button id="guideChooseAgain" class="clear" type="button" hidden>Escolher outra tarefa</button></div>
 <p class="footnote">Os guias explicam o caminho. Confira e conclua cada operação no painel autorizado; a Maya não altera registros.</p>
 </section>
 <section class="panel" aria-label="Conversa com a Maya">
@@ -153,26 +153,28 @@ const guidePanel=document.getElementById('guidePanel');
 const guideChoices=document.getElementById('guideChoices');
 const guideTitle=document.getElementById('guideTitle');
 const guideAction=document.getElementById('guideAction');
-function resetGuide(){guidePanel.hidden=true;guideAction.hidden=true;guideAction.removeAttribute('href');guideTitle.textContent='Orientação por etapas';guideChoices.replaceChildren();}
+const guideChooseAgain=document.getElementById('guideChooseAgain');
+function resetGuide(){guidePanel.hidden=true;guideAction.hidden=true;guideAction.removeAttribute('href');guideTitle.textContent='Orientação por etapas';guideChoices.hidden=false;guideChoices.replaceChildren();guideChooseAgain.hidden=true;}
 function renderGuideChoices(){
  guideChoices.replaceChildren();
  for(const guide of listAppGuides(profile)){
   const button=document.createElement('button');button.type='button';button.className='guide-choice';button.textContent=guide.title;
-  button.addEventListener('click',async()=>{const activity=++mayaVersion;if(await authorize(()=>activity===mayaVersion))showGuide(guide,true,activity);});
+  button.addEventListener('click',async()=>{const activity=++mayaVersion;if(await authorize(()=>activity===mayaVersion))showGuide(guide,true,activity,true);});
   guideChoices.append(button);
  }
 }
-function showGuide(guide,addMessage=true,activity=mayaVersion){
+function showGuide(guide,addMessage=true,activity=mayaVersion,moveFocus=false){
  if(app.hidden||activity!==mayaVersion||!listAppGuides(profile).some(item=>item.id===guide.id))return;
- guidePanel.hidden=false;renderGuideChoices();guideTitle.textContent=guide.title;
+ guidePanel.hidden=false;guideChoices.hidden=true;guideChooseAgain.hidden=false;guideTitle.textContent=guide.title;
  guideAction.setAttribute('href',guide.href);guideAction.hidden=false;
  if(addMessage)line(guide.title+'\n\n'+guide.steps.map((step,index)=>(index+1)+'. '+step).join('\n\n'),'maya');
  setMayaState('answered',activity);
+ if(moveFocus){guideTitle.focus();guidePanel.scrollIntoView?.({behavior:motionPreference?.matches?'auto':'smooth',block:'start'});}
 }
 async function openGuides(){
  const activity=++mayaVersion;
  if(!await authorize(()=>activity===mayaVersion)||activity!==mayaVersion)return;
- guidePanel.hidden=false;renderGuideChoices();setMayaState('answered',activity);
+ guidePanel.hidden=false;guideChoices.hidden=false;renderGuideChoices();guideChooseAgain.hidden=true;guideAction.hidden=true;guideAction.removeAttribute('href');guideTitle.textContent='Orientação por etapas';setMayaState('answered',activity);
 }
 const mayaCharacter=document.getElementById('mayaCharacter');
 const mayaState=document.getElementById('mayaState');
@@ -301,13 +303,13 @@ function renderKnowledge(){
 async function openKnowledge(){
  const version=++knowledgeVersion;
  const activity=++mayaVersion;
- if(!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion)return;
+ if(!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion||activity!==mayaVersion)return;
  setMayaState('thinking',activity);
  knowledgePanel.hidden=false;
  knowledgeCount.textContent='Carregando respostas...';
  let loaded=false;
  try{await loadKnowledge();loaded=true;}catch{}
- if(!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion||knowledgePanel.hidden)return;
+ if(!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion||knowledgePanel.hidden||activity!==mayaVersion)return;
  if(loaded){renderKnowledge();setMayaState('answered',activity);knowledgePanel.scrollIntoView?.({behavior:motionPreference?.matches?'auto':'smooth',block:'start'});}
  else{knowledgeCount.textContent='Biblioteca temporariamente indisponível. Procure a administração.';knowledgeItems.replaceChildren();setMayaState('unavailable',activity);}
 }
@@ -363,7 +365,7 @@ function classify(s){
 async function answer(text,topic){
  const version=chatVersion;
  const activity=++mayaVersion;
- if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion)return;
+ if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion||activity!==mayaVersion)return;
  const trimmed=String(text||'').trim().slice(0,180);
  if(topic||trimmed)resetGuide();
  if(topic){line('Assunto: '+(topicLabels[topic]||'Ajuda geral'),'person');line(getReply(topic),'maya');setMayaState('answered',activity);return;}
@@ -378,7 +380,7 @@ async function answer(text,topic){
  setMayaState('thinking',activity);
  let loaded=true;
  try{if(!knowledgeBank)await loadKnowledge();}catch{loaded=false;}
- if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion)return;
+ if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion||activity!==mayaVersion)return;
  const found=findKnowledge(trimmed);
  const guide=findAppGuide(trimmed,profile);
  if(found){line(knowledgeAnswer(found)+'\n\n'+knowledgeNotice(found),'maya');if(guide)showGuide(guide,false,activity);setMayaState('answered',activity);return;}
@@ -393,7 +395,7 @@ try{
   status.textContent='Acesso restrito à equipe autorizada. Entre pelo BC Gestão.';
   const a=document.createElement('a');a.href='../login/';a.textContent='Ir para login';status.append(document.createTextNode(' '),a);
  }else{
-  guard=installSessionGuard({client,profile,app});
+  guard=installSessionGuard({client,profile,app,onProfile:current=>{profile=current;}});
   document.getElementById('personName').textContent=profile.display_name||'equipe';
   const target=profile.role==='admin'?'../admin/':profile.role==='colaborador'?'../colaborador/':'../criacao/';
   document.getElementById('dashboardLink').href=target;
@@ -403,6 +405,7 @@ try{
   motionPreference?.addEventListener?.('change',renderMayaMotion);
   document.addEventListener('visibilitychange',renderMayaMotion);
   document.getElementById('guidesOpen').addEventListener('click',()=>{void openGuides();});
+  guideChooseAgain.addEventListener('click',()=>{void openGuides();});
   document.getElementById('guidesClose').addEventListener('click',()=>{++mayaVersion;resetGuide();setMayaState('ready');});
   line('Olá! Posso explicar as funções do BC Gestão. Escolha um assunto ou digite uma pergunta sem dados de clientes.','maya');
   document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{void answer('',b.dataset.topic);}));

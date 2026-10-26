@@ -489,3 +489,34 @@ test('Limpar conversa remove também atalho da orientação anterior',async()=>{
  assert.equal(x.document.querySelector('#guideAction').hidden,true);
  assert.equal(x.document.querySelector('#guideAction').hasAttribute('href'),false);
 });
+test('Mudança de capacidades é refletida antes de orientar agenda e biblioteca da equipe',async()=>{
+ const original={...visualProfile,pode_gerenciar_agendas:true,pode_gerenciar_procedimentos:true};
+ const x=await render(original,{realAuth:true});
+ x.changeProfile({...original,pode_gerenciar_agendas:false,pode_gerenciar_procedimentos:false});
+ trigger(x,'#guidesOpen');await settle();await settle();
+ assert.doesNotMatch(x.document.querySelector('#guideChoices').textContent,/Agenda da equipe|Biblioteca de procedimentos/);
+ await x.answer('agenda da equipe passo a passo');
+ assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/Sua capacidade de gestão/);
+});
+test('Ação antiga com autorização atrasada preserva guias abertos pela ação nova',async()=>{
+ const wait=deferred();let checks=0;
+ const x=await render(visualProfile,{allow:()=>++checks===1?wait.promise:true});
+ const old=x.answer('como gerar pdf');await settle();
+ trigger(x,'#guidesOpen');await settle();
+ const before=x.document.querySelector('#guideChoices').textContent;
+ wait.resolve(true);await old;
+ assert.equal(x.document.querySelector('#guidePanel').hidden,false);
+ assert.equal(x.document.querySelector('#guideChoices').textContent,before);
+});
+test('Escolher guia recolhe opções e permite escolher outra tarefa sem perder o texto',async()=>{
+ const x=await render(visualProfile);
+ trigger(x,'#guidesOpen');await settle();
+ const choice=x.document.querySelector('#guideChoices button');choice.dispatchEvent(new x.window.Event('click'));
+ await settle();
+ assert.equal(x.document.querySelector('#guideChoices').hidden,true);
+ assert.equal(x.document.querySelector('#guideChooseAgain').hidden,false);
+ const before=x.document.querySelector('#chat').textContent;
+ trigger(x,'#guideChooseAgain');await settle();
+ assert.equal(x.document.querySelector('#guideChoices').hidden,false);
+ assert.equal(x.document.querySelector('#chat').textContent,before);
+});

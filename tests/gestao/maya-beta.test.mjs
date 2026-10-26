@@ -30,7 +30,7 @@ test('Maya exige perfil ativo antes de revelar interface',()=>{
  assert.ok(source.indexOf('getCurrentProfile(client)')<source.indexOf('app.hidden=false'));
 });
 test('Maya reutiliza a proteção de sessão da gestão',()=>{
- assert.match(source,/installSessionGuard\(\{client,profile,app\}\)/);
+ assert.match(source,/installSessionGuard\(\{client,profile,app,onProfile:/);
  assert.match(source,/import \{getCurrentProfile,installSessionGuard\} from '\.\.\/js\/auth\.js'/);
 });
 test('Maya não integra serviços clínicos, financeiros ou IA externa',()=>{
