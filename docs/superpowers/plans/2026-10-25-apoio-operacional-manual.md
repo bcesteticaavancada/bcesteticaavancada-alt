@@ -32,9 +32,9 @@ Files: supabase/migrations/*_bc_support_operations.sql; supabase/tests/database/
 
 Interface: POST autenticado para client-support. JSON actions client_get(clientId,reason), client_update(clientId,expectedUpdatedAt,patch,reason), download(clientId,documentId,kind,reason), invite(name,email). Multipart upload_returned(clientId,documentId,reason,file). Respostas client_get/client_update contêm client projetado, documents contém metadados sem caminhos; download retorna URL temporária/filename; invite retorna sucesso, e-mail e link pessoal para envio manual; upload retorna fileId.
 
-- [ ] Escrever testes de limites de autenticação/role, atualização concorrente, cliente trocado, privilégio indevido, bytes e convite duplicado. Executar RED.
-- [ ] Implementar RPC somente service_role e handler. Preservar is_bc_active_staff/is_bc_admin e políticas existentes.
-- [ ] Rodar testes Node e pgTAP/lint/advisors no CI descartável. Expected: aprovação e zero mensagens enviadas a destinatários reais.
+- [x] Escrever testes de limites de autenticação/role, atualização concorrente, cliente trocado, privilégio indevido, bytes e convite duplicado. Executar RED.
+- [x] Implementar RPC somente service_role e handler. Preservar is_bc_active_staff/is_bc_admin e políticas existentes.
+- [x] Rodar testes Node e pgTAP/lint/advisors no CI descartável. Expected: aprovação e zero mensagens enviadas a destinatários reais.
 
 ### Task 2: Interface de apoio e fluxo simples
 
@@ -42,14 +42,14 @@ Files: gestao/js/{support-api,support-panel}.js; gestao/criacao/index.html; crea
 
 Interface: RPC/endpoint Task1; botão Adicionar colaboradora na área Equipe; Abrir cadastro por cliente; formulário progressivo em diálogo e lista de PDFs de consentimento/anamnese já emitidos, com upload da cópia devolvida do consentimento. Preservar navegação e detalhes existentes.
 
-- [ ] Escrever regressões de contexto, erros e rejeição de payload indevido. Executar RED.
-- [ ] Implementar UI simples, sem campo de papel/permissão financeira ou controles GOV.BR.
-- [ ] Rodar npm test e testes de navegador em Chromium/WebKit/celular/tablet. Expected: aprovação sem overflow, sem regressões e sem conexões GOV.BR.
+- [x] Escrever regressões de contexto, erros e rejeição de payload indevido. Executar RED.
+- [x] Implementar UI simples, sem campo de papel/permissão financeira ou controles GOV.BR.
+- [x] Rodar npm test e testes de navegador em Chromium/WebKit/celular/tablet. Expected: aprovação sem overflow, sem regressões e sem conexões GOV.BR.
 
 ### Task 3: Revisão, publicação e verificação
 
-- [ ] Revisão independente única; achados relevantes reproduzidos e corrigidos com testes.
-- [ ] CI completo e assessoria de segurança; migration/Edge publicadas sem operações com dados reais.
-- [ ] Integrar site, confirmar bytes publicados, verificar negação sem sessão e registrar limitações/evidências.
+- [x] Revisão independente única; achados relevantes reproduzidos e corrigidos com testes.
+- [x] CI completo e assessoria de segurança; migration/Edge publicadas sem operações com dados reais.
+- [x] Integrar site, confirmar bytes publicados, verificar negação sem sessão e registrar limitações/evidências.
 
 Ajuste da revisão: convite por link pessoal gerado no servidor (createUser + generateLink), para cópia e envio manual pelo operador; sem envio SMTP. Recuperação limitada à conta nova marcada pelo servidor, ainda não confirmada nem utilizada; lease e finalização idempotente. Upload usa reserva privada, registro idempotente e descarte serializado. Atualização documental preserva rascunho cadastral e o contexto do paciente.
