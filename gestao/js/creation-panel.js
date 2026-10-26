@@ -43,13 +43,13 @@ function valueLabel(value){
   if(/^\d{4}-\d{2}-\d{2}$/.test(text))return text.split('-').reverse().join('/');
   return VALUES[text]||text;
 }
-export function renderCreationRows(rows=[]){
+export function renderCreationRows(rows=[],{section=null}={}){
   if(!rows.length)return '<div class="bcg-empty">Nenhum registro encontrado nesta consulta.</div>';
   return rows.map(row=>{
     const title=row.cliente||row.nome||row.name||row.display_name||row.patient_name||row.profissional||row.document_code||'Registro';
     const subtitle=[row.procedimento,row.profissional!==title&&row.profissional,row.inicio&&valueLabel(row.inicio),row.local_date&&valueLabel(row.local_date)].filter(Boolean).join(' • ');
     const fields=Object.entries(row).filter(([key,value])=>LABELS[key] && value!==null && value!=='' && !key.endsWith('_id') && key!=='id');
-    return `<article class="bcg-creation-row" data-creation-record="${escapeHtml(row.id||row.user_id||'')}"><div class="bcg-creation-record-head"><h3>${escapeHtml(title)}</h3>${row.status?`<span class="bcg-creation-state">${escapeHtml(valueLabel(row.status))}</span>`:''}</div>${subtitle?`<p class="bcg-muted">${escapeHtml(subtitle)}</p>`:''}<details><summary>Ver detalhes</summary><dl class="bcg-creation-details">${fields.map(([key,value])=>`<div><dt>${escapeHtml(LABELS[key])}</dt><dd>${escapeHtml(valueLabel(value))}</dd></div>`).join('')}<div><dt>Identificador</dt><dd>${escapeHtml(row.id||row.user_id||'')}</dd></div></dl></details></article>`;
+    return `<article class="bcg-creation-row" data-creation-record="${escapeHtml(row.id||row.user_id||'')}"><div class="bcg-creation-record-head"><h3>${escapeHtml(title)}</h3>${row.status?`<span class="bcg-creation-state">${escapeHtml(valueLabel(row.status))}</span>`:''}</div>${subtitle?`<p class="bcg-muted">${escapeHtml(subtitle)}</p>`:''}${section==='clientes'&&row.id&&row.ativo!==false?`<button class="bcg-small-button" type="button" data-support-client="${escapeHtml(row.id)}">Abrir cadastro</button>`:''}<details><summary>Ver detalhes</summary><dl class="bcg-creation-details">${fields.map(([key,value])=>`<div><dt>${escapeHtml(LABELS[key])}</dt><dd>${escapeHtml(valueLabel(value))}</dd></div>`).join('')}<div><dt>Identificador</dt><dd>${escapeHtml(row.id||row.user_id||'')}</dd></div></dl></details></article>`;
   }).join('');
 }
 export async function initCreationPanel({client,root=document,view=root.defaultView||globalThis.window}){
@@ -65,6 +65,7 @@ export async function initCreationPanel({client,root=document,view=root.defaultV
   function syncNavigation(){
     section.value=selected;search.value=state().search;
     el('creationTitle').textContent=CREATION_SECTIONS[selected];
+    if(el('creationInvite'))el('creationInvite').hidden=selected!=='equipe';
     root.querySelectorAll('[data-creation-target]').forEach(link=>{if(link.dataset.creationTarget===selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
     updateControls();
   }
@@ -78,7 +79,7 @@ export async function initCreationPanel({client,root=document,view=root.defaultV
     if(view?.location && fromHash()!==selected)view.history?.[method]?.(null,'',`#${selected}`);
   }
   function renderRows(rows){
-    const html=renderCreationRows(rows);
+    const html=renderCreationRows(rows,{section:selected});
     if(html===rendered)return;
     const open=new Set([...list.querySelectorAll('details[open]')].map(detail=>detail.closest('[data-creation-record]').dataset.creationRecord));
     list.innerHTML=html;rendered=html;
