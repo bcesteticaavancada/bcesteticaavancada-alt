@@ -70,6 +70,11 @@ try{
     const fixture=await pageFixture(browser,role,{width,height}),{page}=fixture;
     try{
      await page.goto(entry);await page.locator('#app').waitFor();
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'ready');
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off');
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('aria-hidden'),'true');
+     assert.equal(await page.locator('#mayaMotionToggle').isDisabled(),true,'Preferência de movimento reduzido respeitada');
+     await page.locator('#mayaCharacter svg').waitFor({state:'visible'});
      assert.equal(await page.locator('#dashboardLink').getAttribute('href'),'../'+({admin:'admin',colaborador:'colaborador',admin_criacao:'criacao'})[role]+'/');
      await page.locator('[data-topic="financeiro"]').click();
      await page.waitForFunction(()=>document.querySelector('#chat').textContent.includes('Assunto: Financeiro'));
@@ -107,6 +112,37 @@ try{
     finally{await page.close();}
    }
    {
+    const fixture=await pageFixture(browser,'colaborador'),{page}=fixture;
+    let release,started;
+    const wait=new Promise(resolve=>{release=resolve;}),requested=new Promise(resolve=>{started=resolve;});
+    await page.route('**/respostas-65.json',async route=>{started();await wait;await route.fulfill({contentType:'application/json',body:bank});});
+    try{
+     await page.emulateMedia({reducedMotion:'no-preference'});
+     await page.goto(entry);await page.locator('#app').waitFor();
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'on');
+     await page.locator('#question').fill('O que é peeling?');await page.locator('#question').press('Enter');
+     await bounded(requested,'consulta visual fictícia');
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'thinking');
+     assert.equal(await page.locator('.maya-thought i').first().evaluate(el=>getComputedStyle(el).animationName),'maya-wait');
+     await page.locator('#mayaMotionToggle').focus();await page.keyboard.press('Enter');
+     assert.equal(await page.locator('#mayaMotionToggle').getAttribute('aria-pressed'),'false');
+     assert.equal(await page.locator('.maya-thought i').first().evaluate(el=>getComputedStyle(el).animationName),'none');
+     await page.emulateMedia({reducedMotion:'reduce'});
+     await page.waitForFunction(()=>document.querySelector('#mayaMotionToggle').disabled);
+     release();await page.waitForFunction(()=>document.querySelector('#mayaCharacter').dataset.state==='answered');
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off');
+     await page.emulateMedia({reducedMotion:'no-preference'});
+     await page.waitForFunction(()=>!document.querySelector('#mayaMotionToggle').disabled);
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off','Pausa manual preservada');
+     await page.locator('#mayaMotionToggle').focus();await page.keyboard.press('Enter');
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'on');
+     await page.screenshot({path:`test-results/maya/${engine}-2d-motion-phone.png`,fullPage:true});
+     await page.locator('#mayaCharacter').screenshot({path:`test-results/maya/${engine}-2d-character.png`});
+     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Personagem não gera rolagem horizontal');
+     await assertIsolated(fixture);pass(engine+'/2D: consulta, pausa por teclado, redução de movimento e retomada');
+    }finally{release();await page.close();}
+   }
+   {
     const fixture=await pageFixture(browser,null),{page}=fixture;
     try{await page.goto(entry);await page.getByText('Acesso restrito à equipe autorizada.').waitFor();assert.equal(await page.locator('#app').isVisible(),false);await assertIsolated(fixture);pass(engine+'/anônimo: acesso bloqueado');}finally{await page.close();}
    }
@@ -117,6 +153,7 @@ try{
      await page.goto(entry);await page.locator('#app').waitFor();
      await page.locator('#question').fill('Tem horário para massagem esportiva?');await page.locator('#question').press('Enter');
      await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('BC não realiza massagem desportiva'));
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'unavailable','Falha da biblioteca não anuncia busca concluída');
      assert.doesNotMatch(await page.locator('#chat .maya').last().innerText(),/Para criar agendamento/);
      await assertIsolated(fixture);pass(engine+'/biblioteca indisponível: serviço não oferecido não vira orientação de reserva');
     }finally{await page.close();}
@@ -129,6 +166,7 @@ try{
     try{
      await page.goto(entry);await page.locator('#app').waitFor();
      await page.locator('#question').fill('Como é feito o Botox?');await page.locator('#question').press('Enter');await bounded(requested,'solicitação da biblioteca');
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'thinking');
      if(action==='limpar')await page.locator('#clearChat').click();
      else await page.evaluate(()=>{window.mayaFixture.profile.active=false;});
      release();
@@ -136,6 +174,7 @@ try{
       // Aguarda o consumo da biblioteca e a nova conferência de sessão, sem pausa arbitrária.
       await page.waitForFunction(()=>window.mayaFixture.tables.length>=3);
       assert.equal(await page.locator('#chat').innerText(),'Conversa limpa. Como posso ajudar?');
+      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'ready');
      }else await page.waitForURL('**/gestao/login/');
      if(action==='limpar')await assertIsolated(fixture);else{assert.deepEqual(fixture.errors,[]);assert.deepEqual(fixture.external,[]);}
      pass(`${engine}/${action}: resultado pendente descartado`);

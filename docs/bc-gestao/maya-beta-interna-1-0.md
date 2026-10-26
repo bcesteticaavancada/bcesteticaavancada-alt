@@ -10,6 +10,8 @@ Fernando enviou o documento **Maya Respostas aprovadas pela Mel.docx**, com revi
 
 ## Objetivo e funcionamento
 
+A proposta visual 2D foi acrescentada em 26/10: personagem vetorial local, estados de consulta e resposta e controle para pausar animação. Respeita movimento reduzido e pausa ao ocultar a página. Está restrita à Beta da branch; aparência e uso permanecem em homologação. [Relatório da etapa 2D](maya-2d-2026-10-26.md).
+
 A Maya é um guia interno para orientar o uso do BC Gestão e consultar explicações pré-escritas sobre estética. A página `gestao/maya-beta/` reutiliza `getCurrentProfile` e `installSessionGuard`, permitindo somente perfis ativos `admin`, `colaborador` e `admin_criacao`.
 
 - As respostas são escolhidas localmente, sem IA generativa ou serviço pago.
@@ -31,7 +33,7 @@ O repositório GitHub é público: arquivos da branch podem ser consultados no G
 
 ## Homologação antes da publicação
 
-1. Confirmar o Site CI do último commit, incluindo os testes específicos da Maya em Chromium e WebKit.
+1. Confirmar o Site CI da etapa 2D, incluindo os testes específicos da Maya em Chromium e WebKit. Os três checks da incorporação da Mel (`d201a1d6`) concluíram com sucesso, incluindo os 22 cenários de navegador daquela versão; isso não substitui os novos cenários 2D.
 2. Conferir o uso dos textos revisados com Mel e equipe, em sessões reais de homologação e somente dados fictícios.
 3. Validar login, expiração, troca de conta/papel e inativação no ambiente hospedado.
 4. Testar Android e iPhone físicos, teclado, zoom, leitor de tela, busca e retorno à gestão.

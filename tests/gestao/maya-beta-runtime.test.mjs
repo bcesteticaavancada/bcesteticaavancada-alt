@@ -15,8 +15,11 @@ const executable=moduleScript.replace(/^import .*?;?\s*$/gm,'').trim();
 const library=JSON.parse(readFileSync(resolve(dir,'../../gestao/maya-beta/respostas-65.json'),'utf8'));
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 
-async function render(profile,{allow=()=>true,load=async()=>library,realAuth=false}={}){
+async function render(profile,{allow=()=>true,load=async()=>library,realAuth=false,reducedMotion=false}={}){
   const {document,window}=parseHTML(html);
+  const motionListeners=[];
+  const motionPreference={matches:reducedMotion,addEventListener(type,listener){if(type==='change')motionListeners.push(listener);}};
+  Object.defineProperty(document,'hidden',{value:false,writable:true,configurable:true});
   let calls=0;
   let signedGuard=false;
   let current=profile,authListener,sessionError=null;
@@ -33,7 +36,7 @@ async function render(profile,{allow=()=>true,load=async()=>library,realAuth=fal
   };
   const context={
     document,
-    globalThis:{supabase:{createClient:()=>({})}},
+    globalThis:{supabase:{createClient:()=>({})},matchMedia:()=>motionPreference},
     createBcGestaoClient:()=>client,
     getCurrentProfile:realAuth?getCurrentProfile:async()=>profile?.active===true?profile:null,
     installSessionGuard:options=>{
@@ -48,7 +51,8 @@ async function render(profile,{allow=()=>true,load=async()=>library,realAuth=fal
   };
   const actions=await runInNewContext('(async()=>{\n'+executable+'\nreturn {answer,openKnowledge};\n})()',context,{timeout:2000});
   return {document,window,...actions,calls:()=>calls,guardInstalled:()=>signedGuard,
-    changeProfile:value=>{current=value;},failSession:error=>{sessionError=error;},authEvent:(...args)=>authListener?.(...args),redirects};
+    changeProfile:value=>{current=value;},failSession:error=>{sessionError=error;},authEvent:(...args)=>authListener?.(...args),redirects,
+    reduceMotion:value=>{motionPreference.matches=value;motionListeners.forEach(listener=>listener());}};
 }
 function deferred(){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 function trigger({document,window},target,type='click'){
@@ -351,4 +355,122 @@ test('Revisão da Mel não cria acesso para perfil de paciente',async()=>{
  assert.equal(x.document.querySelector('#app').hidden,true);
  assert.equal(x.guardInstalled(),false);
  assert.match(x.document.querySelector('#status').textContent,/Acesso restrito/);
+});
+
+const visualProfile={user_id:'visual-ficticio',role:'colaborador',active:true};
+function character(x){
+ const element=x.document.querySelector('#mayaCharacter');
+ assert.ok(element,'A personagem 2D está presente dentro da Beta');
+ return element;
+}
+test('Personagem acompanha a consulta lenta sem atrasar a resposta ou expor a pergunta',async()=>{
+ const wait=deferred(),x=await render(visualProfile,{load:()=>wait.promise});
+ assert.equal(character(x).dataset.state,'ready');
+ const pending=x.answer('O que é microagulhamento?');await settle();
+ assert.equal(character(x).dataset.state,'thinking');
+ assert.match(x.document.querySelector('#mayaState').textContent,/Consultando orientação/);
+ trigger(x,'#mayaMotionToggle');
+ assert.equal(character(x).dataset.motion,'off');
+ wait.resolve(library);await pending;
+ assert.equal(character(x).dataset.state,'answered');
+ assert.match(x.document.querySelector('#mayaState').textContent,/Orientação disponível/);
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/microagulhamento/i);
+ assert.equal(character(x).dataset.motion,'off','Responder não reativa movimento pausado');
+});
+test('Controle de animação pausa e retoma somente o movimento, mantendo o diálogo',async()=>{
+ const x=await render(visualProfile),toggle=x.document.querySelector('#mayaMotionToggle');
+ assert.equal(character(x).dataset.motion,'on');
+ assert.equal(toggle.getAttribute('aria-pressed'),'true');
+ const before=x.document.querySelector('#chat').textContent;
+ trigger(x,'#mayaMotionToggle');
+ assert.equal(character(x).dataset.motion,'off');
+ assert.equal(toggle.getAttribute('aria-pressed'),'false');
+ trigger(x,'#mayaMotionToggle');
+ assert.equal(character(x).dataset.motion,'on');
+ assert.equal(x.document.querySelector('#chat').textContent,before);
+});
+test('Preferência do dispositivo impede movimento e preserva a pausa manual ao mudar',async()=>{
+ const x=await render(visualProfile,{reducedMotion:true});
+ assert.equal(character(x).dataset.motion,'off');
+ assert.equal(x.document.querySelector('#mayaMotionToggle').disabled,true);
+ await x.answer('','agenda');
+ assert.equal(character(x).dataset.state,'answered');
+ assert.equal(character(x).dataset.motion,'off');
+ x.reduceMotion(false);
+ assert.equal(x.document.querySelector('#mayaMotionToggle').disabled,false);
+ trigger(x,'#mayaMotionToggle');
+ x.reduceMotion(true);x.reduceMotion(false);
+ assert.equal(character(x).dataset.motion,'off','Pausa manual sobrevive à mudança da preferência do sistema');
+});
+test('Página oculta suspende animações sem perder a escolha manual',async()=>{
+ const x=await render(visualProfile);
+ character(x);
+ x.document.hidden=true;x.document.dispatchEvent(new x.window.Event('visibilitychange'));
+ assert.equal(character(x).dataset.motion,'off');
+ x.document.hidden=false;x.document.dispatchEvent(new x.window.Event('visibilitychange'));
+ assert.equal(character(x).dataset.motion,'on');
+ trigger(x,'#mayaMotionToggle');
+ x.document.hidden=true;x.document.dispatchEvent(new x.window.Event('visibilitychange'));
+ x.document.hidden=false;x.document.dispatchEvent(new x.window.Event('visibilitychange'));
+ assert.equal(character(x).dataset.motion,'off');
+});
+for(const action of ['limpar conversa','fechar biblioteca'])test('Estado visual pendente é descartado ao '+action,async()=>{
+ const wait=deferred(),x=await render(visualProfile,{load:()=>wait.promise});
+ const pending=action==='limpar conversa'?x.answer('O que é peeling?'):x.openKnowledge();
+ await settle();assert.equal(character(x).dataset.state,'thinking');
+ trigger(x,action==='limpar conversa'?'#clearChat':'#knowledgeClose');
+ assert.equal(character(x).dataset.state,'ready');
+ wait.resolve(library);await pending;
+ assert.equal(character(x).dataset.state,'ready');
+});
+test('Falha de biblioteca não deixa personagem presa consultando nem afirma sucesso',async()=>{
+ const x=await render(visualProfile,{load:async()=>{throw Error('biblioteca fictícia offline');}});
+ await x.openKnowledge();
+ assert.equal(character(x).dataset.state,'unavailable');
+ assert.match(x.document.querySelector('#mayaState').textContent,/Tente novamente/);
+ assert.equal(x.document.querySelector('#knowledgeItems').children.length,0);
+});
+test('Consulta antiga não substitui o aviso visual de uma ação mais recente que falhou',async()=>{
+ const wait=deferred();let loads=0;
+ const x=await render(visualProfile,{load:()=>++loads===1?wait.promise:Promise.reject(Error('falha fictícia'))});
+ const old=x.answer('O que é peeling?');await settle();
+ await x.openKnowledge();
+ assert.equal(character(x).dataset.state,'unavailable');
+ wait.resolve(library);await old;
+ assert.equal(character(x).dataset.state,'unavailable');
+});
+test('Erro de sessão deixa status recuperável sem fingir resposta da personagem',async()=>{
+ const x=await render(visualProfile,{realAuth:true});
+ x.failSession(Error('conexão fictícia'));
+ await x.answer('O que é peeling?');
+ assert.equal(character(x).dataset.state,'unavailable');
+ assert.match(x.document.querySelector('#chat').textContent,/Não foi possível confirmar seu acesso/);
+});
+for(const action of ['limpar conversa','fechar biblioteca'])test('Erro de autorização atrasado não desfaz '+action,async()=>{
+ const wait=deferred(),x=await render(visualProfile,{allow:()=>wait.promise});
+ const pending=action==='limpar conversa'?x.answer('O que é peeling?'):x.openKnowledge();
+ await settle();trigger(x,action==='limpar conversa'?'#clearChat':'#knowledgeClose');
+ const before=x.document.querySelector('#chat').textContent;
+ wait.reject(Error('falha fictícia atrasada'));await pending;
+ assert.equal(character(x).dataset.state,'ready');
+ assert.equal(x.document.querySelector('#chat').textContent,before);
+});
+test('Erro de autorização antigo não oculta a biblioteca concluída por uma ação mais recente',async()=>{
+ const wait=deferred();let checks=0;
+ const x=await render(visualProfile,{allow:()=>++checks===1?wait.promise:true});
+ const old=x.answer('O que é peeling?');await settle();
+ await x.openKnowledge();
+ assert.equal(character(x).dataset.state,'answered');
+ wait.reject(Error('falha fictícia da ação antiga'));await old;
+ assert.equal(character(x).dataset.state,'answered');
+ assert.equal(x.document.querySelector('#knowledgePanel').hidden,false);
+ assert.equal(x.document.querySelectorAll('#knowledgeItems details').length,20);
+ assert.doesNotMatch(x.document.querySelector('#chat').textContent,/Não foi possível confirmar seu acesso/);
+});
+test('Falha de busca no chat mantém fallback seguro e informa indisponibilidade',async()=>{
+ const x=await render(visualProfile,{load:async()=>{throw Error('falha fictícia da biblioteca');}});
+ await x.answer('O que é peeling?');
+ assert.equal(character(x).dataset.state,'unavailable');
+ assert.match(x.document.querySelector('#mayaState').textContent,/Tente novamente/);
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/67 respostas da biblioteca/);
 });
