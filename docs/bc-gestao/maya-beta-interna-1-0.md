@@ -1,62 +1,43 @@
-# Maya Beta Interna 1.0 — BC Estética Avançada
-Data: 24/10/2026
-Estado: **ramificação de desenvolvimento / PR rascunho**. **Não publicado**.
+# Maya Beta Interna 1.0
 
-Revisão técnica de 25/10: [correções, testes, riscos e próxima autonomia](maya-pr63-revisao-2026-10-25.md). Não publicado significa sem deploy no site; o repositório GitHub é público e permite consultar os arquivos da branch.
+Atualizado em 26/10/2026. Desenvolvimento no PR #63, sem merge na principal ou publicação da Maya no site.
 
-## Objetivo
-Iniciar uso interno controlado: responder dúvidas administrativas sobre acesso, cadastro, agenda, anamnese, atendimento, documentos e permissões com linguagem pt-BR, dentro do contexto do BC Gestão.
+## Estado atual
 
-## Escopo implementado
-- Página separada em gestao/maya-beta/, sem alterações nas páginas existentes.
-- Reutiliza o login Supabase e staff_profiles do BC Gestão; permite somente papéis ativos admin, colaborador e admin_criacao.
-- Validação de sessão com getCurrentProfile antes de exibir a interface; installSessionGuard revalida antes de cada resposta.
-- Oito tópicos administrativos pré-escritos; perguntas são classificadas localmente, sem chamadas à IA externa nem consultas a dados de clientes.
-- As 65 respostas do protótipo Maya v0.8.3 (13 de aplicativo, 52 informativas) estão disponíveis na Beta para **consulta interna**, mediante autorização expressa de Fernando. **Todas seguem pendentes da revisão técnica da Mel.** A liberação não significa homologação clínica nem publicação para clientes.
-- O texto original da pergunta não é exibido no histórico, nem persistido no navegador ou enviado ao banco pela Maya. Entradas com padrões de dados sensíveis são descartadas. Para respostas da biblioteca, o navegador solicita somente o JSON estático da própria página.
-- Restrições por perfil: admin pode consultar caixa no próprio BC Gestão, colaboradora só pode ver sua comissão; admin_criacao não tem acesso financeiro nem clínico completo.
-- A Maya não cria agendamentos, altera prontuários, lança valores ou assina documentos.
+Fernando enviou o documento **Maya Respostas aprovadas pela Mel.docx**, com revisão de 25/10/2026 e parecer de aprovação para os 65 itens e dois complementos. Os textos foram incorporados à biblioteca, totalizando 67 respostas. Esta atualização substitui a situação anterior de revisão pendente; não autoriza publicação, atendimento a clientes ou ações sobre dados reais.
 
-## Evidências utilizadas
-- Relatório docs/superpowers/ledgers/2026-10-24-teste-fluxo-real.md, com 14 grupos de testes reais do BC Gestão. Esses resultados não são homologação da Maya conectada.
-- Interfaces gestao/admin/index.html, gestao/colaborador/index.html, gestao/criacao/index.html; autenticação em gestao/js/auth.js.
-- Protótipo Maya v0.8.3 armazenado no Drive como referência de UX e conteúdo de treinamento.
+[Incorporação da revisão da Mel](maya-mel-incorporacao-2026-10-26.md) registra origem, alterações, testes e pendências. O [relatório de 25/10](maya-pr63-revisao-2026-10-25.md) permanece como histórico das correções anteriores.
 
-## Segurança e limites
-O HTML estático não contém dados de pacientes. A interface permanece oculta até a autorização. O meta noindex não é um mecanismo de controle de acesso; a autenticação é essencial. O filtro de entrada reduz risco de exposição acidental, mas não identifica todos os possíveis dados pessoais. A primeira utilização deve ficar restrita a perguntas administrativas sem dados reais.
-Esta Beta não é IA generativa nem está conectada às funções administrativas ou clínicas do aplicativo. É um assistente guiado de informações aprováveis.
-Não há link no menu atual. Não incluir até concluir validações e obter aprovação.
+## Objetivo e funcionamento
 
-## Critérios antes do lançamento interno
-1. Testes automatizados da gestão e teste da Maya aprovados no CI.
-2. Homologação com login real autorizado: Mel, colaboradora, perfil de criação, não autenticado, inativo e troca de sessão.
-3. Teste físico Android e iPhone: teclado, zoom, navegação e desconexão.
-4. Revisão das respostas administrativas pela Mel; conteúdo clínico segue indisponível.
-5. Revisão de privacidade: nenhuma informação de clientes em logs, armazenamento ou chamadas novas.
-6. Aprovação explícita antes de merge, inclusão no menu e publicação.
-7. Nova revisão de segurança antes de permitir qualquer consulta ou alteração de dados reais.
+A Maya é um guia interno para orientar o uso do BC Gestão e consultar explicações pré-escritas sobre estética. A página `gestao/maya-beta/` reutiliza `getCurrentProfile` e `installSessionGuard`, permitindo somente perfis ativos `admin`, `colaborador` e `admin_criacao`.
 
-## Publicação
-Nesta etapa, nenhum merge no main, nenhum deploy de Pages e nenhuma alteração em Supabase foram feitos.
+- As respostas são escolhidas localmente, sem IA generativa ou serviço pago.
+- As 65 perguntas originais mantêm seus identificadores. Os complementos tratam de conforto durante a aplicação de Botox e da indisponibilidade de massagem desportiva na BC.
+- São 12 itens de aplicativo e 55 informativos, incluindo orientações gerais da clínica. Conforme o documento, os itens de aplicativo se destinam à equipe atual; eventual área de pacientes permanece futura e não foi criada.
+- O nome `respostas-65.json` foi mantido por compatibilidade com os caminhos existentes. O conteúdo usa schema 3, com 67 itens, autoria e data de revisão e aprovação de publicação ainda falsa.
+- As 29 referências do dossiê anterior e suas notas foram preservadas como contexto histórico. Os textos finais da Mel não recebem automaticamente a classificação científica dos textos antigos.
+- A interface diferencia texto revisado pela Mel de orientação adaptada às permissões do perfil de criação.
 
-## Revisão de 24/10 — privacidade e navegação
-- A pergunta original não é repetida no histórico; a Maya mostra apenas o assunto classificado. O campo é esvaziado após envio e há um botão de limpar a conversa.
-- Adicionados testes de execução com DOM simulado: acesso anônimo/inativo, perfis, privacidade, descarte de dados pessoais, limpeza e bloqueio após revogação.
-- Os três painéis internos (administração, colaboradora e criação) receberam um atalho para a Maya **somente na ramificação do PR #63**. Nenhuma alteração foi publicada no site.
-- O conteúdo permanece pré-escrito e a Maya não usa IA generativa nesta etapa.
+## Limites de acesso e privacidade
 
-## Plano de homologação interna
-1. Confirmar todos os workflows do PR #63 aprovados.
-2. Mel confere as orientações administrativas e limitações de escopo.
-3. Testar em sessão real da própria equipe após liberação controlada, sem digitar dados de clientes.
-4. Conferir login, expiração, troca de identidade e bloqueio de perfil inativo.
-5. Avaliar Android e iPhone físicos, incluindo teclado, zoom, toque, retorno à gestão e limpeza do chat.
-6. Só após aprovação expressa, mesclar e publicar a página com o atalho interno. Manter dúvidas clínicas e atendimento a clientes desativados.
+A Maya não consulta clientes, prontuários, agendas, arquivos ou valores. Não cria reservas, registra atendimentos, assina documentos, envia mensagens ou altera permissões. O perfil de criação recebe orientação de consulta e permanece sem acesso financeiro; colaboradoras são direcionadas somente à comissão já permitida no aplicativo.
 
-## Liberação das 65 respostas — decisão de 24/10/2026
-- Fernando autorizou a consulta interna dos 65 itens na Maya Beta. A origem é o arquivo privado `2026-10-24_Maya_Prototipo_v0.8.3_FLUXO_BC_REFERENCIA_TESTE.html`.
-- Arquivo da biblioteca na ramificação: `gestao/maya-beta/respostas-65.json`. Perguntas, respostas, gatilhos e fontes foram preservados. Campo `review`: `pendente` para todas.
-- Uma busca por assunto permite encontrar as respostas; a Maya pode responder perguntas correspondentes a um gatilho. A interface informa revisão técnica pendente. Não deve responder diagnósticos, doses, indicações específicas ou detalhes de pacientes.
-- **Limitação importante:** o JSON é arquivo estático. Após um eventual merge/publicação do GitHub Pages, o URL direto do JSON poderá ser lido sem autenticação, mesmo que a interface exija login. Como os textos são gerais e não contêm pacientes, isso não equivale a vazamento de dados sensíveis; porém ainda é um motivo para manter publicação bloqueada até que o público de cada resposta seja aprovado ou exista entrega autenticada pelo servidor.
-- Cópia no Drive: JSON das 65 respostas + documento de revisão integral para a Mel. A publicação ao público externo permanece proibida nesta fase.
-- Revisão humana e validação em aparelho físico continuam pendentes. **Não converter esta autorização interna em selo de aprovação clínica.**
+A sessão é revalidada ao responder, após carregar a biblioteca e nas interações de consulta. Resultados pendentes são descartados após limpar conversa, fechar biblioteca ou revogar acesso. Erros de autenticação apresentam uma orientação recuperável.
+
+Perguntas não são persistidas pela Maya nem repetidas no histórico; o campo é esvaziado. O filtro reduz a exposição acidental, mas não detecta todos os dados pessoais. A equipe deve usar somente perguntas sem dados reais.
+
+O repositório GitHub é público: arquivos da branch podem ser consultados no GitHub. Login e `noindex` não tornam o JSON privado; após eventual deploy estático, o arquivo também será acessível diretamente pelo site. Uma entrega estritamente interna exige solução autenticada no servidor ou decisão explícita sobre quais conteúdos podem ser públicos.
+
+## Homologação antes da publicação
+
+1. Confirmar o Site CI do último commit, incluindo os testes específicos da Maya em Chromium e WebKit.
+2. Conferir o uso dos textos revisados com Mel e equipe, em sessões reais de homologação e somente dados fictícios.
+3. Validar login, expiração, troca de conta/papel e inativação no ambiente hospedado.
+4. Testar Android e iPhone físicos, teclado, zoom, leitor de tela, busca e retorno à gestão.
+5. Definir privacidade e público dos conteúdos. A aprovação dos textos não altera as políticas de acesso.
+6. Obter aprovação explícita de Fernando e Mel antes de merge e publicação.
+
+## Próxima autonomia
+
+Permanecem propostos os guias por tarefa, atalhos permitidos por perfil e sugestões de assuntos quando a pergunta for ambígua. A alimentação deve usar conteúdos revisados; conversas e dados clínicos não viram conhecimento automaticamente.

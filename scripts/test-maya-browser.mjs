@@ -78,15 +78,19 @@ try{
      await page.waitForFunction(()=>document.querySelector('#chat').textContent.includes('Assunto: Cadastro'));
      assert.match(await page.locator('#chat .maya').last().innerText(),role==='admin_criacao'?/apenas consulta/:/escolha Novo cliente/);
      await page.locator('#question').fill('O que é microagulhamento?');await page.locator('#question').press('Enter');
-     await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('revisão técnica pendente'));
+     await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('Revisado pela Mel em 25/10/2026'));
      assert.match(await page.locator('#chat .maya').last().innerText(),/microagulhamento/i);
+     for(const [question,expected] of [['Quero agendar massagem desportiva','BC não realiza massagem desportiva'],['Horário de atendimento','terça a sábado, das 9h às 19h']]){
+      await page.locator('#question').fill(question);await page.locator('#question').press('Enter');
+      await page.waitForFunction(expected=>document.querySelector('#chat .maya:last-child')?.textContent.includes(expected),expected);
+     }
      await page.locator('#knowledgeOpen').click();await page.locator('#knowledgeItems details').nth(19).waitFor();
      await page.locator('#knowledgeSearch').fill('radiofrequência');
      await page.waitForFunction(()=>document.querySelectorAll('#knowledgeItems details').length===1);
      const details=page.locator('#knowledgeItems details');
      await details.locator('summary').focus();await page.keyboard.press('Enter');
      await page.waitForFunction(()=>document.querySelector('#knowledgeItems details').open);
-     assert.match(await details.innerText(),/validação da Mel pendente/);
+     assert.match(await details.innerText(),/Revisado pela Mel em 25\/10\/2026/);
      assert.ok(await details.locator('a').count()>0,'Fontes disponíveis');
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Sem rolagem horizontal');
      await page.screenshot({path:`test-results/maya/${engine}-${role}-${device}.png`,fullPage:true});
@@ -105,6 +109,17 @@ try{
    {
     const fixture=await pageFixture(browser,null),{page}=fixture;
     try{await page.goto(entry);await page.getByText('Acesso restrito à equipe autorizada.').waitFor();assert.equal(await page.locator('#app').isVisible(),false);await assertIsolated(fixture);pass(engine+'/anônimo: acesso bloqueado');}finally{await page.close();}
+   }
+   {
+    const fixture=await pageFixture(browser,'colaborador'),{page}=fixture;
+    await page.route('**/respostas-65.json',route=>route.fulfill({status:503,body:'Biblioteca fictícia indisponível'}));
+    try{
+     await page.goto(entry);await page.locator('#app').waitFor();
+     await page.locator('#question').fill('Tem horário para massagem esportiva?');await page.locator('#question').press('Enter');
+     await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('BC não realiza massagem desportiva'));
+     assert.doesNotMatch(await page.locator('#chat .maya').last().innerText(),/Para criar agendamento/);
+     await assertIsolated(fixture);pass(engine+'/biblioteca indisponível: serviço não oferecido não vira orientação de reserva');
+    }finally{await page.close();}
    }
    for(const action of ['limpar','inativar']){
     const fixture=await pageFixture(browser,'colaborador'),{page}=fixture;

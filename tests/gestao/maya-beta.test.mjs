@@ -74,16 +74,16 @@ test('Limpar conversa não grava dados e remove a conversa anterior',()=>{
  assert.match(source,/chat\.replaceChildren\(\)/);
  assert.match(source,/question\.value=''/);
 });
-test('Conteúdo técnico é consultável internamente, mas permanece em revisão',()=>{
- assert.match(source,/As 65 respostas da biblioteca podem ser consultadas pela equipe/);
- assert.match(source,/revisão técnica pela Mel/);
+test('Conteúdo revisado pela Mel é consultável internamente e mantém limites de indicação',()=>{
+ assert.match(source,/As 67 respostas da biblioteca podem ser consultadas pela equipe/);
+ assert.match(source,/conteúdo foi revisado pela Mel em 25\/10\/2026/);
  assert.match(source,/não são indicação individual de tratamento/);
  assert.match(source,/não consulta valores nem executa lançamentos/);
 });
 
 test('Painel da biblioteca começa oculto e traz aviso de revisão',()=>{
  assert.match(source,/id="knowledgePanel"[^>]*hidden/);
- assert.match(source,/Conteúdo técnico ainda em revisão pela Mel/);
+ assert.match(source,/Conteúdo revisado pela Mel em 25\/10\/2026/);
  assert.match(source,/id="knowledgeSearch"/);
  assert.match(source,/id="knowledgeOpen"/);
 });

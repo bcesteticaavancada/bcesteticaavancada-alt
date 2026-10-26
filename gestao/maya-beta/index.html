@@ -29,7 +29,7 @@
 <button class="topic" type="button" data-topic="documentos">📄 Documentos</button>
 <button class="topic" type="button" data-topic="financeiro">💰 Comissões e caixa</button>
 <button class="topic" type="button" data-topic="procedimentos">✨ Procedimentos</button>
-<button class="topic" id="knowledgeOpen" type="button">📚 Consultar 65 respostas</button>
+<button class="topic" id="knowledgeOpen" type="button">📚 Consultar 67 respostas</button>
 </div>
 <section class="panel" aria-label="Conversa com a Maya">
 <div class="chat-head"><h2>Orientação da Maya</h2><button id="clearChat" class="clear" type="button">Limpar conversa</button></div>
@@ -41,8 +41,8 @@
 </form>
 </section>
 <section id="knowledgePanel" class="panel kb" aria-label="Biblioteca de respostas" hidden>
- <div class="chat-head"><h2>Biblioteca da Maya · 65 respostas</h2><button id="knowledgeClose" class="clear" type="button">Fechar</button></div>
- <p class="notice">Consulta interna autorizada. <strong>Conteúdo técnico ainda em revisão pela Mel.</strong> Orientações gerais não substituem avaliação profissional; não fornecemos diagnósticos, doses, indicação individual nem instruções de procedimentos.</p>
+ <div class="chat-head"><h2>Biblioteca da Maya · 67 respostas</h2><button id="knowledgeClose" class="clear" type="button">Fechar</button></div>
+ <p class="notice">Consulta interna autorizada. <strong>Conteúdo revisado pela Mel em 25/10/2026.</strong> Orientações gerais não substituem avaliação profissional; não fornecemos diagnósticos, doses, indicação individual nem instruções de procedimentos.</p>
  <label for="knowledgeSearch">Buscar por assunto</label>
  <input id="knowledgeSearch" type="search" maxlength="120" autocomplete="off" placeholder="Ex.: peeling, agenda, Botox">
  <p id="knowledgeCount" class="footnote" role="status" aria-live="polite"></p>
@@ -96,7 +96,8 @@ const replies={
  anamnese:'Use a área de pré-anamnese e as fichas do BC Gestão para acompanhar documentos. A vinculação deve ser conferida com o cadastro correto. A Maya não lê, recebe, envia ou revisa informações clínicas.',
  atendimento:'Abra o atendimento da cliente no BC Gestão e confirme o vínculo com o agendamento e a profissional. Registros clínicos, assinatura e evolução devem ser feitos diretamente na área autorizada do aplicativo.',
  documentos:'Documentos clínicos e PDFs ficam na área autorizada do BC Gestão. A Maya não abre, assina ou compartilha arquivos. Antes de concluir um documento, confirme cliente, profissional e consentimento.',
- procedimentos:'As 65 respostas da biblioteca podem ser consultadas pela equipe nesta Beta. As explicações sobre estética seguem em revisão técnica pela Mel; não são indicação individual de tratamento nem instruções clínicas. Use o botão Consultar 65 respostas.',
+ procedimentos:'As 67 respostas da biblioteca podem ser consultadas pela equipe nesta Beta. O conteúdo foi revisado pela Mel em 25/10/2026; as explicações não são indicação individual de tratamento nem instruções clínicas. Use o botão Consultar 67 respostas.',
+ massagemIndisponivel:'No momento, a BC não realiza massagem desportiva. Se quiser, posso te explicar sobre a massagem relaxante, que fazemos por aqui.',
  financeiro:'Acesso ao financeiro depende das permissões do perfil. A administradora consulta o caixa, e colaboradoras podem consultar sua própria comissão na área correspondente. Esta Maya não consulta valores nem executa lançamentos.',
  contato:'Em caso de dificuldade, procure a Mel ou a administração. A Maya Beta é um guia interno e não substitui os responsáveis pelo atendimento.',
 };
@@ -118,6 +119,11 @@ function knowledgeAnswer(item){
  const topic=creationKnowledgeTopics[item.id];
  return profile?.role==='admin_criacao'&&topic?getReply(topic):item.answer;
 }
+function knowledgeNotice(item){
+ const date=item.reviewed_at.split('-').reverse().join('/');
+ const adapted=profile?.role==='admin_criacao'&&Object.hasOwn(creationKnowledgeTopics,item.id);
+ return (adapted?'Orientação adaptada ao perfil de criação. Texto de origem revisado pela Mel em ':'Revisado pela Mel em ')+date+'.';
+}
 function normalizeKnowledge(s){
  return String(s||'').toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 }
@@ -127,8 +133,10 @@ async function loadKnowledge(){
  const response=await fetch('./respostas-65.json',{cache:'no-store'});
  if(!response.ok)throw new Error('A biblioteca não está disponível.');
  const json=await response.json();
- if(json?.schema!==2||json?.locale!=='pt-BR'||!Array.isArray(json.items)||json.items.length!==65||new Set(json.items.map(i=>i.id)).size!==65)throw new Error('Formato da biblioteca inválido.');
- if(json.items.some(i=>typeof i.question!=='string'||typeof i.answer!=='string'||!Array.isArray(i.triggers)||i.review!=='pendente'||i.publication_approval!==false))throw new Error('Biblioteca requer revisão.');
+ if(json?.schema!==3||json?.locale!=='pt-BR'||json?.publication!=='beta-interna-revisada'||!Array.isArray(json.items)||json.items.length!==67||new Set(json.items.map(i=>i.id)).size!==67)throw new Error('Formato da biblioteca inválido.');
+ const review=json.reviewSource;
+ if(!review||review.reviewed_by!=='Mel'||!/^\d{4}-\d{2}-\d{2}$/.test(review.reviewed_at)||!/^[a-f0-9]{64}$/.test(review.sha256)||review.scope!=='conteudo'||review.publication_approval!==false)throw new Error('Origem da revisão inválida.');
+ if(json.items.some(i=>typeof i.question!=='string'||typeof i.answer!=='string'||!Array.isArray(i.triggers)||i.triggers.some(t=>typeof t!=='string')||i.review!=='aprovado'||i.reviewed_by!==review.reviewed_by||i.reviewed_at!==review.reviewed_at||!/^\d{2}a?$/.test(i.review_source_item)||i.publication_approval!==false))throw new Error('Biblioteca requer revisão.');
  knowledgeBank=json.items;
  return knowledgeBank;
 }
@@ -136,19 +144,19 @@ function renderKnowledge(){
  const all=knowledgeBank||[];
  const query=normalizeKnowledge(knowledgeSearch.value);
  const filtered=query?all.filter(i=>normalizeKnowledge(i.question+' '+i.triggers.join(' ')).includes(query)):all;
- const visible=filtered.slice(0,query?65:20);
- knowledgeCount.textContent=query?'Encontradas '+filtered.length+' respostas.':'Mostrando as 20 primeiras de 65 respostas. Digite um assunto para pesquisar todas.';
+ const visible=filtered.slice(0,query?all.length:20);
+ knowledgeCount.textContent=query?'Encontradas '+filtered.length+' respostas.':'Mostrando as 20 primeiras de '+all.length+' respostas. Digite um assunto para pesquisar todas.';
  knowledgeItems.replaceChildren();
  for(const item of visible){
   const details=document.createElement('details');details.className='kb-item';
   const summary=document.createElement('summary');summary.textContent=item.question;
-  const notice=document.createElement('div');notice.className='kb-note';notice.textContent='Informação para a equipe · validação da Mel pendente';
+  const notice=document.createElement('div');notice.className='kb-note';notice.textContent=knowledgeNotice(item);
   const answer=document.createElement('p');answer.textContent=knowledgeAnswer(item);
   const evidence=document.createElement('p');evidence.className='kb-source';
-  evidence.textContent='Base científica: '+(item.evidence_level||'Avaliação técnica pendente');
+  evidence.textContent='Contexto do dossiê anterior: '+(item.evidence_level||'Sem classificação de evidência.');
   const source=document.createElement('div');source.className='kb-source';
   if(Array.isArray(item.references)&&item.references.length){
-   const heading=document.createElement('span');heading.textContent='Fontes: ';
+   const heading=document.createElement('span');heading.textContent='Fontes do dossiê anterior: ';
    source.append(heading);
    item.references.forEach((url,index)=>{
     if(!/^https:\/\/(www\.aad\.org|www\.gov\.br|www\.fda\.gov|pubmed\.ncbi\.nlm\.nih\.gov|pmc\.ncbi\.nlm\.nih\.gov|doi\.org)\//.test(url))return;
@@ -156,7 +164,7 @@ function renderKnowledge(){
     a.textContent='Estudo / diretriz '+(index+1);
     source.append(a,document.createTextNode('  '));
    });
-  }else source.textContent='Fonte: conferir procedimento no BC Gestão.';
+  }else source.textContent='Fonte: revisão de conteúdo da Mel.';
   details.append(summary,notice,answer,evidence,source);
   details.addEventListener('toggle',async()=>{if(details.open&& !await authorize())details.open=false;});
   knowledgeItems.append(details);
@@ -178,12 +186,18 @@ async function searchKnowledge(){
  if(!knowledgeBank||knowledgePanel.hidden||!await authorize()||version!==knowledgeVersion)return;
  renderKnowledge();
 }
+function asksSportsMassageAvailability(query){
+ const q=normalizeKnowledge(query);
+ const hasOfferQuestion=/^(?:(?:voces|a bc|na bc|bc|a clinica|ai)\s+)?tem\b/.test(q)&&!/\b(?:beneficios?|efeitos?)\b/.test(q);
+ return /\bmassagem (?:desportiva|esportiva)\b/.test(q)&&(hasOfferQuestion||/\b(?:agendar|agendamento|agendamentos|marcar|reservar|reserva|oferece|oferecem|oferecemos|oferecer|realiza|realizam|realizamos|realizar|faz|fazem|fazemos|fazer|horarios?)\b/.test(q));
+}
 function findKnowledge(query){
  if(!knowledgeBank)return null;
  const q=normalizeKnowledge(query);
  if(q.length<5)return null;
  const exact=knowledgeBank.find(i=>normalizeKnowledge(i.question)===q||i.triggers.some(t=>normalizeKnowledge(t)===q));
  if(exact)return exact;
+ if(asksSportsMassageAvailability(q))return knowledgeBank.find(i=>i.id==='massagem-desportiva-agendamento')||null;
  // Só remove introduções conhecidas; o assunto restante precisa ser um gatilho exato e único.
  const subject=q.replace(/^(?:o que e|como funciona|como e feito|como e feita|me explique)\s+(?:(?:o|a|um|uma)\s+)?/,'');
  if(subject!==q){
@@ -231,8 +245,8 @@ async function answer(text,topic){
  try{if(!knowledgeBank)await loadKnowledge();}catch{}
  if(!await authorize()||version!==chatVersion)return;
  const found=findKnowledge(trimmed);
- if(found){line(knowledgeAnswer(found)+'\n\nOrientação geral interna — revisão técnica pendente. Consulte a Mel para indicações individuais.','maya');return;}
- line(getReply(selected),'maya');
+ if(found){line(knowledgeAnswer(found)+'\n\n'+knowledgeNotice(found),'maya');return;}
+ line(asksSportsMassageAvailability(trimmed)?replies.massagemIndisponivel:getReply(selected),'maya');
 }
 try{
  client=createBcGestaoClient(globalThis.supabase?.createClient);

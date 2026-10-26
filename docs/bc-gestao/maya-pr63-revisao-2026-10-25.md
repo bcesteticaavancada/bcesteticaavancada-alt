@@ -1,5 +1,7 @@
 # Revisão da Maya — PR #63
 
+Atualização de 26/10: a [revisão de conteúdo enviada pela Mel foi incorporada](maya-mel-incorporacao-2026-10-26.md). O relatório abaixo retrata a situação de 25/10, anterior ao recebimento dessa aprovação; suas referências a textos pendentes são históricas.
+
 Data: 25/10/2026. Base examinada: `2380b7f9b9b0a24782a6628cc14a33ba4a03659f`.
 Estado: desenvolvimento na branch do PR, sem merge do PR na principal nem publicação da Maya no site.
 

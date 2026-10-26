@@ -128,13 +128,13 @@ test('Perfil inativo não vê a Maya Beta',async()=>{
   assert.equal(x.guardInstalled(),false);
 });
 
-test('Biblioteca mostra 65 respostas com busca e revisão pendente',async()=>{
+test('Biblioteca mostra 67 respostas com busca e revisão de conteúdo aprovada',async()=>{
  const x=await render({user_id:'u5',role:'colaborador',active:true,display_name:'Teste'});
  trigger(x,'#knowledgeOpen');
  await settle();await settle();
  const panel=x.document.querySelector('#knowledgePanel');
  assert.equal(panel.hidden,false);
- assert.match(x.document.querySelector('#knowledgeCount').textContent,/20 primeiras de 65/);
+ assert.match(x.document.querySelector('#knowledgeCount').textContent,/20 primeiras de 67/);
  assert.equal(x.document.querySelectorAll('#knowledgeItems details').length,20);
  x.document.querySelector('#knowledgeSearch').value='botox';
  trigger(x,'#knowledgeSearch','input');
@@ -142,7 +142,7 @@ test('Biblioteca mostra 65 respostas com busca e revisão pendente',async()=>{
  const match=x.document.querySelectorAll('#knowledgeItems details');
  const expected=library.items.filter(i=>/botox/i.test(i.question+' '+i.triggers.join(' '))).map(i=>i.question);
  assert.deepEqual(Array.from(match,item=>item.querySelector('summary').textContent),expected);
- assert.ok(Array.from(match).some(x=>x.textContent.includes('validação da Mel pendente')));
+ assert.ok(Array.from(match).some(x=>x.textContent.includes('Revisado pela Mel em 25/10/2026')));
 });
 test('Pergunta reconhecida consulta resposta original da biblioteca sem diagnóstico',async()=>{
  const x=await render({user_id:'u6',role:'colaborador',active:true,display_name:'Teste'});
@@ -151,7 +151,7 @@ test('Pergunta reconhecida consulta resposta original da biblioteca sem diagnós
  await settle();await settle();
  const text=x.document.querySelector('#chat').textContent;
  assert.match(text,/toxina botulínica/i);
- assert.match(text,/revisão técnica pendente/);
+ assert.match(text,/Revisado pela Mel em 25\/10\/2026/);
  assert.doesNotMatch(text,/Como é feito o Botox\?/);
 });
 test('Pessoa sem autorização não consegue abrir a biblioteca',async()=>{
@@ -177,14 +177,15 @@ test('Pergunta operacional da biblioteca respeita a consulta do perfil de criaç
   assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/abrir o cadastro da cliente e consultar o estado da anamnese/i,id);
  }
 });
-test('Biblioteca apresenta ressalva por perfil sem mudar as 65 respostas de origem',async()=>{
+test('Biblioteca distingue orientação adaptada ao perfil do texto de origem revisado',async()=>{
  const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
  await x.openKnowledge();
  x.document.querySelector('#knowledgeSearch').value='Como verificar se a cliente respondeu';
  trigger(x,'#knowledgeSearch','input');await settle();
  const item=x.document.querySelector('#knowledgeItems details');
  assert.match(item.textContent,/apenas consulta/i);
- assert.match(item.textContent,/validação da Mel pendente/);
+ assert.match(item.textContent,/Orientação adaptada ao perfil de criação/);
+ assert.match(item.textContent,/Texto de origem revisado pela Mel/);
 });
 for(const action of ['answer','openKnowledge'])for(const [change,nextProfile] of [
  ['inativado',{user_id:'equipe',role:'colaborador',active:false}],
@@ -290,12 +291,64 @@ test('Biblioteca renderiza texto literal e rejeita links fora das fontes autoriz
  assert.ok(item.textContent.includes('<script>alert(1)</script>'));
  assert.deepEqual(Array.from(item.querySelectorAll('a'),a=>a.getAttribute('href')),['https://www.aad.org/public/']);
 });
-test('As 65 perguntas e os 219 gatilhos preservam a resposta correspondente para a equipe clínica',async()=>{
+test('As 67 perguntas e os 229 gatilhos preservam a resposta correspondente para a equipe clínica',async()=>{
  const x=await render({user_id:'equipe',role:'colaborador',active:true});
  let checked=0;
  for(const item of library.items)for(const text of [item.question,...item.triggers]){
   await x.answer(text);checked++;
   assert.ok(x.document.querySelector('#chat').lastElementChild.textContent.startsWith(item.answer),item.id+': '+text);
  }
- assert.equal(checked,284);
+ assert.equal(checked,296);
+});
+
+test('Biblioteca identifica aprovação de conteúdo sem repetir pendência da Mel',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true});
+ await x.openKnowledge();
+ assert.match(x.document.querySelector('#knowledgeCount').textContent,/20 primeiras de 67/);
+ assert.match(x.document.querySelector('#knowledgeItems').textContent,/Revisado pela Mel em 25\/10\/2026/);
+ assert.doesNotMatch(x.document.querySelector('#knowledgeItems').textContent,/validação da Mel pendente/);
+ await x.answer('Como é feito o Botox?');
+ assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/revisão técnica pendente|—/);
+});
+for(const issue of ['parecer pendente','autor ausente','origem ausente','escopo incorreto','publicação liberada']){
+ test('Biblioteca recusa metadados incompletos de aprovação: '+issue,async()=>{
+  const altered=structuredClone(library);
+  if(issue==='parecer pendente')altered.items[0].review='pendente';
+  if(issue==='autor ausente')delete altered.items[0].reviewed_by;
+  if(issue==='origem ausente')delete altered.reviewSource;
+  if(issue==='escopo incorreto')altered.reviewSource.scope='publicacao';
+  if(issue==='publicação liberada')altered.reviewSource.publication_approval=true;
+  const x=await render({user_id:'equipe',role:'colaborador',active:true},{load:async()=>altered});
+  await x.openKnowledge();
+  assert.equal(x.document.querySelector('#knowledgeItems').children.length,0);
+  assert.match(x.document.querySelector('#knowledgeCount').textContent,/temporariamente indisponível/);
+ });
+}
+test('Pedido de agendamento de massagem desportiva informa que a BC não oferece o serviço',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true});
+ for(const text of ['Quero agendar massagem desportiva','Vocês fazem massagem esportiva?','Vocês têm massagem desportiva?','Tem horário para massagem esportiva?','Quero um agendamento de massagem desportiva','Gostaria de fazer massagem desportiva']){
+  await x.answer(text);
+  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/BC não realiza massagem desportiva/);
+ }
+});
+test('Falha de biblioteca mantém a indisponibilidade da massagem desportiva sem sugerir reserva',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true},{load:async()=>{throw Error('biblioteca offline fictícia');}});
+ for(const text of ['Quero agendar massagem desportiva','Tem horário para massagem esportiva?']){
+  await x.answer(text);
+  assert.equal(x.document.querySelector('#chat').lastElementChild.textContent,library.items.find(i=>i.id==='massagem-desportiva-agendamento').answer);
+  assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/Para criar agendamento/);
+ }
+});
+test('Perguntas conceituais com tem preservam a explicação revisada sobre massagem desportiva',async()=>{
+ const x=await render({user_id:'equipe',role:'colaborador',active:true});
+ for(const text of ['Quais benefícios tem a massagem desportiva?','Que efeito tem a massagem esportiva?']){
+  await x.answer(text);
+  assert.ok(x.document.querySelector('#chat').lastElementChild.textContent.startsWith(library.items.find(i=>i.id==='massagem-desportiva').answer));
+ }
+});
+test('Revisão da Mel não cria acesso para perfil de paciente',async()=>{
+ const x=await render({user_id:'ficticio',role:'cliente',active:true});
+ assert.equal(x.document.querySelector('#app').hidden,true);
+ assert.equal(x.guardInstalled(),false);
+ assert.match(x.document.querySelector('#status').textContent,/Acesso restrito/);
 });
