@@ -1,0 +1,38 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+\ir ../fixtures/agenda.psql
+
+select has_function('public','bc_support_service',array['uuid','uuid','text','jsonb'],'Serviço operacional existe');
+insert into fixture values('support-session','a1000000-0000-4000-8000-000000000090');
+insert into auth.sessions(id,user_id,created_at,updated_at) values(pg_temp.f('support-session'),pg_temp.f('ordinary'),now(),now());
+update public.staff_profiles set role='admin_criacao',atende_clientes=false,pode_gerenciar_agendas=false,pode_gerenciar_procedimentos=false,procedure_scope='explicit' where user_id=pg_temp.f('ordinary');
+select ok(not has_function_privilege('authenticated','public.bc_support_service(uuid,uuid,text,jsonb)','execute'),'JWT de usuário não executa serviço privilegiado direto');
+select ok(not has_function_privilege('anon','public.bc_support_service(uuid,uuid,text,jsonb)','execute'),'Anônimo não executa serviço');
+set local role service_role;
+select lives_ok(format('select public.bc_support_service(%L,%L,''client_get'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'reason','Apoio CI')::text),'Operador ativo consulta projeção');
+select throws_ok(format('select public.bc_support_service(%L,%L,''client_get'',%L)',pg_temp.f('worker'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'reason','Apoio CI')::text),'42501','Acesso operacional não autorizado.','Sessão de outra identidade não serve');
+select throws_ok(format('select public.bc_support_service(%L,%L,''client_update'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'expectedUpdatedAt',now(),'patch',jsonb_build_object('final_price',700),'reason','Apoio CI')::text),'22023','Campo cadastral não permitido.','Mesmo serviço rejeita campo financeiro');
+reset role;
+create temporary table support_saved as select updated_at from public.clientes where id=pg_temp.f('client');
+grant select on support_saved to service_role;
+set local role service_role;
+select lives_ok(format('select public.bc_support_service(%L,%L,''client_update'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'expectedUpdatedAt',(select updated_at from support_saved),'patch',jsonb_build_object('nome','Pessoa fictícia corrigida'),'reason','Correção CI')::text),'Correção cadastral autorizada');
+select throws_ok(format('select public.bc_support_service(%L,%L,''client_update'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'expectedUpdatedAt','2000-01-01T00:00:00Z','patch',jsonb_build_object('nome','Não sobrescrever'),'reason','Correção CI')::text),'40001','Cadastro atualizado por outra pessoa. Reabra a ficha.','Versão antiga não sobrescreve edição');
+select throws_ok(format('select public.bc_support_service(%L,%L,''download'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'documentId',pg_temp.f('version'),'kind','original','reason','Apoio CI')::text),'42501','Documento indisponível para apoio.','ID de outra entidade não abre documentos');
+select throws_ok(format('select public.bc_support_service(%L,%L,''invite_reserve'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),'{"name":"Não alterar conta","email":"admin-agenda@example.invalid"}'),'23505','Já existe uma conta para este e-mail.','Convite não assume conta existente');
+reset role;
+select is((select nome from public.clientes where id=pg_temp.f('client')),'Pessoa fictícia corrigida','Cadastro atualizado e somente cadastro');
+select ok(exists(select 1 from public.audit_log where actor_user_id=pg_temp.f('ordinary') and action='support_client_updated'),'Autoria da correção registrada');
+select is(private.is_bc_creation_identity(),false,'Contexto service não assume papel clínico de usuário');
+update public.staff_profiles set active=false where user_id=pg_temp.f('ordinary');
+set local role service_role;
+select throws_ok(format('select public.bc_support_service(%L,%L,''client_get'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'reason','Apoio CI')::text),'42501','Acesso operacional não autorizado.','Desativação revoga cada operação');
+reset role;
+update public.staff_profiles set active=true where user_id=pg_temp.f('ordinary');
+delete from auth.sessions where id=pg_temp.f('support-session');
+set local role service_role;
+select throws_ok(format('select public.bc_support_service(%L,%L,''client_get'',%L)',pg_temp.f('ordinary'),pg_temp.f('support-session'),jsonb_build_object('clientId',pg_temp.f('client'),'reason','Apoio CI')::text),'42501','Acesso operacional não autorizado.','Sessão revogada não é reutilizável');
+reset role;
+select * from finish();
+rollback;
