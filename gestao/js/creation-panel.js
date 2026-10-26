@@ -65,7 +65,7 @@ export async function initCreationPanel({client,root=document,view=root.defaultV
   function syncNavigation(){
     section.value=selected;search.value=state().search;
     el('creationTitle').textContent=CREATION_SECTIONS[selected];
-    if(el('creationInvite'))el('creationInvite').hidden=selected!=='equipe';
+    if(el('creationInvite')){el('creationInvite').hidden=selected!=='equipe';if(selected!=='equipe')root.dispatchEvent(new root.defaultView.Event('bc:support-hide-invitation'));}
     root.querySelectorAll('[data-creation-target]').forEach(link=>{if(link.dataset.creationTarget===selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
     updateControls();
   }

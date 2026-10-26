@@ -5,12 +5,12 @@ import {createSupportHandler} from '../../supabase/functions/client-support/hand
 
 const actor='a1000000-0000-4000-8000-000000000001',session='a1000000-0000-4000-8000-000000000010',clientId='a1000000-0000-4000-8000-000000000005',documentId='a1000000-0000-4000-8000-000000000011';
 const token='x.'+Buffer.from(JSON.stringify({sub:actor,session_id:session})).toString('base64url')+'.x';
-function fixture({rpcError=null,authError=null}={}){
-  const calls=[],uploads=[],removed=[],invites=[];
-  const service={rpc:async(name,args)=>{calls.push({name,...args});if(rpcError)return {error:rpcError};const action=args.p_action;return {data:action==='invite_reserve'?{invitationId:documentId}:action==='download'?{path:'documentos/consentimentos/ficticio.pdf',clientName:'Pessoa fictícia',title:'Consentimento'}:action==='register_returned'?{fileId:documentId}:{client:{id:clientId,nome:'Pessoa fictícia',telefone:'31000000000',updated_at:'2026-10-25T12:00:00Z'},documents:[]}};},auth:{admin:{inviteUserByEmail:async(email,options)=>{invites.push({email,options});return {data:{user:{id:documentId}}};}}},storage:{from:()=>({upload:async(path,bytes,options)=>{uploads.push({path,bytes:Buffer.from(bytes),options});return {error:null};},remove:async(paths)=>{removed.push(paths);return {error:null};},createSignedUrl:async(path)=>({data:{signedUrl:'https://example.invalid/private-document'}})})}};
+function fixture({rpcError=null,authError=null,resumeUser=null,finishError=false}={}){
+  const calls=[],uploads=[],removed=[],invites=[],created=[];
+  const service={rpc:async(name,args)=>{calls.push({name,...args});if(rpcError)return {error:rpcError};const action=args.p_action;if(action==='invite_finish'&&finishError)return {error:{code:'08006'}};return {data:action==='invite_reserve'?{invitationId:documentId,userId:resumeUser}:action==='download'?{path:'documentos/consentimentos/ficticio.pdf',clientName:'Pessoa fictícia',title:'Consentimento'}:action==='register_returned'?{fileId:documentId}:{client:{id:clientId,nome:'Pessoa fictícia',telefone:'31000000000',updated_at:'2026-10-25T12:00:00Z'},documents:[]}};},auth:{admin:{inviteUserByEmail:async()=>{throw Error('SMTP must not run');},createUser:async(options)=>{created.push(options);return {data:{user:{id:documentId}}};},generateLink:async(options)=>{invites.push(options);return {data:{user:{id:documentId},properties:{action_link:'https://example.invalid/auth/v1/verify?type=invite&token=FAKE'}}};}}},storage:{from:()=>({upload:async(path,bytes,options)=>{uploads.push({path,bytes:Buffer.from(bytes),options});return {error:null};},remove:async(paths)=>{removed.push(paths);return {error:null};},createSignedUrl:async(path)=>({data:{signedUrl:'https://example.invalid/private-document'}})})}};
   const handler=createSupportHandler({crypto:webcrypto,makeClients:()=>({caller:{auth:{getUser:async received=>({data:authError?null:{user:{id:actor}},error:authError||(received!==token?{message:'Invalid token'}:null)})}},service})});
   const request=body=>new Request('https://example.invalid/client-support',{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json',origin:'https://bcesteticaavancada.github.io'},body:JSON.stringify(body)});
-  return {handler,request,calls,uploads,removed,invites};
+  return {handler,request,calls,uploads,removed,invites,created};
 }
 test('support rejects unauthenticated calls and foreign origins before creating clients',async()=>{
   let created=0;const handler=createSupportHandler({makeClients:()=>{created++;throw Error('must not run');}});
@@ -45,7 +45,7 @@ test('support invitation creates only the server-defined collaborator flow',asyn
   const f=fixture();const r=await f.handler(f.request({action:'invite',name:'Colaboradora fictícia',email:'novo@example.invalid'}));
   assert.equal(r.status,200);assert.deepEqual(f.calls.map(c=>c.p_action),['invite_reserve','invite_finish']);assert.equal(f.invites.length,1);
   assert.equal(f.invites[0].options.redirectTo,'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/gestao/redefinir-senha/');
-  assert.deepEqual(f.invites[0].options.data,{display_name:'Colaboradora fictícia'});
+  assert.equal(f.invites[0].type,'invite');assert.deepEqual(f.created[0].app_metadata,{bc_support_invitation_id:documentId});assert.equal(f.created[0].email_confirm,false);assert.match((await r.json()).invitationUrl,/type=invite/);
 });
 function uploadRequest(bytes){const form=new FormData();for(const [key,value] of Object.entries({action:'upload_returned',clientId,documentId,reason:'Cópia devolvida'}))form.set(key,value);form.set('file',new File([bytes],'consentimento.pdf',{type:'application/pdf'}));return new Request('https://example.invalid/client-support',{method:'POST',headers:{authorization:`Bearer ${token}`},body:form});}
 test('returned consent upload preserves PDF bytes and registers the original client/document',async()=>{
@@ -64,9 +64,29 @@ test('failed returned-copy registration cleans the new object and leaves the ori
   const broken=createSupportHandler({crypto:webcrypto,makeClients:()=>({
     caller:{auth:{getUser:async()=>({data:{user:{id:actor}}})}},
     service:{
-      rpc:async(name,args)=>args.p_action==='register_returned'?{error:{code:'40001'}}:{data:{}},
+      rpc:async(name,args)=>args.p_action==='register_returned'?{error:{code:'40001'}}:{data:args.p_action==='discard_upload'?{removable:true}:{}},
       storage:{from:()=>({upload:async(path)=>{f.uploads.push({path});return {};},remove:async(paths)=>{f.removed.push(paths);return {};}})},
     },
   })});
   const r=await broken(uploadRequest(Buffer.from('%PDF-1.4\nTESTE')));assert.equal(r.status,409);assert.deepEqual(f.removed,[[f.uploads[0].path]]);
+});
+
+test('a lost registration response recovers the committed copy and never deletes its bytes',async()=>{
+  const removed=[];const handler=createSupportHandler({crypto:webcrypto,makeClients:()=>({
+    caller:{auth:{getUser:async()=>({data:{user:{id:actor}}})}},
+    service:{rpc:async(name,{p_action})=>p_action==='register_returned'?{error:{code:'08006'}}:{data:p_action==='discard_upload'?{removable:false,fileId:documentId}:{}},storage:{from:()=>({upload:async()=>({}),remove:async paths=>{removed.push(paths);return {};}})}}
+  })});
+  const r=await handler(uploadRequest(Buffer.from('%PDF-1.4\nTESTE')));assert.equal(r.status,200);assert.equal((await r.json()).fileId,documentId);assert.deepEqual(removed,[]);
+});
+test('unknown registration and cleanup outcomes preserve the private object',async()=>{
+  const removed=[];const handler=createSupportHandler({crypto:webcrypto,makeClients:()=>({caller:{auth:{getUser:async()=>({data:{user:{id:actor}}})}},service:{rpc:async(name,{p_action})=>p_action==='upload_check'?{data:{}}:{error:{code:'08006'}},storage:{from:()=>({upload:async()=>({}),remove:async paths=>removed.push(paths)})}}})});
+  assert.equal((await handler(uploadRequest(Buffer.from('%PDF-1.4\nTESTE')))).status,500);assert.deepEqual(removed,[]);
+});
+test('a retry resumes the reserved identity without creating another Auth account',async()=>{
+  const f=fixture({resumeUser:documentId});const r=await f.handler(f.request({action:'invite',name:'Fictícia',email:'novo@example.invalid'}));
+  assert.equal(r.status,200);assert.equal(f.created.length,0);assert.equal(f.invites.length,1);assert.equal(f.calls.at(-1).p_payload.userId,documentId);
+});
+test('a partial invitation releases its lease and never sends SMTP',async()=>{
+  const f=fixture({finishError:true});const r=await f.handler(f.request({action:'invite',name:'Fictícia',email:'novo@example.invalid'}));
+  assert.equal(r.status,500);assert.deepEqual(f.calls.map(c=>c.p_action),['invite_reserve','invite_finish','invite_fail']);assert.doesNotMatch(await r.text(),/FAKE/);
 });

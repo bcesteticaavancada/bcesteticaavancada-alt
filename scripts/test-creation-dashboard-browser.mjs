@@ -52,7 +52,7 @@ try{
             window.supportCalls.push(body);
             if(body.action==='client_get')return {data:{client:{...saved,id:body.clientId},documents:[{id:documentId,documentId,kind:'original',category:'consentimento_procedimento',title:'Consentimento — procedimento fictício',created_at:'2026-10-25T12:00:00Z'},...(window.returnedCopy?[{id:'d1000000-0000-4000-8000-000000000002',documentId,kind:'returned',category:'tcle_externo',title:'Consentimento — cópia devolvida',created_at:'2026-10-25T12:01:00Z'}]:[])]}};
             if(body.action==='client_update'){if(window.failSupportSave)return {error:{message:'Falha de gravação simulada'}};saved={...saved,...body.patch,updated_at:'2026-10-25T12:01:00Z'};return {data:{client:{...saved,id:body.clientId}}};}
-            if(body.action==='invite')return {data:{ok:true}};
+            if(body.action==='invite')return {data:{ok:true,email:body.email,invitationUrl:'https://example.invalid/auth/v1/verify?type=invite&token=FICTICIO'}};
             if(body.action==='download')return {data:{url:'data:application/pdf;base64,JVBERi0xLjQKVEVTVEU=',filename:'BC_TESTE_DE_FLUXO.pdf'}};
             throw new Error('Unexpected support action');
           }};
@@ -122,15 +122,18 @@ try{
         await page.evaluate(()=>window.failSupportSave=false);await dialog.getByRole('button',{name:'Salvar cadastro',exact:true}).click();await page.locator('#supportSaveStatus').filter({hasText:'Cadastro salvo.'}).waitFor();
         const download=page.waitForEvent('download');await dialog.getByRole('button',{name:'Baixar para enviar',exact:true}).click();assert.equal((await download).suggestedFilename(),'BC_TESTE_DE_FLUXO.pdf');
         await dialog.getByText('Anexar consentimento devolvido',{exact:true}).click();
+        await page.locator('#supportClientForm [name=nome]').fill('Rascunho preservado');
         await page.locator('#supportReturnedForm [name=file]').setInputFiles({name:'TESTE_DE_FLUXO.pdf',mimeType:'application/pdf',buffer:Buffer.from('%PDF-1.4\nTESTE DE FLUXO SEM VALIDADE CLINICA')});
         await dialog.getByRole('button',{name:'Anexar cópia à ficha',exact:true}).click();await page.locator('#supportDownloadStatus').filter({hasText:'Cópia anexada'}).waitFor();
+        assert.equal(await page.locator('#supportClientForm [name=nome]').inputValue(),'Rascunho preservado');
         await dialog.getByRole('button',{name:'Baixar cópia devolvida',exact:true}).waitFor();
         assert.ok(await page.evaluate(()=>{const box=document.getElementById('supportClientDialog');return box.scrollWidth<=box.clientWidth;}),'support dialog does not overflow');
         await page.screenshot({path:`test-results/creation/${engine}-${device}-support.png`});
         await dialog.getByRole('button',{name:'Fechar',exact:true}).click();await page.waitForFunction(()=>document.getElementById('supportClientBody').textContent==='');
         await shortcut('Equipe').click();await page.getByText('Adicionar colaboradora',{exact:true}).click();
-        await page.locator('#supportInviteForm [name=name]').fill('Colaboradora fictícia');await page.locator('#supportInviteForm [name=email]').fill('novo-fluxo@example.invalid');await page.getByRole('button',{name:'Enviar convite',exact:true}).click();await page.locator('#supportInviteStatus').filter({hasText:'Convite enviado'}).waitFor();
+        await page.locator('#supportInviteForm [name=name]').fill('Colaboradora fictícia');await page.locator('#supportInviteForm [name=email]').fill('novo-fluxo@example.invalid');await page.getByRole('button',{name:'Gerar convite',exact:true}).click();await page.locator('#supportInviteStatus').filter({hasText:'Convite criado'}).waitFor();
         assert.equal(await page.evaluate(()=>window.supportCalls.filter(call=>call.action==='invite').length),1);
+        assert.match(await page.locator('#supportInviteLink').inputValue(),/token=FICTICIO/);
         assert.deepEqual(externalSignatureRequests,[],'manual consent does not contact external signature services');
         assert.equal(await page.evaluate(()=>window.injected),undefined);
         assert.ok(await page.evaluate(()=>window.calls.every(call=>call.name==='bc_creation_list'&&call.p_section!=='financeiro')));

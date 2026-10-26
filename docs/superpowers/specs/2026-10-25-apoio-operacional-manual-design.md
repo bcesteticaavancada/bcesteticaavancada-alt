@@ -24,3 +24,5 @@ Preservar os três atalhos da gestão. Em Equipe, expor um formulário recolhido
 ## Critérios de entrega
 
 Negar sessão revogada/inativa, papel colaborador no apoio administrativo, mudanças de role/permissões, dados financeiros e documento de outra cliente. Convite concorrente é reservado no banco e conta já existente não é tocada. Cobrir respostas atrasadas, gravação concorrente, rollback de registro e limpeza de upload. Testes não enviam e-mail real nem abrem prontuários reais. Uma revisão independente, CI, implantação e confirmação da versão publicada encerram a entrega.
+
+Ajuste da revisão: convite por link pessoal gerado no servidor (createUser + generateLink), para cópia e envio manual pelo operador; sem envio SMTP. Recuperação limitada à conta nova marcada pelo servidor, ainda não confirmada nem utilizada; lease e finalização idempotente. Upload usa reserva privada, registro idempotente e descarte serializado. Atualização documental preserva rascunho cadastral e o contexto do paciente.

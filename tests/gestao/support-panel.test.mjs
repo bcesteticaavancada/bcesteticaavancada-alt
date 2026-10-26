@@ -24,3 +24,20 @@ test('support rendering escapes patient/document text and offers only original c
   assert.equal(document.getElementById('supportClientBody').querySelector('img,script'),null);
   assert.equal(document.querySelectorAll('#supportReturnedForm option[value]').length,1);
 });
+
+const original={id:b,documentId:b,kind:'original',category:'consentimento_procedimento',title:'Consentimento fictício'};
+const person=id=>({client:{id,nome:id===a?'Pessoa A':'Pessoa B',telefone:'31000000000',updated_at:'2026-10-25T12:00:00Z'},documents:[original]});
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+async function withFormData(fn){const Native=globalThis.FormData;globalThis.FormData=class extends Native{constructor(form){super();if(form)for(const input of form.querySelectorAll('[name]'))this.set(input.name,input.type==='file'?new File(['%PDF-TESTE'],'teste.pdf',{type:'application/pdf'}):input.value||input.querySelector('option')?.value||'');}};try{await fn();}finally{globalThis.FormData=Native;}}
+test('upload preserves an unsaved demographic draft while refreshing documents',async()=>withFormData(async()=>{
+  let gets=0;const {document,window,panel}=await fixture(async(name,{body})=>({data:body instanceof FormData?{fileId:b}:{...person(a),documents:++gets>1?[original,{id:a,kind:'returned',title:'Cópia devolvida'}]:[original]}}));
+  await panel.openClient(a);document.querySelector('#supportClientForm [name=nome]').value='Rascunho não salvo';
+  document.getElementById('supportReturnedForm').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await tick();await tick();
+  assert.equal(document.querySelector('#supportClientForm [name=nome]').value,'Rascunho não salvo');assert.match(document.querySelector('.bcg-support-documents').textContent,/Cópia devolvida/);
+}));
+test('a previous upload refresh cannot show success or old documents in another patient folder',async()=>withFormData(async()=>{
+  let refresh,gets=0;const {document,window,panel}=await fixture((name,{body})=>{if(body instanceof FormData)return Promise.resolve({data:{fileId:b}});if(body.clientId===a&&++gets>1)return new Promise(done=>{refresh=done;});return Promise.resolve({data:person(body.clientId)});});
+  await panel.openClient(a);document.getElementById('supportReturnedForm').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await tick();
+  await panel.openClient(b);refresh({data:{...person(a),documents:[{id:a,kind:'returned',title:'Cópia antiga A'}]}});await tick();await tick();
+  assert.match(document.getElementById('supportClientBody').textContent,/Pessoa B/);assert.doesNotMatch(document.getElementById('supportClientBody').textContent,/Cópia antiga A|Cópia anexada/);
+}));

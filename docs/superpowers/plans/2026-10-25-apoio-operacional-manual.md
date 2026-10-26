@@ -30,7 +30,7 @@
 
 Files: supabase/migrations/*_bc_support_operations.sql; supabase/tests/database/support_operations.test.sql; supabase/functions/client-support/{index.ts,handler.mjs,deno.json}; tests/gestao/support-handler.test.mjs.
 
-Interface: POST autenticado para client-support. JSON actions client_get(clientId,reason), client_update(clientId,expectedUpdatedAt,patch,reason), download(clientId,documentId,kind,reason), invite(name,email). Multipart upload_returned(clientId,documentId,reason,file). Respostas client_get/client_update contêm client projetado, documents contém metadados sem caminhos; download retorna URL temporária/filename; invite retorna somente sucesso; upload retorna fileId.
+Interface: POST autenticado para client-support. JSON actions client_get(clientId,reason), client_update(clientId,expectedUpdatedAt,patch,reason), download(clientId,documentId,kind,reason), invite(name,email). Multipart upload_returned(clientId,documentId,reason,file). Respostas client_get/client_update contêm client projetado, documents contém metadados sem caminhos; download retorna URL temporária/filename; invite retorna sucesso, e-mail e link pessoal para envio manual; upload retorna fileId.
 
 - [ ] Escrever testes de limites de autenticação/role, atualização concorrente, cliente trocado, privilégio indevido, bytes e convite duplicado. Executar RED.
 - [ ] Implementar RPC somente service_role e handler. Preservar is_bc_active_staff/is_bc_admin e políticas existentes.
@@ -51,3 +51,5 @@ Interface: RPC/endpoint Task1; botão Adicionar colaboradora na área Equipe; Ab
 - [ ] Revisão independente única; achados relevantes reproduzidos e corrigidos com testes.
 - [ ] CI completo e assessoria de segurança; migration/Edge publicadas sem operações com dados reais.
 - [ ] Integrar site, confirmar bytes publicados, verificar negação sem sessão e registrar limitações/evidências.
+
+Ajuste da revisão: convite por link pessoal gerado no servidor (createUser + generateLink), para cópia e envio manual pelo operador; sem envio SMTP. Recuperação limitada à conta nova marcada pelo servidor, ainda não confirmada nem utilizada; lease e finalização idempotente. Upload usa reserva privada, registro idempotente e descarte serializado. Atualização documental preserva rascunho cadastral e o contexto do paciente.

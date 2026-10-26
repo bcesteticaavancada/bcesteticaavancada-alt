@@ -3,13 +3,14 @@ const LABELS={nome:'Nome completo',telefone:'Telefone',email:'E-mail',cpf:'CPF',
 const escape=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 const date=value=>{const d=new Date(value);return Number.isFinite(d.valueOf())?d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'';};
 function field(key,client){const type=key==='data_nascimento'?'date':key==='email'?'email':'text';return `<label>${LABELS[key]}<input class="bcg-input" name="${key}" type="${type}" maxlength="500" value="${escape(client[key])}" ${['nome','telefone'].includes(key)?'required':''}></label>`;}
+function renderDocuments(documents){return documents.length?documents.map(item=>`<article><strong>${escape(item.title)}</strong><span class="bcg-muted">${escape(date(item.created_at))}</span><button class="bcg-small-button" type="button" data-support-download="${escape(item.id)}" data-support-kind="${escape(item.kind)}">Baixar ${item.kind==='returned'?'cópia devolvida':'para enviar'}</button></article>`).join(''):'<p class="bcg-empty">Os PDFs aparecem aqui depois que a profissional e o cliente assinam e a profissional gera o arquivo.</p>';}
 function renderClient(client,documents){
   const originals=documents.filter(item=>item.kind==='original'&&item.category==='consentimento_procedimento');
   return `<h3>${escape(client.nome)}</h3><p class="bcg-muted">Cadastro e cópias documentais. As fichas já assinadas permanecem no histórico.</p>
   <form id="supportClientForm" class="bcg-form"><div class="bcg-form-grid bcg-support-fields">${['nome','telefone','email'].map(key=>field(key,client)).join('')}</div><details><summary>Dados complementares</summary><div class="bcg-form-grid bcg-support-fields">${SUPPORT_FIELDS.filter(key=>!['nome','telefone','email'].includes(key)).map(key=>field(key,client)).join('')}</div></details>
   <label>Motivo<select class="bcg-input" name="reason"><option>Correção cadastral</option><option>Apoio urgente</option><option>Apoio documental</option></select></label><button class="bcg-button" type="submit">Salvar cadastro</button><p id="supportSaveStatus" class="bcg-status" role="status" aria-live="polite"></p></form>
   <div class="bcg-divider"></div><h3>Documentos para cópia</h3><p class="bcg-muted">Baixe o PDF para enviar ao cliente. Depois, anexe o arquivo que ele devolver.</p>
-  <div class="bcg-support-documents">${documents.length?documents.map(item=>`<article><strong>${escape(item.title)}</strong><span class="bcg-muted">${escape(date(item.created_at))}</span><button class="bcg-small-button" type="button" data-support-download="${escape(item.id)}" data-support-kind="${escape(item.kind)}">Baixar ${item.kind==='returned'?'cópia devolvida':'para enviar'}</button></article>`).join(''):'<p class="bcg-empty">Os PDFs aparecem aqui depois que a profissional e o cliente assinam e a profissional gera o arquivo.</p>'}</div>
+  <div class="bcg-support-documents">${renderDocuments(documents)}</div>
   ${originals.length?`<details class="bcg-support-returned"><summary>Anexar consentimento devolvido</summary><form id="supportReturnedForm" class="bcg-form"><label>Consentimento original<select class="bcg-input" name="documentId" required>${originals.map(item=>`<option value="${escape(item.documentId)}">${escape(item.title)} • ${escape(date(item.created_at))}</option>`).join('')}</select></label><label>PDF devolvido pelo cliente<input class="bcg-input" type="file" name="file" accept="application/pdf" required></label><p class="bcg-muted">PDF de até 8 MB. O original será preservado.</p><button class="bcg-button" type="submit">Anexar cópia à ficha</button><p id="supportUploadStatus" class="bcg-status" role="status" aria-live="polite"></p></form></details>`:''}
   <p id="supportDownloadStatus" class="bcg-status" role="status" aria-live="polite"></p>`;
 }
@@ -36,7 +37,13 @@ export function initSupportPanel({client,root=document,onChanged=()=>{}}={}){
       const data=new FormData(form);
       if(upload){
         await uploadSupportConsent({client,clientId:selected.clientId,documentId:data.get('documentId'),file:data.get('file')});
-        if(current(selected)){await openClient(selected.clientId);showStatus('supportDownloadStatus','Cópia anexada. O documento original foi preservado.');}
+        if(!current(selected))return;
+        showStatus(statusId,'Cópia anexada. Atualizando lista…');
+        const refreshed=await getSupportClient({client,clientId:selected.clientId,reason:'Atualização da lista documental'});
+        if(!current(selected))return;
+        selected.documents=refreshed.documents||[];body.querySelector('.bcg-support-documents').innerHTML=renderDocuments(selected.documents);
+        const fileInput=form.querySelector('[name=file]');fileInput.value='';showStatus(statusId,'');
+        showStatus('supportDownloadStatus','Cópia anexada. O documento original foi preservado.');
       }else{
         const patch=Object.fromEntries(SUPPORT_FIELDS.map(key=>[key,String(data.get(key)??'')]));
         const result=await updateSupportClient({client,clientId:selected.clientId,expectedUpdatedAt:selected.client.updated_at,patch,reason:String(data.get('reason')||'Correção cadastral')});
@@ -54,11 +61,22 @@ export function initSupportPanel({client,root=document,onChanged=()=>{}}={}){
     }catch(error){if(current(selected))showStatus('supportDownloadStatus',error?.message||'Não foi possível baixar.');}
     finally{button.disabled=false;}
   });
-  const invite=el('supportInviteForm');
+  const invite=el('supportInviteForm'),inviteResult=el('supportInviteResult'),inviteLink=el('supportInviteLink');let inviteVersion=0;
+  function clearInvitation(){++inviteVersion;inviteLink.value='';inviteResult.hidden=true;showStatus('supportInviteStatus','');}
+  root.addEventListener('bc:support-hide-invitation',clearInvitation);
+  el('logoutBtn')?.addEventListener('click',clearInvitation);
+  el('supportInviteCopy').addEventListener('click',async()=>{
+    const selected=inviteVersion;try{await root.defaultView.navigator.clipboard.writeText(inviteLink.value);if(selected===inviteVersion)showStatus('supportInviteStatus','Link copiado. Envie diretamente à colaboradora.');}
+    catch{if(selected===inviteVersion){inviteLink.select();showStatus('supportInviteStatus','Selecione e copie o link para enviar à colaboradora.');}}
+  });
   invite.addEventListener('submit',async event=>{
-    event.preventDefault();const submit=invite.querySelector('[type="submit"]');if(submit.disabled)return;submit.disabled=true;showStatus('supportInviteStatus','Enviando convite…');
-    try{const data=new FormData(invite);await inviteSupportCollaborator({client,name:data.get('name'),email:data.get('email')});invite.reset();showStatus('supportInviteStatus','Convite enviado. A colaboradora define a própria senha; a Mel configura as liberações profissionais.');await onChanged();}
-    catch(error){showStatus('supportInviteStatus',error?.message||'Não foi possível enviar o convite.');}
+    event.preventDefault();const submit=invite.querySelector('[type="submit"]');if(submit.disabled)return;clearInvitation();const selected=inviteVersion;submit.disabled=true;showStatus('supportInviteStatus','Gerando convite…');
+    try{
+      const data=new FormData(invite);const result=await inviteSupportCollaborator({client,name:data.get('name'),email:data.get('email')});
+      if(selected!==inviteVersion||el('creationInvite').hidden)return;
+      const url=new URL(result.invitationUrl);if(url.protocol!=='https:')throw Error('Link de convite indisponível.');
+      inviteLink.value=url.href;inviteResult.hidden=false;showStatus('supportInviteStatus',`Convite criado para ${result.email}. Copie e envie o link à colaboradora. A Mel configura as liberações profissionais.`);await onChanged();
+    }catch(error){if(selected===inviteVersion)showStatus('supportInviteStatus',error?.message||'Não foi possível gerar o convite.');}
     finally{submit.disabled=false;}
   });
   return {openClient};
