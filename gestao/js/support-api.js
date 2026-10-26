@@ -12,6 +12,7 @@ export function updateSupportClient({client,clientId,expectedUpdatedAt,patch,rea
   return invoke(client,{action:'client_update',clientId:id(clientId),expectedUpdatedAt,patch,reason});
 }
 export function inviteSupportCollaborator({client,name,email}){return invoke(client,{action:'invite',name:String(name||'').trim(),email:String(email||'').trim().toLowerCase()});}
+export function activateSupportCollaborator({client,userId}){return invoke(client,{action:'activate_staff',userId:id(userId)});}
 export function downloadSupportDocument({client,clientId,documentId,kind,reason='Envio de cópia solicitado'}){if(!['original','returned'].includes(kind))throw Error('Tipo de documento inválido.');return invoke(client,{action:'download',clientId:id(clientId),documentId:id(documentId),kind,reason});}
 export function uploadSupportConsent({client,clientId,documentId,file,reason='Cópia de consentimento devolvida'}){
   if(!file||file.type!=='application/pdf'||file.size<5||file.size>8*1024*1024)throw Error('Selecione um PDF de até 8 MB.');

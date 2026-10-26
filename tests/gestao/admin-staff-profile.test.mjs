@@ -23,3 +23,11 @@ test('helper detecta perfil incompleto sem inventar conselho ou registro', async
   assert.equal(hasCompleteClinicalIdentity({ profissao: 'Biomédica', conselho: '', registro_conselho: '123' }), false);
   assert.equal(hasCompleteClinicalIdentity({ profissao: 'Biomédica', conselho: 'CRBM', registro_conselho: '' }), false);
 });
+
+test('new collaborators awaiting activation remain visible for the administrator to complete identity',async()=>{
+  const {listStaffClinicalProfiles}=await loadStaff();const filters=[];
+  const query={select(){return this;},eq(key,value){filters.push([key,value]);return this;},order(){return Promise.resolve({data:[{user_id:'new',role:'colaborador',active:true,atende_clientes:false},{user_id:'creator',role:'admin_criacao',active:true,atende_clientes:false}]});}};
+  const rows=await listStaffClinicalProfiles({client:{from:()=>query}});
+  assert.deepEqual(rows.map(row=>row.user_id),['new']);
+  assert.equal(filters.some(([key])=>key==='atende_clientes'),false);
+});

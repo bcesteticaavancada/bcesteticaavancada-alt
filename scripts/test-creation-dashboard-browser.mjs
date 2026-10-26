@@ -13,7 +13,7 @@ const server=createServer(async(req,res)=>{
     const file=path.resolve(base,`.${route.endsWith('/')?route+'index.html':route}`);
     if(!file.startsWith(base+path.sep)){res.writeHead(403).end();return;}
     let body=await readFile(file);
-    if(route==='/gestao/criacao/')body=body.toString().replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+    if(['/gestao/criacao/','/gestao/admin/'].includes(route))body=body.toString().replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
     res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');res.end(body);
   }catch{res.writeHead(404).end();}
 });
@@ -127,7 +127,7 @@ try{
         await dialog.getByRole('button',{name:'Baixar cópia devolvida',exact:true}).waitFor();
         assert.ok(await page.evaluate(()=>{const box=document.getElementById('supportClientDialog');return box.scrollWidth<=box.clientWidth;}),'support dialog does not overflow');
         await page.screenshot({path:`test-results/creation/${engine}-${device}-support.png`});
-        await dialog.getByRole('button',{name:'Fechar',exact:true}).click();assert.equal(await page.locator('#supportClientBody').textContent(),'');
+        await dialog.getByRole('button',{name:'Fechar',exact:true}).click();await page.waitForFunction(()=>document.getElementById('supportClientBody').textContent==='');
         await shortcut('Equipe').click();await page.getByText('Adicionar colaboradora',{exact:true}).click();
         await page.locator('#supportInviteForm [name=name]').fill('Colaboradora fictícia');await page.locator('#supportInviteForm [name=email]').fill('novo-fluxo@example.invalid');await page.getByRole('button',{name:'Enviar convite',exact:true}).click();await page.locator('#supportInviteStatus').filter({hasText:'Convite enviado'}).waitFor();
         assert.equal(await page.evaluate(()=>window.supportCalls.filter(call=>call.action==='invite').length),1);
@@ -136,6 +136,21 @@ try{
         assert.ok(await page.evaluate(()=>window.calls.every(call=>call.name==='bc_creation_list'&&call.p_section!=='financeiro')));
         await page.waitForFunction(()=>document.getElementById('gestaoMenu').getBoundingClientRect().right<=0);
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${engine}/${device}: no horizontal overflow`);
+        await page.goto(`${url}/gestao/admin/`,{waitUntil:'domcontentloaded'});
+        await page.evaluate(async()=>{
+          const {initAdminStaffClinicalIdentity}=await import('/gestao/js/admin-staff-profile.js');
+          window.activationCalls=[];
+          const profile={user_id:'d1000000-0000-4000-8000-000000000003',display_name:'Nova colaboradora fictícia',role:'colaborador',active:true,atende_clientes:false,profissao:'Profissional fictícia',conselho:'Conselho fictício',registro_conselho:'TESTE'};
+          const query={select(){return this;},eq(){return this;},order:async()=>({data:[{...profile}]})};
+          const client={from:()=>query,functions:{invoke:async(name,{body})=>{window.activationCalls.push({name,...body});profile.atende_clientes=true;return {data:{ok:true}};}}};
+          document.getElementById('gestaoApp').hidden=false;document.getElementById('authStatus').hidden=true;
+          document.querySelectorAll('[data-area-panel]').forEach(panel=>panel.hidden=panel.id!=='equipe');
+          await initAdminStaffClinicalIdentity({client,root:document});
+        });
+        await page.getByRole('button',{name:'Habilitar atendimento',exact:true}).click();
+        await page.locator('#staffClinicalIdentityStatus').filter({hasText:'Atendimento habilitado'}).waitFor();
+        assert.equal(await page.locator('#staffActivateAttendance').isVisible(),false);
+        assert.deepEqual(await page.evaluate(()=>window.activationCalls),[{name:'client-support',action:'activate_staff',userId:'d1000000-0000-4000-8000-000000000003'}]);
         assert.deepEqual(errors,[],`${engine}/${device}: no page errors`);
         await page.close();console.log(`PASS ${engine}/${device}: shortcuts, history, filters, pages, details, support edit/retry/download/upload/invite, manual consent and restricted areas`);
       }

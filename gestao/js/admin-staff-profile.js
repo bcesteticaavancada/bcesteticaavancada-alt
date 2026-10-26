@@ -1,3 +1,4 @@
+import {activateSupportCollaborator} from './support-api.js';
 function clean(value) {
   return String(value ?? '').trim();
 }
@@ -22,10 +23,9 @@ export async function listStaffClinicalProfiles({ client }) {
     .from('staff_profiles')
     .select('user_id,display_name,role,active,atende_clientes,profissao,conselho,registro_conselho')
     .eq('active', true)
-    .eq('atende_clientes', true)
     .order('display_name', { ascending: true });
   if (error) throw error;
-  return data || [];
+  return (data || []).filter(profile=>profile.role!=='admin_criacao');
 }
 
 function fillForm(form, profile) {
@@ -37,6 +37,8 @@ function fillForm(form, profile) {
 
 function renderState(root, profile) {
   const state = root.getElementById('staffClinicalIdentityState');
+  const activate=root.getElementById('staffActivateAttendance');
+  if(activate){activate.hidden=!profile||profile.atende_clientes!==false;activate.disabled=!hasCompleteClinicalIdentity(profile);}
   if (!state) return;
   if (!profile) {
     state.textContent = 'Selecione uma profissional.';
@@ -100,6 +102,12 @@ export async function initAdminStaffClinicalIdentity({ client, root = document }
     } finally {
       if (button) button.disabled = false;
     }
+  });
+
+  root.getElementById('staffActivateAttendance')?.addEventListener('click',async event=>{
+    const profile=currentProfile();if(!profile)return;const button=event.currentTarget;button.disabled=true;
+    try{await activateSupportCollaborator({client,userId:profile.user_id});profiles=await listStaffClinicalProfiles({client});renderOptions(profile.user_id);if(status)status.textContent='Atendimento habilitado. Defina os procedimentos permitidos na biblioteca de procedimentos.';}
+    catch(error){if(status)status.textContent=error?.message||'Não foi possível habilitar atendimento.';button.disabled=false;}
   });
 
   return { refresh: async () => { profiles = await listStaffClinicalProfiles({ client }); renderOptions(); } };

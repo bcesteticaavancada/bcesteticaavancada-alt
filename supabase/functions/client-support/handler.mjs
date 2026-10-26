@@ -51,6 +51,9 @@ export function createSupportHandler({makeClients,crypto=globalThis.crypto}={}){
       }
       let body;try{body=JSON.parse(new TextDecoder().decode(await boundedBody(request,16384)));}catch(error){if(error instanceof PublicError)throw error;throw new PublicError('Dados inválidos.');}
       const action=body?.action;
+      if(action==='activate_staff'){
+        exactKeys(body,['action','userId']);return json(await call(action,{userId:uuid(body.userId,'Colaboradora')}));
+      }
       if(action==='invite'){
         exactKeys(body,['action','name','email']);const name=required(body.name,'Nome',120),email=required(body.email,'E-mail',254).toLowerCase();
         if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new PublicError('E-mail inválido.');

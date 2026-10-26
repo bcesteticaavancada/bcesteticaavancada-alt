@@ -36,6 +36,11 @@ test('support rejects financial edits before any database update',async()=>{
   const f=fixture();const r=await f.handler(f.request({action:'client_update',clientId,expectedUpdatedAt:'2026-10-25T12:00:00Z',patch:{nome:'Fictícia',final_price:900},reason:'Correção'}));
   assert.equal(r.status,400);assert.equal(f.calls.length,0);
 });
+test('clinical activation remains a server-authorized operation with no role parameter',async()=>{
+  const f=fixture({rpcError:{code:'42501'}});const r=await f.handler(f.request({action:'activate_staff',userId:documentId}));
+  assert.equal(r.status,403);assert.equal(f.calls[0].p_action,'activate_staff');
+  assert.equal((await f.handler(f.request({action:'activate_staff',userId:documentId,role:'admin'}))).status,400);
+});
 test('support invitation creates only the server-defined collaborator flow',async()=>{
   const f=fixture();const r=await f.handler(f.request({action:'invite',name:'Colaboradora fictícia',email:'novo@example.invalid'}));
   assert.equal(r.status,200);assert.deepEqual(f.calls.map(c=>c.p_action),['invite_reserve','invite_finish']);assert.equal(f.invites.length,1);

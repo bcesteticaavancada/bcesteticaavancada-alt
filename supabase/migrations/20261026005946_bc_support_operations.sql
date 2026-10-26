@@ -118,6 +118,14 @@ begin
     else raise exception 'Documento indisponível para apoio.' using errcode='42501';end if;
     insert into public.audit_log(actor_user_id,action,entity_type,entity_id,new_data) values(p_actor_id,'support_document_downloaded','clientes',c.id,jsonb_build_object('documentId',v_document,'reason',v_reason));
     return jsonb_build_object('path',v_path,'clientName',c.nome,'title','Consentimento ou anamnese');
+  elsif p_action='activate_staff' then
+    if not exists(select 1 from public.staff_profiles where user_id=p_actor_id and role='admin' and active) then raise exception 'Acesso operacional não autorizado.' using errcode='42501';end if;
+    v_user:=(p_payload->>'userId')::uuid;
+    if not exists(select 1 from private.bc_support_invitations where invited_user_id=v_user and state='invited') then raise exception 'Colaboradora indisponível para ativação.' using errcode='42501';end if;
+    update public.staff_profiles set atende_clientes=true,updated_at=now() where user_id=v_user and role='colaborador' and active and nullif(trim(profissao),'') is not null and nullif(trim(conselho),'') is not null and nullif(trim(registro_conselho),'') is not null;
+    if not found then raise exception 'Complete a identificação profissional antes de habilitar atendimento.' using errcode='22023';end if;
+    insert into public.audit_log(actor_user_id,action,entity_type,entity_id,new_data) values(p_actor_id,'support_collaborator_activated','staff_profiles',v_user,jsonb_build_object('atende_clientes',true));
+    return jsonb_build_object('ok',true);
   elsif p_action='invite_reserve' then
     v_name:=nullif(trim(p_payload->>'name'),'');v_email:=lower(trim(p_payload->>'email'));
     if v_name is null or length(v_name)>120 or v_email is null or length(v_email)>254 or v_email!~'^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'Nome ou e-mail inválido.' using errcode='22023';end if;
