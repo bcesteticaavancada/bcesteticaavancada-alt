@@ -33,5 +33,21 @@
 .bcg-creation-details dd{margin:4px 0 0;overflow-wrap:anywhere;white-space:pre-wrap;color:#6f6258}
 .bcg-creation-access{margin-top:24px;border-top:1px solid #e5d8ca;padding-top:8px;color:#6f6258;font-size:13px;line-height:1.6}
 .bcg-creation-page a:focus-visible,.bcg-creation-page button:focus-visible,.bcg-creation-page summary:focus-visible{outline:3px solid #9b784d;outline-offset:3px}
+.bcg-support-invite{border:1px solid #e5d8ca;padding:12px 16px;margin:12px 0 20px;border-radius:12px}
+.bcg-support-invite[hidden]{display:none}
+.bcg-support-invite summary,.bcg-support-dialog summary{cursor:pointer;padding:12px 0;font-size:14px;color:#5f4939}
+.bcg-support-dialog{width:min(720px,calc(100% - 24px));max-height:90dvh;overflow-y:auto;padding:24px;border:1px solid #d7c5b0;border-radius:16px;background:#fffaf4;color:#3b2920}
+.bcg-support-dialog::backdrop{background:rgba(19,15,13,.5)}
+.bcg-support-dialog-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+.bcg-support-dialog-head h2{margin:0;font-size:28px;font-family:Georgia,serif;font-weight:500}
+.bcg-support-dialog h3{overflow-wrap:anywhere}
+.bcg-support-fields{display:grid;gap:16px}
+.bcg-support-documents{display:grid;gap:14px}
+.bcg-support-documents article{display:grid;gap:8px;padding:16px;border:1px solid #e5d8ca;min-width:0}
+.bcg-support-documents strong{overflow-wrap:anywhere;font-size:14px}
+.bcg-support-documents button{justify-self:start}
+.bcg-support-returned{margin-top:24px;border-top:1px solid #e5d8ca}
+.bcg-support-dialog .bcg-input[type=file]{max-width:100%;font-size:13px}
+@media(max-width:620px){.bcg-support-dialog{padding:18px}.bcg-support-dialog-head h2{font-size:24px}}
 @media(min-width:800px){.bcg-creation-details{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.bcg-creation-page .bcg-panel{padding:16px}.bcg-creation-page .bcg-topbar-main{align-items:center}.bcg-creation-page .bcg-topbar>.bcg-small-button{padding:10px 12px}.bcg-creation-shortcuts{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.bcg-creation-shortcuts a{padding:10px 8px}.bcg-creation-areas{width:100%}.bcg-creation-navigation{gap:6px;padding-bottom:12px}.bcg-creation-heading{margin-top:18px}.bcg-creation-filters label{flex-basis:100%}.bcg-creation-filters .bcg-button{flex:1}.bcg-creation-record-head{gap:8px}}
