@@ -1,0 +1,56 @@
+name: BC Auth Audit CI
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'gestao/**'
+      - 'supabase/**'
+      - 'scripts/test-auth-rls-audit.mjs'
+      - '.github/workflows/auth-audit-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-auth-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SUPABASE_EXPERIMENTAL_STACK: '0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: supabase/setup-cli@afb1b15109756ea5cf9d8985a359d9095235ca2b
+        with:
+          version: 2.121.0
+      - name: Discover supported local commands
+        run: |
+          supabase start --help
+          supabase status --help
+      - name: Normalize migrations only in disposable checkout
+        run: python3 scripts/prepare-supabase-ci-migrations.py
+      - name: Start isolated Auth, REST and database
+        run: supabase start --exclude edge-runtime,imgproxy,logflare,mailpit,postgres-meta,realtime,storage-api,studio,supavisor,vector
+      - name: Replay migrations locally
+        run: supabase db reset
+      - name: Create, authenticate and remove temporary audit accounts
+        env:
+          BC_AUDIT_STATUS_FILE: ${{ runner.temp }}/bc-auth-audit-status.json
+        run: |
+          umask 077
+          supabase status -o json > "$BC_AUDIT_STATUS_FILE"
+          node scripts/test-auth-rls-audit.mjs
+      - name: Run database permission and business tests
+        run: supabase test db
+      - name: Test concurrent reservations
+        run: python3 scripts/test-agenda-concurrency.py
+      - name: Test concurrent financial transitions using fictional records
+        run: python3 scripts/test-finance-concurrency.py
+      - name: Test concurrent commissions using fictional records
+        run: python3 scripts/test-finance-simple-concurrency.py
+      - name: Remove local credentials and stop isolated environment
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/bc-auth-audit-status.json"
+          supabase stop --no-backup

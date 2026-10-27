@@ -20,6 +20,7 @@ on:
       - 'scripts/test-simple-dashboard-browser.mjs'
       - 'scripts/test-creation-dashboard-browser.mjs'
       - 'scripts/test-public-navigation-browser.mjs'
+      - 'scripts/test-maya-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -40,6 +41,7 @@ on:
       - 'scripts/test-simple-dashboard-browser.mjs'
       - 'scripts/test-creation-dashboard-browser.mjs'
       - 'scripts/test-public-navigation-browser.mjs'
+      - 'scripts/test-maya-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -76,6 +78,14 @@ jobs:
         run: node scripts/test-creation-dashboard-browser.mjs
       - name: Public navigation phone and tablet browser tests
         run: node scripts/test-public-navigation-browser.mjs
+      - name: Maya internal browser tests with synthetic profiles
+        run: node scripts/test-maya-browser.mjs
+      - name: Upload Maya browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maya-browser-screenshots
+          path: test-results/maya/
       - name: Upload agenda browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

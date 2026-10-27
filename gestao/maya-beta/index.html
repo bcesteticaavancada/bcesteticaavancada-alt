@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Maya Beta Interna | BC Estética Avançada</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,sans-serif;color:#322925;background:#f7f2ec;color-scheme:light}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #a4774d;outline-offset:2px}.shell{max-width:980px;margin:auto;padding:22px 16px 56px}header{display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid #decfbe;padding:0 0 18px}.brand{font-family:Georgia,serif;font-size:24px;font-weight:bold;color:#473020}.brand small{display:block;font:600 10px/1.8 system-ui;letter-spacing:.17em;color:#956d4b}a{color:#684d35}h1{font:600 clamp(27px,5vw,40px)/1.15 Georgia,serif;margin:18px 0 8px}.lede{color:#6d6259;line-height:1.55}.pill{display:inline-block;background:#ede2d5;color:#604429;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:bold}.panel{background:#fff;border:1px solid #e6d9cb;border-radius:20px;padding:20px;box-shadow:0 8px 22px rgba(40,28,18,.035)}.notice{background:#f3ebe1;border-left:3px solid #b49367;border-radius:8px;padding:12px 16px;font-size:13px;line-height:1.55}.topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:18px 0}.topic{background:#fff;border:1px solid #d7c3ad;border-radius:12px;color:#483327;padding:14px;text-align:left;min-height:55px}.topic:hover{background:#f8f1e9}.chat{max-height:390px;overflow:auto;min-height:175px;display:flex;flex-direction:column;gap:10px;padding:10px 0 18px;scrollbar-color:#c5b39f transparent}.bubble{max-width:min(92%,640px);padding:13px 15px;border-radius:14px;line-height:1.5;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.maya{background:#f3e9dc;align-self:start}.person{background:#453229;color:#fff;align-self:end}.composer{display:flex;gap:9px;border-top:1px solid #e9ded3;padding-top:14px}.composer input{min-width:0;flex:1;border:1px solid #cab9a7;border-radius:11px;padding:13px}.action{border:0;background:#493328;color:#fff;padding:12px 19px;border-radius:11px;font-weight:bold}.action:hover{background:#684c38}.secondary{border:1px solid #bda58d;border-radius:9px;background:transparent;color:#503a2d;padding:10px 14px;text-decoration:none;font-weight:600}.footnote{font-size:12px;line-height:1.6;color:#71675f}.kb{margin-top:18px}.kb[hidden]{display:none}.kb input{width:100%;padding:12px;border:1px solid #baa992;border-radius:10px}.kb-list{display:grid;gap:9px;margin-top:13px}.kb-item{border:1px solid #e2d1bf;border-radius:10px;padding:11px;background:#fffdfb;overflow-wrap:anywhere}.kb-item summary{cursor:pointer;font-weight:650;line-height:1.4}.kb-item p{white-space:pre-wrap;line-height:1.55;font-size:14px}.kb-source{color:#6d6259;font-size:12px}.kb-note{color:#80512f;font-size:12px;font-weight:600}.chat-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.chat-head h2{font-size:16px;margin:0}.clear{font-size:12px;border:1px solid #baa68f;background:#fff;border-radius:8px;padding:8px 10px;color:#513c2c}#status{padding:30px 20px;text-align:center}@media(max-width:540px){header{align-items:flex-start}.shell{padding:12px 12px 35px}.brand{font-size:20px}.panel{padding:14px;border-radius:15px}.composer{flex-wrap:wrap}.composer .action{width:100%}}
+.maya-welcome{display:grid;grid-template-columns:minmax(0,1fr) 208px;gap:28px;align-items:center;padding:26px 0 8px}
+.maya-welcome h1{margin-top:0}.maya-welcome .lede{max-width:540px}.maya-welcome .pill{font-size:11px}
+.maya-presence{min-width:0;text-align:center}.maya-character{position:relative;max-width:194px;margin:auto}
+.maya-character svg{display:block;width:100%;height:auto;overflow:visible}
+.maya-character .maya-head{transform-origin:121px 145px}.maya-character .maya-hand{transform-origin:187px 180px}
+.maya-character[data-motion="on"][data-state="ready"] .maya-hand{animation:maya-wave 1.4s ease-in-out 1}
+.maya-character[data-motion="on"][data-state="answered"] .maya-head{animation:maya-nod .9s ease-in-out 1}
+.maya-character[data-motion="on"] .maya-eyes{transform-box:fill-box;transform-origin:center;animation:maya-blink 3s ease-in-out 1}
+.maya-thought{display:none;position:absolute;top:23px;right:0;background:#fff;border:1px solid #d6c7b5;border-radius:14px;padding:10px 11px;gap:4px}
+.maya-thought i{display:block;width:5px;height:5px;border-radius:50%;background:#765b3e}
+.maya-character[data-state="thinking"] .maya-thought{display:flex}
+.maya-character[data-motion="on"] .maya-thought i{animation:maya-wait 1.2s ease-in-out infinite}
+.maya-character .maya-thought i:nth-child(2){animation-delay:.15s}.maya-character .maya-thought i:nth-child(3){animation-delay:.3s}
+.maya-character[data-motion="off"] *{animation:none!important;transition:none!important}
+.maya-state{display:block;min-height:20px;font-size:12px;color:#625344;line-height:1.5;margin:3px 0 8px}
+.maya-motion{font-size:11px;min-height:36px;background:transparent;border-color:#cbbbA8}.maya-motion:disabled{cursor:default;color:#71675f}
+.guide-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px;margin:12px 0}.guide-choice{border:1px solid #d7c3ad;border-radius:10px;background:#fffdfb;padding:12px;text-align:left;color:#483327}.guide-choice:focus-visible{outline:3px solid #a4774d;outline-offset:2px}.guide-selected{display:flex;flex-wrap:wrap;align-items:center;gap:10px;border-top:1px solid #e6d9cb;padding-top:12px}.guide-selected h3{width:100%;margin:0 0 4px;font-size:15px}.guide-selected .secondary{display:inline-flex;align-items:center}.guide-panel{margin-bottom:18px}.guide-panel[hidden],.guide-choices[hidden],#guideAction[hidden],#guideChooseAgain[hidden]{display:none}
+@keyframes maya-wave{0%,100%{transform:rotate(0)}25%,65%{transform:rotate(9deg)}45%,85%{transform:rotate(-4deg)}}
+@keyframes maya-nod{0%,100%{transform:rotate(0)}45%{transform:rotate(3deg)}}
+@keyframes maya-blink{0%,72%,78%,100%{transform:scaleY(1)}75%{transform:scaleY(.08)}}
+@keyframes maya-wait{0%,70%,100%{opacity:.35;transform:translateY(0)}35%{opacity:1;transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.maya-character *{animation:none!important;transition:none!important}}
+@media(max-width:540px){.maya-welcome{grid-template-columns:1fr;gap:7px;padding-top:22px}.maya-presence{display:flex;align-items:center;gap:12px;text-align:left;border-top:1px solid #e4d7c9;padding-top:6px}.maya-character{width:94px;flex:0 0 94px;margin:0}.maya-presence-controls{min-width:0}.maya-state{margin:0 0 6px}.maya-thought{top:4px;right:-4px;padding:7px;gap:3px}.maya-thought i{width:4px;height:4px}.maya-welcome .pill{margin-bottom:8px}}
+</style>
+</head>
+<body>
+<p id="status" role="status">Validando seu acesso à equipe da BC…</p>
+<main id="app" class="shell" hidden>
+<header>
+<div class="brand"><small>BC ESTÉTICA AVANÇADA</small>Maya <span style="font:500 13px system-ui">Beta Interna 1.0</span></div>
+<a class="secondary" id="dashboardLink" href="../">Voltar à gestão</a>
+</header>
+<div class="maya-welcome">
+<div>
+<h1>Como posso ajudar?</h1>
+<p class="lede">Olá, <strong id="personName">equipe</strong>. Sou a Maya, sua assistente de orientação interna. Vamos por partes e sem complicação.</p>
+<p class="pill">Português (Brasil) · Orientações internas</p>
+</div>
+<aside class="maya-presence" aria-label="Maya, assistente virtual da BC">
+<div id="mayaCharacter" class="maya-character" data-state="ready" data-motion="off" aria-hidden="true">
+<svg viewBox="0 0 240 260" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+ <circle cx="120" cy="128" r="105" fill="#EAE1D5"/>
+ <path d="M26 169C42 207 77 232 120 233C162 232 199 207 214 169" stroke="#C9B89F" stroke-width="1.5"/>
+ <path d="M61 188C60 165 62 111 66 82C71 47 91 32 120 32C151 32 173 53 175 86L181 193L61 202Z" fill="#3E2C28"/>
+ <path d="M58 240L63 204C66 181 84 168 103 165H141C161 170 174 184 178 205L186 240" fill="#6D7059"/>
+ <path d="M104 158L102 174C106 188 132 190 141 175L137 155" fill="#C78E6B"/>
+ <path d="M102 174C113 184 130 185 141 175" stroke="#E4DBC6" stroke-width="2" stroke-linecap="round"/>
+ <path d="M82 194L78 239M158 196L165 240" stroke="#545940" stroke-width="2" stroke-linecap="round"/>
+ <path d="M104 190C113 196 130 197 140 190" stroke="#889078" stroke-width="1.5" stroke-linecap="round"/>
+ <rect x="91" y="201" width="16" height="9" rx="4.5" fill="#CFB073"/>
+ <path d="M95 205.5H103" stroke="#6D5838" stroke-linecap="round"/>
+ <g class="maya-hand">
+  <path d="M161 187C171 177 180 161 184 151L202 158C197 183 188 201 177 211" fill="#6D7059"/>
+  <path d="M183 154L185 136C184 131 180 128 181 125C183 121 187 125 190 130L193 108C194 103 198 104 198 109L198 126L203 103C204 99 208 100 207 106L204 127L211 109C213 105 216 107 214 112L209 133L216 120C219 117 221 119 219 123L213 144C210 155 204 161 198 163Z" fill="#D8A17B" stroke="#B47D5C" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M183 155L199 162L196 171L180 163" fill="#DAD3BB"/>
+ </g>
+ <g class="maya-head">
+  <ellipse cx="75" cy="111" rx="8" ry="12" fill="#C78E6B"/>
+  <ellipse cx="164" cy="111" rx="8" ry="12" fill="#C78E6B"/>
+  <path d="M76 88C75 63 92 48 120 48C148 48 164 68 164 93L160 127C155 150 139 164 120 164C101 163 83 148 79 125Z" fill="#D8A17B"/>
+  <path d="M70 98C65 68 83 39 116 39C142 37 165 54 169 84L165 109C160 86 147 72 133 65C119 84 94 89 77 85L75 112Z" fill="#49322B"/>
+  <path d="M77 76C97 80 117 68 126 52" stroke="#705047" stroke-width="3" stroke-linecap="round"/>
+  <path d="M142 62C151 70 158 80 160 91" stroke="#705047" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M91 99C96 95 102 95 107 98M134 98C139 95 146 96 150 100" stroke="#5B3B30" stroke-width="2.5" stroke-linecap="round"/>
+  <g class="maya-eyes">
+   <path d="M90 108C96 102 104 103 109 108C104 113 97 114 90 108ZM132 108C138 103 146 104 151 110C145 114 138 113 132 108Z" fill="#FFF5E9"/>
+   <ellipse cx="101" cy="108" rx="3.4" ry="4" fill="#473529"/><ellipse cx="140" cy="108" rx="3.4" ry="4" fill="#473529"/>
+   <circle cx="102" cy="107" r="1" fill="white"/><circle cx="141" cy="107" r="1" fill="white"/>
+   <path d="M90 107C96 103 103 103 109 107M132 107C138 103 145 104 151 109" stroke="#493229" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+  <path d="M121 112L117 125C119 128 123 128 125 126" stroke="#B87E5D" stroke-width="1.6" stroke-linecap="round"/>
+  <ellipse cx="93" cy="125" rx="8" ry="4" fill="#CE8D74" opacity=".5"/><ellipse cx="147" cy="126" rx="8" ry="4" fill="#CE8D74" opacity=".5"/>
+  <path d="M109 137C116 141 125 142 133 136C128 148 115 149 109 137Z" fill="#965947"/>
+  <path d="M112 138C118 140 125 140 130 138" stroke="#FFF1DF" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M75 119C70 119 70 128 75 128C80 128 80 119 75 119ZM165 120C160 120 160 129 165 129C170 129 170 120 165 120Z" stroke="#D9BC77" stroke-width="2.4"/>
+ </g>
+ <path d="M79 222C93 215 106 215 117 223L131 235L99 240L78 235" fill="#D8A17B"/>
+ <path d="M53 210L77 221L80 236L56 229" fill="#6D7059"/>
+</svg>
+<span class="maya-thought"><i></i><i></i><i></i></span>
+</div>
+<div class="maya-presence-controls">
+<span id="mayaState" class="maya-state" role="status" aria-live="polite">Pronta para ajudar</span>
+<button id="mayaMotionToggle" class="clear maya-motion" type="button" aria-pressed="false">Ativar animação</button>
+</div>
+</aside>
+</div>
+<p class="notice"><strong>Versão controlada:</strong> a Maya ainda não consulta agendas, prontuários, dados financeiros ou clientes. Ela não registra atendimentos, envia mensagens ou publica conteúdos. Não digite nomes, telefones, CPF, dados clínicos ou outras informações pessoais.</p>
+<div class="topics" aria-label="Dúvidas frequentes">
+<button class="topic" type="button" data-topic="acesso">🔐 Meu acesso</button>
+<button class="topic" type="button" data-topic="cadastro">👤 Cadastrar cliente</button>
+<button class="topic" type="button" data-topic="agenda">📅 Agenda</button>
+<button class="topic" type="button" data-topic="anamnese">📋 Anamnese</button>
+<button class="topic" type="button" data-topic="atendimento">🗂 Atendimento</button>
+<button class="topic" type="button" data-topic="documentos">📄 Documentos</button>
+<button class="topic" type="button" data-topic="financeiro">💰 Comissões e caixa</button>
+<button class="topic" type="button" data-topic="procedimentos">✨ Procedimentos</button>
+<button class="topic" id="guidesOpen" type="button">🧭 Ajuda com o aplicativo</button>
+<button class="topic" id="knowledgeOpen" type="button">📚 Consultar 67 respostas</button>
+</div>
+<section id="guidePanel" class="panel guide-panel" aria-label="Guias do aplicativo" hidden>
+<div class="chat-head"><h2>Escolha uma tarefa</h2><button id="guidesClose" class="clear" type="button">Fechar guias</button></div>
+<div id="guideChoices" class="guide-choices"></div>
+<div class="guide-selected"><h3 id="guideTitle" tabindex="-1">Orientação por etapas</h3><a id="guideAction" class="secondary" hidden>Abrir área no aplicativo</a> <button id="guideChooseAgain" class="clear" type="button" hidden>Escolher outra tarefa</button></div>
+<p class="footnote">Os guias explicam o caminho. Confira e conclua cada operação no painel autorizado; a Maya não altera registros.</p>
+</section>
+<section class="panel" aria-label="Conversa com a Maya">
+<div class="chat-head"><h2>Orientação da Maya</h2><button id="clearChat" class="clear" type="button">Limpar conversa</button></div>
+<div id="chat" class="chat" role="log" aria-live="polite" aria-relevant="additions text"></div>
+<form id="ask" class="composer">
+<label for="question" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Pergunte à Maya</label>
+<input id="question" maxlength="180" autocomplete="off" placeholder="Ex.: Como cadastro um cliente?" required>
+<button class="action" type="submit">Perguntar</button>
+</form>
+</section>
+<section id="knowledgePanel" class="panel kb" aria-label="Biblioteca de respostas" hidden>
+ <div class="chat-head"><h2>Biblioteca da Maya · 67 respostas</h2><button id="knowledgeClose" class="clear" type="button">Fechar</button></div>
+ <p class="notice">Consulta interna autorizada. <strong>Conteúdo revisado pela Mel em 25/10/2026.</strong> Orientações gerais não substituem avaliação profissional; não fornecemos diagnósticos, doses, indicação individual nem instruções de procedimentos.</p>
+ <label for="knowledgeSearch">Buscar por assunto</label>
+ <input id="knowledgeSearch" type="search" maxlength="120" autocomplete="off" placeholder="Ex.: peeling, agenda, Botox">
+ <p id="knowledgeCount" class="footnote" role="status" aria-live="polite"></p>
+ <div id="knowledgeItems" class="kb-list"></div>
+</section>
+<p class="footnote">As perguntas não são exibidas no histórico; apenas o assunto aparece. Não digite nomes ou dados pessoais. Respostas pré-escritas e revisáveis, sem inteligência artificial generativa nem conexão com cadastros. Assuntos clínicos devem ser tratados pela profissional habilitada. Se não encontrar a orientação, procure a Mel.</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">
+import {getCurrentProfile,installSessionGuard} from '../js/auth.js';
+import {createBcGestaoClient} from '../js/supabase-client.js';
+import {listAppGuides,findAppGuide} from './app-guides.js';
+const status=document.getElementById('status');
+const app=document.getElementById('app');
+const chat=document.getElementById('chat');
+const question=document.getElementById('question');
+const form=document.getElementById('ask');
+const clearChat=document.getElementById('clearChat');
+const knowledgeOpen=document.getElementById('knowledgeOpen');
+const knowledgePanel=document.getElementById('knowledgePanel');
+const knowledgeClose=document.getElementById('knowledgeClose');
+const knowledgeSearch=document.getElementById('knowledgeSearch');
+const knowledgeItems=document.getElementById('knowledgeItems');
+const knowledgeCount=document.getElementById('knowledgeCount');
+const guidePanel=document.getElementById('guidePanel');
+const guideChoices=document.getElementById('guideChoices');
+const guideTitle=document.getElementById('guideTitle');
+const guideAction=document.getElementById('guideAction');
+const guideChooseAgain=document.getElementById('guideChooseAgain');
+function resetGuide(){guidePanel.hidden=true;guideAction.hidden=true;guideAction.removeAttribute('href');guideTitle.textContent='Orientação por etapas';guideChoices.hidden=false;guideChoices.replaceChildren();guideChooseAgain.hidden=true;}
+function renderGuideChoices(){
+ guideChoices.replaceChildren();
+ for(const guide of listAppGuides(profile)){
+  const button=document.createElement('button');button.type='button';button.className='guide-choice';button.textContent=guide.title;
+  button.addEventListener('click',async()=>{const activity=++mayaVersion;if(await authorize(()=>activity===mayaVersion))showGuide(guide,true,activity,true);});
+  guideChoices.append(button);
+ }
+}
+function showGuide(guide,addMessage=true,activity=mayaVersion,moveFocus=false){
+ if(app.hidden||activity!==mayaVersion||!listAppGuides(profile).some(item=>item.id===guide.id))return;
+ guidePanel.hidden=false;guideChoices.hidden=true;guideChooseAgain.hidden=false;guideTitle.textContent=guide.title;
+ guideAction.setAttribute('href',guide.href);guideAction.hidden=false;
+ if(addMessage)line(guide.title+'\n\n'+guide.steps.map((step,index)=>(index+1)+'. '+step).join('\n\n'),'maya');
+ setMayaState('answered',activity);
+ if(moveFocus){guideTitle.focus();guidePanel.scrollIntoView?.({behavior:motionPreference?.matches?'auto':'smooth',block:'start'});}
+}
+async function openGuides(){
+ const activity=++mayaVersion;
+ if(!await authorize(()=>activity===mayaVersion)||activity!==mayaVersion)return;
+ guidePanel.hidden=false;guideChoices.hidden=false;renderGuideChoices();guideChooseAgain.hidden=true;guideAction.hidden=true;guideAction.removeAttribute('href');guideTitle.textContent='Orientação por etapas';setMayaState('answered',activity);
+}
+const mayaCharacter=document.getElementById('mayaCharacter');
+const mayaState=document.getElementById('mayaState');
+const mayaMotionToggle=document.getElementById('mayaMotionToggle');
+const motionPreference=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+let motionRequested=true,mayaVersion=0;
+function renderMayaMotion(){
+ if(app.hidden)return;
+ const reduced=Boolean(motionPreference?.matches),enabled=motionRequested&&!reduced;
+ mayaCharacter.dataset.motion=enabled&&!document.hidden?'on':'off';
+ mayaMotionToggle.disabled=reduced;
+ mayaMotionToggle.setAttribute('aria-pressed',String(enabled));
+ mayaMotionToggle.textContent=reduced?'Movimento reduzido':enabled?'Pausar animação':'Ativar animação';
+}
+function setMayaState(state,version=mayaVersion){
+ if(app.hidden||version!==mayaVersion)return;
+ mayaCharacter.dataset.state=state;
+ mayaState.textContent={ready:'Pronta para ajudar',thinking:'Consultando orientação…',answered:'Orientação disponível',unavailable:'Tente novamente em instantes'}[state];
+}
+let knowledgeBank=null;
+let client,profile,guard;
+let chatVersion=0,knowledgeVersion=0;
+function line(value,cls){
+ const node=document.createElement('div');
+ node.className='bubble '+cls;
+ node.textContent=value;
+ chat.append(node);
+ chat.scrollTop=chat.scrollHeight;
+}
+async function authorize(isCurrent=()=>true){
+ try{return await guard.authorize() && !app.hidden;}
+ catch{
+  // A proteção real sempre é executada; só o aviso de erro obsoleto é descartado.
+  if(!app.hidden&&isCurrent()){
+   ++mayaVersion;setMayaState('unavailable');
+   knowledgePanel.hidden=true;knowledgeItems.replaceChildren();
+   line('Não foi possível confirmar seu acesso. Confira a conexão e tente novamente; se continuar, entre pelo login da BC Gestão.','maya');
+  }
+  return false;
+ }
+}
+function sensitive(input){
+ return /@|(?:\d[\s().-]?){6,}|(?:senha\s*[:=]\s*\S+)|(?:meu\s+(?:cpf|rg|e-mail|email)\s*(?:é|:))|(?:nome\s+(?:completo|da\s+cliente)\s*[:=])|(?:prontu[aá]rio\s+(?:da|do|de)\s+\w+)|(?:diagn[oó]stico\s+(?:da|do|de)\s+\w+)|(?:foto\s+(?:da|do|de)\s+(?:cliente|paciente))|(?:sintomas?|sangramento|febre|rea[cç][aã]o\s+adversa|dor\s+intensa)/i.test(input);
+}
+const replies={
+ acesso:'Para entrar na BC Gestão, use o e-mail cadastrado pela administração e sua senha. Se não conseguir acessar, utilize a recuperação de senha na entrada. Não envie senhas à Maya nem às colegas.',
+ cadastro:'No painel da gestão, abra Clientes e escolha Novo cliente. Para começar, informe nome completo e telefone nos campos oficiais. CPF e data de nascimento podem ser completados posteriormente. Não insira esses dados nesta conversa.',
+ agenda:'Na área Agenda, consulte a data e os horários. Para criar agendamento, selecione o cliente, procedimento, profissional (quando permitido) e horário. Confirme no próprio painel; a Maya não cria nem altera reservas.',
+ anamnese:'Use a área de pré-anamnese e as fichas do BC Gestão para acompanhar documentos. A vinculação deve ser conferida com o cadastro correto. A Maya não lê, recebe, envia ou revisa informações clínicas.',
+ atendimento:'Abra o atendimento da cliente no BC Gestão e confirme o vínculo com o agendamento e a profissional. Registros clínicos, assinatura e evolução devem ser feitos diretamente na área autorizada do aplicativo.',
+ documentos:'Documentos clínicos e PDFs ficam na área autorizada do BC Gestão. A Maya não abre, assina ou compartilha arquivos. Antes de concluir um documento, confirme cliente, profissional e consentimento.',
+ procedimentos:'As 67 respostas da biblioteca podem ser consultadas pela equipe nesta Beta. O conteúdo foi revisado pela Mel em 25/10/2026; as explicações não são indicação individual de tratamento nem instruções clínicas. Use o botão Consultar 67 respostas.',
+ massagemIndisponivel:'No momento, a BC não realiza massagem desportiva. Se quiser, posso te explicar sobre a massagem relaxante, que fazemos por aqui.',
+ financeiro:'Acesso ao financeiro depende das permissões do perfil. A administradora consulta o caixa, e colaboradoras podem consultar sua própria comissão na área correspondente. Esta Maya não consulta valores nem executa lançamentos.',
+ contato:'Em caso de dificuldade, procure a Mel ou a administração. A Maya Beta é um guia interno e não substitui os responsáveis pelo atendimento.',
+};
+const topicLabels={acesso:'Acesso',cadastro:'Cadastro',agenda:'Agenda',anamnese:'Anamnese',atendimento:'Atendimento',documentos:'Documentos',procedimentos:'Procedimentos',financeiro:'Financeiro',contato:'Ajuda geral'};
+const creationReplies={
+ cadastro:'Seu perfil de criação permite apenas consulta dos cadastros disponíveis no painel de criação. Para cadastrar ou alterar uma cliente, procure a Mel ou uma colaboradora autorizada. Não digite dados pessoais aqui.',
+ agenda:'Seu perfil de criação permite apenas consulta da agenda disponível no painel de criação. Para criar, remarcar, cancelar ou bloquear horários, procure a Mel ou a equipe autorizada.',
+ anamnese:'Seu perfil de criação permite apenas consulta da identificação e situação das anamneses no painel permitido. As respostas clínicas completas e a geração ou o envio de links ficam com a Mel ou a equipe clínica autorizada.',
+ atendimento:'Seu perfil de criação permite apenas consulta da operação no painel de criação. Para registrar, corrigir ou finalizar um atendimento, procure a profissional responsável; a Maya não altera registros.',
+ documentos:'Seu perfil de criação permite apenas consulta da identificação e situação dos documentos no painel permitido. PDFs, anexos, assinaturas e compartilhamentos ficam com a equipe clínica autorizada.',
+};
+const creationKnowledgeTopics={
+ 'app-cancelar':'agenda','app-profissional':'agenda','app-folga':'agenda',
+ 'app-link-expirou':'anamnese','app-anamnese-status':'anamnese','app-confirmar-link':'anamnese',
+ 'app-completar-cadastro':'cadastro','app-cadastro-duplicado':'cadastro',
+ 'app-atendimento-confirmacao':'atendimento',
+};
+function knowledgeAnswer(item){
+ const topic=creationKnowledgeTopics[item.id];
+ return profile?.role==='admin_criacao'&&topic?getReply(topic):item.answer;
+}
+function knowledgeNotice(item){
+ const date=item.reviewed_at.split('-').reverse().join('/');
+ const adapted=profile?.role==='admin_criacao'&&Object.hasOwn(creationKnowledgeTopics,item.id);
+ return (adapted?'Orientação adaptada ao perfil de criação. Texto de origem revisado pela Mel em ':'Revisado pela Mel em ')+date+'.';
+}
+function normalizeKnowledge(s){
+ return String(s||'').toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+async function loadKnowledge(){
+ if(knowledgeBank)return knowledgeBank;
+ // Apenas conteúdo estático e público do mesmo site; nenhuma API de pacientes.
+ const response=await fetch('./respostas-65.json',{cache:'no-store'});
+ if(!response.ok)throw new Error('A biblioteca não está disponível.');
+ const json=await response.json();
+ if(json?.schema!==3||json?.locale!=='pt-BR'||json?.publication!=='beta-interna-revisada'||!Array.isArray(json.items)||json.items.length!==67||new Set(json.items.map(i=>i.id)).size!==67)throw new Error('Formato da biblioteca inválido.');
+ const review=json.reviewSource;
+ if(!review||review.reviewed_by!=='Mel'||!/^\d{4}-\d{2}-\d{2}$/.test(review.reviewed_at)||!/^[a-f0-9]{64}$/.test(review.sha256)||review.scope!=='conteudo'||review.publication_approval!==false)throw new Error('Origem da revisão inválida.');
+ if(json.items.some(i=>typeof i.question!=='string'||typeof i.answer!=='string'||!Array.isArray(i.triggers)||i.triggers.some(t=>typeof t!=='string')||i.review!=='aprovado'||i.reviewed_by!==review.reviewed_by||i.reviewed_at!==review.reviewed_at||!/^\d{2}a?$/.test(i.review_source_item)||i.publication_approval!==false))throw new Error('Biblioteca requer revisão.');
+ knowledgeBank=json.items;
+ return knowledgeBank;
+}
+function renderKnowledge(){
+ const all=knowledgeBank||[];
+ const query=normalizeKnowledge(knowledgeSearch.value);
+ const filtered=query?all.filter(i=>normalizeKnowledge(i.question+' '+i.triggers.join(' ')).includes(query)):all;
+ const visible=filtered.slice(0,query?all.length:20);
+ knowledgeCount.textContent=query?'Encontradas '+filtered.length+' respostas.':'Mostrando as 20 primeiras de '+all.length+' respostas. Digite um assunto para pesquisar todas.';
+ knowledgeItems.replaceChildren();
+ for(const item of visible){
+  const details=document.createElement('details');details.className='kb-item';
+  const summary=document.createElement('summary');summary.textContent=item.question;
+  const notice=document.createElement('div');notice.className='kb-note';notice.textContent=knowledgeNotice(item);
+  const answer=document.createElement('p');answer.textContent=knowledgeAnswer(item);
+  const evidence=document.createElement('p');evidence.className='kb-source';
+  evidence.textContent='Contexto do dossiê anterior: '+(item.evidence_level||'Sem classificação de evidência.');
+  const source=document.createElement('div');source.className='kb-source';
+  if(Array.isArray(item.references)&&item.references.length){
+   const heading=document.createElement('span');heading.textContent='Fontes do dossiê anterior: ';
+   source.append(heading);
+   item.references.forEach((url,index)=>{
+    if(!/^https:\/\/(www\.aad\.org|www\.gov\.br|www\.fda\.gov|pubmed\.ncbi\.nlm\.nih\.gov|pmc\.ncbi\.nlm\.nih\.gov|doi\.org)\//.test(url))return;
+    const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+    a.textContent='Estudo / diretriz '+(index+1);
+    source.append(a,document.createTextNode('  '));
+   });
+  }else source.textContent='Fonte: revisão de conteúdo da Mel.';
+  details.append(summary,notice,answer,evidence,source);
+  details.addEventListener('toggle',async()=>{const activity=mayaVersion;if(details.open&& !await authorize(()=>activity===mayaVersion))details.open=false;});
+  knowledgeItems.append(details);
+ }
+}
+async function openKnowledge(){
+ const version=++knowledgeVersion;
+ const activity=++mayaVersion;
+ if(!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion||activity!==mayaVersion)return;
+ setMayaState('thinking',activity);
+ knowledgePanel.hidden=false;
+ knowledgeCount.textContent='Carregando respostas...';
+ let loaded=false;
+ try{await loadKnowledge();loaded=true;}catch{}
+ if(!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion||knowledgePanel.hidden||activity!==mayaVersion)return;
+ if(loaded){renderKnowledge();setMayaState('answered',activity);knowledgePanel.scrollIntoView?.({behavior:motionPreference?.matches?'auto':'smooth',block:'start'});}
+ else{knowledgeCount.textContent='Biblioteca temporariamente indisponível. Procure a administração.';knowledgeItems.replaceChildren();setMayaState('unavailable',activity);}
+}
+async function searchKnowledge(){
+ const version=knowledgeVersion,activity=mayaVersion;
+ if(!knowledgeBank||knowledgePanel.hidden||!await authorize(()=>activity===mayaVersion)||version!==knowledgeVersion)return;
+ renderKnowledge();
+}
+function asksSportsMassageAvailability(query){
+ const q=normalizeKnowledge(query);
+ const hasOfferQuestion=/^(?:(?:voces|a bc|na bc|bc|a clinica|ai)\s+)?tem\b/.test(q)&&!/\b(?:beneficios?|efeitos?)\b/.test(q);
+ return /\bmassagem (?:desportiva|esportiva)\b/.test(q)&&(hasOfferQuestion||/\b(?:agendar|agendamento|agendamentos|marcar|reservar|reserva|oferece|oferecem|oferecemos|oferecer|realiza|realizam|realizamos|realizar|faz|fazem|fazemos|fazer|horarios?)\b/.test(q));
+}
+function findKnowledge(query){
+ if(!knowledgeBank)return null;
+ const q=normalizeKnowledge(query);
+ if(q.length<5)return null;
+ const exact=knowledgeBank.find(i=>normalizeKnowledge(i.question)===q||i.triggers.some(t=>normalizeKnowledge(t)===q));
+ if(exact)return exact;
+ if(asksSportsMassageAvailability(q))return knowledgeBank.find(i=>i.id==='massagem-desportiva-agendamento')||null;
+ // Só remove introduções conhecidas; o assunto restante precisa ser um gatilho exato e único.
+ const subject=q.replace(/^(?:o que e|como funciona|como e feito|como e feita|me explique)\s+(?:(?:o|a|um|uma)\s+)?/,'');
+ if(subject!==q){
+  const matches=knowledgeBank.filter(i=>i.triggers.some(t=>normalizeKnowledge(t)===subject));
+  if(matches.length===1)return matches[0];
+ }
+ // Perguntas de dose e alternativas não cadastradas não podem escolher uma resposta por trecho.
+ if(/\b(?:dose|dosagem|unidades|ou|versus|vs)\b/.test(q))return null;
+ const possibles=knowledgeBank.filter(i=>i.triggers.some(t=>{
+  const token=normalizeKnowledge(t);
+  return token.length>=9&&(q.includes(token)||token.includes(q))&&(token.split(' ').length>=2);
+ }));
+ return possibles.length===1?possibles[0]:null;
+}
+function getReply(topic){
+ if(topic==='financeiro' && profile?.role==='admin_criacao')return 'Seu perfil de criação não possui acesso ao financeiro, mesmo para consultas. A Maya também não acessa esses dados. Consulte a administradora.';
+ if(topic==='financeiro' && profile?.role==='colaborador')return 'Na área Minha comissão você pode consultar apenas os valores que seu perfil já permite. A Maya não visualiza valores nem realiza pagamentos.';
+ if(profile?.role==='admin_criacao'&&Object.hasOwn(creationReplies,topic))return creationReplies[topic];
+ return replies[topic]||replies.contato;
+}
+function classify(s){
+ const x=s.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ if(/senha|login|entrar|acesso/.test(x))return 'acesso';
+ if(/financeir|comiss|caixa|pagament|recebiment|despesa/.test(x))return 'financeiro';
+ if(/anamnese|ficha|formular/.test(x))return 'anamnese';
+ if(/pdf|assinatura|document|consentiment/.test(x))return 'documentos';
+ if(/agend|agenda|horario|calendario|reserva/.test(x))return 'agenda';
+ if(/cadastr|cliente|telefone/.test(x))return 'cadastro';
+ if(/atendiment|evolucao|prontuario/.test(x))return 'atendimento';
+ if(/procediment|botox|peeling|microagulh|bioestimul|tratament|dose/.test(x))return 'procedimentos';
+ return 'contato';
+}
+async function answer(text,topic){
+ const version=chatVersion;
+ const activity=++mayaVersion;
+ if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion||activity!==mayaVersion)return;
+ const trimmed=String(text||'').trim().slice(0,180);
+ if(topic||trimmed)resetGuide();
+ if(topic){line('Assunto: '+(topicLabels[topic]||'Ajuda geral'),'person');line(getReply(topic),'maya');setMayaState('answered',activity);return;}
+ if(!trimmed)return;
+ if(sensitive(trimmed)){
+   line('Para proteger a privacidade, não informe dados pessoais, senhas ou informações clínicas nesta conversa. Consulte o painel autorizado da BC Gestão.','maya');
+   setMayaState('answered',activity);
+   return;
+ }
+ const selected=classify(trimmed);
+ line('Assunto: '+(topicLabels[selected]||'Ajuda geral'),'person');
+ setMayaState('thinking',activity);
+ let loaded=true;
+ try{if(!knowledgeBank)await loadKnowledge();}catch{loaded=false;}
+ if(!await authorize(()=>activity===mayaVersion)||version!==chatVersion||activity!==mayaVersion)return;
+ const found=findKnowledge(trimmed);
+ const guide=findAppGuide(trimmed,profile);
+ if(found){line(knowledgeAnswer(found)+'\n\n'+knowledgeNotice(found),'maya');if(guide)showGuide(guide,false,activity);setMayaState('answered',activity);return;}
+ if(guide){showGuide(guide,true,activity);return;}
+ line(asksSportsMassageAvailability(trimmed)?replies.massagemIndisponivel:getReply(selected),'maya');
+ setMayaState(loaded?'answered':'unavailable',activity);
+}
+try{
+ client=createBcGestaoClient(globalThis.supabase?.createClient);
+ profile=await getCurrentProfile(client);
+ if(!profile || profile.role!=='colaborador'){
+  status.textContent='Acesso restrito à equipe autorizada. Entre pelo BC Gestão.';
+  const a=document.createElement('a');a.href='../login/';a.textContent='Ir para login';status.append(document.createTextNode(' '),a);
+ }else{
+  guard=installSessionGuard({client,profile,app,onProfile:current=>{profile=current;}});
+  document.getElementById('personName').textContent=profile.display_name||'equipe';
+  const target=profile.role==='admin'?'../admin/':profile.role==='colaborador'?'../colaborador/':'../criacao/';
+  document.getElementById('dashboardLink').href=target;
+  status.hidden=true;app.hidden=false;
+  renderMayaMotion();
+  mayaMotionToggle.addEventListener('click',()=>{if(motionPreference?.matches)return;motionRequested=!motionRequested;renderMayaMotion();});
+  motionPreference?.addEventListener?.('change',renderMayaMotion);
+  document.addEventListener('visibilitychange',renderMayaMotion);
+  document.getElementById('guidesOpen').addEventListener('click',()=>{void openGuides();});
+  guideChooseAgain.addEventListener('click',()=>{void openGuides();});
+  document.getElementById('guidesClose').addEventListener('click',()=>{++mayaVersion;resetGuide();setMayaState('ready');});
+  line('Olá! Posso explicar as funções do BC Gestão. Escolha um assunto ou digite uma pergunta sem dados de clientes.','maya');
+  document.querySelectorAll('[data-topic]').forEach(b=>b.addEventListener('click',()=>{void answer('',b.dataset.topic);}));
+  form.addEventListener('submit',e=>{e.preventDefault();const t=question.value;question.value='';void answer(t);});
+  clearChat.addEventListener('click',()=>{++chatVersion;++mayaVersion;resetGuide();setMayaState('ready');chat.replaceChildren();line('Conversa limpa. Como posso ajudar?','maya');question.value='';question.focus();});
+  knowledgeOpen.addEventListener('click',()=>{void openKnowledge();});
+  knowledgeClose.addEventListener('click',()=>{++knowledgeVersion;++mayaVersion;setMayaState('ready');knowledgePanel.hidden=true;knowledgeSearch.value='';knowledgeItems.replaceChildren();});
+  knowledgeSearch.addEventListener('input',()=>{void searchKnowledge();});
+ }
+}catch(e){status.textContent='Não foi possível validar a sessão. Abra o login da BC Gestão e tente novamente.';}
+</script>
+</body>
+</html>

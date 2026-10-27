@@ -1,0 +1,423 @@
+{
+  "source": {
+    "document": "Maya Respostas aprovadas pela Mel.docx",
+    "sha256": "54832998ef2b37da0d788bc1cb629a7ce5fe100369401f3af861604d80f4d8ff",
+    "reviewed_by": "Mel",
+    "reviewed_at": "2026-10-25",
+    "received_at": "2026-10-26",
+    "scope": "conteudo",
+    "publication_approval": false
+  },
+  "editorial_corrections": [
+    {
+      "source_item": "04",
+      "change": "Removido somente o fragmento isolado Mo após cicatrizes de acne."
+    }
+  ],
+  "original_items": 65,
+  "complementary_items": 2,
+  "items": [
+    {
+      "id": "botox-geral",
+      "source_item": "01",
+      "question_sha256": "ccfd17ed6a6ee80cf18b7e1dfa1fa83005c8465d3d1298614dff9d95cf297371",
+      "answer_sha256": "175ef15e1ead465e10c52abe444e354716f7ea592bf7834d6cc6bb3b34634ff1"
+    },
+    {
+      "id": "botox-dor",
+      "source_item": "02",
+      "question_sha256": "222911466ec7d73d96f0775dd82853eda012d98db0766221f404d3fa0ea54f01",
+      "answer_sha256": "fd32e361448630e3a52e401d1d7faff10a73d903f8d6d20076ab817dd6b1f646"
+    },
+    {
+      "id": "botox-conforto",
+      "source_item": "02a",
+      "question_sha256": "da3c3aa1730aaa60dd7429f6a94fdf422cdd7e6fd80d90ac7370ecdf8e36dc63",
+      "answer_sha256": "7d999cb57f0b43c0a8adec0caab36d4a29016d38b4eab7067bafc055edf00ce8"
+    },
+    {
+      "id": "bioestimulador",
+      "source_item": "03",
+      "question_sha256": "25003f7c8a5fb4aee57a1afc114b7efee1f3e8e62b3060e87bb0265c52db37a3",
+      "answer_sha256": "d11df182c41e6353a6199afc60f3bbb17a2f233c01a46f914206b487058c625d"
+    },
+    {
+      "id": "microagulhamento",
+      "source_item": "04",
+      "question_sha256": "3dfc3c6b481cf5381a50f4edb492e59d71bb89d246f40516acddf7c7cd9c88a9",
+      "answer_sha256": "a170be1ea8ee32baf8fe324a54b0043a47bd7d614d97070b572b14b9d108da52"
+    },
+    {
+      "id": "limpeza-pele",
+      "source_item": "05",
+      "question_sha256": "b69546ad9dd28cba8110d2801fc8cbd683d1fc4b689f68db6723a3b10dfd9195",
+      "answer_sha256": "7f28c4bab8d390cc8cfd4d6c84a5936c73d7b876e2ce4af4fa53c494c0e1abfc"
+    },
+    {
+      "id": "peeling",
+      "source_item": "06",
+      "question_sha256": "1a447038684bec508d947ba9a5e66a9cf0f8248832fc2e66ad66e360a18c6af5",
+      "answer_sha256": "1c6e1003ac32aed7e50e312a045344ec953ccb125501f0706e5a52e500b53ca5"
+    },
+    {
+      "id": "black-peel",
+      "source_item": "07",
+      "question_sha256": "ec02eda8f0174b336d6538dd0a2484f9a21167c0557d09490bd7ed5baece8bee",
+      "answer_sha256": "ac3635339829b7fb1c3858b9c3ae50ede1b31afb71e696a60dc6ebc89373ab51"
+    },
+    {
+      "id": "avaliacao",
+      "source_item": "08",
+      "question_sha256": "edabf8ec7fd91acd750c7af38fe700b96af0206758c1d7ffcc86464f187ae786",
+      "answer_sha256": "4db5ca821867311663d1c1818604f577270f7ec637cdf7ab9115a4e85850f538"
+    },
+    {
+      "id": "contato",
+      "source_item": "09",
+      "question_sha256": "bfee2d82e90490309449e1b1efb16965b64f7e851a38ba07c1c2050a85c53b18",
+      "answer_sha256": "23efa068b3125cbe0c149cbfd3951ca6566ac551043af7777e775b9d57faf168"
+    },
+    {
+      "id": "botox-duracao",
+      "source_item": "10",
+      "question_sha256": "62e4a3210d11e4d106ca8ceca84f06f460919e664c5e6892edae910cf203d100",
+      "answer_sha256": "09562e5fa7ba4b594b1b18babadedcc9ed41e61ea863f7099c0c65c46be27374"
+    },
+    {
+      "id": "botox-terco",
+      "source_item": "11",
+      "question_sha256": "91763a2b5b917f9f51a52fe8cef8ce12905ce53833d922d6f334ea08383bd881",
+      "answer_sha256": "8932dbcb4f3bc36d4c96e0d1ff0a0794c8460e7e929aa7302ad71170052cf5ba"
+    },
+    {
+      "id": "botox-full",
+      "source_item": "12",
+      "question_sha256": "fe8197b42db07bbe5f26423b0a672b379df973a216d50307a5b73486c62d4426",
+      "answer_sha256": "c0b83a756dfe1231b837053375c4f5cc92567b2d4349f81d82567894160c27c9"
+    },
+    {
+      "id": "botox-nefertiti",
+      "source_item": "13",
+      "question_sha256": "0f3bab8011c0ad90a485aa8031211d198e9beb40aeed28b00e44a702ec381570",
+      "answer_sha256": "673da34c6bf34e760a617a38588c0cd74b280361b47e4dba2c1289861f75abcf"
+    },
+    {
+      "id": "limpeza-peeling",
+      "source_item": "14",
+      "question_sha256": "36dcdb3afb7c2104829f8b3f336aca871bd6cff9da132acd3bd3b836119a3a0a",
+      "answer_sha256": "6cab465e0703d6bfff39c5d8d86af1e7604ac69911055b12ee8fdb49a5ebed90"
+    },
+    {
+      "id": "massagem-relaxante",
+      "source_item": "15",
+      "question_sha256": "0564538c1e9d0c64db9443918e1e28fd19c3f1779d7a2a41bb3fa1c8fca1354d",
+      "answer_sha256": "27367cd558a81f197b73a7e6aaf4e1d6ed8e70309ece982679129477c1758dba"
+    },
+    {
+      "id": "drenagem",
+      "source_item": "16",
+      "question_sha256": "c88ef3bbd5050487d5200da8072c2aa3bd800952ada7246aa84c279128c68ccd",
+      "answer_sha256": "50ceec792edbf6529e8183bf305162938b7d1610d13c169e3a93b723672facba"
+    },
+    {
+      "id": "massagem-desportiva",
+      "source_item": "17",
+      "question_sha256": "840e71bebe30a837077a9456113a7a2eca64859da75ee888bee48c4948f899d6",
+      "answer_sha256": "78c6dcf84df07389bae70b758100ca387fc0bf12f2f8ab2a6c748c2f5ac15d7d"
+    },
+    {
+      "id": "massagem-desportiva-agendamento",
+      "source_item": "17a",
+      "question_sha256": "6a61a219d58d64747f3267bf7dcf15d930a713b3bee273985338f35995a797bd",
+      "answer_sha256": "7bfe160654f909261b169545093e5daab4320ab4010b84cfe78218f8b7eaf42c"
+    },
+    {
+      "id": "skinbooster",
+      "source_item": "18",
+      "question_sha256": "bc6ade7e7d827390bc21ee143dd5274dcbfdf654225698df198bd6a73e828f61",
+      "answer_sha256": "eb2f2e6681787afc290557ee09b65cf480693a86934f9f46941ac1a584d760c3"
+    },
+    {
+      "id": "profhilo",
+      "source_item": "19",
+      "question_sha256": "fc0e164f4ec5c83b4e8f2059586d91e3d1c3fb7791421779025aedcf51edd842",
+      "answer_sha256": "79a9e9640ae338427ca1ce72c7d1a7ebfcc9ead00772ebbecad7eb9e86c13188"
+    },
+    {
+      "id": "enzimas",
+      "source_item": "20",
+      "question_sha256": "01754c4c9ededed7251da906ead79bc15bd1af7d7ac9f2b95006cfca20a0d5ef",
+      "answer_sha256": "ef7135911d149250be05373561dc14986af8ea28c89f7ba161a7d7024e1e3615"
+    },
+    {
+      "id": "ultrassom",
+      "source_item": "21",
+      "question_sha256": "fbed3f85fcc41145ee03eb8f9c7ea591d5c578a979e7beeed656e169e395c789",
+      "answer_sha256": "37614b665f98b756443b1d890e15077d87f73566fdfa4eaf3d319c17176bf923"
+    },
+    {
+      "id": "radiofrequencia",
+      "source_item": "22",
+      "question_sha256": "35370af1c7cc360d0221d63152245752791bde2f9638a87f61e0dec743754482",
+      "answer_sha256": "6484bb9cc182c1b1b2448c3d38a7c4174b1e2564638af0bb99dea0655eab773d"
+    },
+    {
+      "id": "despigmentacao",
+      "source_item": "23",
+      "question_sha256": "45b5ef7c4cf7ae280c967f6ae90db261660d0e59509e4d036944e95d25689f09",
+      "answer_sha256": "bf0c283fa01d0e32fbe3621d77ed5f7748bc447cd6a5989edcb0b36d66b438cc"
+    },
+    {
+      "id": "anamnese-explica",
+      "source_item": "24",
+      "question_sha256": "cb9b2a17ba69c3fa25591c33cc9f7bda02d0b989e3d451b01d5e29dadfa6fa3b",
+      "answer_sha256": "c8fdb9bfa5ba0899ff4a7f4d84f96a3632bf30e43719026c58615ed40f87a847"
+    },
+    {
+      "id": "cadastro-basico",
+      "source_item": "25",
+      "question_sha256": "cdd664ebfeca6489d951dc8608e142b5c7bd63e9924bd4628f7f102862e60600",
+      "answer_sha256": "24e22829282d0f42db28dfa6cd044f12ff82e19be5f76d891f579f28da3c0f6c"
+    },
+    {
+      "id": "agendamento-horarios",
+      "source_item": "26",
+      "question_sha256": "62ac38dadb0c7ce86d6e17349c29df34f62199012088acc6c6576bc4bb8940bc",
+      "answer_sha256": "95cfcd58789e9d833384c741859168eee6bff26b03a8e5c42922af31764643f5"
+    },
+    {
+      "id": "peeling-diferenca",
+      "source_item": "27",
+      "question_sha256": "b788a19e22287f64439408f0444e7b23f5c1a23b15fa9c2f7b959e730de0c698",
+      "answer_sha256": "0c42ad6d84358c9f1ffea0a7dae127f5e1f5a84bb821f97e5607efc26c94521f"
+    },
+    {
+      "id": "antes-depois",
+      "source_item": "28",
+      "question_sha256": "3ef2ace5d6373aceb32012f5a80548721f06b18ce3b9b0e6dfe63870c11c917d",
+      "answer_sha256": "13d9e347e9e4d9f64cb9a715b2c20384cf1b3aaf926ba520d901a132872c7574"
+    },
+    {
+      "id": "pos-cuidados",
+      "source_item": "29",
+      "question_sha256": "9b1c642e6038cf63f4d58c0de4f9f5df94710ded16eaee14a4f66cafbda5b5d1",
+      "answer_sha256": "4df47fc56f77948c06ff2ec097f78cb94f7ea7bb52240d838ed3a685b01931ee"
+    },
+    {
+      "id": "recuperacao",
+      "source_item": "30",
+      "question_sha256": "583bf71478cda7484292f29310879de5fe0d530d075f7bbdd2435432ea67a991",
+      "answer_sha256": "e6a199de28e037a43515fc2d8e26a26ea7312d4120d89bd7bc7a58acf9b378e5"
+    },
+    {
+      "id": "botox-preenchimento",
+      "source_item": "31",
+      "question_sha256": "85dbfba218441367f44eab88db972b1a2f1b50e162d1cb3773cc3fa9e89b966b",
+      "answer_sha256": "1c9613194ff9f18e5148745203ed174e7d2d9db385c6e061ddc76129d0f279d9"
+    },
+    {
+      "id": "preenchimento-facial",
+      "source_item": "32",
+      "question_sha256": "a24acc0527b44fa8be19237466320359d422e913a1d77f7607a207b806374147",
+      "answer_sha256": "88959baa9cf75e65334f3fc5fe638f28efb1d814b6ee5879bd782edfec4111a6"
+    },
+    {
+      "id": "peeling-sol",
+      "source_item": "33",
+      "question_sha256": "d3f99e2a9eb529ec1e1f21ea5116d0c51b218c22ee3f9e3c0ad0507dddda79b5",
+      "answer_sha256": "c4f124c2b0cd97074320b2e36fccd9be3e0210d71a8884a9e5bd10388e228fe4"
+    },
+    {
+      "id": "protetor-solar",
+      "source_item": "34",
+      "question_sha256": "77dc84ba6abdc9d19b1027b34c3073ca1752f01b14d6ed6960b9c320d7311fe7",
+      "answer_sha256": "5acc1372e1015f44abd33b719de15f0e09cca1493a7a551758c781d7279d048c"
+    },
+    {
+      "id": "tatuagem-sessoes",
+      "source_item": "35",
+      "question_sha256": "d1903781ce6c0277618ee8c7fc9ec5c264f58a3c66fb5a70191127c42ba12cd9",
+      "answer_sha256": "bcffe421a4bc8dc327c7d4a40ae81ba197c45063aa3fcb7b1dfbeb2a3b3118af"
+    },
+    {
+      "id": "quantas-sessoes",
+      "source_item": "36",
+      "question_sha256": "ac8cbe6c3728911bd952972254225e7e93399137200508863d282156d5737001",
+      "answer_sha256": "bd93727d2ce49e2813797fba1a4da7912a11d4dd89597bd9cb05701a4db70b21"
+    },
+    {
+      "id": "produto-seguro",
+      "source_item": "37",
+      "question_sha256": "df0d3fcd80a1c5675179444d446a0cb3a4f71bda734fe1f9b65f35dc562d976f",
+      "answer_sha256": "ba871dc0960423c0094d7deabd75dd4ad8408211ce3a16091309873373458a66"
+    },
+    {
+      "id": "skinbooster-bioestimulador",
+      "source_item": "38",
+      "question_sha256": "27133a907ff95baf0af04a6c74891fa8c40b9cec4cf947ae48c26ba1c8ae356a",
+      "answer_sha256": "59f92f874853621fe588e2a3d64db28ba6ed6c7b84a610d30dcbad6115dcf386"
+    },
+    {
+      "id": "app-senha",
+      "source_item": "39",
+      "question_sha256": "a09b2742f263704eed81606bb3e354b70dd6203a28a30df1dd48a697cd6baf4a",
+      "answer_sha256": "78794a55f9b8b8778beeae06268398cfc5ee97a7ec8b240631c2b87e38a3d28c"
+    },
+    {
+      "id": "app-cancelar",
+      "source_item": "40",
+      "question_sha256": "e80e9af4145ba2161ba560e19c0249e1a160863fcf8b26f57772704724376c11",
+      "answer_sha256": "271f41fe5925f4bbaebaaaed4c4fca030de85d1d5eae9d94eecd26e2ae8674e3"
+    },
+    {
+      "id": "app-profissional",
+      "source_item": "41",
+      "question_sha256": "ab25d5658a7ff1393853164ec59020d36b925fad629ee65e584b81599d92d1bb",
+      "answer_sha256": "1800b4a9c269478bd5a741bfd39c35f845626450dc97aefaa813c36a623028b8"
+    },
+    {
+      "id": "app-link-expirou",
+      "source_item": "42",
+      "question_sha256": "68e8cac32f181d0f482ba5d36d4023100d7ca77a45167925a010fa2785bf0122",
+      "answer_sha256": "09b2c6d3cadf5cc816f1b3d6f2015eea681011e4e5b782a9b69af0df21a9151d"
+    },
+    {
+      "id": "app-completar-cadastro",
+      "source_item": "43",
+      "question_sha256": "de58f0c75f30e9403a70634535dc8bb399c9ab704c6f1e22080b142e051ae4d1",
+      "answer_sha256": "2d5703328756fe270b3749f66b9475bcd0d467541d910b237747b6ae29579bb3"
+    },
+    {
+      "id": "app-folga",
+      "source_item": "44",
+      "question_sha256": "6b35e25fe1b177a829f40469583606606e5fa3ffca05dca97cc719dc8d1460da",
+      "answer_sha256": "2829de173e8c8466d47bf6369382f1c3de4e92d308a27a40d8ec15d9a33d98da"
+    },
+    {
+      "id": "app-dados-chat",
+      "source_item": "45",
+      "question_sha256": "a33b641761a8cfe853b91ff8df9895a363ffc418465f4cd33da5dc0ab22e7559",
+      "answer_sha256": "8ada0751b08503c2ccc6211d045102a1e399c591751917fff23f71f33572e816"
+    },
+    {
+      "id": "peeling-preparo",
+      "source_item": "46",
+      "question_sha256": "da5ef4e07d5bf05f4b6c63e1d568c29de34dab534e27cc19d428ed3ead4664be",
+      "answer_sha256": "a1a014baeaaecd6fe4229827d7055d3c3dcf66d50f020a01c8842fa39f2905c7"
+    },
+    {
+      "id": "estetica-perguntas-consulta",
+      "source_item": "47",
+      "question_sha256": "36a723a50952eb2e435e1175b19256d853a23bdc02a79f439aad8f994382cafc",
+      "answer_sha256": "e4253db1db3f884e68ae5e130c5131032d6a3c29881b4e1e7a841893b3afa771"
+    },
+    {
+      "id": "manchas-fotoprotecao",
+      "source_item": "48",
+      "question_sha256": "4b6b4b24814897da41bb542e365193a130d54ac69f028fc561fdabcbab239dc3",
+      "answer_sha256": "edc8a171255f6b73ed5ea8a19b8aa827e4cb863926556b1a63fa2bb8bb66d8c2"
+    },
+    {
+      "id": "tatuagem-avaliacao",
+      "source_item": "49",
+      "question_sha256": "2e09d81b147f7acd7f575e1c6c407cf8a8ce0053e4abeb928eb2dffe50d6b495",
+      "answer_sha256": "19d037e352dadf200dd0b329106f8cf87215e9c4bdf69ed8fb6916bb9571ca30"
+    },
+    {
+      "id": "esfoliacao-cuidados",
+      "source_item": "50",
+      "question_sha256": "48cdf347213ee8f06b2744ba851903ba23f81194f46178c95087232dc5820ae3",
+      "answer_sha256": "b6f6c7ead5b77a6b16c4d0080ca9f4e5eeb5c8a2c463de3abf7e38affe3d6170"
+    },
+    {
+      "id": "clinica-segura",
+      "source_item": "51",
+      "question_sha256": "eb13cd00e3c8087d44db6a75d2c0f8e5e2ea2af9c11020b996f87364e9086e2f",
+      "answer_sha256": "b9f74d65a8249b6eb672fe62313bee0599ea2b60f42db3b2e470fc8b695bbef4"
+    },
+    {
+      "id": "app-atendimento-confirmacao",
+      "source_item": "52",
+      "question_sha256": "4c737e65b63b7483949cab7ce131d0b6d93e564ae256a11912461ce393ebc4b7",
+      "answer_sha256": "1502dd7a85a962ad6158a616f282107ec1746903bd7bde4cf764b76505f8c649"
+    },
+    {
+      "id": "app-anamnese-status",
+      "source_item": "53",
+      "question_sha256": "3b4756555f99845c5725ef30505b3faa38a3f6b207886c7149b545dfabf39f89",
+      "answer_sha256": "fbdd2ab20c57b7067dec7dbc8385b9db20b844af60b4313f2fd50e249f9d8e84"
+    },
+    {
+      "id": "app-agenda-expediente",
+      "source_item": "54",
+      "question_sha256": "e037fb4977205c5fbda5dd12eff5fa980243d68c66107099a5783f4feeffa7c9",
+      "answer_sha256": "a59644be63cf0918de7d4fe5c82cda431a981e3d37e0b40e20f86bc0e77b5874"
+    },
+    {
+      "id": "app-cadastro-duplicado",
+      "source_item": "55",
+      "question_sha256": "c0394737fa656c76b2cb316293ff1b0aaa94f7c987c57e7c8cf17e0c522155b9",
+      "answer_sha256": "a0227d4d6e78d3ca27a99eaa1e5108804572a64e49b924cac6c9546fec0157f9"
+    },
+    {
+      "id": "produto-regularizado",
+      "source_item": "56",
+      "question_sha256": "f4ddc9f46590e240ca54e0df367423e5968cb1aa45b4dc44cb77752c2cb4d1af",
+      "answer_sha256": "708c9c16f7b9d3d2d9c441ca730580487c9f114e2dbb7ffe54516099462e933a"
+    },
+    {
+      "id": "cosmetico-injetavel",
+      "source_item": "57",
+      "question_sha256": "08d6576cb8a6135bdf07f73dd5ba7361f940c3e35978d5c0cc2a544bc6251dc2",
+      "answer_sha256": "3042d0f69b9c7f984b2405a1a30cdaf7dec54f7e783c5dbba6f28c1888afa708"
+    },
+    {
+      "id": "peeling-descamacao",
+      "source_item": "58",
+      "question_sha256": "a2ae274d6e664b12bd31f30a681fa9edbe85655fd1b9baffb5dbf749429b0a08",
+      "answer_sha256": "8a7884ab5ff761ca10f6bf75638c1a74500ee26fac0b29987ae88eb02d5165f6"
+    },
+    {
+      "id": "peeling-riscos",
+      "source_item": "59",
+      "question_sha256": "ddbf2ae56a66e7d1b4973bdd0fe3d04ff34bab946496159adb531c25d22541b4",
+      "answer_sha256": "1aa2c13073ca4064e5d9de767eb64108a27636ab7142186e430940d9f0b7274e"
+    },
+    {
+      "id": "microagulhamento-caseiro",
+      "source_item": "60",
+      "question_sha256": "f9a9d4391d9fb43cc7200bc959599bad319d4b85a4ae6b3ef7c142ca6010e36e",
+      "answer_sha256": "b83c818a3bbcb806e9c04b6f2af47f1dbdb0422ebe69dc242f03ac2867938c21"
+    },
+    {
+      "id": "microagulhamento-resultado",
+      "source_item": "61",
+      "question_sha256": "224a72f50be9e3dc2527d487e76b3f46652396169887ca2406216a08c1074f5d",
+      "answer_sha256": "fd8836e5ef9a763e11be722216d55bb620daccfb2b5c9e7eb90abb2024836078"
+    },
+    {
+      "id": "botox-inicio",
+      "source_item": "62",
+      "question_sha256": "829e2ccbc8276ec76eb8d716219c8a2b98b438bdb43baf6bda182b1e1b191850",
+      "answer_sha256": "da913d83f9977a9a3b327c7677606adad7a2bfcd9b9ac1ba94570245642a4332"
+    },
+    {
+      "id": "botox-naturalidade",
+      "source_item": "63",
+      "question_sha256": "f0fcc623a4e7bdfd85a99047b468ec10de67381fbe394c38e34a8e3f3fd95d99",
+      "answer_sha256": "978d8057f548fe94b8da5ffa3088fe4dd8acd009812dd45fc4a391e8ee090685"
+    },
+    {
+      "id": "app-primeiro-acesso-guia",
+      "source_item": "64",
+      "question_sha256": "aef73ec37a9fa4352564b0908f5cf96bf361e8e80475416d87278e7f33df78c2",
+      "answer_sha256": "20dbc6d2e11c586da22c04c83a06d612f02cf0305921ceb741ab8b586557d6a7"
+    },
+    {
+      "id": "app-confirmar-link",
+      "source_item": "65",
+      "question_sha256": "ee3c44e510c90b6750e590f43bca64e22dbd31b7055df497a0315d2b77d00847",
+      "answer_sha256": "c045272af4519311d022d190472da83fe7e038282051429878f60c4fd2925919"
+    }
+  ]
+}

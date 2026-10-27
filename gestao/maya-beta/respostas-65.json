@@ -1,0 +1,1754 @@
+{
+  "schema": 3,
+  "locale": "pt-BR",
+  "origin": "Textos revisados pela Mel; referências históricas do dossiê de 24/10/2026.",
+  "sourceDate": "2026-10-25",
+  "publication": "beta-interna-revisada",
+  "reviewAuthority": "Mel",
+  "items": [
+    {
+      "id": "botox-geral",
+      "question": "Como é feito o Botox?",
+      "triggers": [
+        "botox",
+        "toxina botulinica",
+        "como e feito o botox",
+        "como funciona o botox"
+      ],
+      "answer": "O Botox (toxina botulínica) é uma substância aplicada em pontos específicos do rosto que relaxa temporariamente os músculos.\nUsos estéticos:\nSuavizar rugas dinâmicas: reduz marcas causadas por movimentos repetitivos, como pés de galinha, linhas na testa e entre as sobrancelhas.\nBotox preventivo: em adultos jovens, pode ser indicado para evitar que linhas leves se acentuem.\nCorreção do sorriso gengival: reduz a elevação do lábio superior ao sorrir.\nPara saber a indicação correta para você, é necessária uma avaliação.",
+      "source": "Revisão da Mel em 25/10/2026, item 01",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+        "https://pubmed.ncbi.nlm.nih.gov/41508559/"
+      ],
+      "evidence_level": "Alta/moderada: estudos clínicos e síntese para rugas dinâmicas",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "01"
+    },
+    {
+      "id": "botox-dor",
+      "question": "A aplicação de Botox dói?",
+      "triggers": [
+        "botox doi",
+        "toxina botulinica doi",
+        "dor na aplicacao de botox"
+      ],
+      "answer": "A aplicação é feita com agulhas muito finas, e a sensação costuma ser de picadas rápidas. O desconforto varia de pessoa para pessoa e conforme a região tratada.\nPode haver vermelhidão, pequeno inchaço e hematoma no local, geralmente passageiros.",
+      "source": "Revisão da Mel em 25/10/2026, item 02",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs"
+      ],
+      "evidence_level": "Alta: informação clínica de sociedade médica",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "02"
+    },
+    {
+      "id": "botox-conforto",
+      "parent_id": "botox-dor",
+      "triggers": [
+        "sou sensivel a dor",
+        "recursos para dor no botox",
+        "mais conforto no botox"
+      ],
+      "source_original": "Complemento aprovado pela Mel no item 02a",
+      "references": [],
+      "research_date": null,
+      "evidence_level": "Orientação da clínica; sem nova avaliação científica nesta incorporação.",
+      "research_notes": "Complemento incluído no documento revisado pela Mel.",
+      "question": "Sou sensível à dor. Tem algum recurso que ajuda?",
+      "answer": "Sim. Para quem tem mais sensibilidade, a BC oferece:\nBolinha antiestresse para apertar durante a aplicação\nGelo na região antes das injeções\nAnestésico tópico, quando indicado\nVibra, um massageador elétrico usado perto do ponto de aplicação para distrair a sensação de dor\nConverse com a profissional na avaliação para escolher o que for melhor para você.",
+      "source": "Revisão da Mel em 25/10/2026, item 02a",
+      "review": "aprovado",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "02a",
+      "publication_approval": false,
+      "audience": "informativo",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada."
+    },
+    {
+      "id": "bioestimulador",
+      "question": "O que é um bioestimulador de colágeno?",
+      "triggers": [
+        "bioestimulador",
+        "estimular colageno",
+        "bioestimulacao"
+      ],
+      "answer": "Bioestimuladores são produtos injetáveis, como o ácido poli-L-lático (PLLA) e a hidroxiapatita de cálcio (CaHA), que estimulam as suas células a produzir colágeno de forma gradual. Por isso, o resultado aparece ao longo de semanas e meses, e não de imediato.\nO produto e a indicação são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 03",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Revisão técnica da responsável da BC necessária antes da publicação.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/41184662/",
+        "https://pubmed.ncbi.nlm.nih.gov/38693639/"
+      ],
+      "evidence_level": "Moderada/limitada: revisão de 14 estudos; eventos tardios documentados",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "03"
+    },
+    {
+      "id": "microagulhamento",
+      "question": "Como funciona o microagulhamento?",
+      "triggers": [
+        "microagulhamento",
+        "microagulhar"
+      ],
+      "answer": "O microagulhamento usa um dispositivo com agulhas muito finas para criar microlesões controladas na pele. Ele pode ter dois objetivos, conforme a sua queixa:\nEstimular colágeno: na cicatrização, as suas células produzem colágeno de forma gradual, o que melhora a textura e algumas cicatrizes de acne.\nLevar ativos até a pele: as microlesões facilitam a entrada de ativos escolhidos para a sua queixa. No couro cabeludo, por exemplo, podem ser usados ativos voltados ao estímulo dos folículos e à saúde dos fios.\nO número de sessões e os ativos são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 04",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars",
+      "references": [
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/",
+        "https://pubmed.ncbi.nlm.nih.gov/42281674/",
+        "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos"
+      ],
+      "evidence_level": "Moderada: estudos clínicos, metanálises por indicação",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "04"
+    },
+    {
+      "id": "limpeza-pele",
+      "question": "O que acontece em uma limpeza de pele?",
+      "triggers": [
+        "limpeza de pele",
+        "limpar os poros"
+      ],
+      "answer": "A limpeza de pele profissional começa com a avaliação do seu tipo de pele. Depois, a pele é higienizada e preparada, e os cravos (comedões) são extraídos com critério, quando indicado. Ao final, são aplicados cuidados para proteger a barreira da pele.\nA técnica e os produtos variam conforme o seu tipo de pele, a presença de acne e a sensibilidade.",
+      "source": "Revisão da Mel em 25/10/2026, item 05",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Revisão técnica da responsável da BC necessária antes da publicação.",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro"
+      ],
+      "evidence_level": "Limitada: prática de cuidado cutâneo, sem ensaios padronizados sobre protocolos comerciais",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "05"
+    },
+    {
+      "id": "peeling",
+      "question": "O que é um peeling?",
+      "triggers": [
+        "peeling",
+        "peeling quimico"
+      ],
+      "answer": "Peeling é um procedimento profissional que promove uma esfoliação controlada da pele, em diferentes profundidades. Existem dois tipos principais:\nPeeling químico: usa ácidos e outras substâncias aplicadas na pele.\nPeeling mecânico: a esfoliação é feita por meio de um equipamento ou de partículas abrasivas, sem ácidos.\nPode ser indicado para melhorar a textura, tratar acne e atenuar algumas manchas, conforme a sua queixa. O tipo de peeling, a profundidade e a frequência são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 06",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Revisão técnica da responsável da BC necessária antes da publicação.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://doi.org/10.1097/DSS.0000000000004167"
+      ],
+      "evidence_level": "Moderada: revisão e diretrizes dermatológicas",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "06"
+    },
+    {
+      "id": "black-peel",
+      "question": "Como funciona o Black Peel da BC?",
+      "triggers": [
+        "black peel",
+        "blackpeel"
+      ],
+      "answer": "O Black Peel, também conhecido como peeling hollywoodiano, combina uma máscara de carvão aplicada na pele com laser Nd:YAG. Ele pode ser indicado para:\nPoros dilatados: o carvão penetra nos poros e, ao receber a energia do laser, ajuda a desobstruí-los e a diminuir o seu aspecto.\nOleosidade: o calor do laser atua nas glândulas sebáceas e ajuda a controlar o excesso de sebo.\nTextura irregular e pele opaca: promove uma esfoliação superficial e remove células mortas, melhorando a luminosidade.\nColágeno e linhas finas: pode auxiliar na melhora do viço e na suavização de linhas finas.\nManchas superficiais e acne leve: ajuda a uniformizar o tom da pele.\nA indicação e o número de sessões são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 07",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Protocolo específico da BC ainda não validado pela responsável técnica.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/36422207/",
+        "https://pubmed.ncbi.nlm.nih.gov/38189060/",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Baixa: estudos observacionais/prospectivos pequenos; protocolo da BC não verificado",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Obrigatório confirmar se o Black Peel da BC utiliza realmente suspensão de carbono e laser; não inferir método pelo nome.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "07"
+    },
+    {
+      "id": "avaliacao",
+      "question": "Como saber qual procedimento combina comigo?",
+      "triggers": [
+        "qual procedimento e melhor",
+        "tratamento ideal para mim",
+        "qual tratamento devo fazer",
+        "qual procedimento devo fazer"
+      ],
+      "answer": "A escolha do procedimento que combina com você começa com uma consulta e avaliação profissional. Nela, são considerados o seu objetivo, histórico de saúde, medicamentos em uso, alergias, tendência a manchas ou cicatrizes e o seu tipo de pele. Também são alinhadas as suas expectativas.\nProcedimentos diferentes podem tratar a mesma queixa de formas diferentes, e uma mesma queixa pode precisar de procedimentos diferentes em pessoas diferentes.\nAgende sua consulta para saber qual é o melhor caminho para você.",
+      "source": "Revisão da Mel em 25/10/2026, item 08",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro"
+      ],
+      "evidence_level": "Normativa: recomendações sanitárias oficiais",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "08"
+    },
+    {
+      "id": "contato",
+      "question": "Como agendar uma avaliação na BC?",
+      "triggers": [
+        "como agendar avaliacao",
+        "marcar avaliacao",
+        "agendamento de avaliacao"
+      ],
+      "answer": "Você pode agendar sua consulta e avaliação aqui mesmo no site ou pelo WhatsApp.\nNo site, você envia um pré-pedido de agendamento e preenche a pré-anamnese. A nossa equipe confirma o horário com você, então o pedido só vale como agendado depois dessa confirmação.\nDados clínicos, como histórico de saúde e exames, devem ser enviados na área específica do site, e não por este chat.",
+      "source": "Revisão da Mel em 25/10/2026, item 09",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Orientação operacional a validar na integração com a agenda atual.",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Operacional + boas práticas de consentimento",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir rota e disponibilidade efetivas do site com a equipe.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "09"
+    },
+    {
+      "id": "botox-duracao",
+      "question": "Quanto tempo dura o efeito do Botox?",
+      "triggers": [
+        "quanto tempo dura o botox",
+        "duracao do botox",
+        "efeito do botox dura",
+        "botox dura quanto tempo",
+        "dura botox",
+        "durabilidade do botox"
+      ],
+      "answer": "O efeito do Botox dura, em geral, de 3 a 4 meses. Esse tempo varia conforme o produto, a musculatura, a dose e a resposta de cada pessoa.\nO efeito não é permanente: o movimento do músculo volta gradualmente. A hora de repetir a aplicação é definida no acompanhamento com o profissional, conforme o retorno dos movimentos e a sua necessidade.\nEm alguns casos, quando combinado com outros protocolos, o intervalo entre as aplicações pode ser maior.",
+      "source": "Revisão da Mel em 25/10/2026, item 10",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview/"
+      ],
+      "evidence_level": "Alta: informações clínicas consistentes",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "10"
+    },
+    {
+      "id": "botox-terco",
+      "question": "O que é Botox no terço superior?",
+      "triggers": [
+        "botox terco superior",
+        "toxina no terco superior",
+        "botox da testa"
+      ],
+      "answer": "O Botox no terço superior é a aplicação de toxina botulínica na parte de cima do rosto para suavizar rugas de expressão, relaxando temporariamente os músculos responsáveis por essas marcas.\nÁreas tratadas:\nTesta: músculo frontal, responsável pelas linhas horizontais ao levantar as sobrancelhas.\nGlabela: região entre as sobrancelhas, onde aparece o “vinco” de bravo ou de concentração.\nÁrea dos olhos: músculo orbicular, onde se formam os pés de galinha, rugas que aparecem ao sorrir ou piscar.\nNariz: eventualmente, inclui as bunny lines, rugas laterais ao franzir o nariz.\nA quantidade e os pontos de aplicação são definidos na avaliação com a profissional, conforme a sua anatomia e o seu histórico.",
+      "source": "Revisão da Mel em 25/10/2026, item 11",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Revisar descrição e protocolo do terço superior com a Mel.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/41508559/",
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs"
+      ],
+      "evidence_level": "Alta/moderada: revisões e ensaios da face superior",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "11"
+    },
+    {
+      "id": "botox-full",
+      "question": "O que significa Botox full face?",
+      "triggers": [
+        "botox full face",
+        "full face botox",
+        "botox no rosto todo"
+      ],
+      "answer": "O Botox full face é a aplicação de toxina botulínica em várias regiões do rosto, e em alguns casos do pescoço, tratando a face de forma global e integrada, em vez de focar apenas no terço superior. O objetivo é equilibrar as forças musculares do rosto, buscando um aspecto natural e melhora do contorno facial.\nRegiões tratadas:\nTerço superior: testa, glabela (entre as sobrancelhas) e pés de galinha.\nTerço médio: linhas do nariz (bunny lines) e correção do sorriso gengival.\nTerço inferior: rugas ao redor da boca (código de barras), elevação do canto dos lábios (sorriso triste) e melhora do contorno facial, com aplicação na inserção do músculo platisma.\nEm alguns casos, a aplicação pode incluir o pescoço (Botox Nefertiti).\nAs regiões e a quantidade são definidas na avaliação com a profissional, conforme a sua anatomia e a sua queixa.",
+      "source": "Revisão da Mel em 25/10/2026, item 12",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar a nomenclatura comercial e o protocolo da BC com a Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+        "https://pubmed.ncbi.nlm.nih.gov/41508559/"
+      ],
+      "evidence_level": "Variável por região; termo comercial sem protocolo universal",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Validar quais regiões do protocolo BC são autorizadas e quais são off-label.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "12"
+    },
+    {
+      "id": "botox-nefertiti",
+      "question": "O que é Botox Nefertiti?",
+      "triggers": [
+        "botox nefertiti",
+        "nefertiti",
+        "efeito nefertiti"
+      ],
+      "answer": "O Botox Nefertiti é a aplicação de toxina botulínica em músculos selecionados do pescoço e do contorno da mandíbula, para melhorar a aparência do ângulo da mandíbula e do contorno facial.\nO resultado não se compara ao de um lifting cirúrgico e varia de pessoa para pessoa. A indicação e os pontos de aplicação são definidos na avaliação com a profissional, conforme a sua anatomia.",
+      "source": "Revisão da Mel em 25/10/2026, item 13",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Descrição específica da BC ainda depende de validação pela Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Baixa/moderada: evidência menos consolidada que a face superior",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Aprovar linguagem e indicação do protocolo Nefertiti da BC.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "13"
+    },
+    {
+      "id": "limpeza-peeling",
+      "question": "Qual é a diferença da limpeza de pele com peeling?",
+      "triggers": [
+        "limpeza de pele com peeling",
+        "limpeza com peeling",
+        "limpeza e peeling"
+      ],
+      "answer": "A limpeza de pele tradicional é mais focada na higienização e na extração de cravos (comedões).\nA limpeza de pele com peeling, além disso, inclui duas etapas de esfoliação controlada: um peeling mecânico antes da extração e um peeling químico no final, para selar o procedimento. Isso promove uma renovação global da pele.\nA escolha entre as duas depende do seu tipo de pele, da sua queixa e da sua sensibilidade, e é definida na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 14",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar protocolo combinado da BC com a Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-preparation"
+      ],
+      "evidence_level": "Moderada para peeling isolado; limitada para protocolo combinado específico",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "14"
+    },
+    {
+      "id": "massagem-relaxante",
+      "question": "Como é uma massagem relaxante?",
+      "triggers": [
+        "massagem relaxante",
+        "massagem para relaxar"
+      ],
+      "answer": "A massagem relaxante usa manobras manuais para reduzir o estresse, aliviar tensões musculares e promover bem-estar físico e mental.\nPrincipais benefícios:\nAlívio da tensão muscular: pode diminuir a sensação de rigidez, especialmente nas costas, no pescoço e nos ombros.\nEstresse e ansiedade: muitas pessoas relatam redução temporária do estresse e sensação de relaxamento.\nQualidade do sono: pode ajudar no relaxamento e no descanso.\nAntes da sessão, a profissional avalia o seu histórico e as suas condições de saúde, e a pressão, a duração e as áreas trabalhadas são ajustadas ao seu conforto.",
+      "source": "Revisão da Mel em 25/10/2026, item 15",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar escopo do atendimento de massagem da BC com a Kátia e a Mel.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/32426160/",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Baixa/moderada para desfechos de conforto; evidência heterogênea",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "15"
+    },
+    {
+      "id": "drenagem",
+      "question": "O que é drenagem linfática?",
+      "triggers": [
+        "drenagem linfatica",
+        "drenagem",
+        "massagem linfatica"
+      ],
+      "answer": "A drenagem linfática é uma técnica de massagem manual, com movimentos suaves, lentos e rítmicos, que estimula o sistema linfático a transportar o excesso de líquidos retido nos tecidos.\nPrincipais benefícios:\nRedução de inchaço: pode ajudar a diminuir o inchaço em situações como gravidez, TPM ou pós-operatório de cirurgias plásticas, conforme liberação médica.\nRecuperação pós-operatória: pode auxiliar na recuperação e na redução de hematomas, conforme liberação médica.\nRelaxamento corporal: os movimentos lentos e ritmados costumam proporcionar sensação de leveza e bem-estar, e muitas pessoas relatam redução temporária da tensão e do estresse durante e após a sessão.",
+      "source": "Revisão da Mel em 25/10/2026, item 16",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar indicações e restrições com a responsável técnica da BC.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/39240801/",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Moderada em contextos clínicos de linfedema; limitada para promessas estéticas",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "16"
+    },
+    {
+      "id": "massagem-desportiva",
+      "question": "Como é a massagem desportiva?",
+      "triggers": [
+        "massagem desportiva",
+        "massagem esportiva",
+        "massagem pos treino"
+      ],
+      "answer": "A massagem desportiva usa manobras manuais voltadas à recuperação muscular e à flexibilidade, muitas vezes em quem pratica atividade física.\nEla pode ajudar a aliviar a dor muscular tardia e a melhorar a flexibilidade, mas não substitui treino, sono adequado nem reabilitação.",
+      "source": "Revisão da Mel em 25/10/2026, item 17",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar serviços oferecidos pela Kátia e protocolo interno.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/32426160/"
+      ],
+      "evidence_level": "Moderada: metanálise de 29 estudos; efeitos pequenos",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "17"
+    },
+    {
+      "id": "massagem-desportiva-agendamento",
+      "parent_id": "massagem-desportiva",
+      "triggers": [
+        "agendar massagem desportiva",
+        "voces fazem massagem desportiva",
+        "massagem desportiva na bc"
+      ],
+      "source_original": "Complemento aprovado pela Mel no item 17a",
+      "references": [],
+      "research_date": null,
+      "evidence_level": "Orientação da clínica; sem nova avaliação científica nesta incorporação.",
+      "research_notes": "Complemento incluído no documento revisado pela Mel.",
+      "question": "Como faço para agendar minha massagem desportiva na BC?",
+      "answer": "No momento, a BC não realiza massagem desportiva. Se quiser, posso te explicar sobre a massagem relaxante, que fazemos por aqui.",
+      "source": "Revisão da Mel em 25/10/2026, item 17a",
+      "review": "aprovado",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "17a",
+      "publication_approval": false,
+      "audience": "informativo",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada."
+    },
+    {
+      "id": "skinbooster",
+      "question": "O que é Skinbooster?",
+      "triggers": [
+        "skinbooster",
+        "skin booster",
+        "hidratacao injetavel"
+      ],
+      "answer": "Skinbooster, ou booster de pele, é o nome popular dado a aplicações injetáveis que melhoram a qualidade e a hidratação da pele.\nOs resultados dependem da substância escolhida, mas podem incluir mais hidratação, viço, melhora da textura e da qualidade da pele, além de um aspecto mais refinado dos poros e um tom mais uniforme.\nO produto e a indicação são definidos na avaliação profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 18",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Confirmar produtos registrados e protocolo exato da BC antes da publicação.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/41920062/",
+        "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/"
+      ],
+      "evidence_level": "Baixa/moderada: pesquisas heterogêneas entre marcas; não extrapolar resultado",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "18"
+    },
+    {
+      "id": "profhilo",
+      "question": "O que é Profhilo?",
+      "triggers": [
+        "profhilo",
+        "procedimento profhilo"
+      ],
+      "answer": "O Profhilo é um tratamento injetável à base de ácido hialurônico ultrapuro e de alta concentração, classificado como biorremodelador de tecidos. Diferente dos preenchedores tradicionais, a finalidade dele não é dar volume nem alterar os traços do rosto, e sim melhorar a qualidade, a firmeza e a hidratação da pele.\nO que o diferencia:\nComposição pura: é feito de ácido hialurônico sem agentes químicos de ligação cruzada (como o BDDE).\nBoa difusão: tem textura bem fluida, o que ajuda o produto a se espalhar de forma uniforme pelos tecidos após a aplicação.\nEstímulo biológico: estudos indicam que ele estimula a produção de elastina e de colágeno.\nIndicações:\nHidratação profunda, para pele ressecada ou opaca.\nMelhora da firmeza e da elasticidade da pele.\nO efeito varia de pessoa para pessoa. A indicação é definida na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 19",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar produto, registro e orientações de uso com a Mel.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/41920062/",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/"
+      ],
+      "evidence_level": "Baixa/moderada: revisão de 9 estudos/278 participantes, com potenciais conflitos comerciais",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar produto exato e registro brasileiro antes de oferecer este tratamento.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "19"
+    },
+    {
+      "id": "enzimas",
+      "question": "O que é aplicação de enzimas?",
+      "triggers": [
+        "aplicacao de enzimas",
+        "enzimas",
+        "enzima estetica"
+      ],
+      "answer": "A aplicação de enzimas, também conhecida como intradermoterapia ou mesoterapia, é um tratamento estético não cirúrgico que consiste na injeção de substâncias ativas diretamente na pele ou na camada subcutânea. As substâncias são escolhidas conforme a queixa.\nPara que pode ser indicada:\nGordura localizada: em regiões como abdômen, flancos, papada, culotes e braços.\nCelulite e flacidez: para melhorar o aspecto da pele.\nQueda de cabelo: a mesoterapia capilar leva ativos ao couro cabeludo.\nTrabalhamos com produtos de farmácias autorizadas, como Victa e PHD, com funcionamento regularizado perante a Anvisa.\nA indicação e as substâncias são definidas na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 20",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Pendente de definição formal de produtos e protocolo pela Mel.",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Insuficiente para o rótulo genérico; exige avaliação produto a produto",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Bloqueio de alegações comerciais específicas até identificação de substâncias e enquadramento sanitário.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "20"
+    },
+    {
+      "id": "ultrassom",
+      "question": "O que é ultrassom microfocado?",
+      "triggers": [
+        "ultrassom microfocado",
+        "microfocado",
+        "ultraformer"
+      ],
+      "answer": "O ultrassom microfocado é um tratamento estético não invasivo que usa ondas de ultrassom para gerar pontos de calor em camadas profundas da pele, estimulando a produção natural de colágeno. Ele pode atingir o “SMAS” (Sistema Músculo Aponeurótico Superficial), a mesma camada que é trabalhada nas cirurgias de lifting, mas o resultado não equivale ao de uma cirurgia.\nPrincipais indicações:\nFlacidez facial e corporal: pode melhorar a firmeza da face, do pescoço, do colo e de outras regiões do corpo.\nContorno facial: pode ajudar na definição da linha da mandíbula e na redução da papada.\nRugas e linhas de expressão: pode suavizar o aspecto envelhecido da pele.\nCaracterísticas:\nNão invasivo: não usa cortes, agulhas nem substâncias injetáveis.\nRetorno às atividades: na maioria dos casos, é possível retomar a rotina logo após a sessão.\nOs resultados começam a aparecer em torno de 30 dias, com efeito máximo entre 4 e 6 meses, e variam de pessoa para pessoa.\nA indicação é definida na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 21",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Confirmar equipamento, indicações e orientações usados pela BC.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/39540440/",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Moderada: revisão sistemática/metanálise específica de MFU-V",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Não generalizar achados de MFU-V para qualquer ultrassom microfocado.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "21"
+    },
+    {
+      "id": "radiofrequencia",
+      "question": "Como funciona a radiofrequência estética?",
+      "triggers": [
+        "radiofrequencia",
+        "criofrequencia",
+        "radiofrequencia fracionada"
+      ],
+      "answer": "A radiofrequência estética usa energia elétrica para aquecer os tecidos de forma controlada, com a proposta de melhorar a firmeza e a textura da pele e estimular a produção de colágeno.\nAlém da radiofrequência convencional, na BC utilizamos tecnologia que combina a radiofrequência com o resfriamento da pele (criofrequência). Também utilizamos radiofrequência e/ou criofrequência fracionadas, dependendo da queixa e do protocolo.\nPrincipais indicações:\nFlacidez facial e cervical: pode ajudar a melhorar a firmeza da pele.\nGordura localizada: pode ajudar no contorno de regiões como abdômen, flancos, glúteos, braços e papada.\nOs resultados variam conforme o aparelho, os parâmetros e a pessoa, e não são garantidos. A indicação e o número de sessões são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 22",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Pendente de identificação do equipamento e validação pela Mel.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/41426292/",
+        "https://www.fda.gov/medical-devices/safety-communications/potential-risks-certain-uses-radiofrequency-rf-microneedling-fda-safety-communication"
+      ],
+      "evidence_level": "Moderada para algumas modalidades; alerta de segurança específico para RF microagulhada",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar se BC usa RF não invasiva, fracionada, microagulhada ou criofrequência; revisar riscos específicos.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "22"
+    },
+    {
+      "id": "despigmentacao",
+      "question": "Como funciona a despigmentação de tatuagem?",
+      "triggers": [
+        "despigmentacao de tatuagem",
+        "remocao de tatuagem",
+        "tirar tatuagem"
+      ],
+      "answer": "A despigmentação de tatuagem é um procedimento que busca clarear ou remover o pigmento da tinta da pele. Na BC, o protocolo é personalizado caso a caso e pode combinar laser e microagulhamento com drug delivery (aplicação de ativos).\nNo laser, pulsos de energia fragmentam parte dos pigmentos, que são eliminados gradualmente pelo organismo.\nCor, tamanho, profundidade e tempo da tatuagem, tipo de tinta e tipo de pele influenciam o número de sessões.\nA indicação e o protocolo são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 23",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Confirmar tecnologia e protocolo da BC com a Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/hair-removal/laser-tattoo-removal",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13276302/",
+        "https://www.fda.gov/consumers/consumer-updates/tattoo-removal-options-and-results"
+      ],
+      "evidence_level": "Moderada: revisão sistemática e orientações AAD/FDA",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "23"
+    },
+    {
+      "id": "anamnese-explica",
+      "question": "O que é uma anamnese estética?",
+      "triggers": [
+        "o que e anamnese",
+        "para que serve anamnese",
+        "anamnese estetica"
+      ],
+      "answer": "A anamnese é uma conversa estruturada que acontece antes do procedimento. Nela, a profissional levanta a sua queixa, suas expectativas, medicamentos em uso, alergias, histórico de doenças e de procedimentos anteriores e tendência a cicatrizes.\nEssas informações ajudam a avaliar a segurança e a indicação do tratamento, por isso devem ser respondidas com sinceridade.\nEla pode ser preenchida presencialmente ou pela pré-anamnese, na área específica do site, e não por este chat. De qualquer forma, a profissional sempre revisa as informações com você, presencialmente, antes do procedimento.",
+      "source": "Revisão da Mel em 25/10/2026, item 24",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Fluxo de anamnese digital da BC; revisar campos e política de privacidade.",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-preparation"
+      ],
+      "evidence_level": "Normativa/boa prática clínica e privacidade",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "24"
+    },
+    {
+      "id": "cadastro-basico",
+      "question": "Quais dados preciso informar para agendar?",
+      "triggers": [
+        "quais dados para agendar",
+        "precisa de cpf para agendar",
+        "precisa de data de nascimento para agendar",
+        "dados obrigatorios agendamento"
+      ],
+      "answer": "Para enviar o pré-pedido de agendamento, você informa o seu nome completo e o telefone. Outros dados, como CPF e data de nascimento, podem ser solicitados depois pela equipe, quando necessário.\nNão envie esses dados por este chat. Use o formulário do site. O horário só é confirmado depois que a nossa equipe verificar a agenda.",
+      "source": "Revisão da Mel em 25/10/2026, item 25",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Requisito operacional informado por Fernando e Mel em outubro de 2026.",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Operacional (não é conclusão de artigo científico)",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir telas atuais do BC Gestão antes de liberar para clientes.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "25"
+    },
+    {
+      "id": "agendamento-horarios",
+      "question": "Como vejo os horários disponíveis?",
+      "triggers": [
+        "ver horarios disponiveis",
+        "horarios disponiveis",
+        "horarios livres da bc",
+        "quando tem horario",
+        "calendario da bc"
+      ],
+      "answer": "Aqui no site, você escolhe a data e vê os horários disponíveis para enviar o seu pré-pedido de agendamento. Atendemos de terça a sábado, das 9h às 19h.\nO horário escolhido ainda não está reservado: a nossa equipe confirma com você pelo WhatsApp. Pode acontecer de alguém reservar o mesmo horário antes, e nesse caso a equipe combina uma nova opção com você.\nEu não consigo ver a agenda em tempo real.",
+      "source": "Revisão da Mel em 25/10/2026, item 26",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Validar interface e regras atuais de agenda com a equipe.",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Operacional; depende da versão real da agenda",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "26"
+    },
+    {
+      "id": "peeling-diferenca",
+      "question": "Black Peel e peeling comum são iguais?",
+      "triggers": [
+        "diferenca black peel peeling",
+        "black peel e peeling",
+        "black peel versus peeling"
+      ],
+      "answer": "Não, são procedimentos diferentes.\nO peeling comum pode ser químico, com ácidos aplicados na pele, ou mecânico, por meio de equipamento ou partículas abrasivas. O Black Peel, também chamado de peeling hollywoodiano, combina uma máscara de carvão com laser Nd:YAG.\nOs dois promovem renovação da pele, mas por mecanismos diferentes. A escolha depende da sua queixa e do seu tipo de pele, e é definida na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 27",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Pendente de aprovação dos dois protocolos específicos pela Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://pubmed.ncbi.nlm.nih.gov/36422207/",
+        "https://pubmed.ncbi.nlm.nih.gov/38189060/"
+      ],
+      "evidence_level": "Peeling: moderada; carbon laser: baixa, com protocolos variáveis",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Verificar método exato do Black Peel da BC.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "27"
+    },
+    {
+      "id": "antes-depois",
+      "question": "O resultado vai ficar igual ao antes e depois?",
+      "triggers": [
+        "resultado igual ao antes e depois",
+        "foto antes e depois",
+        "fotos antes e depois",
+        "resultado garantido",
+        "vou ficar igual a foto"
+      ],
+      "answer": "As fotos de antes e depois mostram o resultado de uma pessoa, e cada pessoa responde de um jeito ao tratamento.\nNa avaliação, a profissional explica qual resultado é possível no seu caso, a manutenção e se serão necessárias mais sessões.",
+      "source": "Revisão da Mel em 25/10/2026, item 28",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro"
+      ],
+      "evidence_level": "Boa prática de comunicação e consentimento",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "28"
+    },
+    {
+      "id": "pos-cuidados",
+      "question": "Quais cuidados devo ter após um procedimento?",
+      "triggers": [
+        "cuidados depois do procedimento",
+        "pos procedimento",
+        "cuidados apos o botox",
+        "pos botox",
+        "depois do peeling"
+      ],
+      "answer": "Os cuidados dependem do procedimento realizado. As orientações pós-procedimento são passadas pela profissional, normalmente pelo WhatsApp, e também podem ser entregues por escrito. Siga exatamente o que foi recomendado.\nEm caso de dúvidas, procure a nossa equipe.",
+      "source": "Revisão da Mel em 25/10/2026, item 29",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Orientações pós-procedimento individuais devem ser aprovadas pela Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/",
+        "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers"
+      ],
+      "evidence_level": "Diretriz dermatológica/sinais de alerta; conduta específica individual",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "29"
+    },
+    {
+      "id": "recuperacao",
+      "question": "Qual é o tempo de recuperação?",
+      "triggers": [
+        "tempo de recuperacao",
+        "tempo para recuperar",
+        "voltar a rotina depois",
+        "quando volto a trabalhar"
+      ],
+      "answer": "O tempo de recuperação varia conforme o procedimento, a área tratada, a intensidade e a resposta de cada pessoa. Alguns procedimentos permitem retomar a rotina logo em seguida, e outros pedem alguns dias de cuidado.\nA profissional explica o tempo esperado para o seu caso e as orientações de cada fase, na avaliação e depois da sessão.",
+      "source": "Revisão da Mel em 25/10/2026, item 30",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Pendente de diretrizes pós-procedimento validadas pela Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/",
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs"
+      ],
+      "evidence_level": "Moderada: guias clínicos com tempos variáveis",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "30"
+    },
+    {
+      "id": "botox-preenchimento",
+      "question": "Botox e preenchimento são a mesma coisa?",
+      "triggers": [
+        "botox e preenchimento",
+        "diferenca entre botox e preenchimento",
+        "botox versus preenchimento"
+      ],
+      "answer": "Não, são procedimentos diferentes, com finalidades diferentes.\nO Botox (toxina botulínica) relaxa temporariamente músculos específicos para suavizar rugas de expressão, como as da testa e ao redor dos olhos.\nO preenchimento, geralmente feito com ácido hialurônico, repõe volume e, por isso, pode ser usado em áreas estratégicas para devolver sustentação ou mesmo modificar e melhorar contornos, como em sulcos e na região dos lábios e do maxilar.\nUm não substitui o outro, e a escolha depende da sua queixa e da sua anatomia, definidas na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 31",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.fda.gov/consumers/consumer-updates/dermal-filler-dos-and-donts-wrinkles-lips-and-more",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+        "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers"
+      ],
+      "evidence_level": "Alta para distinção de mecanismos; alerta de segurança FDA",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "31"
+    },
+    {
+      "id": "preenchimento-facial",
+      "question": "O que é preenchimento facial?",
+      "triggers": [
+        "preenchimento facial",
+        "preenchimento com acido hialuronico",
+        "preenchimento nos labios"
+      ],
+      "answer": "O preenchimento facial é um procedimento injetável que repõe volume em áreas estratégicas do rosto, para devolver sustentação ou modificar e melhorar contornos, como em sulcos e na região dos lábios e do maxilar.\nA duração e o resultado dependem do produto utilizado e da sua anatomia, e não são permanentes em todos os casos.\nA indicação, o produto e as áreas tratadas são definidos na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 32",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers",
+      "references": [
+        "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/"
+      ],
+      "evidence_level": "Normativa FDA/Anvisa e dados clínicos de risco",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "32"
+    },
+    {
+      "id": "peeling-sol",
+      "question": "Quais cuidados com o sol depois de peeling?",
+      "triggers": [
+        "sol depois do peeling",
+        "sol apos peeling",
+        "cuidados com o sol peeling",
+        "proteger a pele depois do peeling"
+      ],
+      "answer": "Depois do peeling, a pele tende a ficar mais sensível ao sol e mais vulnerável a manchas. Evitar a exposição solar direta é sempre importante, mas o tempo de recuperação é individual e depende do tipo de peeling.\nApós a sessão, você recebe recomendações personalizadas para o seu fototipo e coerentes com o tratamento escolhido.",
+      "source": "Revisão da Mel em 25/10/2026, item 33",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/everyday-care/sun-protection/shade-clothing-sunscreen/practice-safe-sun"
+      ],
+      "evidence_level": "Alta: orientação dermatológica para pós-peeling",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "33"
+    },
+    {
+      "id": "protetor-solar",
+      "question": "Por que usar protetor solar no cuidado da pele?",
+      "triggers": [
+        "protetor solar",
+        "fotoprotecao",
+        "como proteger a pele do sol"
+      ],
+      "answer": "A radiação solar (UVA e UVB) contribui para o câncer de pele, para manchas e para o envelhecimento da pele. O protetor solar é uma das principais formas de se proteger.\nUse um produto de amplo espectro, resistente à água e com FPS 30 ou mais nas áreas expostas, e reaplique ao ar livre, principalmente depois de suar ou de se molhar.",
+      "source": "Revisão da Mel em 25/10/2026, item 34",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/everyday-care/sun-protection/shade-clothing-sunscreen/how-to-select-sunscreen",
+      "references": [
+        "https://www.aad.org/public/everyday-care/sun-protection/shade-clothing-sunscreen/practice-safe-sun",
+        "https://www.aad.org/public/diseases/a-z/melasma-self-care"
+      ],
+      "evidence_level": "Alta: orientações dermatológicas e fotoproteção",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "34"
+    },
+    {
+      "id": "tatuagem-sessoes",
+      "question": "É possível remover uma tatuagem em uma sessão?",
+      "triggers": [
+        "remover tatuagem em uma sessao",
+        "quantas sessoes remover tatuagem",
+        "tatuagem sai na primeira sessao"
+      ],
+      "answer": "Na maioria dos casos, não. O laser fragmenta o pigmento, e o organismo precisa eliminá-lo aos poucos, por isso o número de sessões varia de pessoa para pessoa.\nCor, tamanho, profundidade e tempo da tatuagem, tipo de tinta e tipo de pele influenciam o resultado. Na BC, o protocolo é personalizado caso a caso e pode combinar laser e microagulhamento com drug delivery.\nO número de sessões é estimado na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 35",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.fda.gov/consumers/consumer-updates/tattoo-removal-options-and-results",
+      "references": [
+        "https://www.aad.org/public/cosmetic/hair-removal/laser-tattoo-removal",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13276302/"
+      ],
+      "evidence_level": "Moderada: revisão de estudos e diretriz dermatológica",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "35"
+    },
+    {
+      "id": "quantas-sessoes",
+      "question": "Quantas sessões de um procedimento vou precisar?",
+      "triggers": [
+        "quantas sessoes vou precisar",
+        "quantas sessoes sao necessarias",
+        "numero de sessoes",
+        "quantidade de sessoes"
+      ],
+      "answer": "O número de sessões depende da técnica, da sua queixa e de como a sua pele responde, e não apenas do nome do procedimento.\nEm alguns casos, como no microagulhamento e nos peelings superficiais, costuma haver mais de uma sessão. Já o resultado da toxina botulínica se relaciona com a duração do efeito.\nNão é possível definir uma quantidade sem avaliar a sua pele e os seus objetivos. Na avaliação, a profissional explica o número de sessões, os intervalos e como o resultado será acompanhado.",
+      "source": "Revisão da Mel em 25/10/2026, item 36",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Orientação geral: revisar protocolos e parâmetros específicos da BC com a Mel.",
+      "references": [
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/",
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs"
+      ],
+      "evidence_level": "Evidência por indicação; sem número universal",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "36"
+    },
+    {
+      "id": "produto-seguro",
+      "question": "Como conferir a segurança de um produto usado em estética?",
+      "triggers": [
+        "produto autorizado pela anvisa",
+        "como verificar produto estetico",
+        "produto seguro estetica",
+        "como saber se produto e registrado"
+      ],
+      "answer": "A segurança de um produto não se confirma só pelo nome comercial ou por uma publicação. O primeiro passo é pedir à profissional o nome do produto, o fabricante, o lote, a validade e a finalidade de uso.\nDepois, é possível consultar a regularização no portal da Anvisa. Produtos injetáveis têm regras diferentes dos cosméticos de uso tópico, e o uso precisa corresponder à finalidade autorizada.\nNa BC, trabalhamos somente com produtos regularizados na Anvisa.",
+      "source": "Revisão da Mel em 25/10/2026, item 37",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/",
+        "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro"
+      ],
+      "evidence_level": "Normativa sanitária oficial",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "37"
+    },
+    {
+      "id": "skinbooster-bioestimulador",
+      "question": "Skinbooster e bioestimulador têm o mesmo objetivo?",
+      "triggers": [
+        "skinbooster e bioestimulador",
+        "diferenca skinbooster bioestimulador",
+        "skinbooster versus bioestimulador"
+      ],
+      "answer": "Não exatamente. Os dois buscam melhorar a qualidade da pele, mas de formas diferentes.\nO skinbooster (ou booster de pele) é voltado principalmente à qualidade e à hidratação da pele, e os resultados dependem da substância escolhida.\nJá os bioestimuladores, como o ácido poli-L-lático (PLLA) e a hidroxiapatita de cálcio (CaHA), estimulam as suas células a produzir colágeno de forma gradual, em um processo mais prolongado.\nA escolha depende da sua queixa e é definida na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 38",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Comparação educativa em rascunho; validar produtos e protocolos adotados pela BC.",
+      "references": [
+        "https://pubmed.ncbi.nlm.nih.gov/41184662/",
+        "https://pubmed.ncbi.nlm.nih.gov/41920062/",
+        "https://www.fda.gov/medical-devices/aesthetic-cosmetic-devices/dermal-fillers-soft-tissue-fillers"
+      ],
+      "evidence_level": "Moderada para PLLA/CaHA; limitada para algumas marcas de booster",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "38"
+    },
+    {
+      "id": "app-senha",
+      "question": "Esqueci minha senha do aplicativo. Como recupero?",
+      "triggers": [
+        "esqueci minha senha",
+        "recuperar senha",
+        "redefinir senha",
+        "nao consigo entrar no login"
+      ],
+      "answer": "Na tela de login, procure a opção “Esqueci minha senha” e siga o link enviado ao e-mail cadastrado. Nunca informe a sua senha por este chat.\nSe o e-mail não chegar ou o acesso continuar bloqueado, fale com a administração.",
+      "source": "Revisão da Mel em 25/10/2026, item 39",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Fluxo de recuperação previsto em gestao/redefinir-senha; validar tela atual.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "39"
+    },
+    {
+      "id": "app-cancelar",
+      "question": "Como remarcar ou cancelar um agendamento?",
+      "triggers": [
+        "cancelar agendamento",
+        "remarcar agendamento",
+        "alterar meu agendamento",
+        "desmarcar horario"
+      ],
+      "answer": "Para remarcar ou cancelar, fale com a nossa equipe pelo WhatsApp, informando o seu nome e o dia e horário marcados. Eu não consigo alterar nem cancelar agendamentos por aqui.\nA alteração só vale depois da confirmação da equipe.",
+      "source": "Revisão da Mel em 25/10/2026, item 40",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Funcionalidade de remarcação/cancelamento precisa ser conferida na gestão BC.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "40"
+    },
+    {
+      "id": "app-profissional",
+      "question": "Posso escolher a profissional ao agendar?",
+      "triggers": [
+        "escolher profissional",
+        "escolher a doutora",
+        "agendar com a mel",
+        "agendar com alice",
+        "agendar com aline",
+        "agendar com katia"
+      ],
+      "answer": "Sim, ao enviar o pré-pedido você pode indicar a profissional de sua preferência. Os horários exibidos respeitam os procedimentos que cada profissional realiza e a agenda dela.\nComo em qualquer pré-pedido, o horário só vale depois da confirmação da nossa equipe pelo WhatsApp.",
+      "source": "Revisão da Mel em 25/10/2026, item 41",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Requisito da Agenda V2 informado por Fernando; validar implementação atual.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "41"
+    },
+    {
+      "id": "app-link-expirou",
+      "question": "O link da anamnese expirou. O que faço?",
+      "triggers": [
+        "link da anamnese expirou",
+        "link de anamnese vencido",
+        "anamnese link expirado",
+        "nao abre link anamnese"
+      ],
+      "answer": "Os links da anamnese podem deixar de funcionar por expiração ou por algum erro. Para receber um novo, fale com a nossa equipe pelo WhatsApp.\nA equipe confirma a sua identidade e envia um novo link pelo canal oficial. Não envie dados de saúde por este chat e não use links de outras pessoas.",
+      "source": "Revisão da Mel em 25/10/2026, item 42",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Fluxo previsto de anamnese remota; validar regra de expiração e renovação no backend BC.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "42"
+    },
+    {
+      "id": "app-completar-cadastro",
+      "question": "Posso completar CPF e data de nascimento depois?",
+      "triggers": [
+        "completar cpf depois",
+        "preencher data de nascimento depois",
+        "cadastro so nome e telefone",
+        "cadastrar sem cpf"
+      ],
+      "answer": "Sim. Para enviar o pré-pedido de agendamento, basta informar o seu nome completo e o telefone.\nO CPF, a data de nascimento e outros dados podem ser solicitados depois pela nossa equipe, quando forem necessários, e preenchidos no formulário próprio, e não por este chat.",
+      "source": "Revisão da Mel em 25/10/2026, item 43",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Solicitação de Mel e Fernando de 17/10/2026; pendente de teste de ponta a ponta.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "43"
+    },
+    {
+      "id": "app-folga",
+      "question": "Como bloquear horários por férias ou folga?",
+      "triggers": [
+        "bloquear agenda ferias",
+        "inativar agenda",
+        "bloquear horarios por folga",
+        "agenda por motivos pessoais"
+      ],
+      "answer": "Só pessoas autorizadas podem bloquear a agenda de uma profissional. Quem tem essa permissão encontra a opção na agenda da profissional, escolhe o período e registra o motivo, como férias, folga ou questões pessoais.\nEu não consigo bloquear horários por aqui. Se você não tem essa permissão, fale com a administração.",
+      "source": "Revisão da Mel em 25/10/2026, item 44",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Requisito definido na Agenda V2; implementação atual ainda precisa de validação.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "44"
+    },
+    {
+      "id": "app-dados-chat",
+      "question": "Posso enviar exames ou informações clínicas pelo chat da Maya?",
+      "triggers": [
+        "enviar exames pelo chat",
+        "mandar cpf para maya",
+        "passar dados clinicos no chat",
+        "enviar anamnese aqui",
+        "mandar foto de documento"
+      ],
+      "answer": "Não. Por segurança, não envie exames, fotos de prontuário, CPF nem informações de saúde por este chat.\nDados clínicos devem ser enviados somente na área específica do site, ou entregues à nossa equipe. Eu posso orientar o caminho, mas não coleto dados de saúde.",
+      "source": "Revisão da Mel em 25/10/2026, item 45",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Regra de privacidade e segurança definida para o protótipo da Maya.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "45"
+    },
+    {
+      "id": "peeling-preparo",
+      "question": "Como me preparar para uma avaliação de peeling químico?",
+      "triggers": [
+        "preparacao para peeling",
+        "como me preparar para um peeling",
+        "antes do peeling o que fazer"
+      ],
+      "answer": "Para a avaliação, leve informações sobre os medicamentos e cosméticos que você usa, tratamentos recentes, alergias, histórico de herpes labial, problemas de cicatrização, exposição ao sol ou bronzeamento recente e uso atual ou anterior de isotretinoína.\nDependendo do caso, a profissional pode indicar um preparo da pele nas semanas antes do peeling. Não interrompa nenhum tratamento por conta própria.\nNa avaliação, vale perguntar qual será a profundidade do peeling, qual benefício é realista para você, qual é o risco de manchas e quais cuidados serão necessários depois.",
+      "source": "Revisão da Mel em 25/10/2026, item 46",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-preparation",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-preparation",
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs"
+      ],
+      "evidence_level": "Alta: recomendações clínicas de preparo",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "46"
+    },
+    {
+      "id": "estetica-perguntas-consulta",
+      "question": "O que devo perguntar antes de fazer um procedimento estético?",
+      "triggers": [
+        "o que perguntar antes do procedimento",
+        "quais perguntas fazer na avaliacao",
+        "perguntas antes de tratamento estetico"
+      ],
+      "answer": "Antes de qualquer procedimento, vale perguntar:\nQual queixa pode ser tratada e qual resultado é realista para o seu caso\nQuais são as alternativas disponíveis\nQuantas sessões provavelmente serão necessárias e qual é o custo\nQuais são os riscos, as contraindicações e os sinais que exigem retorno\nQual produto ou equipamento será usado e se está regularizado na Anvisa\nComo é a recuperação e quais cuidados serão necessários depois, inclusive a proteção solar\nQuem fará o acompanhamento depois do procedimento\nNa BC, trabalhamos somente com produtos regularizados na Anvisa, e a profissional explica cada um desses pontos na avaliação.",
+      "source": "Revisão da Mel em 25/10/2026, item 47",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/"
+      ],
+      "evidence_level": "Normativa sanitária e consentimento esclarecido",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "47"
+    },
+    {
+      "id": "manchas-fotoprotecao",
+      "question": "Protetor com cor pode ajudar no cuidado de manchas?",
+      "triggers": [
+        "protetor com cor para manchas",
+        "manchas escuras sol",
+        "proteger manchas do rosto"
+      ],
+      "answer": "O protetor solar com cor é interessante por reunir dois tipos de proteção: a química, vinda dos filtros da fórmula, e a física, vinda dos pigmentos, como o óxido de ferro, que também ajudam a bloquear a luz visível.\nApesar disso, a proteção só é eficaz se a quantidade aplicada for a necessária. Ele não deve ser usado como se fosse maquiagem.",
+      "source": "Revisão da Mel em 25/10/2026, item 48",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/everyday-care/skin-care-secrets/routine/fade-dark-spots",
+      "references": [
+        "https://www.aad.org/public/everyday-care/skin-care-secrets/routine/fade-dark-spots",
+        "https://www.aad.org/public/diseases/a-z/melasma-self-care"
+      ],
+      "evidence_level": "Alta: orientações AAD específicas de hiperpigmentação",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "48"
+    },
+    {
+      "id": "tatuagem-avaliacao",
+      "question": "Por que preciso de avaliação antes de remover uma tatuagem?",
+      "triggers": [
+        "avaliacao remover tatuagem",
+        "avaliacao antes de tirar tatuagem",
+        "cor da tatuagem influencia remocao"
+      ],
+      "answer": "A avaliação identifica as cores da tinta, a densidade, a região, o seu tipo de pele, a tendência a cicatrizes e o histórico de reação a pigmentos. Com esses dados, a profissional define o protocolo mais adequado e discute a segurança e a possibilidade de clareamento.\nO laser atua em pigmentos específicos, e cada cor responde de um jeito. Por isso, na BC o protocolo é personalizado caso a caso.\nA avaliação também verifica sinais de reação alérgica ou infecção antes de começar.",
+      "source": "Revisão da Mel em 25/10/2026, item 49",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/hair-removal/laser-tattoo-removal",
+      "references": [
+        "https://www.aad.org/public/cosmetic/hair-removal/laser-tattoo-removal",
+        "https://www.fda.gov/consumers/consumer-updates/tattoo-removal-options-and-results"
+      ],
+      "evidence_level": "Alta: orientação AAD/FDA",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "49"
+    },
+    {
+      "id": "esfoliacao-cuidados",
+      "question": "Posso esfoliar a pele em casa após um tratamento?",
+      "triggers": [
+        "esfoliar pele em casa",
+        "esfoliar depois de procedimento",
+        "esfoliacao apos tratamento estetico"
+      ],
+      "answer": "Não recomendamos o uso de esfoliantes em casa por vários motivos. Primeiro, porque muitos produtos de skincare contêm ácidos na composição, que são esfoliantes químicos. Segundo, o excesso de esfoliação, ou a esfoliação descontrolada, impede que a pele se recupere no tempo adequado e pode piorar a barreira cutânea e a aparência da pele, além de causar manchas.\nTambém não recomendamos remover descamações ou crostas. O momento de retomar a sua rotina é definido pela profissional, nas orientações pós-procedimento.",
+      "source": "Revisão da Mel em 25/10/2026, item 50",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/everyday-care/skin-care-secrets/routine/safely-exfoliate-at-home",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/"
+      ],
+      "evidence_level": "Alta: recomendações de recuperação dermatológica",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "50"
+    },
+    {
+      "id": "clinica-segura",
+      "question": "Como avaliar se uma clínica de estética é segura?",
+      "triggers": [
+        "como saber se clinica e segura",
+        "higiene clinica estetica",
+        "alvara da clinica estetica"
+      ],
+      "answer": "A segurança de uma clínica começa pela licença sanitária, por profissionais habilitados, instalações limpas, esterilização adequada e produtos rastreáveis e regularizados na Anvisa.\nAntes de um procedimento, vale perguntar como a equipe lida com alergias e intercorrências, como registra o consentimento e quais orientações passa por escrito. Nenhum ambiente está livre de riscos, mas controle sanitário, indicação correta e comunicação transparente são essenciais.\nNa BC, trabalhamos somente com produtos regularizados na Anvisa.",
+      "source": "Revisão da Mel em 25/10/2026, item 51",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/estabelecimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/procedimento-seguro",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/"
+      ],
+      "evidence_level": "Normativa sanitária oficial",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "51"
+    },
+    {
+      "id": "app-atendimento-confirmacao",
+      "question": "Como conferir se um atendimento foi registrado?",
+      "triggers": [
+        "como conferir atendimento lancado",
+        "atendimento ficou salvo",
+        "registro de atendimento duplicado"
+      ],
+      "answer": "Depois de lançar um atendimento no aplicativo, confira se ele aparece no histórico da cliente certa, com a data e o procedimento esperados.\nSe tiver dúvida ou suspeita de duplicidade, não lance o atendimento de novo antes de verificar. Eu não consigo consultar os registros por aqui. Em caso de dúvida, fale com a administração.",
+      "source": "Revisão da Mel em 25/10/2026, item 52",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Guia operacional proposto; confirmar localização do histórico e regra contra duplicidade na BC Gestão.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "52"
+    },
+    {
+      "id": "app-anamnese-status",
+      "question": "Como verificar se a cliente respondeu à anamnese?",
+      "triggers": [
+        "como verificar anamnese respondida",
+        "cliente respondeu anamnese",
+        "anamnese concluida no sistema"
+      ],
+      "answer": "Para saber se a cliente respondeu, abra o cadastro dela e consulte o status da anamnese na área própria. Não presuma que o formulário foi enviado ou concluído só porque o link foi criado.\nEu não consigo consultar esse status por aqui, e as respostas clínicas não devem ser enviadas por este chat.",
+      "source": "Revisão da Mel em 25/10/2026, item 53",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Fluxo operacional em elaboração; confirmar tela, status e permissões da anamnese na BC Gestão.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "53"
+    },
+    {
+      "id": "app-agenda-expediente",
+      "question": "Qual é o horário planejado para a agenda da BC?",
+      "triggers": [
+        "ultimo horario de agendamento bc",
+        "almoco na agenda da bc",
+        "expediente da agenda bc",
+        "horario de funcionamento",
+        "horario de atendimento",
+        "dias de atendimento",
+        "qual horario da bc"
+      ],
+      "answer": "A BC atende de terça a sábado, das 9h às 19h.\nOs horários disponíveis para cada procedimento e profissional podem variar. Para reservar, escolha a data no site e veja as opções livres. O horário só é confirmado depois que a nossa equipe verificar a agenda e falar com você pelo WhatsApp.",
+      "source": "Revisão da Mel em 25/10/2026, item 54",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "Planejamento da Agenda V2 relatado por Fernando em 15/10/2026; validar regras atuais antes da integração.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "54"
+    },
+    {
+      "id": "app-cadastro-duplicado",
+      "question": "O que fazer se a cliente já tiver cadastro na BC?",
+      "triggers": [
+        "cliente ja existe cadastro",
+        "cadastro duplicado cliente",
+        "duas clientes com mesmo nome"
+      ],
+      "answer": "Antes de cadastrar de novo, pesquise o cadastro da cliente no sistema, usando os dados permitidos, como nome e telefone. Se ela já existir, use o cadastro existente e atualize o que for necessário, se você tiver permissão.\nConfirme a identidade da cliente por um canal adequado antes de alterar qualquer dado, e evite criar um segundo cadastro sem verificar. Eu não consigo juntar cadastros nem acessar dados reais por aqui.",
+      "source": "Revisão da Mel em 25/10/2026, item 55",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Regra operacional recomendada; validar busca, autorização e deduplicação na BC Gestão.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "55"
+    },
+    {
+      "id": "produto-regularizado",
+      "question": "Como saber se um produto estético está regularizado na Anvisa?",
+      "triggers": [
+        "consultar produto na anvisa",
+        "produto registrado anvisa",
+        "produto regularizado",
+        "verificar registro do produto"
+      ],
+      "answer": "No portal de consultas da Anvisa, pesquise pelo nome comercial, pelo fabricante ou CNPJ, pelo número de registro ou pelo processo, e abra o resultado para ver a situação e a finalidade autorizadas.\nOs status “ativo” ou “válido” indicam regularização. “Inativo” ou “inválido” não devem ser entendidos como autorização.\nAntes de pesquisar, identifique se o item é cosmético, medicamento ou produto para saúde, porque as regras são diferentes. No caso de um injetável, não basta encontrar um cosmético com nome parecido: o enquadramento e o uso precisam corresponder ao produto que será aplicado.",
+      "source": "Revisão da Mel em 25/10/2026, item 56",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/",
+        "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos"
+      ],
+      "evidence_level": "Normativa sanitária oficial",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "56"
+    },
+    {
+      "id": "cosmetico-injetavel",
+      "question": "Um cosmético pode ser usado como produto injetável?",
+      "triggers": [
+        "cosmetico injetavel",
+        "cosmetico pode ser injetado",
+        "injetar cosmeticos"
+      ],
+      "answer": "Não. A Anvisa informa que produtos aplicados por injeção, ou introduzidos em camadas profundas da pele, não podem ser regularizados como cosméticos.\nProdutos para esse tipo de aplicação precisam de enquadramento próprio, como medicamento ou produto para saúde, conforme as características de cada um, e devem ser usados de acordo com a indicação autorizada. A expressão “uso profissional” no rótulo não transforma um cosmético em produto injetável.\nAntes de qualquer procedimento, a equipe deve conferir o registro, a finalidade e as condições de uso do produto.",
+      "source": "Revisão da Mel em 25/10/2026, item 57",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos",
+      "references": [
+        "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos",
+        "https://www.gov.br/anvisa/pt-br/comunicacao/campanhas/estetica/como-saber-se-um-produto-e-autorizado-pela-anvisa/"
+      ],
+      "evidence_level": "Normativa Anvisa; alerta explícito sobre eventos adversos",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "57"
+    },
+    {
+      "id": "peeling-descamacao",
+      "question": "A pele pode descamar após um peeling?",
+      "triggers": [
+        "pele descamar depois do peeling",
+        "peeling causa descamacao",
+        "descamar depois do peeling"
+      ],
+      "answer": "Sim, a descamação é uma reação possível após o peeling. A intensidade varia conforme o tipo de peeling, a profundidade e a resposta da sua pele. Em peelings mais superficiais ela costuma ser discreta, e em peelings mais profundos pode vir acompanhada de vermelhidão e crostas, com recuperação mais demorada.\nNão puxe as peles soltas nem use esfoliantes para acelerar o processo, porque isso aumenta o risco de manchas e cicatrizes. A ausência de descamação visível também não significa que o tratamento não funcionou.\nSe tiver dor intensa, bolhas ou secreção, procure a nossa equipe.",
+      "source": "Revisão da Mel em 25/10/2026, item 58",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs"
+      ],
+      "evidence_level": "Alta: diretriz clínica com diferenciação de profundidade",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "58"
+    },
+    {
+      "id": "peeling-riscos",
+      "question": "Peeling químico tem riscos?",
+      "triggers": [
+        "riscos do peeling quimico",
+        "peeling tem riscos",
+        "efeitos adversos do peeling"
+      ],
+      "answer": "Sim, como qualquer procedimento. Os peelings podem causar ardência, vermelhidão, escurecimento ou clareamento irregular da pele e, mais raramente, infecção ou cicatrizes.\nO risco aumenta com peelings mais profundos, exposição ao sol, tipo de pele mais suscetível a manchas, preparo inadequado e manipulação das crostas.\nPor isso, a avaliação identifica histórico de herpes, tendência a queloide, medicamentos em uso, procedimentos recentes e a necessidade de proteção solar. “Seguro” não significa risco zero: a equipe explica como prevenir e o que fazer caso ocorra alguma intercorrência.",
+      "source": "Revisão da Mel em 25/10/2026, item 59",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+      "references": [
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-faqs",
+        "https://www.aad.org/public/cosmetic/younger-looking/chemical-peels-preparation"
+      ],
+      "evidence_level": "Alta: sociedades de dermatologia",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "59"
+    },
+    {
+      "id": "microagulhamento-caseiro",
+      "question": "Posso fazer microagulhamento em casa?",
+      "triggers": [
+        "microagulhamento em casa",
+        "dermaroller caseiro",
+        "agulhas em casa na pele"
+      ],
+      "answer": "Não recomendamos em nenhuma hipótese. Os dispositivos de “uso doméstico” que perfuram a pele não oferecem a mesma esterilidade, avaliação e controle de profundidade de um procedimento profissional.\nHá risco de infecção, de disseminação de herpes e de outras lesões, além de cicatrizes e manchas. Também não é seguro introduzir produtos de uso tópico na pele com agulhas.\nA indicação e a segurança devem ser discutidas na avaliação com a profissional, e o procedimento deve ser executado por ela.",
+      "source": "Revisão da Mel em 25/10/2026, item 60",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars",
+      "references": [
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/",
+        "https://www.gov.br/anvisa/pt-br/assuntos/cosmeticos/cosmeticos-para-tratamentos-esteticos"
+      ],
+      "evidence_level": "Alta: alerta dermatológico e sanitário",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "60"
+    },
+    {
+      "id": "microagulhamento-resultado",
+      "question": "Quando aparecem os resultados do microagulhamento?",
+      "triggers": [
+        "resultado do microagulhamento aparece",
+        "quando aparece resultado microagulhamento",
+        "microagulhamento resultado quando"
+      ],
+      "answer": "O tempo para ver resultado depende do objetivo do microagulhamento.\nQuando o objetivo é estimular colágeno, o efeito vem da reparação da pele e da formação gradual de colágeno, por isso não costuma ser imediato. Algumas pessoas notam mudanças nas primeiras semanas, mas o resultado mais completo pode levar meses e exigir sessões adicionais, principalmente em cicatrizes de acne.\nQuando o objetivo é levar ativos à pele, o resultado depende da substância escolhida e da sua queixa, e o prazo é definido no protocolo.\nA intensidade da melhora varia de pessoa para pessoa, e o protocolo é personalizado na avaliação com a profissional.",
+      "source": "Revisão da Mel em 25/10/2026, item 61",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars",
+      "references": [
+        "https://www.aad.org/public/cosmetic/scars-stretch-marks/microneedling-fade-scars/",
+        "https://pubmed.ncbi.nlm.nih.gov/42281674/"
+      ],
+      "evidence_level": "Moderada: ensaios e revisão em cicatrizes de acne",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "61"
+    },
+    {
+      "id": "botox-inicio",
+      "question": "Quando começam a aparecer os resultados da toxina botulínica?",
+      "triggers": [
+        "quando aparece o efeito do botox",
+        "botox faz efeito quando",
+        "quanto tempo para botox fazer efeito",
+        "inicio efeito toxina botulinica"
+      ],
+      "answer": "Os resultados do Botox começam a aparecer entre 3 e 15 dias, e o efeito segue evoluindo depois, conforme o produto e a resposta de cada pessoa.\nPor isso, é agendada uma consulta de retorno, para avaliar o resultado e fazer possíveis reajustes. Pequenas diferenças de simetria nos primeiros dias podem acontecer e são avaliadas pela profissional nesse retorno.\nEsse prazo não deve ser confundido com a duração do efeito, que dura, em geral, alguns meses.",
+      "source": "Revisão da Mel em 25/10/2026, item 62",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview/",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-overview/",
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs"
+      ],
+      "evidence_level": "Alta: literatura clínica consolidada",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "62"
+    },
+    {
+      "id": "botox-naturalidade",
+      "question": "O Botox necessariamente tira a expressão do rosto?",
+      "triggers": [
+        "botox tira expressao",
+        "botox deixa rosto sem expressao",
+        "botox fica artificial"
+      ],
+      "answer": "Não. Quando bem indicado e planejado, o Botox reduz a contração de músculos selecionados sem eliminar todas as expressões, e o rosto pode manter a naturalidade.\nA melhor forma de falar sobre naturalidade é alinhar as suas expectativas com a profissional antes da aplicação.",
+      "source": "Revisão da Mel em 25/10/2026, item 63",
+      "review": "aprovado",
+      "audience": "informativo",
+      "source_original": "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs",
+      "references": [
+        "https://www.aad.org/public/cosmetic/wrinkles/botulinum-toxin-faqs"
+      ],
+      "evidence_level": "Alta: informações clínicas dermatológicas",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Conferir seleção de paciente, produtos/equipamentos, contraindicações e protocolo local com a Mel.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "63"
+    },
+    {
+      "id": "app-primeiro-acesso-guia",
+      "question": "Como começar a usar a área da colaboradora?",
+      "triggers": [
+        "primeiro acesso colaboradora",
+        "como entrar area colaboradora",
+        "login colaboradora",
+        "primeiro login no app"
+      ],
+      "answer": "Para começar, abra a área de login e entre com a sua conta individual autorizada. Depois, encontre as seções de cadastro, agendamento e anamnese, conforme o seu perfil.\nNunca informe senha, código de acesso ou dados de pacientes neste chat.",
+      "source": "Revisão da Mel em 25/10/2026, item 64",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Orientação interna provisória — conferir nomes e ordem dos menus com a Mel.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "64"
+    },
+    {
+      "id": "app-confirmar-link",
+      "question": "O que conferir antes de enviar uma anamnese à cliente?",
+      "triggers": [
+        "conferir antes de enviar anamnese",
+        "confirmar destinataria anamnese",
+        "cuidado ao enviar link anamnese",
+        "enviar anamnese para cliente correta"
+      ],
+      "answer": "Antes de gerar ou enviar um link de anamnese, localize o cadastro da cliente e confirme que ela é mesmo a destinatária. Revise o destino no sistema oficial e peça uma confirmação humana antes de enviar.\nNão copie links individuais para este chat nem reutilize links de outras clientes.",
+      "source": "Revisão da Mel em 25/10/2026, item 65",
+      "review": "aprovado",
+      "audience": "equipe",
+      "source_original": "Orientação interna provisória — validar fluxo definitivo de links e permissões com a Mel.",
+      "references": [],
+      "evidence_level": "Operacional: conferir versão atual do BC Gestão; literatura científica não valida passo a passo de software",
+      "review_notes": "Texto final aprovado pela Mel no documento recebido. Aprovação de conteúdo; publicação depende de autorização separada.",
+      "research_date": "2026-10-24",
+      "publication_approval": false,
+      "research_notes": "Confirmar versão real da tela, permissões e caminho com a equipe antes de homologar.",
+      "reviewed_by": "Mel",
+      "reviewed_at": "2026-10-25",
+      "review_source_item": "65"
+    }
+  ],
+  "research_updated": "2026-10-24",
+  "research_policy": "Informação educativa; nenhuma resposta equivale a diagnóstico ou indicação individual; revisão da Mel pendente",
+  "reviewSource": {
+    "document": "Maya Respostas aprovadas pela Mel.docx",
+    "sha256": "54832998ef2b37da0d788bc1cb629a7ce5fe100369401f3af861604d80f4d8ff",
+    "reviewed_by": "Mel",
+    "reviewed_at": "2026-10-25",
+    "received_at": "2026-10-26",
+    "scope": "conteudo",
+    "publication_approval": false
+  }
+}

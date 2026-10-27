@@ -108,7 +108,7 @@ export async function requireRole(role, client = getDefaultClient(), redirect = 
   return profile;
 }
 
-export function installSessionGuard({client,profile,app,view=globalThis.window}) {
+export function installSessionGuard({client,profile,app,view=globalThis.window,onProfile}) {
   let stopped=false;
   function revoke(){
     if(stopped)return;stopped=true;app.hidden=true;app.replaceChildren();view.location.replace('../login/');
@@ -119,6 +119,7 @@ export function installSessionGuard({client,profile,app,view=globalThis.window})
       if(stopped)return false;
       const current=await getCurrentProfile(client);
       if(!current || current.user_id!==profile.user_id || current.role!==profile.role){revoke();return false;}
+      onProfile?.(current);
       return true;
     },
     stop(){stopped=true;subscription?.data?.subscription?.unsubscribe?.();},
