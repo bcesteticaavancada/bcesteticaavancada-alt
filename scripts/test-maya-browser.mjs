@@ -111,6 +111,12 @@ try{
      await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('Revisar e vincular'));
      assert.equal(await page.locator('#guideAction').getAttribute('href'),'../colaborador/#clientes');
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Guias sem rolagem horizontal');
+     const [openArea,chooseAgain]=await Promise.all([
+      page.locator('#guideAction').boundingBox(),page.locator('#guideChooseAgain').boundingBox()
+     ]);
+     assert.ok(openArea&&chooseAgain,'Ações do guia visíveis');
+     const actionGap=Math.max(chooseAgain.x-openArea.x-openArea.width,openArea.x-chooseAgain.x-chooseAgain.width,chooseAgain.y-openArea.y-openArea.height,openArea.y-chooseAgain.y-chooseAgain.height);
+     assert.ok(actionGap>=8,'Ações do guia separadas, sem sobreposição');
      await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}-guides.png`,fullPage:true});
 
      await page.locator('#question').fill('Meu CPF é 123.456.789-09');await page.locator('#question').press('Enter');
