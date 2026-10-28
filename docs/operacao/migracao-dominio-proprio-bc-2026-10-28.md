@@ -1,11 +1,11 @@
 # BC Estética Avançada — Migração integral para domínio próprio (preparação)
 
 Data da proposta: 28/10/2026. Estado: **PREPARAÇÃO / NÃO PUBLICAR**.
-Responsável pela decisão de corte: administração da BC. Domínio candidato: `bcesteticaavancada.com.br` (não adquirido nem confirmado como disponível).
+Responsável pela decisão de corte: administração da BC. Domínio REGISTRADO: `bcesteticaavancada.com.br` (comprovante do Registro.br apresentado em 28/10/2026; situação **Publicado**, expiração em **28/10/2027**). Titular informado no comprovante: **Maria Luísa Franco de Assis**. Registro não significa DNS apontado, HTTPS ativo nem migração concluída.
 
 ## Objetivo e fronteira
 
-Publicar o site institucional, agenda pública, BC Gestão, área das colaboradoras, instalação PWA, Maya e páginas informativas de backup no domínio próprio sem recriar arquivos clínicos nem alterar permissões de pacientes. Preservar o Supabase e o Google Drive como serviços de dados privados. Aguardar registro do domínio, homologação de rotas e aprovação expressa antes de qualquer troca do endereço público.
+Publicar o site institucional, agenda pública, BC Gestão, área das colaboradoras, instalação PWA, Maya e páginas informativas de backup no domínio próprio sem recriar arquivos clínicos nem alterar permissões de pacientes. Preservar o Supabase e o Google Drive como serviços de dados privados. Aguardar homologação de rotas, verificação DNS e aprovação expressa antes de qualquer troca do endereço público.
 
 **Este PR é apenas documental e de auditoria**: não altera `main`, DNS, GitHub Pages, funções Supabase, OAuth, banco, usuários, dados clínicos, segredo ou backups.
 
@@ -15,7 +15,7 @@ Publicar o site institucional, agenda pública, BC Gestão, área das colaborado
 - Entrada histórica: `bcesteticaavancada/bcesteticaavancada.github.io`, `index.html` com redirecionamento para `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`.
 - URL atual da aplicação: `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`.
 - Objetivo de roteamento: `https://www.bcesteticaavancada.com.br/` para a aplicação; `https://bcesteticaavancada.com.br/` redirecionará para `www`, caso a configuração DNS/Pages seja homologada.
-- Domínio candidato é **provisório**. Não acrescentar `CNAME` nem alterar configurações Pages enquanto o registro não estiver confirmado.
+- Domínio já registrado em 28/10/2026; **não conectar a GitHub Pages, criar CNAME de produção ou alterar origens até o site e as integrações estarem preparados.**
 
 ## Inventário de dependências que exigem revisão no corte
 
@@ -36,9 +36,11 @@ A busca de código na branch `main` encontrou referências explícitas a `bceste
 ## Etapas e gates
 
 ### G0 — Registro, sem alteração de produção
-1. Administração consulta e registra o domínio no [Registro.br](https://registro.br/), preferencialmente em titularidade da BC; confirmar disponibilidade e pagamento. Preço de referência oficial: R$ 40/ano, sujeito à tabela vigente.
-2. Registrar acesso administrativo ao painel, contato de renovação e recuperação de conta. Não guardar senha, token ou documentos sensíveis no GitHub.
-3. Confirmar nome efetivamente adquirido e aprovar `www` como endereço canônico.
+1. **CONCLUÍDO (comprovante apresentado pelo usuário):** `bcesteticaavancada.com.br` registrado e publicado no Registro.br em 28/10/2026; vence em 28/10/2027; titular Maria Luísa Franco de Assis.
+2. **PENDENTE:** garantir e-mail de renovação/recuperação do painel e eventual renovação automática. Não guardar senha, token ou dados pessoais sensíveis no GitHub.
+3. **DECISÃO DE PROJETO:** `www.bcesteticaavancada.com.br` como URL canônica; manter endereço sem `www` com redirecionamento pelo GitHub Pages após configuração.
+4. **PRÓXIMO PASSO SEGURO:** verificar propriedade DNS do domínio no GitHub Pages da **conta bcesteticaavancada** (configurações de perfil, não do repositório) com registro TXT gerado pelo GitHub. Essa verificação NÃO muda o site. Veja `docs/operacao/dns-e-corte-dominio-bc-2026-10-28.md`.
+5. **NÃO FAZER AGORA:** configurar domínio personalizado no repositório em produção, apontar CNAME/A ou modificar OAuth antes de ajustes e homologação do frontend e das funções.
 
 ### G1 — Preparação isolada e testes
 1. Revisar ocorrências com `node scripts/auditar-dominio-bc.mjs` (arquivo neste PR); classificar URLs de navegação, backend, código operacional e testes.
@@ -49,7 +51,7 @@ A busca de código na branch `main` encontrou referências explícitas a `bceste
 6. Preservar PRs/branches paralelos; a migração não deve incorporar mudanças não aprovadas de TCLE, backup e Maya.
 
 ### G2 — Domínio e GitHub Pages
-1. Após registro, verificar domínio no GitHub para evitar apropriação de subdomínio.
+1. Confirmar verificação do domínio no GitHub por DNS TXT (sem misturar com verificação do Google Search Console, que é independente).
 2. Em Settings > Pages **do repositório da aplicação** (`bcesteticaavancada-alt`), adicionar o domínio personalizado. Como a publicação é via GitHub Actions, não depender de um `CNAME` no artefato de deploy.
 3. DNS: `www` com CNAME apontando para `bcesteticaavancada.github.io` **sem caminho de repositório**; apex com A/ALIAS conforme documentação oficial do GitHub Pages. Habilitar HTTPS depois da emissão do certificado.
 4. Verificar DNS, HTTPS, homepage, rotas internas e ativos em ambiente de teste apropriado. A mudança de domínio no Pages pode alterar acesso dos links legados; documentar e testar o comportamento real antes de divulgar.
@@ -83,7 +85,7 @@ Matriz de testes obrigatória:
 
 ## Dependências externas e limitações
 
-- O domínio **não foi comprado neste PR**. A compra, titularidade e pagamento exigem ação do titular.
+- Registro confirmado por capturas do Registro.br enviadas pelo usuário em 28/10/2026. DNS, certificado, URLs e serviços ainda não foram migrados. Não armazenar comprovantes com identificadores pessoais no repositório.
 - DNS/Google Cloud/Supabase são configurações independentes; não são alteradas automaticamente por um commit GitHub.
 - Permissão `drive.file` e backup já existente devem permanecer inalterados até nova homologação. Revisão de branding OAuth pelo Google não é garantida.
 - A publicação pelo GitHub Pages por Actions ignora um arquivo `CNAME` do artefato; configurar o domínio em Settings > Pages.
@@ -97,3 +99,4 @@ Matriz de testes obrigatória:
 - [Supabase — redirect URLs de Auth](https://supabase.com/docs/guides/auth/redirect-urls)
 - [Google — verificação de marca OAuth e domínio](https://developers.google.com/identity/verification/authentication-policy-compliance)
 - [Registro.br — registro de domínio .br](https://registro.br/dominio)
+- [GitHub Pages — verificar domínio por TXT antes de usar](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/verifying-your-custom-domain-for-github-pages)
