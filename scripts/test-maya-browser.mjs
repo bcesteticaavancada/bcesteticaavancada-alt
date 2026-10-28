@@ -136,6 +136,7 @@ try{
      await page.locator('#knowledgeClose').click();
      await page.locator('#guidesOpen').click();await page.locator('#guideChoices button').first().waitFor();
      assert.equal(await page.locator('#guideChoices button').filter({hasText:'Agenda da equipe'}).count(),role==='admin'||chief?1:0);
+     assert.equal(await page.locator('#guideChoices button').filter({hasText:'Mapa dos recursos da BC'}).count(),role==='admin'||role==='admin_criacao'?1:0,'Guias de criação disponíveis apenas à administração');
      await page.locator('#guideChoices button').first().focus();await page.keyboard.press('Enter');
      await page.waitForFunction(()=>document.activeElement===document.querySelector('#guideTitle'));
      assert.equal(await page.locator('#guideChoices').isVisible(),false,'Opções recolhidas após escolha');
@@ -151,6 +152,19 @@ try{
      const actionGap=Math.max(chooseAgain.x-openArea.x-openArea.width,openArea.x-chooseAgain.x-chooseAgain.width,chooseAgain.y-openArea.y-openArea.height,openArea.y-chooseAgain.y-chooseAgain.height);
      assert.ok(actionGap>=8,'Ações do guia separadas, sem sobreposição');
      await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}-guides.png`,fullPage:true});
+     if(role==='admin'||role==='admin_criacao'){
+      for(const [query,title,href] of [
+       ['Como funciona o site por dentro?','Como o site funciona por dentro','../'+panel+'/'],
+       ['Como criar uma área do cliente?','Planejar a área do cliente','../'+panel+'/#clientes'],
+       ['Posso conversar com você dentro do site?','IA para criação dentro do site','../'+panel+'/']
+      ]){
+       await page.locator('#question').fill(query);await page.locator('#question').press('Enter');
+       await page.waitForFunction(title=>document.querySelector('#guideTitle').textContent===title,title);
+       assert.equal(await page.locator('#guideAction').getAttribute('href'),href);
+       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Guia de criação sem rolagem horizontal');
+      }
+      await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}-creation-guide.png`,fullPage:true});
+     }
 
      await page.locator('#question').fill('Meu CPF é 123.456.789-09');await page.locator('#question').press('Enter');
      await page.waitForFunction(()=>document.querySelector('#chat').textContent.includes('Para proteger a privacidade'));

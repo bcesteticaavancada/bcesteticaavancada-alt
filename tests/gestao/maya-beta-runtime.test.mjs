@@ -498,6 +498,35 @@ test('Maya descreve apoio cadastral e cópias de consentimento existentes no pai
  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/cópia|cópias/);
  assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/permite apenas consulta da identificação/);
 });
+for(const [role,panel] of [['admin','admin'],['admin_criacao','criacao']]){
+ test('Administração encontra os recursos e planeja criação pelo próprio painel: '+role,async()=>{
+  const x=await render({user_id:'planejamento-'+role,role,active:true});
+  for(const [query,title,href] of [
+   ['Quais são os recursos diretos e indiretos do site?','Mapa dos recursos da BC','../'+panel+'/'],
+   ['Como funciona o site por dentro?','Como o site funciona por dentro','../'+panel+'/'],
+   ['Como propor uma melhoria no site?','Organizar uma melhoria no site','../'+panel+'/'],
+   ['Como publicar uma alteração no site?','Publicação e recuperação de versões','../'+panel+'/'],
+   ['Como funciona o domínio próprio?','Domínio próprio e endereços','../../'],
+   ['Como conferir o backup?','Entender o backup e a recuperação','../../backup/'],
+   ['Como criar uma área do cliente?','Planejar a área do cliente','../'+panel+'/#clientes'],
+   ['Posso conversar com você dentro do site?','IA para criação dentro do site','../'+panel+'/'],
+  ]){
+   await x.answer(query);
+   assert.equal(x.document.querySelector('#guideTitle').textContent,title,query);
+   assert.equal(x.document.querySelector('#guideAction').getAttribute('href'),href,query);
+   assert.equal(x.document.querySelector('#guidePanel').hidden,false);
+  }
+ });
+}
+test('Guias de arquitetura não são oferecidos ao perfil de colaboradora nem a inativos',async()=>{
+ const query='Como funciona o site por dentro?';
+ for(const profile of [{...visualProfile,pode_gerenciar_agendas:true,pode_gerenciar_procedimentos:true},{role:'admin',active:false},{role:'admin_criacao',active:false}]){
+  assert.equal(findAppGuide(query,profile),null);
+  const x=await render(profile);
+  await x.answer(query);
+  assert.equal(x.document.querySelector('#guideAction').hasAttribute('href'),false);
+ }
+});
 test('Troca de papel entre administradores durante a consulta revoga a sessão da Maya',async()=>{
  const wait=deferred();
  const profile={user_id:'mesma-conta',role:'admin',active:true};
