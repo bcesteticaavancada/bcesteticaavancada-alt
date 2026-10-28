@@ -21,7 +21,7 @@ const server=createServer(async(req,res)=>{
   if(!pathname.startsWith(prefix+'/')){res.writeHead(404).end();return;}
   const relative=pathname.slice(prefix.length),file=path.resolve(root,'.'+(relative.endsWith('/')?relative+'index.html':relative));
   if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
-  res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.json':'application/json'})[path.extname(file)]||'application/octet-stream');
+  res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.json':'application/json','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webmanifest':'application/manifest+json'})[path.extname(file)]||'application/octet-stream');
   res.end(await readFile(file));
  }catch{res.writeHead(404).end();}
 });
@@ -97,6 +97,7 @@ try{
       await route.fulfill({contentType:'text/html',body:html});
      });
      await page.goto(dashboard);await page.evaluate(()=>{document.getElementById('gestaoApp').hidden=false;document.getElementById('authStatus').hidden=true;});
+     assert.equal(await page.locator('.bcg-topbar').evaluate(el=>getComputedStyle(el).display),'flex','CSS real do painel carregado antes de testar entrada');
      assert.ok(await page.locator('[data-maya-entry]').isVisible(),'Atalho disponível no próprio painel');
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Entrada da Maya sem rolagem horizontal');
      const [mayaEntry,logout]=await Promise.all([page.locator('[data-maya-entry]').boundingBox(),page.locator('#logoutBtn').boundingBox()]);
