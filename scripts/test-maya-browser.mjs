@@ -81,11 +81,28 @@ try{
   assert.ok(['chromium','webkit'].includes(engine),'Motor de teste conhecido');
   const browser=await ({chromium,webkit})[engine].launch(engine==='chromium'?chromiumOptions:{});
   try{
-   for(const chief of [false,true])for(const [device,width,height] of [['phone',320,740],['desktop',1280,900]]){
-    const role='colaborador',label=chief?'colaborador-chefe':'colaborador';
+   for(const {role,chief,label} of [
+    {role:'colaborador',chief:false,label:'colaborador'},
+    {role:'colaborador',chief:true,label:'colaborador-chefe'},
+    {role:'admin',chief:false,label:'admin'},
+    {role:'admin_criacao',chief:false,label:'admin-criacao'}
+   ])for(const [device,width,height] of [['phone',320,740],['desktop',1280,900]]){
+    const panel=({admin:'admin',colaborador:'colaborador',admin_criacao:'criacao'})[role];
     const fixture=await pageFixture(browser,role,{width,height},{pode_gerenciar_agendas:chief,pode_gerenciar_procedimentos:chief}),{page}=fixture;
     try{
-     await page.goto(entry);await page.locator('#app').waitFor();
+     // HTML e links reais do painel; autenticação e operações desse painel são fixtures.
+     const dashboard=origin+prefix+'/gestao/'+panel+'/';
+     await page.route(dashboard,async route=>{
+      const html=(await readFile('gestao/'+panel+'/index.html','utf8')).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+      await route.fulfill({contentType:'text/html',body:html});
+     });
+     await page.goto(dashboard);await page.evaluate(()=>{document.getElementById('gestaoApp').hidden=false;document.getElementById('authStatus').hidden=true;});
+     assert.ok(await page.locator('[data-maya-entry]').isVisible(),'Atalho disponível no próprio painel');
+     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Entrada da Maya sem rolagem horizontal');
+     const [mayaEntry,logout]=await Promise.all([page.locator('[data-maya-entry]').boundingBox(),page.locator('#logoutBtn').boundingBox()]);
+     assert.ok(mayaEntry&&logout&&(mayaEntry.x+mayaEntry.width<=logout.x+1||mayaEntry.y+mayaEntry.height<=logout.y+1),'Ajuda da Maya não cobre Sair');
+     await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}-entry.png`});
+     await page.locator('[data-maya-entry]').click();await page.locator('#app').waitFor();
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'ready');
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off');
      assert.equal(await page.locator('#mayaCharacter').getAttribute('aria-hidden'),'true');
@@ -97,7 +114,7 @@ try{
      assert.match(await page.locator('#chat').innerText(),role==='admin_criacao'?/não possui acesso ao financeiro/:role==='colaborador'?/apenas os valores que seu perfil já permite/:/administradora consulta o caixa/);
      await page.locator('[data-topic="cadastro"]').click();
      await page.waitForFunction(()=>document.querySelector('#chat').textContent.includes('Assunto: Cadastro'));
-     assert.match(await page.locator('#chat .maya').last().innerText(),role==='admin_criacao'?/apenas consulta/:/escolha Novo cliente/);
+     assert.match(await page.locator('#chat .maya').last().innerText(),role==='admin_criacao'?/Apoio ao cliente/:/escolha Novo cliente/);
      await page.locator('#question').fill('O que é microagulhamento?');await page.locator('#question').press('Enter');
      await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('Revisado pela Mel em 25/10/2026'));
      assert.match(await page.locator('#chat .maya').last().innerText(),/microagulhamento/i);
@@ -117,14 +134,14 @@ try{
      await page.screenshot({path:`test-results/maya/${engine}-${label}-${device}.png`,fullPage:true});
      await page.locator('#knowledgeClose').click();
      await page.locator('#guidesOpen').click();await page.locator('#guideChoices button').first().waitFor();
-     assert.equal(await page.locator('#guideChoices button').filter({hasText:'Agenda da equipe'}).count(),chief?1:0);
+     assert.equal(await page.locator('#guideChoices button').filter({hasText:'Agenda da equipe'}).count(),role==='admin'||chief?1:0);
      await page.locator('#guideChoices button').first().focus();await page.keyboard.press('Enter');
      await page.waitForFunction(()=>document.activeElement===document.querySelector('#guideTitle'));
      assert.equal(await page.locator('#guideChoices').isVisible(),false,'Opções recolhidas após escolha');
      await page.locator('#guideChooseAgain').click();await page.locator('#guideChoices button').first().waitFor({state:'visible'});
      await page.locator('#question').fill('Como anexar o PDF assinado pelo GOV?');await page.locator('#question').press('Enter');
-     await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('Revisar e vincular'));
-     assert.equal(await page.locator('#guideAction').getAttribute('href'),'../colaborador/#clientes');
+     await page.waitForFunction(expected=>document.querySelector('#chat .maya:last-child')?.textContent.includes(expected),role==='admin_criacao'?'O original é preservado':'Revisar e vincular');
+     assert.equal(await page.locator('#guideAction').getAttribute('href'),'../'+panel+'/#clientes');
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Guias sem rolagem horizontal');
      const [openArea,chooseAgain]=await Promise.all([
       page.locator('#guideAction').boundingBox(),page.locator('#guideChooseAgain').boundingBox()
@@ -202,9 +219,13 @@ try{
      await assertIsolated(fixture);pass(engine+'/V2: visibilidade simulada interrompe movimentos e preserva pausa em 320 px');
     }finally{await page.close();}
    }
-   for(const role of ['admin','admin_criacao']){
+   for(const role of ['desconhecido']){
     const fixture=await pageFixture(browser,role),{page}=fixture;
-    try{await page.goto(entry);await page.getByText('Acesso restrito à equipe autorizada.').waitFor();assert.equal(await page.locator('#app').isVisible(),false);await assertIsolated(fixture);pass(engine+'/'+role+': fora da primeira liberação');}finally{await page.close();}
+    try{await page.goto(entry);await page.getByText('Acesso restrito à equipe autorizada.').waitFor();assert.equal(await page.locator('#app').isVisible(),false);await assertIsolated(fixture);pass(engine+'/'+role+': fora da equipe');}finally{await page.close();}
+   }
+   for(const role of ['admin','admin_criacao','colaborador']){
+    const fixture=await pageFixture(browser,role,{width:320,height:740},{active:false}),{page}=fixture;
+    try{await page.goto(entry);await page.getByText('Acesso restrito à equipe autorizada.').waitFor();assert.equal(await page.locator('#app').isVisible(),false);await assertIsolated(fixture);pass(engine+'/'+role+': conta inativa bloqueada');}finally{await page.close();}
    }
    {
     const fixture=await pageFixture(browser,null),{page}=fixture;
@@ -223,8 +244,8 @@ try{
      await assertIsolated(fixture);pass(engine+'/biblioteca indisponível: serviço não oferecido não vira orientação de reserva');
     }finally{await page.close();}
    }
-   for(const action of ['limpar','inativar']){
-    const fixture=await pageFixture(browser,'colaborador'),{page}=fixture;
+   for(const [action,role] of [['limpar','colaborador'],['inativar','colaborador'],['inativar','admin'],['inativar','admin_criacao']]){
+    const fixture=await pageFixture(browser,role),{page}=fixture;
     let release,started;
     const wait=new Promise(resolve=>{release=resolve;}),requested=new Promise(resolve=>{started=resolve;});
     await page.route('**/respostas-65.json',async route=>{started();await wait;await route.fulfill({contentType:'application/json',body:bank});});
@@ -242,7 +263,7 @@ try{
       assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'ready');
      }else await page.waitForURL('**/gestao/login/');
      if(action==='limpar')await assertIsolated(fixture);else{assert.deepEqual(fixture.errors,[]);assert.deepEqual(fixture.external,[]);}
-     pass(`${engine}/${action}: resultado pendente descartado`);
+     pass(`${engine}/${role}/${action}: resultado pendente descartado`);
     }finally{release();await page.close();}
    }
    {
