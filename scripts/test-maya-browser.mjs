@@ -61,6 +61,21 @@ async function assertIsolated({page,errors,external}){
  assert.deepEqual(external,[],'Sem serviços externos');
  assert.ok(await page.evaluate(()=>window.mayaFixture.tables.every(t=>t==='staff_profiles')),'Só o próprio perfil é consultado');
 }
+async function visualState(page){
+ return page.evaluate(()=>{
+  const style=selector=>{const element=document.querySelector('#mayaCharacter '+selector);return element?getComputedStyle(element):null;};
+  return {
+   bodyAnimation:style('.maya-body')?.animationName??null,
+   bodyIterations:style('.maya-body')?.animationIterationCount??null,
+   eyesAnimation:style('.maya-eyes')?.animationName??null,
+   eyesIterations:style('.maya-eyes')?.animationIterationCount??null,
+   headAnimation:style('.maya-head')?.animationName??null,
+   neutralOpacity:style('.maya-mouth-neutral')?.opacity??null,
+   smileOpacity:style('.maya-smile')?.opacity??null,
+   animations:document.querySelector('#mayaCharacter').getAnimations({subtree:true}).length
+  };
+ });
+}
 try{
  for(const engine of engines){
   assert.ok(['chromium','webkit'].includes(engine),'Motor de teste conhecido');
@@ -139,27 +154,53 @@ try{
      await page.emulateMedia({reducedMotion:'no-preference'});
      await page.goto(entry);await page.locator('#app').waitFor();
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'on');
+     let visual=await visualState(page);
+     assert.equal(visual.bodyAnimation,'maya-breathe','V2 respira suavemente quando os movimentos estão permitidos');
+     assert.equal(visual.bodyIterations,'infinite');
+     assert.equal(visual.eyesAnimation,'maya-blink');
+     assert.equal(visual.eyesIterations,'infinite','Piscadas espaçadas continuam enquanto permitido');
+     assert.equal(visual.headAnimation,'maya-attend');
      await page.locator('#question').fill('O que é peeling?');await page.locator('#question').press('Enter');
      await bounded(requested,'consulta visual fictícia');
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'thinking');
+     visual=await visualState(page);assert.equal(visual.neutralOpacity,'1');assert.equal(visual.smileOpacity,'0','Espera não exibe confirmação');
      assert.equal(await page.locator('.maya-thought i').first().evaluate(el=>getComputedStyle(el).animationName),'maya-wait');
      await page.locator('#mayaMotionToggle').focus();await page.keyboard.press('Enter');
      assert.equal(await page.locator('#mayaMotionToggle').getAttribute('aria-pressed'),'false');
      assert.equal(await page.locator('.maya-thought i').first().evaluate(el=>getComputedStyle(el).animationName),'none');
+     assert.equal((await visualState(page)).animations,0,'Pausa para corpo, olhos, cabeça e indicador');
      await page.emulateMedia({reducedMotion:'reduce'});
      await page.waitForFunction(()=>document.querySelector('#mayaMotionToggle').disabled);
      release();await page.waitForFunction(()=>document.querySelector('#mayaCharacter').dataset.state==='answered');
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off');
+     visual=await visualState(page);assert.equal(visual.animations,0);assert.equal(visual.smileOpacity,'1','Resposta mantém expressão estática com movimento reduzido');
      await page.emulateMedia({reducedMotion:'no-preference'});
      await page.waitForFunction(()=>!document.querySelector('#mayaMotionToggle').disabled);
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off','Pausa manual preservada');
      await page.locator('#mayaMotionToggle').focus();await page.keyboard.press('Enter');
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'on');
+     visual=await visualState(page);assert.equal(visual.bodyAnimation,'maya-breathe');assert.equal(visual.headAnimation,'maya-nod');
      await page.screenshot({path:`test-results/maya/${engine}-2d-motion-phone.png`,fullPage:true});
      await page.locator('#mayaCharacter').screenshot({path:`test-results/maya/${engine}-2d-character.png`});
      assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Personagem não gera rolagem horizontal');
-     await assertIsolated(fixture);pass(engine+'/2D: consulta, pausa por teclado, redução de movimento e retomada');
+     await assertIsolated(fixture);pass(engine+'/V2: respiração, piscadas, expressões, pausa, redução de movimento e retomada');
     }finally{release();await page.close();}
+   }
+   {
+    const fixture=await pageFixture(browser,'colaborador',{width:320,height:740}),{page}=fixture;
+    try{
+     await page.emulateMedia({reducedMotion:'no-preference'});await page.goto(entry);await page.locator('#app').waitFor();
+     await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
+     assert.equal(await page.locator('#mayaCharacter').getAttribute('data-motion'),'off');
+     assert.equal((await visualState(page)).animations,0,'Aba oculta interrompe todos os movimentos');
+     await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
+     assert.equal((await visualState(page)).bodyAnimation,'maya-breathe');
+     await page.locator('#mayaMotionToggle').click();
+     await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));Object.defineProperty(document,'hidden',{value:false,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
+     assert.equal((await visualState(page)).animations,0,'Retornar à aba não perde a pausa manual');
+     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+     await assertIsolated(fixture);pass(engine+'/V2: visibilidade simulada interrompe movimentos e preserva pausa em 320 px');
+    }finally{await page.close();}
    }
    for(const role of ['admin','admin_criacao']){
     const fixture=await pageFixture(browser,role),{page}=fixture;
@@ -177,6 +218,7 @@ try{
      await page.locator('#question').fill('Tem horário para massagem esportiva?');await page.locator('#question').press('Enter');
      await page.waitForFunction(()=>document.querySelector('#chat .maya:last-child')?.textContent.includes('BC não realiza massagem desportiva'));
      assert.equal(await page.locator('#mayaCharacter').getAttribute('data-state'),'unavailable','Falha da biblioteca não anuncia busca concluída');
+     const visual=await visualState(page);assert.equal(visual.neutralOpacity,'1');assert.equal(visual.smileOpacity,'0','Falha não sorri nem confirma ação');
      assert.doesNotMatch(await page.locator('#chat .maya').last().innerText(),/Para criar agendamento/);
      await assertIsolated(fixture);pass(engine+'/biblioteca indisponível: serviço não oferecido não vira orientação de reserva');
     }finally{await page.close();}
