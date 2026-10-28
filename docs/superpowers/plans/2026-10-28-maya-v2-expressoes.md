@@ -1,6 +1,6 @@
 # Maya V2 — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Completar a segunda versão visual da Maya com expressões e movimentos acessíveis para avaliação de Fernando.
 
@@ -30,10 +30,10 @@
 
 **Interfaces:** Consome os estados existentes `ready`, `thinking`, `answered`, `unavailable` e `data-motion=on|off`; produz camadas `.maya-body`, `.maya-mouth-neutral`, `.maya-smile` e animações limitadas por esses atributos. Não alterar o fluxo de respostas/autorização.
 
-- [ ] Escrever regressões de navegador que meçam respiração/piscadas ativas, boca neutra na espera/falha, sorriso na resposta, pausa/redução/visibilidade e largura; executar e observar falha na V1.
-- [ ] Acrescentar camadas SVG e animações CSS locais conforme o design, preservando forma/cores e controle atual.
-- [ ] Executar navegador Chromium/WebKit e `npm test`; todas as regressões existentes e novas devem passar. Inspecionar imagens finais.
-- [ ] Commitar implementação e evidências de testes.
+- [x] Escrever regressões de navegador que meçam respiração/piscadas ativas, boca neutra na espera/falha, sorriso na resposta, pausa/redução/visibilidade e largura; executar e observar falha na V1.
+- [x] Acrescentar camadas SVG e animações CSS locais conforme o design, preservando forma/cores e controle atual.
+- [x] Executar navegador Chromium/WebKit e `npm test`; todas as regressões existentes e novas devem passar. Inspecionar imagens finais.
+- [x] Commitar implementação e evidências de testes.
 
 ### Task 2: Prévia, revisão e entrega
 
@@ -41,7 +41,11 @@
 
 **Interfaces:** A prévia reproduz CSS/SVG da V2 e troca somente estados fictícios e movimento. Não autentica nem acessa APIs, arquivos ou dados pessoais.
 
-- [ ] Criar prévia móvel/desktop com controles de estados, pausa e indicação de demonstração visual; validar funcionamento e ausência de requisições externas.
-- [ ] Fazer revisão independente única do diff e corrigir problemas importantes com regressão reproduzida.
-- [ ] Atualizar branch/PR em rascunho e confirmar CI do commit final; manter a principal intacta.
-- [ ] Entregar prévia e resumo do que mudou, testes e pendências de aceite/publicação.
+- [x] Criar prévia móvel/desktop com controles de estados, pausa e indicação de demonstração visual; validar funcionamento e ausência de requisições externas.
+- [x] Fazer revisão independente única do diff e corrigir problemas importantes com regressão reproduzida.
+- [x] Atualizar branch/PR em rascunho e confirmar CI do commit final; manter a principal intacta.
+- [x] Entregar prévia e resumo do que mudou, testes e pendências de aceite/publicação.
+
+## Evidência de conclusão
+
+Código do commit `49e6c0e22b4f5c7a4e6916cd48bd4de0d424393e`: 929 testes Node, 26 cenários Chromium/WebKit, dez verificações Auth/RLS e 554 do banco aprovados. A revisão independente não identificou falha concreta. Prévia entregue sem login; V2 permanece em PR rascunho. [Relatório](../../bc-gestao/maya-v2-expressoes-2026-10-28.md).
