@@ -60,4 +60,3 @@ Base: `1ef46253fe15f6b9ee88aedeb91204ca6602f83d`.
 - [Supabase Edge Functions](https://supabase.com/docs/guides/functions)
 
 Não criar nova integração no Agent Builder: a documentação atual informa descontinuação em 30/11/2026. Isso não afeta a Maya estática atual.
-
