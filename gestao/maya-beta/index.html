@@ -157,7 +157,7 @@
 <script type="module">
 import {getCurrentProfile,installSessionGuard} from '../js/auth.js';
 import {createBcGestaoClient} from '../js/supabase-client.js';
-import {listAppGuides,findAppGuide} from './app-guides.js';
+import {listAppGuides,findAppGuide,canUseMaya} from './app-guides.js?v=20261028-equipe';
 const status=document.getElementById('status');
 const app=document.getElementById('app');
 const chat=document.getElementById('chat');
@@ -254,17 +254,19 @@ const replies={
 };
 const topicLabels={acesso:'Acesso',cadastro:'Cadastro',agenda:'Agenda',anamnese:'Anamnese',atendimento:'Atendimento',documentos:'Documentos',procedimentos:'Procedimentos',financeiro:'Financeiro',contato:'Ajuda geral'};
 const creationReplies={
- cadastro:'Seu perfil de criação permite apenas consulta dos cadastros disponíveis no painel de criação. Para cadastrar ou alterar uma cliente, procure a Mel ou uma colaboradora autorizada. Não digite dados pessoais aqui.',
+ acesso:'No painel de criação, escolha Agenda, Clientes ou Equipe; use Todas as áreas para outras consultas. O apoio cadastral, os convites e as cópias documentais ficam nas opções autorizadas do painel. As ações clínicas e financeiras continuam com as responsáveis.',
+ cadastro:'No painel de criação, abra Clientes, selecione o cadastro e use Apoio ao cliente para conferir ou corrigir os campos cadastrais disponíveis ao seu acesso. Confira a confirmação de salvamento; as fichas clínicas e assinaturas ficam com as responsáveis. Não digite dados pessoais aqui.',
  agenda:'Seu perfil de criação permite apenas consulta da agenda disponível no painel de criação. Para criar, remarcar, cancelar ou bloquear horários, procure a Mel ou a equipe autorizada.',
  anamnese:'Seu perfil de criação permite apenas consulta da identificação e situação das anamneses no painel permitido. As respostas clínicas completas e a geração ou o envio de links ficam com a Mel ou a equipe clínica autorizada.',
  atendimento:'Seu perfil de criação permite apenas consulta da operação no painel de criação. Para registrar, corrigir ou finalizar um atendimento, procure a profissional responsável; a Maya não altera registros.',
- documentos:'Seu perfil de criação permite apenas consulta da identificação e situação dos documentos no painel permitido. PDFs, anexos, assinaturas e compartilhamentos ficam com a equipe clínica autorizada.',
+ documentos:'No painel de criação, abra a cliente e Apoio ao cliente para as cópias documentais disponíveis. Os PDFs são disponibilizados após as assinaturas da profissional e da cliente e a geração pela profissional. O apoio permite baixar cópias e anexar consentimento devolvido, preservando o original. A revisão clínica e o vínculo ao atendimento continuam com a responsável; a Maya não abre, envia ou anexa arquivos.',
 };
 const creationKnowledgeTopics={
  'app-cancelar':'agenda','app-profissional':'agenda','app-folga':'agenda',
  'app-link-expirou':'anamnese','app-anamnese-status':'anamnese','app-confirmar-link':'anamnese',
  'app-completar-cadastro':'cadastro','app-cadastro-duplicado':'cadastro',
  'app-atendimento-confirmacao':'atendimento',
+ 'app-primeiro-acesso-guia':'acesso',
 };
 function knowledgeAnswer(item){
  const topic=creationKnowledgeTopics[item.id];
@@ -412,7 +414,7 @@ async function answer(text,topic){
 try{
  client=createBcGestaoClient(globalThis.supabase?.createClient);
  profile=await getCurrentProfile(client);
- if(!profile || profile.role!=='colaborador'){
+ if(!canUseMaya(profile)){
   status.textContent='Acesso restrito à equipe autorizada. Entre pelo BC Gestão.';
   const a=document.createElement('a');a.href='../login/';a.textContent='Ir para login';status.append(document.createTextNode(' '),a);
  }else{

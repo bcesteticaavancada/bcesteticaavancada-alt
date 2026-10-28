@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { parseHTML } from 'linkedom';
 import { getCurrentProfile, installSessionGuard } from '../../gestao/js/auth.js';
-import { listAppGuides, findAppGuide } from '../../gestao/maya-beta/app-guides.js';
+import { listAppGuides, findAppGuide, canUseMaya } from '../../gestao/maya-beta/app-guides.js';
 
 const dir=dirname(fileURLToPath(import.meta.url));
 const html=readFileSync(resolve(dir,'../../gestao/maya-beta/index.html'),'utf8');
@@ -36,7 +36,7 @@ async function render(profile,{allow=()=>true,load=async()=>library,realAuth=fal
     },
   };
   const context={
-    listAppGuides,findAppGuide,
+    listAppGuides,findAppGuide,canUseMaya,
     document,
     globalThis:{supabase:{createClient:()=>({})},matchMedia:()=>motionPreference},
     createBcGestaoClient:()=>client,
@@ -160,7 +160,7 @@ test('Pessoa sem autorização não consegue abrir a biblioteca',async()=>{
  assert.equal(x.document.querySelector('#knowledgePanel').hidden,true);
 });
 
-for(const role of ['admin','admin_criacao'])test('Papel fora da liberação não consulta biblioteca nem recebe orientação: '+role,async()=>{
+for(const role of ['paciente','desconhecido'])test('Papel fora da equipe não consulta biblioteca nem recebe orientação: '+role,async()=>{
  let loads=0;
  const x=await render({user_id:role,role,active:true},{load:async()=>{loads++;return library;}});
  await x.answer('Como é feito o Botox?');await x.openKnowledge();
@@ -452,10 +452,61 @@ test('Falha de busca no chat mantém fallback seguro e informa indisponibilidade
  assert.match(x.document.querySelector('#mayaState').textContent,/Tente novamente/);
  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/67 respostas da biblioteca/);
 });
-for(const role of ['admin','admin_criacao'])test('Primeira liberação não abre a Maya para '+role,async()=>{
- const x=await render({user_id:'restrito',role,active:true});
+for(const [role,panel] of [['admin','admin'],['admin_criacao','criacao']]){
+ test('Maya recebe perfil ativo da equipe e retorna ao próprio painel: '+role,async()=>{
+  const x=await render({user_id:'equipe-'+role,role,active:true});
+  assert.equal(x.document.querySelector('#app').hidden,false);
+  assert.equal(x.guardInstalled(),true);
+  assert.equal(x.document.querySelector('#dashboardLink').getAttribute('href'),'../'+panel+'/');
+  await x.answer('O que é microagulhamento?');
+  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/Revisado pela Mel/);
+ });
+ test('Maya não recebe perfil inativo: '+role,async()=>{
+  const x=await render({user_id:'inativo-'+role,role,active:false});
+  assert.equal(x.document.querySelector('#app').hidden,true);
+  assert.equal(x.guardInstalled(),false);
+ });
+}
+test('Administração recebe guias no próprio painel mesmo sem capacidades de colaboradora chefe',()=>{
+ const guides=listAppGuides({role:'admin',active:true,pode_gerenciar_agendas:false,pode_gerenciar_procedimentos:false});
+ assert.ok(guides.some(x=>x.id==='cadastro'&&x.href==='../admin/#clientes'));
+ assert.ok(guides.some(x=>x.id==='financeiro-admin'&&x.href==='../admin/#financeiro'));
+ assert.ok(guides.some(x=>x.id==='agenda-equipe'));
+ assert.ok(guides.some(x=>x.id==='procedimentos'));
+ assert.ok(!guides.some(x=>x.id==='comissao'||x.href.startsWith('../colaborador/')));
+});
+test('Criação recebe navegação e apoio próprios sem atalhos financeiros ou ações clínicas',()=>{
+ const profile={role:'admin_criacao',active:true,pode_gerenciar_agendas:true,pode_gerenciar_procedimentos:true};
+ const guides=listAppGuides(profile);
+ for(const id of ['criacao','convite','apoio-documentos','instalar','senha','conexao','site'])assert.ok(guides.some(x=>x.id===id),id);
+ assert.ok(!guides.some(x=>['comissao','financeiro-admin','cadastro','agendar','atendimento','procedimentos','agenda-equipe','gov'].includes(x.id)));
+ assert.ok(guides.every(x=>!/^\.\.\/(admin|colaborador)\//.test(x.href)&&!x.href.includes('#financeiro')));
+});
+test('Criação não recebe financeiro ao perguntar pelo caixa ou por uma comissão',async()=>{
+ const x=await render({user_id:'criacao',role:'admin_criacao',active:true});
+ for(const query of ['Onde vejo minha comissão?','Como consultar o caixa?']){
+  await x.answer(query);
+  assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/não possui acesso ao financeiro/);
+  assert.equal(x.document.querySelector('#guideAction').hasAttribute('href'),false);
+ }
+});
+test('Maya descreve apoio cadastral e cópias de consentimento existentes no painel de criação',async()=>{
+ const x=await render({user_id:'apoio',role:'admin_criacao',active:true});
+ trigger(x,'[data-topic="cadastro"]');await settle();
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/Apoio ao cliente/);
+ trigger(x,'[data-topic="documentos"]');await settle();
+ assert.match(x.document.querySelector('#chat').lastElementChild.textContent,/cópia|cópias/);
+ assert.doesNotMatch(x.document.querySelector('#chat').lastElementChild.textContent,/permite apenas consulta da identificação/);
+});
+test('Troca de papel entre administradores durante a consulta revoga a sessão da Maya',async()=>{
+ const wait=deferred();
+ const profile={user_id:'mesma-conta',role:'admin',active:true};
+ const x=await render(profile,{realAuth:true,load:()=>wait.promise});
+ const pending=x.answer('O que é peeling?');await settle();
+ x.changeProfile({...profile,role:'admin_criacao'});wait.resolve(library);await pending;
  assert.equal(x.document.querySelector('#app').hidden,true);
- assert.equal(x.guardInstalled(),false);
+ assert.equal(x.document.querySelector('#app').textContent,'');
+ assert.deepEqual(x.redirects,['../login/']);
 });
 test('Guia de documento GOV orienta fluxo manual e oferece somente navegação',async()=>{
  const x=await render(visualProfile);

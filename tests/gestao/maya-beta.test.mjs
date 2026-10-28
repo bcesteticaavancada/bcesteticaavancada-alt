@@ -25,7 +25,7 @@ test('Maya usa pt-BR e informa limites da beta',()=>{
 test('Maya exige perfil ativo antes de revelar interface',()=>{
  assert.match(source,/id="app" class="shell" hidden/);
  assert.match(source,/profile=await getCurrentProfile\(client\)/);
- assert.match(source,/!profile \|\| profile\.role!=='colaborador'/);
+ assert.match(source,/if\(!canUseMaya\(profile\)\)/);
  assert.match(source,/status.hidden=true;app.hidden=false/);
  assert.ok(source.indexOf('getCurrentProfile(client)')<source.indexOf('app.hidden=false'));
 });
