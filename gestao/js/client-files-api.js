@@ -37,6 +37,7 @@ export async function uploadClientFile({client,clienteId,file,title,category,ori
   const documentCategory=validateCategory(category);
   const documentOrigin=validateOrigin(origin);
   validateFile(file);
+  if(documentCategory==='tcle_externo'&&file.type!=='application/pdf')throw new Error('O consentimento assinado deve ser anexado em PDF.');
   const sha256=await sha256File(file);
   const extension=TYPE_EXTENSIONS.get(file.type);
   const storagePath=`arquivos-clientes/${cliente}/${uniqueId()}.${extension}`;

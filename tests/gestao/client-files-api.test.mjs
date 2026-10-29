@@ -83,3 +83,9 @@ test('anulação usa RPC dedicada com motivo e sem exclusão física pelo browse
   assert.deepEqual(mock.rpcCalls[0],['bc_client_file_void',{p_file_id:'f1',p_reason:'arquivo anexado por engano'}]);
   assert.equal(mock.storageCalls.some((call)=>call[0]==='remove'),false);
 });
+
+test('TCLE devolvido só aceita PDF e falha antes do upload',async()=>{
+  const mock=makeClient();
+  await assert.rejects(()=>uploadClientFile({client:mock.client,clienteId:'c1',file:fakeFile({type:'image/png'}),title:'TCLE',category:'tcle_externo',origin:'gov_br'}),/pdf/i);
+  assert.equal(mock.storageCalls.length,0);
+});
