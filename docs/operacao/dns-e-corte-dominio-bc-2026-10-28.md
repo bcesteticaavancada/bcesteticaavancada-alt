@@ -8,7 +8,9 @@ Fase: **VERIFICAÇÃO DE PROPRIEDADE / PRÉ-CORTE**.
 - Manter o site atual em `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`.
 - O Registro.br exibir "Publicado" significa domínio registrado/delegado, **não** significa que já atende o site.
 
-## 1. Verificar o domínio no GitHub (agora, seguro)
+## 1. Verificação do domínio — concluída, preservar TXT
+
+**Estado confirmado em 28/10/2026:** GitHub apresenta o domínio verificado e Search Console apresenta o titular como proprietário verificado. Nenhum passo desta seção precisa ser repetido. O procedimento abaixo fica somente como referência; a fase atual é preparação de código, sem modificar Registro.br. Ver `docs/operacao/homologacao-dominio-bc-2026-10-28.md`.
 
 A conta `bcesteticaavancada` é a proprietária dos repositórios atuais. No GitHub **logado nessa conta**, abrir **foto de perfil → Settings (configurações da conta, não do repositório) → Pages → Add a domain**.
 Informar `bcesteticaavancada.com.br` e selecionar **Add domain**.

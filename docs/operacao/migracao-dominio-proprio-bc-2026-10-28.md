@@ -7,7 +7,7 @@ Responsável pela decisão de corte: administração da BC. Domínio REGISTRADO:
 
 Publicar o site institucional, agenda pública, BC Gestão, área das colaboradoras, instalação PWA, Maya e páginas informativas de backup no domínio próprio sem recriar arquivos clínicos nem alterar permissões de pacientes. Preservar o Supabase e o Google Drive como serviços de dados privados. Aguardar homologação de rotas, verificação DNS e aprovação expressa antes de qualquer troca do endereço público.
 
-**Este PR é apenas documental e de auditoria**: não altera `main`, DNS, GitHub Pages, funções Supabase, OAuth, banco, usuários, dados clínicos, segredo ou backups.
+**Este PR contém documentação, auditoria e código preparatório em branch**: não altera `main`, DNS, GitHub Pages, funções Supabase implantadas, OAuth, banco, usuários, dados clínicos, segredo ou backups. A continuação de frontend, PWA, SEO, suporte/convites e os resultados verificáveis estão em `docs/operacao/homologacao-dominio-bc-2026-10-28.md`.
 
 ## Arquitetura verificada no GitHub
 
@@ -15,7 +15,7 @@ Publicar o site institucional, agenda pública, BC Gestão, área das colaborado
 - Entrada histórica: `bcesteticaavancada/bcesteticaavancada.github.io`, `index.html` com redirecionamento para `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`.
 - URL atual da aplicação: `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`.
 - Objetivo de roteamento: `https://www.bcesteticaavancada.com.br/` para a aplicação; `https://bcesteticaavancada.com.br/` redirecionará para `www`, caso a configuração DNS/Pages seja homologada.
-- Domínio já registrado em 28/10/2026; **não conectar a GitHub Pages, criar CNAME de produção ou alterar origens até o site e as integrações estarem preparados.**
+- Domínio já registrado em 28/10/2026; **não conectar a GitHub Pages, criar CNAME de produção ou alterar origens implantadas até o site e as integrações estarem preparados.**
 
 ## Inventário de dependências que exigem revisão no corte
 
@@ -39,7 +39,7 @@ A busca de código na branch `main` encontrou referências explícitas a `bceste
 1. **CONCLUÍDO (comprovante apresentado pelo usuário):** `bcesteticaavancada.com.br` registrado e publicado no Registro.br em 28/10/2026; vence em 28/10/2027; titular Maria Luísa Franco de Assis.
 2. **PENDENTE:** garantir e-mail de renovação/recuperação do painel e eventual renovação automática. Não guardar senha, token ou dados pessoais sensíveis no GitHub.
 3. **DECISÃO DE PROJETO:** `www.bcesteticaavancada.com.br` como URL canônica; manter endereço sem `www` com redirecionamento pelo GitHub Pages após configuração.
-4. **PRÓXIMO PASSO SEGURO:** verificar propriedade DNS do domínio no GitHub Pages da **conta bcesteticaavancada** (configurações de perfil, não do repositório) com registro TXT gerado pelo GitHub. Essa verificação NÃO muda o site. Veja `docs/operacao/dns-e-corte-dominio-bc-2026-10-28.md`.
+4. **CONCLUÍDO:** propriedades verificadas por TXT no GitHub Pages da **conta bcesteticaavancada** e no Google Search Console, conforme capturas confirmadas na conversa. Preservar ambos os TXT. Essa verificação não publica o site. Veja `docs/operacao/dns-e-corte-dominio-bc-2026-10-28.md`.
 5. **NÃO FAZER AGORA:** configurar domínio personalizado no repositório em produção, apontar CNAME/A ou modificar OAuth antes de ajustes e homologação do frontend e das funções.
 
 ### G1 — Preparação isolada e testes

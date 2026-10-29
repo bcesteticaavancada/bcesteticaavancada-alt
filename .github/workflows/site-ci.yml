@@ -15,11 +15,13 @@ on:
       - 'gestao/**'
       - 'supabase/**'
       - 'tests/site/**'
+      - 'tests/edge/**'
       - 'scripts/test-agenda-browser.mjs'
       - 'scripts/test-client-registration-browser.mjs'
       - 'scripts/test-simple-dashboard-browser.mjs'
       - 'scripts/test-creation-dashboard-browser.mjs'
       - 'scripts/test-public-navigation-browser.mjs'
+      - 'scripts/test-custom-domain-browser.mjs'
       - 'scripts/test-maya-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
@@ -36,11 +38,13 @@ on:
       - 'gestao/**'
       - 'supabase/**'
       - 'tests/site/**'
+      - 'tests/edge/**'
       - 'scripts/test-agenda-browser.mjs'
       - 'scripts/test-client-registration-browser.mjs'
       - 'scripts/test-simple-dashboard-browser.mjs'
       - 'scripts/test-creation-dashboard-browser.mjs'
       - 'scripts/test-public-navigation-browser.mjs'
+      - 'scripts/test-custom-domain-browser.mjs'
       - 'scripts/test-maya-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
@@ -66,8 +70,12 @@ jobs:
         run: npm run test:site
       - name: BC Gestão tests
         run: npm run test:gestao
+      - name: Exact custom-domain CORS and authorization boundaries
+        run: deno test --allow-env --config supabase/functions/generate-clinical-pdf/deno.json tests/edge/custom-domain-cors_test.ts
       - name: Install browser test engines
         run: npx playwright install --with-deps chromium webkit
+      - name: Custom-domain root and legacy path rehearsal with isolated fixtures
+        run: node scripts/test-custom-domain-browser.mjs
       - name: Agenda mobile, tablet and desktop browser tests
         run: node scripts/test-agenda-browser.mjs
       - name: Basic client registration browser tests
@@ -86,6 +94,12 @@ jobs:
         with:
           name: maya-browser-screenshots
           path: test-results/maya/
+      - name: Upload custom-domain browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-domain-browser-screenshots
+          path: test-results/custom-domain/
       - name: Upload agenda browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

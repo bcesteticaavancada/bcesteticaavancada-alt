@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bcesteticaavancada.github.io/bcesteticaavancada-alt/sitemap.xml
+Sitemap: https://www.bcesteticaavancada.com.br/sitemap.xml
