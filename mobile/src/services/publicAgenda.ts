@@ -177,7 +177,9 @@ export function createFixtureAgendaReader(): AgendaReader {
     async getMonth(procedureId, professionalId, month) {
       if (!demoProcedures.some((p) => p.id === procedureId) || professionalId !== demoProfessional[0].id) return [];
       monthOnly(month);
-      return Array.from({ length: 28 }, (_, index) => {
+      const [year, monthNumber] = month.split('-').map(Number);
+      const daysInMonth = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+      return Array.from({ length: daysInMonth }, (_, index) => {
         const date = `${month}-${String(index + 1).padStart(2, '0')}`;
         const available = new Date(date + 'T12:00:00Z').getUTCDay() !== 0;
         return { date, available, state: available ? 'available' as const : 'unavailable' as const };
@@ -186,6 +188,7 @@ export function createFixtureAgendaReader(): AgendaReader {
     async getSlots(procedureId, professionalId, date) {
       dateOnly(date);
       return demoProcedures.some((p) => p.id === procedureId) && professionalId === demoProfessional[0].id
+        && new Date(date + 'T12:00:00Z').getUTCDay() !== 0
         ? ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00']
         : [];
     },
