@@ -6,7 +6,7 @@ Este diretório contém a **primeira implementação de interface própria em Re
 
 - ✅ Interface nativa de demonstração: Início, Cuidados, Agenda, Contato, Minha BC.
 - ✅ Catálogo inicial institucional de procedimentos e pesquisa/filtros.
-- ✅ Seletores locais de procedimento, profissional, data e horário (simulação).
+- ✅ Seletores locais de procedimento, profissional, data e horário (simulação).\n- ✅ Adaptador de leitura da Agenda V2 (catálogo, profissionais, dias e slots), sem ação de gravação.\n- ✅ Testes automatizados com fixtures fictícias e cliente HTTP injetado, sem rede real.
 - ✅ Prévia da futura área da cliente e comunicação.
 - 🔒 **Sem conexão à produção ou envio de dados**: as ações de reserva e mensagem informam explicitamente que são demonstração.
 - 🔒 Sem acesso a pacientes, prontuários, PDFs, Drive, Maya Beta, financeiro ou autenticação.
@@ -32,7 +32,7 @@ O projeto ainda não contém ícone/splash finais, assinatura AAB/IPA nem config
 
 ## Arquitetura pretendida (fases posteriores)
 
-1. Verificar contrato de dados da BC Gestão (agendamento público, clientes, papéis, profissionais e consentimentos).
+1. Verificar contrato de dados da BC Gestão (agendamento público, clientes, papéis, profissionais e consentimentos). O contrato de leitura da Agenda V2 já foi mapeado; a ligação à interface ainda é pendente.
 2. Implementar login seguro via Supabase Auth, PKCE/deep links, biometria opcional e encerramento de sessão.
 3. Criar endpoints/Edge Functions autorizados para o aplicativo. Nenhuma chave de serviço ou token administrativo pode entrar no app.
 4. Preservar o banco atual; usar RLS por cliente e colaboradora, com testes de isolamento e auditoria.
