@@ -16,6 +16,11 @@ export function serve(kind: "start" | "callback" | "setup") {
       const config: Config = {
         baseUrl, clientId, clientSecret,
         appOrigin: "https://bcesteticaavancada.github.io",
+        // Allow the canonical host and apex during migration, never a wildcard.
+        allowedOrigins: [
+          "https://www.bcesteticaavancada.com.br",
+          "https://bcesteticaavancada.com.br",
+        ],
         enabled: Deno.env.get("BC_DRIVE_OAUTH_ENABLE_SETUP") === "true",
         writes: Deno.env.get("BC_DRIVE_BACKUP_ENABLE_WRITES") || "",
         pickerKey: Deno.env.get("BC_DRIVE_PICKER_API_KEY") || "",
