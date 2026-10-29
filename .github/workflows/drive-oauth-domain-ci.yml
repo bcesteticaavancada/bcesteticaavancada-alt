@@ -1,0 +1,26 @@
+name: BC Drive OAuth multi-domain (draft CI)
+
+on:
+  pull_request:
+    branches:
+      - backup/drive-automatico-v1
+    paths:
+      - 'supabase/functions/_shared/drive-oauth/**'
+      - 'tests/drive-oauth/custom-domain_test.ts'
+      - '.github/workflows/drive-oauth-domain-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  oauth-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and run isolated OAuth migration tests
+        run: deno test tests/drive-oauth/custom-domain_test.ts
