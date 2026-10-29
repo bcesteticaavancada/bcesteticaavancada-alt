@@ -30,7 +30,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Verify types
         run: npm run check
-      - name: Verify production services are not configured
+      - name: Verify read-only agenda client fixtures\n        run: npm run test:agenda\n      - name: Verify production services are not configured
         run: |
           if rg -n 'service_role|SUPABASE_SERVICE_ROLE|EXPO_PUBLIC_SUPABASE|https?://bcesteticaavancada' App.tsx src; then
             echo "Unexpected production integration in native prototype."
