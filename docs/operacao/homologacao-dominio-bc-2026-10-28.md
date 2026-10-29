@@ -31,7 +31,7 @@ Comandos:
 
 ```sh
 npm test
-deno test --allow-env --config supabase/functions/generate-clinical-pdf/deno.json tests/edge/custom-domain-cors_test.ts
+deno test --allow-env --allow-read=supabase/functions --config supabase/functions/generate-clinical-pdf/deno.json tests/edge/custom-domain-cors_test.ts
 node scripts/test-custom-domain-browser.mjs
 node scripts/auditar-dominio-bc.mjs
 ```

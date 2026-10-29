@@ -71,7 +71,7 @@ jobs:
       - name: BC Gestão tests
         run: npm run test:gestao
       - name: Exact custom-domain CORS and authorization boundaries
-        run: deno test --allow-env --config supabase/functions/generate-clinical-pdf/deno.json tests/edge/custom-domain-cors_test.ts
+        run: deno test --allow-env --allow-read=supabase/functions --config supabase/functions/generate-clinical-pdf/deno.json tests/edge/custom-domain-cors_test.ts
       - name: Install browser test engines
         run: npx playwright install --with-deps chromium webkit
       - name: Custom-domain root and legacy path rehearsal with isolated fixtures
