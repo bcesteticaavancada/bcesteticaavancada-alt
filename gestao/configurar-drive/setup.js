@@ -9,13 +9,15 @@ export function createDriveSetup({ root, auth, fetcher = fetch, pick = pickFolde
   const find = id => root.querySelector('#' + id);
   const status = find('setupStatus');
   const buttons = [find('authorizeDrive'), find('pickClinical'), find('pickClient'), find('confirmFolders')];
-  let busy = false, connected = false;
+  const centralButton = find('pickCentral'), centralStatus = find('centralStatus');
+  let busy = false, connected = false, authorizationAvailable = true, verifiedRoot = '';
   const selected = { clinical: null, client: null };
   function message(value) { status.textContent = value; }
   function render() {
-    buttons[0].disabled = busy;
+    buttons[0].disabled = busy || !authorizationAvailable;
     buttons[1].disabled = buttons[2].disabled = busy || !connected;
     buttons[3].disabled = busy || !selected.clinical || !selected.client;
+    if (centralButton) centralButton.disabled = busy || !connected;
     find('clinicalStatus').textContent = selected.clinical ? 'Pasta selecionada.' : 'Aguardando seleção.';
     find('clientStatus').textContent = selected.client ? 'Pasta selecionada.' : 'Aguardando seleção.';
   }
@@ -35,11 +37,11 @@ export function createDriveSetup({ root, auth, fetcher = fetch, pick = pickFolde
     if (!response.ok) throw new Error('server');
     return await response.json();
   }
-  async function run(work) {
+  async function run(work, onFailure = () => message('Não foi possível concluir. Confira sua entrada no BC Gestão e tente novamente.')) {
     if (busy) return;
     busy = true; render();
     try { await work(); }
-    catch { message('Não foi possível concluir. Confira sua entrada no BC Gestão e tente novamente.'); }
+    catch { onFailure(); }
     finally { busy = false; render(); }
   }
   async function init() {
@@ -48,17 +50,24 @@ export function createDriveSetup({ root, auth, fetcher = fetch, pick = pickFolde
       catch { message('Entre no BC Gestão com a conta indicada antes de continuar.'); return; }
       const result = await api('status');
       connected = result.connected === true;
+      authorizationAvailable = result.authorization_available !== false;
       if (returnStatus === 'cancelled' || returnStatus === 'failed') {
-        message(returnStatus === 'cancelled' ? 'Autorização cancelada. Toque em Continuar com Google para tentar novamente.' :
-          'Não foi possível concluir esta autorização. Toque em Continuar com Google para tentar novamente.');
+        const outcome = returnStatus === 'cancelled' ? 'Autorização cancelada.' : 'Não foi possível concluir esta autorização.';
+        message(outcome + (authorizationAvailable ? ' Toque em Continuar com Google para tentar novamente.' :
+          ' A reconexão aguarda liberação. Você pode continuar conferindo as pastas.'));
         return;
       }
-      if (result.folders_ready === true && connected) message('Autorização validada para as duas pastas. Etapa de teste, sem envio de arquivos.');
+      if (!authorizationAvailable && connected) message('Consulta e seleção disponíveis. A reconexão da conta aguarda liberação, sem alterar a configuração do backup.');
+      else if (result.folders_ready === true && connected) message('Autorização validada para as duas pastas. Etapa de teste, sem envio de arquivos.');
       else if (connected) message('Conta Google autorizada. Agora selecione cada uma das duas pastas.');
       else message('Comece autorizando sua conta Google. Nenhum arquivo será enviado.');
     });
   }
   async function start() {
+    if (!authorizationAvailable) {
+      message('A reconexão da conta aguarda liberação. Você pode continuar conferindo as pastas.');
+      return;
+    }
     await run(async () => {
       let token;
       try { token = await session(); }
@@ -90,12 +99,39 @@ export function createDriveSetup({ root, auth, fetcher = fetch, pick = pickFolde
       message('Autorização validada para as duas pastas. Etapa de teste, sem envio de arquivos.');
     });
   }
+  async function chooseCentral(role = find('centralRole')?.value) {
+    if (!connected || !centralStatus) return;
+    if (role !== 'root' && !verifiedRoot) {
+      centralStatus.textContent = 'Selecione e confira primeiro a pasta central.'; return;
+    }
+    await run(async () => {
+      centralStatus.textContent = 'Conferindo a seleção…';
+      const catalogue = await api('central');
+      const destination = Object.hasOwn(catalogue.destinations || {}, role) ? catalogue.destinations[role] : null;
+      if (!destination || typeof catalogue.root_id !== 'string') throw new Error('folder');
+      if (role !== 'root' && catalogue.root_id !== verifiedRoot) {
+        verifiedRoot = ''; centralStatus.textContent = 'A pasta central mudou. Selecione e confira a central novamente.'; return;
+      }
+      const config = await api('picker');
+      try {
+        const result = await pick({ accessToken: config.access_token, developerKey: config.developer_key,
+          appId: config.app_id, expectedId: role === 'root' ? catalogue.root_id : undefined,
+          parentId: role === 'root' ? undefined : catalogue.root_id, title: destination.name });
+        if (result === null) { centralStatus.textContent = 'Seleção cancelada. Você pode tentar novamente.'; return; }
+        const checked = await api('inspect', { role, folder: result });
+        if (checked.verified !== true || checked.role !== role || checked.backup_enabled !== false) throw new Error('folder');
+        if (role === 'root') verifiedRoot = catalogue.root_id;
+        centralStatus.textContent = 'Pasta verificada: ' + destination.name + '. Esta conferência não ativa novos backups nem envia arquivos.';
+      } finally { config.access_token = ''; }
+    }, () => { centralStatus.textContent = 'Não foi possível conferir esta pasta. Selecione a pasta indicada e confira se ela está privada.'; });
+  }
   buttons[0].addEventListener('click', start);
   buttons[1].addEventListener('click', () => choose('clinical'));
   buttons[2].addEventListener('click', () => choose('client'));
   buttons[3].addEventListener('click', confirm);
+  centralButton?.addEventListener('click', () => chooseCentral());
   render();
-  return { init, start, choose, confirm };
+  return { init, start, choose, confirm, chooseCentral };
 }
 
 function submitForm({ action, session }) {
@@ -129,7 +165,9 @@ async function pickFolder(config) {
     try {
       const p = globalThis.google.picker;
       const view = new p.DocsView(p.ViewId.FOLDERS).setIncludeFolders(true)
-        .setSelectFolderEnabled(true).setFileIds(config.expectedId);
+        .setSelectFolderEnabled(true);
+      if (config.expectedId) view.setFileIds(config.expectedId);
+      if (config.parentId) view.setParent(config.parentId);
       const picker = new p.PickerBuilder().addView(view).setOAuthToken(config.accessToken)
         .setDeveloperKey(config.developerKey).setAppId(config.appId)
         .setOrigin(globalThis.location.origin).setTitle(config.title)

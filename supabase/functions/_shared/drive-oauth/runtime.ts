@@ -16,7 +16,13 @@ export function serve(kind: "start" | "callback" | "setup") {
       const config: Config = {
         baseUrl, clientId, clientSecret,
         appOrigin: "https://bcesteticaavancada.github.io",
+        // Allow the canonical host and apex during migration, never a wildcard.
+        allowedOrigins: [
+          "https://www.bcesteticaavancada.com.br",
+          "https://bcesteticaavancada.com.br",
+        ],
         enabled: Deno.env.get("BC_DRIVE_OAUTH_ENABLE_SETUP") === "true",
+        activeReconnect: Deno.env.get("BC_DRIVE_OAUTH_ENABLE_ACTIVE_RECONNECT") === "true",
         writes: Deno.env.get("BC_DRIVE_BACKUP_ENABLE_WRITES") || "",
         pickerKey: Deno.env.get("BC_DRIVE_PICKER_API_KEY") || "",
       };
@@ -35,10 +41,11 @@ export function serve(kind: "start" | "callback" | "setup") {
             email_confirmed_at: typeof body.email_confirmed_at === "string" ? body.email_confirmed_at : undefined };
         },
         store: async (operation, payload) => {
-          const response = await fetch(baseUrl + "/rest/v1/rpc/bc_drive_oauth_store", {
+          const rotate = operation === "rotate";
+          const response = await fetch(baseUrl + "/rest/v1/rpc/" + (rotate ? "bc_drive_oauth_rotate" : "bc_drive_oauth_store"), {
             method: "POST", redirect: "error", headers: { apikey: serviceKey,
               Authorization: "Bearer " + serviceKey, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_operation: operation, p_payload: payload }),
+            body: JSON.stringify(rotate ? { p_payload: payload } : { p_operation: operation, p_payload: payload }),
             signal: AbortSignal.timeout(10_000),
           });
           if (!response.ok) throw new SetupError("store_unavailable", 503);

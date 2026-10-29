@@ -33,6 +33,23 @@
       <p>Vamos verificar se as duas pastas continuam privadas.</p>
       <button id="confirmFolders" type="button" disabled>Confirmar pastas</button>
     </section>
+    <section aria-labelledby="stepCentral">
+      <h2 id="stepCentral"><span>4</span> Conferir a central privada</h2>
+      <p>Selecione primeiro a pasta central. Depois, confira cada subpasta desejada. Essa seleção permite ao aplicativo conferir o acesso, sem enviar arquivos ou ativar novas rotinas.</p>
+      <label for="centralRole">Pasta para conferir</label>
+      <select id="centralRole">
+        <option value="root">Central privada</option>
+        <option value="maya">Maya e mídias</option>
+        <option value="manifests">Manifestos e relatórios</option>
+        <option value="database">Gestão e banco de dados</option>
+        <option value="code">Código e publicações</option>
+        <option value="audit">Auditoria e restauração</option>
+        <option value="finance">Financeiro</option>
+        <option value="administration">Administração e equipe</option>
+      </select>
+      <button id="pickCentral" type="button" disabled>Selecionar e conferir pasta</button>
+      <p id="centralStatus" role="status" aria-live="polite">Aguardando seleção da pasta central.</p>
+    </section>
     <a class="back" href="../login/">Entrar ou voltar ao BC Gestão</a>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js" defer></script>

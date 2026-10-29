@@ -1,0 +1,46 @@
+name: BC Drive OAuth multi-domain (draft CI)
+
+on:
+  pull_request:
+    branches:
+      - backup/drive-automatico-v1
+      - main
+    paths:
+      - 'supabase/functions/_shared/drive-oauth/**'
+      - 'tests/drive-oauth/custom-domain_test.ts'
+      - 'tests/drive-oauth/unblock_test.ts'
+      - 'gestao/configurar-drive/**'
+      - 'tests/gestao/drive-oauth-setup.test.mjs'
+      - 'supabase/migrations/*_bc_drive_oauth_safe_rotation.sql'
+      - 'scripts/test-drive-oauth-rotation-db.mjs'
+      - 'scripts/test-drive-oauth-unblock-browser.mjs'
+      - '.github/workflows/drive-oauth-domain-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  oauth-domain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck production entrypoints
+        run: deno check supabase/functions/drive-oauth-start/index.ts supabase/functions/drive-oauth-callback/index.ts supabase/functions/drive-oauth-setup/index.ts
+      - name: Run isolated OAuth and destination regressions
+        run: deno test --no-check --no-remote supabase/functions/_shared/drive-oauth/handler_test.ts tests/drive-oauth/custom-domain_test.ts tests/drive-oauth/unblock_test.ts
+      - name: Test UI and atomic rotation in disposable PostgreSQL
+        run: node --test tests/gestao/drive-oauth-setup.test.mjs scripts/test-drive-oauth-db.mjs scripts/test-drive-oauth-rotation-db.mjs scripts/test-drive-automatic-db.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Rehearse active backup and private central on three local TLS origins
+        run: node --experimental-transform-types scripts/test-drive-oauth-unblock-browser.mjs
