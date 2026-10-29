@@ -6,7 +6,9 @@ Este diretório contém a **primeira implementação de interface própria em Re
 
 - ✅ Interface nativa de demonstração: Início, Cuidados, Agenda, Contato, Minha BC.
 - ✅ Catálogo inicial institucional de procedimentos e pesquisa/filtros.
-- ✅ Seletores locais de procedimento, profissional, data e horário (simulação).\n- ✅ Adaptador de leitura da Agenda V2 (catálogo, profissionais, dias e slots), sem ação de gravação.\n- ✅ Testes automatizados com fixtures fictícias e cliente HTTP injetado, sem rede real.
+- ✅ Seletores locais de procedimento, profissional, data e horário (simulação).
+- ✅ Adaptador de leitura da Agenda V2 (catálogo, profissionais, dias e slots), sem ação de gravação.
+- ✅ Testes automatizados com fixtures fictícias e cliente HTTP injetado, sem rede real.
 - ✅ Prévia da futura área da cliente e comunicação.
 - 🔒 **Sem conexão à produção ou envio de dados**: as ações de reserva e mensagem informam explicitamente que são demonstração.
 - 🔒 Sem acesso a pacientes, prontuários, PDFs, Drive, Maya Beta, financeiro ou autenticação.
