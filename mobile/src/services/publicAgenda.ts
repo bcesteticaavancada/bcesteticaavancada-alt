@@ -32,9 +32,11 @@ const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export class AgendaReadError extends Error {
-  constructor(message: string, public readonly status = 0) {
+  readonly status: number;
+  constructor(message: string, status = 0) {
     super(message);
     this.name = 'AgendaReadError';
+    this.status = status;
   }
 }
 
