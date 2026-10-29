@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 
 import { procedures, type Procedure } from './src/data/procedures';
+import AgendaDemo from './src/components/AgendaDemo';
+import ClientAreaDemo from './src/components/ClientAreaDemo';
 import { colors, shadow } from './src/theme';
 
 type Tab = 'inicio' | 'procedimentos' | 'agenda' | 'mensagens' | 'minha-bc';
@@ -24,9 +26,6 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'mensagens', label: 'Contato', icon: '✉' },
   { id: 'minha-bc', label: 'Minha BC', icon: '♙' },
 ];
-
-const professionals = ['Selecionar depois', 'Mel', 'Alice', 'Aline', 'Kátia'];
-const hours = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
 
 function Pill({
   label,
@@ -82,21 +81,12 @@ function ProcedureCard({ item, onPress }: { item: Procedure; onPress: () => void
   );
 }
 
-function futureDate(index: number): Date {
-  const result = new Date();
-  result.setDate(result.getDate() + index);
-  return result;
-}
-
 export default function App() {
   const [tab, setTab] = useState<Tab>('inicio');
   const [selectedProcedure, setSelectedProcedure] = useState<Procedure | null>(null);
   const [filter, setFilter] = useState<Filter>('Todos');
   const [search, setSearch] = useState('');
   const [service, setService] = useState<string | null>(null);
-  const [professional, setProfessional] = useState(professionals[0]);
-  const [dayIndex, setDayIndex] = useState(0);
-  const [time, setTime] = useState<string | null>(null);
   const [message, setMessage] = useState('');
 
   const visibleProcedures = useMemo(
@@ -199,47 +189,7 @@ export default function App() {
   }
 
   function scheduleScreen() {
-    return (
-      <View style={styles.content}>
-        <Heading eyebrow="Agenda" title="Seu próximo cuidado" caption="Escolha suas preferências. Esta versão é uma simulação e não reserva horários." />
-        <View style={styles.demoBanner}><Text style={styles.demoText}>MODO DEMONSTRAÇÃO · sem acesso à agenda real</Text></View>
-        <Text style={styles.sectionLabel}>1. Procedimento</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {procedures.map((item) =>
-            <Pill key={item.id} label={item.name} active={service === item.id} onPress={() => setService(item.id)} />,
-          )}
-        </ScrollView>
-        <Text style={styles.sectionLabel}>2. Profissional</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {professionals.map((item) =>
-            <Pill key={item} label={item} active={professional === item} onPress={() => setProfessional(item)} />,
-          )}
-        </ScrollView>
-        <Text style={styles.sectionLabel}>3. Dia preferido</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-          {Array.from({ length: 7 }, (_, i) => {
-            const date = futureDate(i);
-            const label = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' });
-            return <Pill key={i} label={label} active={dayIndex === i} onPress={() => { setDayIndex(i); setTime(null); }} />;
-          })}
-        </ScrollView>
-        <Text style={styles.sectionLabel}>4. Horário preferido</Text>
-        <View style={styles.timeGrid}>
-          {hours.map((item) =>
-            <View key={item} style={styles.timeCell}>
-              <Pill label={item} active={time === item} onPress={() => setTime(item)} />
-            </View>,
-          )}
-        </View>
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Resumo das preferências</Text>
-          <Text style={styles.bodyText}>{procedures.find((item) => item.id === service)?.name || 'Escolha um procedimento'}</Text>
-          <Text style={styles.bodyText}>Profissional: {professional}</Text>
-          <Text style={styles.bodyText}>Data: {futureDate(dayIndex).toLocaleDateString('pt-BR')} · {time || 'Escolha um horário'}</Text>
-        </View>
-        <PrimaryButton label="Ver confirmação de demonstração" onPress={() => showDemoNotice('O agendamento')} />
-      </View>
-    );
+    return <AgendaDemo requestedProcedureName={procedures.find((item) => item.id === service)?.name || null} />;
   }
 
   function messagesScreen() {
@@ -275,33 +225,7 @@ export default function App() {
   }
 
   function accountScreen() {
-    return (
-      <View style={styles.content}>
-        <Heading eyebrow="Seu espaço" title="Minha BC" caption="Seus atendimentos, orientações e documentos em um só lugar." />
-        <View style={styles.accountCard}>
-          <View style={styles.accountAvatar}><Text style={styles.accountAvatarText}>♡</Text></View>
-          <Text style={styles.accountTitle}>Uma jornada feita para você</Text>
-          <Text style={styles.bodyTextCentered}>A área da cliente será conectada ao cadastro existente da clínica, sem criar registros paralelos.</Text>
-        </View>
-        {[
-          ['▦', 'Meus agendamentos', 'Histórico e próximos horários'],
-          ['✧', 'Procedimentos realizados', 'Informações vinculadas ao seu atendimento'],
-          ['▤', 'Documentos e consentimentos', 'Acesso somente ao que for autorizado'],
-          ['✉', 'Orientações e mensagens', 'Contato com sua profissional'],
-        ].map(([icon, title, description]) => (
-          <View key={title} style={styles.accountItem}>
-            <Text style={styles.accountItemIcon}>{icon}</Text>
-            <View style={styles.flex}><Text style={styles.procedureTitle}>{title}</Text><Text style={styles.procedureCaption}>{description}</Text></View>
-            <Text style={styles.chevron}>·</Text>
-          </View>
-        ))}
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Acesso protegido</Text>
-          <Text style={styles.bodyText}>Login, permissões de colaboradoras, gestão e documentos clínicos serão integrados e homologados em fase separada. Nenhum dado real é apresentado neste protótipo.</Text>
-        </View>
-        <PrimaryButton label="Entender o acesso seguro" onPress={() => showDemoNotice('O login da área da cliente')} />
-      </View>
-    );
+    return <ClientAreaDemo />;
   }
 
   const content = {
@@ -317,7 +241,7 @@ export default function App() {
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <View style={styles.topBar}>
         <View><Text style={styles.brand}>BC</Text><Text style={styles.brandCaption}>ESTÉTICA AVANÇADA</Text></View>
-        <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>PRÉVIA V0.1</Text></View>
+        <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>PRÉVIA V0.2</Text></View>
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.scrollContent}>
         {content()}
