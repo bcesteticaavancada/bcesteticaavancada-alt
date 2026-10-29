@@ -203,7 +203,7 @@ Deno.test("setup rejects cross-origin and unauthorized requests without leaking 
   assert.equal((await f.setup({ action: "picker" }, "https://outside.example")).status, 403);
   assert.equal((await f.setup({ action: "picker" }, ORIGIN, "wrong-session")).status, 403);
   const r = await f.setup({ action: "status" });
-  assert.deepEqual(await r.json(), { connected: true, folders_ready: false });
+  assert.deepEqual(await r.json(), { connected: true, folders_ready: false, authorization_available: true });
   assert.equal(r.headers.get("access-control-allow-origin"), ORIGIN);
 });
 

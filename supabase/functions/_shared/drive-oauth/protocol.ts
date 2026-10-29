@@ -41,7 +41,7 @@ async function cookieKey(secret: string): Promise<CryptoKey> {
     salt: encoder.encode("BC-drive-oauth-cookie-v1"), info: encoder.encode(COOKIE_NAME) },
     material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
-export type Handshake = { state: string; verifier: string; uid: string; session: string; issued: number; expires: number; appOrigin?: string };
+export type Handshake = { state: string; verifier: string; uid: string; session: string; issued: number; expires: number; appOrigin?: string; credentialHash?: string };
 export async function seal(payload: Handshake, secret: string): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv,
@@ -60,11 +60,13 @@ export async function open(value: string, secret: string, now: number): Promise<
     typeof p.issued !== "number" || typeof p.expires !== "number" ||
     !Number.isFinite(p.issued) || !Number.isFinite(p.expires) || p.issued > now ||
     p.expires <= now || p.expires - p.issued !== SESSION_TTL) throw new SetupError();
+  if (p.credentialHash !== undefined && !/^[a-f0-9]{64}$/.test(text(p.credentialHash, 64))) throw new SetupError();
   return { state: p.state as string, verifier: p.verifier as string, uid: text(p.uid, 100),
     session: text(p.session, 3000), issued: p.issued, expires: p.expires,
     // Optional for pre-migration cookies; the handler validates this authenticated value
     // against its immutable origin allow-list before using it as a redirect destination.
-    ...(p.appOrigin === undefined ? {} : { appOrigin: text(p.appOrigin, 200) }) };
+    ...(p.appOrigin === undefined ? {} : { appOrigin: text(p.appOrigin, 200) }),
+    ...(p.credentialHash === undefined ? {} : { credentialHash: p.credentialHash as string }) };
 }
 export function cookie(value: string, clear = false): string {
   return `${COOKIE_NAME}=${clear ? "" : value}; Path=${COOKIE_PATH}; Max-Age=${clear ? 0 : 600}; HttpOnly; Secure; SameSite=Lax`;
