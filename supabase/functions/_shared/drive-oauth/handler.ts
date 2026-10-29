@@ -4,6 +4,8 @@ import { ACCOUNT, COOKIE_PATH, DRIVE_SCOPE, FOLDERS, SESSION_TTL, SetupError, ba
 
 export type Config = {
   enabled: boolean; writes: string; baseUrl: string; appOrigin: string;
+  /** Exact additional site origins for the controlled domain migration. */
+  allowedOrigins?: readonly string[];
   clientId: string; clientSecret: string; pickerKey: string;
 };
 type User = { id: string; email?: string; email_confirmed_at?: string };
@@ -18,13 +20,22 @@ const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const DRIVE = "https://www.googleapis.com/drive/v3/";
 
 export function createOAuthHandler(kind: "start" | "callback" | "setup", config: Config, deps: Dependencies) {
-  const returnUrl = config.appOrigin + "/bcesteticaavancada-alt/gestao/configurar-drive/";
+  const allowedOrigins = new Set([config.appOrigin, ...(config.allowedOrigins ?? [])]);
+  // No URL from query parameters, post bodies or untrusted callbacks is used as a destination.
+  // Legacy handshake cookies (without appOrigin) keep returning to the old installation.
+  function returnUrlFor(origin?: string) {
+    const trusted = origin && allowedOrigins.has(origin) ? origin : config.appOrigin;
+    return trusted === config.appOrigin
+      ? trusted + "/bcesteticaavancada-alt/gestao/configurar-drive/"
+      : trusted + "/gestao/configurar-drive/";
+  }
   const redirectUri = config.baseUrl + COOKIE_PATH;
   function headers(req: Request): Headers {
     const h = new Headers({ "Cache-Control": "no-store", Pragma: "no-cache",
       "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff" });
-    if (req.headers.get("origin") === config.appOrigin) {
-      h.set("Access-Control-Allow-Origin", config.appOrigin); h.set("Vary", "Origin");
+    const origin = req.headers.get("origin");
+    if (origin && allowedOrigins.has(origin)) {
+      h.set("Access-Control-Allow-Origin", origin); h.set("Vary", "Origin");
     }
     return h;
   }
@@ -63,14 +74,16 @@ export function createOAuthHandler(kind: "start" | "callback" | "setup", config:
     return await grant({ grant_type: "refresh_token", refresh_token: text(record.refresh_token) }, false);
   }
   async function start(req: Request) {
-    if (req.headers.get("origin") !== config.appOrigin) throw new SetupError("access_denied", 403);
+    const appOrigin = req.headers.get("origin");
+    if (!appOrigin || !allowedOrigins.has(appOrigin)) throw new SetupError("access_denied", 403);
     if (!req.headers.get("content-type")?.startsWith("application/x-www-form-urlencoded")) throw new SetupError("invalid_request");
     const params = new URLSearchParams(await limitedText(req));
     if ([...params.keys()].length !== 1 || params.getAll("session").length !== 1) throw new SetupError();
     const session = text(params.get("session"), 3000);
     const identity = await user(session);
     const state = random(); const verifier = random(); const issued = deps.now();
-    const sealed = await seal({ state, verifier, uid: identity.id, session, issued, expires: issued + SESSION_TTL }, config.clientSecret);
+    const sealed = await seal({ state, verifier, uid: identity.id, session, issued, expires: issued + SESSION_TTL,
+      appOrigin }, config.clientSecret);
     const authorization = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     authorization.search = new URLSearchParams({ response_type: "code", client_id: config.clientId,
       redirect_uri: redirectUri, scope: DRIVE_SCOPE, access_type: "offline", prompt: "consent select_account",
@@ -82,6 +95,8 @@ export function createOAuthHandler(kind: "start" | "callback" | "setup", config:
   async function callback(req: Request) {
     const params = new URL(req.url).searchParams;
     const handshake = await open(readCookie(req.headers.get("cookie") || ""), config.clientSecret, deps.now());
+    if (handshake.appOrigin && !allowedOrigins.has(handshake.appOrigin)) throw new SetupError("access_denied", 403);
+    const returnUrl = returnUrlFor(handshake.appOrigin);
     if (params.getAll("state").length !== 1 || params.get("state") !== handshake.state ||
       params.getAll("code").length > 1 || params.getAll("error").length > 1 ||
       (params.has("code") && params.has("error"))) throw new SetupError();
@@ -99,7 +114,8 @@ export function createOAuthHandler(kind: "start" | "callback" | "setup", config:
     return redirect(req, returnUrl + "?status=authorized", cookie("", true));
   }
   async function setup(req: Request) {
-    if (req.headers.get("origin") !== config.appOrigin) throw new SetupError("access_denied", 403);
+    const origin = req.headers.get("origin");
+    if (!origin || !allowedOrigins.has(origin)) throw new SetupError("access_denied", 403);
     const auth = req.headers.get("authorization") || "";
     if (!auth.startsWith("Bearer ")) throw new SetupError("access_denied", 403);
     const identity = await user(text(auth.slice(7), 3000));
@@ -132,7 +148,8 @@ export function createOAuthHandler(kind: "start" | "callback" | "setup", config:
     try {
       if (!config.enabled || config.writes !== "false") return reply(req, { error: "setup_disabled" }, 503);
       if (kind === "setup" && req.method === "OPTIONS") {
-        if (req.headers.get("origin") !== config.appOrigin) throw new SetupError("access_denied", 403);
+        const origin = req.headers.get("origin");
+        if (!origin || !allowedOrigins.has(origin)) throw new SetupError("access_denied", 403);
         const h = headers(req); h.set("Access-Control-Allow-Methods", "POST, OPTIONS");
         h.set("Access-Control-Allow-Headers", "authorization, content-type");
         return new Response(null, { status: 204, headers: h });
@@ -142,7 +159,7 @@ export function createOAuthHandler(kind: "start" | "callback" | "setup", config:
       if (kind === "callback") return await callback(req);
       return await setup(req);
     } catch (error) {
-      if (kind === "callback") return redirect(req, returnUrl + "?status=failed", cookie("", true));
+      if (kind === "callback") return redirect(req, returnUrlFor() + "?status=failed", cookie("", true));
       return reply(req, { error: error instanceof SetupError ? error.code : "setup_failed" }, error instanceof SetupError ? error.status : 400);
     }
   };
