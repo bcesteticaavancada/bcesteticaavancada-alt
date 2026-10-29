@@ -6,10 +6,12 @@ Este diretório contém a **primeira implementação de interface própria em Re
 
 - ✅ Interface nativa de demonstração: Início, Cuidados, Agenda, Contato, Minha BC.
 - ✅ Catálogo inicial institucional de procedimentos e pesquisa/filtros.
+- ✅ Tela da Agenda V2 ligada ao contrato de leitura por fixtures: catálogo, profissionais, mês/dia e horários; calendário com meses completos e domingos indisponíveis.
 - ✅ Seletores locais de procedimento, profissional, data e horário (simulação).
 - ✅ Adaptador de leitura da Agenda V2 (catálogo, profissionais, dias e slots), sem ação de gravação.
 - ✅ Testes automatizados com fixtures fictícias e cliente HTTP injetado, sem rede real.
-- ✅ Prévia da futura área da cliente e comunicação.
+- ✅ Prévia interativa da futura área da cliente: Histórico, Cuidados e Documentos, apenas exemplos fictícios e sem arquivos reais.
+- ✅ Prévia de contato e comunicação (rascunho em memória, sem envio).
 - 🔒 **Sem conexão à produção ou envio de dados**: as ações de reserva e mensagem informam explicitamente que são demonstração.
 - 🔒 Sem acesso a pacientes, prontuários, PDFs, Drive, Maya Beta, financeiro ou autenticação.
 - 🚫 Sem publicação, merge automático, credenciais, analytics ou transmissão de dados pessoais.
@@ -34,7 +36,7 @@ O projeto ainda não contém ícone/splash finais, assinatura AAB/IPA nem config
 
 ## Arquitetura pretendida (fases posteriores)
 
-1. Verificar contrato de dados da BC Gestão (agendamento público, clientes, papéis, profissionais e consentimentos). O contrato de leitura da Agenda V2 já foi mapeado; a ligação à interface ainda é pendente.
+1. Verificar contrato de dados da BC Gestão (agendamento público, clientes, papéis, profissionais e consentimentos). A interface já consome o contrato de leitura da Agenda V2 **com fixtures**; o endpoint real não está configurado nem habilitado.
 2. Implementar login seguro via Supabase Auth, PKCE/deep links, biometria opcional e encerramento de sessão.
 3. Criar endpoints/Edge Functions autorizados para o aplicativo. Nenhuma chave de serviço ou token administrativo pode entrar no app.
 4. Preservar o banco atual; usar RLS por cliente e colaboradora, com testes de isolamento e auditoria.
@@ -58,7 +60,8 @@ As implementações da Maya, do Drive, do TCLE e da migração de domínio em PR
 
 - App abre diretamente na interface BC e navega entre cinco áreas sem carregar o website.
 - Listagem e busca de procedimentos funcionam localmente.
-- Agenda oferece somente seleção de preferências; a confirmação informa que não foi registrada.
+- Agenda navega por fixture isolada do contrato real; a confirmação informa que nenhuma reserva foi registrada.
+- Minha BC apresenta somente registros e documentos explicitamente ilustrativos, sem acesso aos pacientes.
 - Nenhuma mensagem é enviada ou armazenada fora da memória local da tela.
 - TypeScript passa no CI.
 - A instalação em aparelho Android físico permanece pendente.
