@@ -77,3 +77,24 @@ test('erro de limite de consultas não revela mensagem arbitrária do servidor',
     (error) => error instanceof AgendaReadError && error.status === 429 && !error.message.includes('segredo-indesejado'),
   );
 });
+
+test('fixture respeita a duração real de cada mês e oculta horários de domingo', async () => {
+  const reader = createFixtureAgendaReader();
+  const february = await reader.getMonth(PROCEDURE_ID, PROFESSIONAL_ID, '2027-02');
+  assert.equal(february.length, 28);
+  const leapFebruary = await reader.getMonth(PROCEDURE_ID, PROFESSIONAL_ID, '2028-02');
+  assert.equal(leapFebruary.length, 29);
+  const october = await reader.getMonth(PROCEDURE_ID, PROFESSIONAL_ID, '2026-10');
+  assert.equal(october.length, 31);
+  assert.equal(october.at(-1).date, '2026-10-31');
+  const sunday = october.find((day) => day.date === '2026-10-25');
+  assert.equal(sunday.available, false);
+  assert.deepEqual(await reader.getSlots(PROCEDURE_ID, PROFESSIONAL_ID, '2026-10-25'), []);
+});
+
+test('fixture não contém dados de pacientes nem métodos de gravação', async () => {
+  const reader = createFixtureAgendaReader();
+  assert.deepEqual(Object.keys(reader).sort(), ['getCatalog', 'getMonth', 'getProfessionals', 'getSlots']);
+  const data = JSON.stringify(await reader.getCatalog());
+  assert.equal(/cpf|telefone|email|patient|clienteId/i.test(data), false);
+});
