@@ -1,8 +1,7 @@
 name: BC Mobile Android APK (demo)
 
 on:
-  push:
-    branches: [feature/bc-mobile-native-prototype]
+  pull_request:
     paths: ['.github/workflows/bc-mobile-android-apk.yml']
   workflow_dispatch:
 
