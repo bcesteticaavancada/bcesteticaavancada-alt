@@ -26,9 +26,14 @@ export default function ClientAreaDemo() {
 
   return (
     <View style={styles.content}>
-      <Text style={styles.eyebrow}>ESPAÇO DA CLIENTE</Text>
-      <Text style={styles.heading}>Minha BC</Text>
-      <Text style={styles.caption}>Um lugar dedicado à sua jornada, seus atendimentos e suas orientações.</Text>
+      <View style={styles.clientHero}>
+        <View style={styles.clientHalo} />
+        <Text style={styles.eyebrow}>BC · UM ESPAÇO SÓ SEU</Text>
+        <Text style={styles.heading}>Sua história de cuidado, com carinho.</Text>
+        <View style={styles.heroRule} />
+        <Text style={styles.caption}>Seus atendimentos, orientações e documentos, em uma experiência pessoal e protegida.</Text>
+        <Text style={styles.heroCaption}>MINHA BC  ·  PRIVATE EXPERIENCE  ✧</Text>
+      </View>
       <View style={styles.warning}>
         <Text style={styles.warningTitle}>PRÉVIA COM DADOS FICTÍCIOS</Text>
         <Text style={styles.warningText}>Você não está conectada a uma conta. Os exemplos abaixo não representam pacientes ou procedimentos realizados na clínica.</Text>
@@ -127,32 +132,36 @@ export default function ClientAreaDemo() {
 }
 
 const styles = StyleSheet.create({
+  clientHero: { backgroundColor: '#563543', borderRadius: 20, padding: 23, gap: 13, minHeight: 241, overflow: 'hidden' },
+  clientHalo: { position: 'absolute', right: -85, top: -65, width: 215, height: 215, borderWidth: 1, borderColor: 'rgba(232,186,165,0.36)', borderRadius: 110 },
+  heroRule: { height: 2, width: 64, backgroundColor: '#E4B69C' },
+  heroCaption: { fontSize: 9, color: '#E5BBA2', letterSpacing: 1.0, fontWeight: '800', marginTop: 6 },
   content: { paddingHorizontal: 20, paddingTop: 23, gap: 13, paddingBottom: 28 },
-  eyebrow: { color: colors.gold, fontSize: 10, letterSpacing: 1.7, fontWeight: '800' },
-  heading: { color: colors.ink, fontFamily: 'serif', fontSize: 29, fontWeight: '600' },
-  caption: { color: colors.muted, fontSize: 14, lineHeight: 21 },
-  warning: { backgroundColor: colors.blush, padding: 15, borderRadius: 12, gap: 6 },
+  eyebrow: { color: '#E5BBA2', fontSize: 10, letterSpacing: 1.7, fontWeight: '800' },
+  heading: { color: '#FFF7F3', fontFamily: 'serif', fontSize: 30, lineHeight: 37, fontWeight: '600', maxWidth: 280 },
+  caption: { color: '#F0DDE0', fontSize: 13, lineHeight: 20 },
+  warning: { backgroundColor: '#F6E5DE', padding: 15, borderRadius: 14, gap: 6, borderWidth: 1, borderColor: '#EAC9BF' },
   warningTitle: { fontSize: 10, fontWeight: '800', color: colors.roseDeep, letterSpacing: 1 },
   warningText: { color: colors.roseDeep, fontSize: 12, lineHeight: 18 },
-  intro: { flexDirection: 'row', alignItems: 'center', gap: 13, backgroundColor: colors.surface, borderRadius: 13, padding: 16, borderColor: colors.line, borderWidth: 1 },
-  avatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: colors.blush, alignItems: 'center', justifyContent: 'center' },
+  intro: { flexDirection: 'row', alignItems: 'center', gap: 13, backgroundColor: '#FFFDFB', borderRadius: 16, padding: 17, borderColor: '#E7C8BC', borderWidth: 1 },
+  avatar: { width: 55, height: 55, borderRadius: 29, backgroundColor: '#F4DED8', borderWidth: 1, borderColor: '#CEA18E', alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: colors.roseDeep, fontSize: 29 },
   grow: { flex: 1 },
   welcome: { fontSize: 15, color: colors.ink, fontWeight: '700', marginBottom: 5 },
   small: { color: colors.muted, fontSize: 11, lineHeight: 17 },
   panels: { gap: 9, paddingVertical: 4 },
   panel: { borderRadius: 24, paddingHorizontal: 18, paddingVertical: 12, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line },
-  panelActive: { backgroundColor: colors.roseDeep, borderColor: colors.roseDeep },
+  panelActive: { backgroundColor: '#824E60', borderColor: '#C2917F' },
   panelText: { fontSize: 12, color: colors.ink, fontWeight: '700' },
   panelTextActive: { color: '#FFFFFF' },
   section: { gap: 12 },
-  sectionTitle: { fontSize: 18, color: colors.ink, fontWeight: '700', marginTop: 4 },
+  sectionTitle: { fontSize: 20, color: '#5F3948', fontFamily: 'serif', fontWeight: '700', marginTop: 6 },
   body: { color: colors.muted, lineHeight: 18, fontSize: 12 },
-  item: { backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.line, padding: 15, flexDirection: 'row', gap: 12, alignItems: 'center' },
+  item: { backgroundColor: '#FFFDFC', borderRadius: 16, borderWidth: 1, borderColor: '#E8D0C6', padding: 17, flexDirection: 'row', gap: 12, alignItems: 'center' },
   itemIcon: { fontSize: 24, color: colors.roseDeep },
   itemTitle: { fontSize: 13, color: colors.ink, fontWeight: '700', marginBottom: 4 },
   note: { fontSize: 12, color: colors.muted, lineHeight: 19, marginTop: 4 },
-  button: { backgroundColor: colors.roseDeep, padding: 17, borderRadius: 10 },
+  button: { backgroundColor: '#805061', padding: 18, borderRadius: 25, borderWidth: 1, borderColor: '#BD8A7C' },
   buttonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
   footer: { color: colors.muted, fontSize: 11, lineHeight: 18 },
 });

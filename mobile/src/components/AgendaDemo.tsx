@@ -162,9 +162,14 @@ export default function AgendaDemo({
 
   return (
     <View style={styles.content}>
-      <Text style={styles.eyebrow}>AGENDA · PRÉVIA NATIVA</Text>
-      <Text style={styles.heading}>Seu próximo cuidado</Text>
-      <Text style={styles.subtitle}>Percorra o catálogo, escolha uma profissional, um dia e um horário de exemplo.</Text>
+      <View style={styles.editorialHero}>
+        <View style={styles.editorialHalo} />
+        <Text style={styles.eyebrow}>BC · AGENDA EXCLUSIVA</Text>
+        <Text style={styles.heading}>Seu próximo momento de cuidado.</Text>
+        <View style={styles.editorialRule} />
+        <Text style={styles.subtitle}>Uma experiência de agendamento pensada para você, do início ao fim.</Text>
+        <Text style={styles.heroFooter}>01 PROCEDIMENTO  ·  02 PROFISSIONAL  ·  03 DATA  ·  04 HORÁRIO</Text>
+      </View>
       <View style={styles.demoBanner}>
         <Text style={styles.demoText}>DADOS 100% FICTÍCIOS · sem consulta ou reserva real</Text>
       </View>
@@ -179,14 +184,14 @@ export default function AgendaDemo({
       ) : null}
       {loading ? <Text style={styles.loading}>Carregando {loading} de demonstração…</Text> : null}
 
-      <Text style={styles.step}>1. Procedimento</Text>
+      <Text style={styles.step}><Text style={styles.stepNumber}>01  </Text> Escolha seu cuidado</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.options}>
         {catalog.map((item) => (
           <Choice key={item.id} label={item.name} active={procedureId === item.id} onPress={() => chooseProcedure(item.id)} />
         ))}
       </ScrollView>
 
-      <Text style={styles.step}>2. Profissional</Text>
+      <Text style={styles.step}><Text style={styles.stepNumber}>02  </Text> Profissional</Text>
       {!procedureId ? <Text style={styles.hint}>Escolha um procedimento primeiro.</Text> : null}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.options}>
         {staff.map((item) => (
@@ -194,7 +199,7 @@ export default function AgendaDemo({
         ))}
       </ScrollView>
 
-      <Text style={styles.step}>3. Dia preferido</Text>
+      <Text style={styles.step}><Text style={styles.stepNumber}>03  </Text> Seu dia preferido</Text>
       <View style={styles.monthRow}>
         <Pressable accessibilityRole="button" accessibilityLabel="Mês anterior" disabled={month <= calendarMonth(localToday())} onPress={() => chooseMonth(-1)} style={styles.arrowButton}>
           <Text style={styles.arrow}>‹</Text>
@@ -212,7 +217,7 @@ export default function AgendaDemo({
         ))}
       </ScrollView>
 
-      <Text style={styles.step}>4. Horário preferido</Text>
+      <Text style={styles.step}><Text style={styles.stepNumber}>04  </Text> Horário preferido</Text>
       {!date ? <Text style={styles.hint}>Selecione um dia para visualizar os horários.</Text> : null}
       <View style={styles.hours}>
         {slots.map((item) => (
@@ -221,7 +226,8 @@ export default function AgendaDemo({
       </View>
 
       <View style={styles.summary}>
-        <Text style={styles.summaryTitle}>Suas preferências de demonstração</Text>
+        <Text style={styles.summaryEyebrow}>RESUMO BC  ✧</Text>
+        <Text style={styles.summaryTitle}>Sua experiência começa aqui</Text>
         <Text style={styles.summaryText}>{selectedProcedure?.name || 'Procedimento não selecionado'}</Text>
         <Text style={styles.summaryText}>Profissional: {selectedProfessional?.name || 'não selecionada'}</Text>
         <Text style={styles.summaryText}>Dia: {date ? dayLabel(date) : 'não selecionado'} · {slot || 'sem horário'}</Text>
@@ -241,16 +247,22 @@ export default function AgendaDemo({
 }
 
 const styles = StyleSheet.create({
+  editorialHero: { backgroundColor: '#5B3647', borderRadius: 20, padding: 22, gap: 12, overflow: 'hidden', minHeight: 226 },
+  editorialHalo: { width: 210, height: 210, position: 'absolute', right: -95, top: -60, borderRadius: 105, borderWidth: 1, borderColor: 'rgba(233,187,159,0.35)' },
+  editorialRule: { width: 62, height: 2, borderRadius: 2, backgroundColor: '#E4B69C' },
+  heroFooter: { color: '#E7C3B1', fontSize: 8, letterSpacing: 0.6, lineHeight: 14, fontWeight: '800', paddingTop: 4 },
+  stepNumber: { color: '#C5947D', fontFamily: 'serif', fontWeight: '700', fontSize: 20 },
+  summaryEyebrow: { color: '#E6B99E', fontWeight: '800', letterSpacing: 1.7, fontSize: 10 },
   content: { paddingHorizontal: 20, paddingTop: 23, paddingBottom: 24, gap: 12 },
-  eyebrow: { color: colors.gold, fontSize: 10, fontWeight: '800', letterSpacing: 1.6 },
-  heading: { color: colors.ink, fontSize: 27, fontWeight: '600', fontFamily: 'serif' },
-  subtitle: { color: colors.muted, fontSize: 14, lineHeight: 21, marginBottom: 5 },
-  demoBanner: { backgroundColor: colors.blush, padding: 12, borderRadius: 8 },
+  eyebrow: { color: '#E6BFA7', fontSize: 10, fontWeight: '800', letterSpacing: 1.6 },
+  heading: { color: '#FFF6F1', fontSize: 31, lineHeight: 37, fontWeight: '600', fontFamily: 'serif', maxWidth: 270 },
+  subtitle: { color: '#F0DDE0', fontSize: 12, lineHeight: 19, marginBottom: 4 },
+  demoBanner: { backgroundColor: '#F6E4DF', padding: 13, borderRadius: 12, borderWidth: 1, borderColor: '#E9C9BE' },
   demoText: { color: colors.roseDeep, fontSize: 10, fontWeight: '800', letterSpacing: 0.7 },
-  step: { marginTop: 14, color: colors.ink, fontSize: 14, fontWeight: '800' },
+  step: { marginTop: 18, color: '#5A3443', fontSize: 16, fontWeight: '800', paddingBottom: 8, borderBottomWidth: 1, borderColor: '#E5CEC5' },
   options: { gap: 9, paddingVertical: 4 },
-  choice: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 22, paddingVertical: 10, paddingHorizontal: 14 },
-  selectedChoice: { backgroundColor: colors.roseDeep, borderColor: colors.roseDeep },
+  choice: { backgroundColor: '#FFFDFC', borderWidth: 1, borderColor: '#DDBFB3', borderRadius: 22, paddingVertical: 12, paddingHorizontal: 15 },
+  selectedChoice: { backgroundColor: '#824E60', borderColor: '#C3917E' },
   disabledChoice: { opacity: 0.45 },
   choiceText: { color: colors.ink, fontSize: 12, fontWeight: '600' },
   selectedChoiceText: { color: '#FFFFFF' },
@@ -258,16 +270,16 @@ const styles = StyleSheet.create({
   loading: { color: colors.roseDeep, fontSize: 12 },
   errorBox: { padding: 12, borderRadius: 9, backgroundColor: '#FFF2F0', gap: 8 },
   errorText: { color: '#912E3D', fontSize: 12 },
-  monthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  monthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F9EEE9', padding: 6, borderRadius: 13 },
   monthLabel: { color: colors.ink, textTransform: 'capitalize', fontSize: 13, fontWeight: '700' },
   arrowButton: { width: 45, height: 39, alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: colors.blush },
   arrow: { color: colors.roseDeep, fontSize: 26 },
   hours: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
-  summary: { backgroundColor: colors.surface, borderColor: colors.line, borderWidth: 1, borderRadius: 13, padding: 17, gap: 6, marginTop: 12 },
-  summaryTitle: { color: colors.ink, fontWeight: '800', fontSize: 14, marginBottom: 4 },
-  summaryText: { color: colors.muted, fontSize: 12, lineHeight: 18 },
-  action: { backgroundColor: colors.roseDeep, borderRadius: 11, padding: 17 },
+  summary: { backgroundColor: '#593645', borderColor: '#BE8E81', borderWidth: 1, borderRadius: 18, padding: 20, gap: 10, marginTop: 17 },
+  summaryTitle: { color: '#FFF6F2', fontFamily: 'serif', fontWeight: '700', fontSize: 21, marginBottom: 4 },
+  summaryText: { color: '#F0DDE0', fontSize: 12, lineHeight: 19 },
+  action: { backgroundColor: '#D3A085', borderRadius: 25, padding: 18, borderWidth: 1, borderColor: '#E5B99F' },
   actionDisabled: { opacity: 0.45 },
-  actionText: { color: '#FFFFFF', fontSize: 13, fontWeight: '800', textAlign: 'center' },
+  actionText: { color: '#442B37', fontSize: 13, fontWeight: '800', textAlign: 'center' },
   footer: { color: colors.muted, fontSize: 11, lineHeight: 17, marginTop: 5 },
 });
