@@ -3,7 +3,7 @@
     "name": "BC Estética Avançada",
     "slug": "bc-estetica-mobile",
     "scheme": "bcestetica",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -11,7 +11,7 @@
       "package": "br.com.bcesteticaavancada.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-adaptive-icon.png",
-        "backgroundColor": "#FCF5F2"
+        "backgroundColor": "#151316"
       }
     },
     "ios": {
@@ -23,7 +23,7 @@
     },
     "icon": "./assets/app-icon.png",
     "splash": {
-      "image": "./assets/logo-oficial.png",
+      "image": "./assets/logo-transparente.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFF9F7"
     }

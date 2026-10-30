@@ -2,7 +2,15 @@
 
 Este diretório contém a **primeira implementação de interface própria em React Native / Expo** da BC. Não é uma WebView, não redireciona para o site e não compartilha o HTML do GitHub Pages. O mesmo backend da BC poderá ser conectado futuramente por APIs autenticadas, após homologação.
 
-## Estado atual — V0.4 (rose gold signature, em revisão)
+## Estado atual — V0.5 (Black · Rose Gold · Ouro Branco, em revisão)
+
+- ✨ Tipografia ampliada e contrastes reforçados em navegação, agenda, catálogo, contato e área da cliente.
+- ✨ Identidade premium preto/rose gold/ouro branco com superfícies claras e painéis escuros de alto contraste.
+- ✨ Fotos institucionais locais da equipe: Mel, Alice, Aline, Kátia e imagem coletiva da BC; Vânia é exibida com a foto coletiva, aguardando retrato individual confirmado.
+- ✨ Logotipo dourado sem fundo em cabeçalho e splash; preservados os ícones originais do protótipo.
+- 🔒 Nada é enviado ao backend, nenhuma foto clínica privada foi importada e nada foi publicado na loja.
+
+### Histórico da V0.4
 
 - ✨ Home com composição editorial e camadas rose gold/champagne, selo da marca, assinatura BC, cartões refinados, ambientes e equipe ilustrada por monogramas (sem fotos pessoais).
 - ✨ Catálogo e detalhes de procedimentos com painéis premium; telas de Agenda, Contato e Minha BC com identidade visual própria e coesa.
@@ -44,7 +52,7 @@ npm start
 
 Abra o QR Code no Expo Go compatível com SDK 57. A versão de Expo Go nas lojas pode mudar: em 29/10/2026 o Expo SDK 58 já foi lançado, mas a transição de Expo Go ainda estava em andamento. Se o Expo Go instalado não suportar SDK 57, use development build ou atualize o projeto com validação de dependências.
 
-A V0.4 utiliza logo e ícones da BC que já constam nos arquivos oficiais do site; precisam de aceite visual da Mel e do Fernando para distribuição. Ainda não há assinatura de produção para AAB/IPA nem configuração EAS de publicação. A paleta permanece provisória até homologação.
+A V0.5 utiliza logo e ícones da BC que já constam nos arquivos oficiais do site; precisam de aceite visual da Mel e do Fernando para distribuição. Ainda não há assinatura de produção para AAB/IPA nem configuração EAS de publicação. A paleta permanece provisória até homologação.
 
 ## Arquitetura pretendida (fases posteriores)
 
@@ -76,5 +84,5 @@ As implementações da Maya, do Drive, do TCLE e da migração de domínio em PR
 - Minha BC apresenta somente registros e documentos explicitamente ilustrativos, sem acesso aos pacientes.
 - Nenhuma mensagem é enviada ou armazenada fora da memória local da tela.
 - TypeScript e testes da agenda devem passar no CI após cada alteração.
-- O APK V0.3 foi gerado e recebeu avaliação inicial de Fernando em 30/10/2026. A V0.4 deve passar por build, instalação e aceite visual em celular físico.
+- O APK V0.3 foi gerado e recebeu avaliação inicial de Fernando em 30/10/2026. A V0.5 deve passar por build, instalação e aceite visual em celular físico.
 - Nenhum aceite para publicação na Google Play ou Apple App Store foi concedido.
