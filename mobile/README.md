@@ -2,7 +2,11 @@
 
 Este diretório contém a **primeira implementação de interface própria em React Native / Expo** da BC. Não é uma WebView, não redireciona para o site e não compartilha o HTML do GitHub Pages. O mesmo backend da BC poderá ser conectado futuramente por APIs autenticadas, após homologação.
 
-## Estado atual
+## Estado atual — V0.3 (visual em revisão)
+
+- ✅ Marca BC oficial incorporada ao bundle: logotipo local, ícone do aplicativo e tela inicial.
+- ✅ Home editorial rose gold/vinho com foto real da recepção, cartões de procedimentos, galeria dos ambientes e jornada informativa.
+- ✅ Imagens dos espaços vêm dos arquivos públicos institucionais já mantidos pela BC no repositório; sem carregamento remoto de fotos e sem dados clínicos.
 
 - ✅ Interface nativa de demonstração: Início, Cuidados, Agenda, Contato, Minha BC.
 - ✅ Catálogo inicial institucional de procedimentos e pesquisa/filtros.
@@ -32,7 +36,7 @@ npm start
 
 Abra o QR Code no Expo Go compatível com SDK 57. A versão de Expo Go nas lojas pode mudar: em 29/10/2026 o Expo SDK 58 já foi lançado, mas a transição de Expo Go ainda estava em andamento. Se o Expo Go instalado não suportar SDK 57, use development build ou atualize o projeto com validação de dependências.
 
-O projeto ainda não contém ícone/splash finais, assinatura AAB/IPA nem configuração EAS de publicação. A identidade BC usa uma paleta rose gold provisória inspirada nas orientações existentes.
+A V0.3 utiliza logo e ícones da BC que já constam nos arquivos oficiais do site; precisam de aceite visual da Mel e do Fernando para distribuição. Ainda não há assinatura de produção para AAB/IPA nem configuração EAS de publicação. A paleta permanece provisória até homologação.
 
 ## Arquitetura pretendida (fases posteriores)
 
@@ -63,5 +67,6 @@ As implementações da Maya, do Drive, do TCLE e da migração de domínio em PR
 - Agenda navega por fixture isolada do contrato real; a confirmação informa que nenhuma reserva foi registrada.
 - Minha BC apresenta somente registros e documentos explicitamente ilustrativos, sem acesso aos pacientes.
 - Nenhuma mensagem é enviada ou armazenada fora da memória local da tela.
-- TypeScript passa no CI.
-- A instalação em aparelho Android físico permanece pendente.
+- TypeScript e testes da agenda devem passar no CI após cada alteração.
+- O APK de demonstração V0.2 foi gerado e recebeu feedback visual de Fernando em 30/10/2026; a V0.3 precisa de novo build, instalação e aceite visual.
+- Nenhum aceite para publicação na Google Play ou Apple App Store foi concedido.
