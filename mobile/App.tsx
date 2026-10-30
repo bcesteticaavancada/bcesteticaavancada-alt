@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
+  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -24,7 +25,7 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'procedimentos', label: 'Cuidados', icon: '✧' },
   { id: 'agenda', label: 'Agenda', icon: '▦' },
   { id: 'mensagens', label: 'Contato', icon: '✉' },
-  { id: 'minha-bc', label: 'Minha BC', icon: '♙' },
+  { id: 'minha-bc', label: 'Minha BC', icon: '♡' },
 ];
 
 function Pill({
@@ -112,36 +113,116 @@ export default function App() {
   }
 
   function home() {
+    const spaces = [
+      { name: 'Sala de Estética Avançada', caption: 'Tecnologia e cuidado individualizado', image: require('./assets/sala-procedimentos.jpg') },
+      { name: 'Sala de Estética Facial', caption: 'Um ambiente pensado para você', image: require('./assets/sala-atendimento.jpg') },
+      { name: 'Sala de Massagem', caption: 'Conforto e acolhimento', image: require('./assets/sala-massagem.jpg') },
+    ];
+
     return (
       <>
         <View style={styles.hero}>
-          <View style={styles.heroDecor} />
-          <Text style={styles.heroEyebrow}>BEAUTIFUL CENTER · BELO HORIZONTE</Text>
-          <Text style={styles.heroTitle}>Sua beleza merece um cuidado único.</Text>
-          <Text style={styles.heroDescription}>Uma experiência acolhedora para conhecer nossos tratamentos, organizar seus horários e acompanhar sua jornada.</Text>
-          <Pressable style={styles.heroButton} accessibilityRole="button" onPress={() => changeTab('agenda')}>
-            <Text style={styles.heroButtonText}>Planejar meu atendimento  ›</Text>
-          </Pressable>
-        </View>
-        <View style={styles.content}>
-          <Heading eyebrow="BC Estética Avançada" title="Bem-vinda à sua BC" caption="Cuidado, tecnologia e atenção em cada detalhe." />
-          <View style={styles.highlightRow}>
-            <Pressable style={styles.highlightCard} onPress={() => changeTab('procedimentos')}>
-              <Text style={styles.highlightIcon}>✧</Text>
-              <Text style={styles.highlightTitle}>Procedimentos</Text>
-              <Text style={styles.highlightCaption}>Conheça nossos cuidados</Text>
-            </Pressable>
-            <Pressable style={styles.highlightCard} onPress={() => changeTab('mensagens')}>
-              <Text style={styles.highlightIcon}>✉</Text>
-              <Text style={styles.highlightTitle}>Fale com a BC</Text>
-              <Text style={styles.highlightCaption}>Um canal próximo de você</Text>
+          <Image source={require('./assets/recepcao.jpg')} resizeMode="cover" style={styles.heroImage} accessibilityLabel="Ambiente da BC Estética Avançada" />
+          <View style={styles.heroTint} />
+          <View style={styles.heroRing} />
+          <View style={styles.heroTop}>
+            <Text style={styles.heroGoldMark}>✦  BEAUTIFUL CENTER</Text>
+            <Text style={styles.heroLocation}>BELO HORIZONTE · MG</Text>
+          </View>
+          <View style={styles.heroBody}>
+            <Text style={styles.heroEyebrow}>ESTÉTICA AVANÇADA COM PERSONALIDADE</Text>
+            <Text style={styles.heroTitle}>Sua beleza, nossa essência.</Text>
+            <Text style={styles.heroDescription}>Tecnologia, acolhimento e experiências que valorizam o seu cuidado.</Text>
+            <Pressable style={styles.heroButton} accessibilityRole="button" onPress={() => changeTab('agenda')}>
+              <Text style={styles.heroButtonText}>Explorar a agenda  ↗</Text>
             </Pressable>
           </View>
-          <Heading eyebrow="Conheça" title="Cuidados em destaque" />
-          {procedures.slice(0, 3).map((item) => (
-            <ProcedureCard key={item.id} item={item} onPress={() => { setSelectedProcedure(item); setTab('procedimentos'); }} />
-          ))}
-          <PrimaryButton label="Explorar todos os procedimentos" muted onPress={() => changeTab('procedimentos')} />
+          <View style={styles.heroFooter}>
+            <Text style={styles.heroFooterText}>BC SIGNATURE EXPERIENCE</Text>
+            <Text style={styles.heroFooterText}>✧  ✧  ✧</Text>
+          </View>
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.welcomeBlock}>
+            <Text style={styles.welcomeEyebrow}>BEM-VINDA À BC</Text>
+            <Text style={styles.welcomeTitle}>Cada detalhe foi pensado para você.</Text>
+            <Text style={styles.welcomeText}>Conheça nossos procedimentos, encontre sua profissional e acompanhe a experiência BC em um só aplicativo.</Text>
+          </View>
+
+          <View style={styles.highlightRow}>
+            <Pressable accessibilityRole="button" style={[styles.highlightCard, styles.highlightCardAccent]} onPress={() => changeTab('agenda')}>
+              <Text style={styles.highlightIcon}>▦</Text>
+              <Text style={styles.highlightTitle}>Agendar</Text>
+              <Text style={styles.highlightCaption}>Organize seu próximo cuidado</Text>
+              <Text style={styles.highlightArrow}>↗</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" style={styles.highlightCard} onPress={() => changeTab('minha-bc')}>
+              <Text style={styles.highlightIcon}>♡</Text>
+              <Text style={styles.highlightTitle}>Minha BC</Text>
+              <Text style={styles.highlightCaption}>Sua jornada em um só lugar</Text>
+              <Text style={styles.highlightArrow}>↗</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.sectionHead}>
+            <View style={styles.goldLine} />
+            <Heading eyebrow="Descubra" title="Cuidados em destaque" caption="Conheça os tratamentos e tire suas dúvidas com nossa equipe." />
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featureRow}>
+            {procedures.slice(0, 5).map((item, index) => (
+              <Pressable
+                key={item.id}
+                accessibilityRole="button"
+                style={[styles.featureCard, index % 2 === 0 && styles.featureCardBlush]}
+                onPress={() => { setSelectedProcedure(item); setTab('procedimentos'); }}
+              >
+                <Text style={styles.featureNumber}>0{index + 1} · {item.family.toUpperCase()}</Text>
+                <View style={styles.featureIconFrame}><Text style={styles.featureIcon}>{item.icon}</Text></View>
+                <Text style={styles.featureTitle}>{item.name}</Text>
+                <Text style={styles.featureCaption} numberOfLines={3}>{item.description}</Text>
+                <Text style={styles.featureAction}>CONHECER  ↗</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <PrimaryButton label="Ver catálogo completo" muted onPress={() => changeTab('procedimentos')} />
+
+          <View style={styles.sectionHead}>
+            <View style={styles.goldLine} />
+            <Heading eyebrow="Um espaço especial" title="Conheça nossos ambientes" caption="Um olhar por dentro da clínica BC Estética Avançada." />
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.spaceRow}>
+            {spaces.map((space) => (
+              <View key={space.name} style={styles.spaceCard}>
+                <Image source={space.image} style={styles.spacePhoto} resizeMode="cover" accessibilityLabel={space.name} />
+                <View style={styles.spaceInfo}>
+                  <Text style={styles.spaceName}>{space.name}</Text>
+                  <Text style={styles.spaceCaption}>{space.caption}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          <View style={styles.journeyBox}>
+            <Text style={styles.journeyEyebrow}>A EXPERIÊNCIA BC</Text>
+            <Text style={styles.journeyTitle}>Seu cuidado, no seu tempo.</Text>
+            <View style={styles.journeyStep}>
+              <Text style={styles.journeyNum}>01</Text>
+              <View style={styles.flex}><Text style={styles.journeyStepTitle}>Conheça</Text><Text style={styles.journeyStepText}>Explore nossos procedimentos e ambientes.</Text></View>
+            </View>
+            <View style={styles.journeyStep}>
+              <Text style={styles.journeyNum}>02</Text>
+              <View style={styles.flex}><Text style={styles.journeyStepTitle}>Converse</Text><Text style={styles.journeyStepText}>Encontre orientação com uma profissional habilitada.</Text></View>
+            </View>
+            <View style={styles.journeyStep}>
+              <Text style={styles.journeyNum}>03</Text>
+              <View style={styles.flex}><Text style={styles.journeyStepTitle}>Acompanhe</Text><Text style={styles.journeyStepText}>No futuro, consulte sua jornada com acesso protegido.</Text></View>
+            </View>
+            <Pressable accessibilityRole="button" style={styles.journeyButton} onPress={() => changeTab('mensagens')}>
+              <Text style={styles.journeyButtonText}>Conheça o canal de contato  ›</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.previewDisclaimer}>PRÉVIA V0.3 · As áreas de agenda e cliente usam somente dados fictícios. Nenhum atendimento é agendado por esta versão.</Text>
         </View>
       </>
     );
@@ -240,8 +321,14 @@ export default function App() {
     <View style={styles.app}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <View style={styles.topBar}>
-        <View><Text style={styles.brand}>BC</Text><Text style={styles.brandCaption}>ESTÉTICA AVANÇADA</Text></View>
-        <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>PRÉVIA V0.2</Text></View>
+        <View style={styles.brandBlock}>
+          <Image source={require('./assets/logo-oficial.png')} style={styles.brandImage} resizeMode="contain" accessibilityLabel="Logo oficial BC Estética Avançada" />
+          <View style={styles.brandWords}>
+            <Text style={styles.brandCaption}>BC ESTÉTICA</Text>
+            <Text style={styles.brandSubtitle}>AVANÇADA</Text>
+          </View>
+        </View>
+        <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>PRÉVIA V0.3</Text></View>
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.scrollContent}>
         {content()}
@@ -255,7 +342,7 @@ export default function App() {
             onPress={() => changeTab(item.id)}
             style={styles.tabButton}
           >
-            <Text style={[styles.tabIcon, tab === item.id && styles.tabIconActive]}>{item.icon}</Text>
+            <View style={[styles.navIconWrap, tab === item.id && styles.navIconWrapActive]}><Text style={[styles.tabIcon, tab === item.id && styles.tabIconActive]}>{item.icon}</Text></View>
             <Text style={[styles.tabText, tab === item.id && styles.tabTextActive]}>{item.label}</Text>
           </Pressable>
         ))}
@@ -265,22 +352,71 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  brandBlock: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  brandImage: { width: 58, height: 58, borderRadius: 10, backgroundColor: '#FFFFFF' },
+  brandWords: { gap: 3 },
+  brandSubtitle: { color: colors.roseDeep, fontSize: 10, letterSpacing: 2.1, fontWeight: '800' },
+  heroImage: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
+  heroTint: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(33,20,26,0.65)' },
+  heroRing: { position: 'absolute', width: 210, height: 210, borderWidth: 1, borderColor: 'rgba(225,189,143,0.38)', borderRadius: 105, right: -95, top: 82 },
+  heroTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 },
+  heroGoldMark: { color: '#F7DAB1', fontSize: 10, letterSpacing: 2.0, fontWeight: '800' },
+  heroLocation: { color: '#F7E7E2', fontSize: 8, letterSpacing: 1.0 },
+  heroBody: { paddingTop: 62, paddingBottom: 35, zIndex: 1 },
+  heroFooter: { flexDirection: 'row', justifyContent: 'space-between', borderTopColor: 'rgba(255,255,255,0.23)', borderTopWidth: 1, paddingTop: 12, zIndex: 1 },
+  heroFooterText: { color: '#F5D3BB', fontSize: 9, fontWeight: '700', letterSpacing: 1.9 },
+  welcomeBlock: { marginVertical: 11, gap: 11 },
+  welcomeEyebrow: { color: colors.gold, letterSpacing: 2.3, fontWeight: '800', fontSize: 10 },
+  welcomeTitle: { color: colors.ink, fontFamily: 'serif', fontWeight: '600', fontSize: 29, lineHeight: 36 },
+  welcomeText: { color: colors.muted, fontSize: 13, lineHeight: 21 },
+  highlightCardAccent: { backgroundColor: '#F5E4DD', borderWidth: 1, borderColor: '#E9CEC1' },
+  highlightArrow: { color: colors.gold, fontWeight: '800', fontSize: 17, alignSelf: 'flex-end', marginTop: 8 },
+  sectionHead: { marginTop: 19, gap: 13 },
+  goldLine: { height: 2, width: 48, backgroundColor: colors.gold, borderRadius: 2 },
+  featureRow: { gap: 12, paddingVertical: 4, paddingRight: 20 },
+  featureCard: { width: 205, minHeight: 257, borderRadius: 15, borderWidth: 1, borderColor: colors.line, padding: 16, backgroundColor: '#FFFFFF', gap: 9 },
+  featureCardBlush: { backgroundColor: '#FAF0EC' },
+  featureNumber: { fontSize: 9, color: colors.gold, letterSpacing: 0.8, fontWeight: '800', height: 24 },
+  featureIconFrame: { width: 55, height: 55, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#EADBD3', marginBottom: 4 },
+  featureIcon: { fontSize: 29, color: colors.roseDeep },
+  featureTitle: { fontSize: 18, fontFamily: 'serif', color: colors.ink, fontWeight: '700' },
+  featureCaption: { fontSize: 11, lineHeight: 17, color: colors.muted, minHeight: 47 },
+  featureAction: { fontSize: 10, fontWeight: '800', color: colors.roseDeep, letterSpacing: 1, marginTop: 'auto' },
+  spaceRow: { gap: 12, paddingRight: 20, paddingVertical: 5 },
+  spaceCard: { backgroundColor: colors.surface, borderRadius: 16, overflow: 'hidden', width: 240, borderWidth: 1, borderColor: colors.line },
+  spacePhoto: { width: '100%', height: 146 },
+  spaceInfo: { padding: 14, gap: 6 },
+  spaceName: { color: colors.ink, fontSize: 13, fontWeight: '800' },
+  spaceCaption: { color: colors.muted, fontSize: 11, lineHeight: 16 },
+  journeyBox: { backgroundColor: '#3A2530', padding: 21, marginTop: 20, borderRadius: 17, gap: 12 },
+  journeyEyebrow: { color: '#D5B98D', fontSize: 10, letterSpacing: 2.0, fontWeight: '800' },
+  journeyTitle: { color: '#FFF7F0', fontFamily: 'serif', fontSize: 26, lineHeight: 33 },
+  journeyStep: { flexDirection: 'row', gap: 15, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.14)', paddingTop: 13 },
+  journeyNum: { color: '#D7B989', fontSize: 20, fontFamily: 'serif', width: 31 },
+  journeyStepTitle: { fontSize: 13, fontWeight: '800', color: '#FFFFFF', marginBottom: 5 },
+  journeyStepText: { fontSize: 11, lineHeight: 17, color: '#E7D9DC' },
+  journeyButton: { backgroundColor: '#D8B78C', padding: 15, marginTop: 5, borderRadius: 9 },
+  journeyButtonText: { color: '#39242D', textAlign: 'center', fontWeight: '800', fontSize: 12 },
+  previewDisclaimer: { color: colors.muted, fontSize: 10, lineHeight: 17, paddingVertical: 12 },
+  navIconWrap: { width: 46, height: 32, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  navIconWrapActive: { backgroundColor: '#F2E4E1' },
+
   app: { flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 48 },
   flex: { flex: 1 },
-  topBar: { minHeight: 72, paddingHorizontal: 23, backgroundColor: colors.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: colors.line },
+  topBar: { minHeight: 78, paddingHorizontal: 16, backgroundColor: colors.background, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: colors.line },
   brand: { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.roseDeep, fontSize: 31, fontWeight: '700', letterSpacing: 2, lineHeight: 34 },
-  brandCaption: { color: colors.gold, letterSpacing: 2.5, fontSize: 8, fontWeight: '700' },
+  brandCaption: { color: colors.gold, letterSpacing: 1.8, fontSize: 9, fontWeight: '800' },
   prototypeBadge: { paddingVertical: 7, paddingHorizontal: 11, backgroundColor: colors.blush, borderRadius: 50 },
   prototypeBadgeText: { fontSize: 9, letterSpacing: 1, fontWeight: '800', color: colors.roseDeep },
   scrollContent: { paddingBottom: 30 },
   content: { paddingHorizontal: 20, paddingTop: 23, gap: 12 },
-  hero: { overflow: 'hidden', padding: 26, backgroundColor: '#ECD8D6', minHeight: 330, justifyContent: 'center' },
+  hero: { overflow: 'hidden', padding: 23, backgroundColor: '#3A2832', minHeight: 398, justifyContent: 'space-between' },
   heroDecor: { width: 230, height: 230, position: 'absolute', right: -80, top: -50, backgroundColor: '#F8EDE9', borderRadius: 115, opacity: 0.7 },
-  heroEyebrow: { color: colors.roseDeep, fontSize: 10, letterSpacing: 1.9, fontWeight: '700', marginBottom: 16 },
-  heroTitle: { maxWidth: 290, fontSize: 33, lineHeight: 40, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.roseDeep, fontWeight: '700', marginBottom: 16 },
-  heroDescription: { maxWidth: 305, fontSize: 14, lineHeight: 22, color: '#674C52', marginBottom: 22 },
-  heroButton: { backgroundColor: colors.roseDeep, paddingHorizontal: 18, paddingVertical: 14, alignSelf: 'flex-start', borderRadius: 7 },
-  heroButtonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13 },
+  heroEyebrow: { color: '#E6C49B', fontSize: 10, letterSpacing: 1.9, fontWeight: '800', marginBottom: 14 },
+  heroTitle: { maxWidth: 320, fontSize: 37, lineHeight: 44, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: '#FFFFFF', fontWeight: '700', marginBottom: 15 },
+  heroDescription: { maxWidth: 300, fontSize: 14, lineHeight: 22, color: '#F5E8E5', marginBottom: 22 },
+  heroButton: { backgroundColor: '#D9B887', paddingHorizontal: 20, paddingVertical: 15, alignSelf: 'flex-start', borderRadius: 7 },
+  heroButtonText: { color: '#382730', fontWeight: '800', fontSize: 13 },
   heading: { marginBottom: 9, gap: 8 },
   eyebrow: { color: colors.gold, fontSize: 10, fontWeight: '800', letterSpacing: 2 },
   headingTitle: { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.ink, fontSize: 27, lineHeight: 33, fontWeight: '600' },
