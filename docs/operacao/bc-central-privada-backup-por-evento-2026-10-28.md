@@ -29,6 +29,28 @@ A pasta principal e as cinco novas pastas foram verificadas após criação/reno
 - A ligação OAuth com Google Cloud tem pendência de conferência de publicação/renovação. Um token que funciona hoje não comprova renovação indefinida.
 - PR #64 continua em rascunho no GitHub, embora a função de backup tenha sido validada e ativada em produção. Esta iniciativa **depende** do PR #64, mas não o mescla.
 
+## Evidências adicionais e etapa de recuperação — 31/10/2026
+
+**Auditoria somente de leitura, seguida de ensaio fictício no ambiente do responsável. Nenhuma credencial ou dado clínico foi exportado nesta etapa.**
+
+- A rotina `bc-drive-backup-hourly-v1` continua ativa. Consulta de 31/10 registrou último êxito às **17h de Brasília** e **10 versões clínicas** com `verified`. Isto confirma o backup dos objetos acompanhados, **não** o backup completo do banco.
+- A Central Privada mantém nove subpastas. O destino `05_BC_Gestao_Banco_de_Dados_e_Exportacoes` contém o kit emergencial pontual de 29/10, com permissões individuais de proprietário e colaborador; **não há rotina recorrente de dump de banco identificada**. A existência do kit não prova atualidade após 29/10.
+- O responsável usou Google Cloud Shell pelo celular: Docker e PostgreSQL 17 Alpine executados em contêiner descartável; um registro fictício foi exportado via `pg_dump -Fc`, restaurado por `pg_restore` em outro banco e conferido (`1` registro, descrição correta). O contêiner foi encerrado e removido. **Não houve conexão ao Supabase de produção, envio ao Drive ou processamento de pacientes.**
+- A demonstração local **não libera G1/G10**: PostgreSQL genérico não restaura automaticamente a plataforma Supabase, Auth hospedado, policies, buckets/bytes, Edge Functions, Vault e segredos.
+
+### Pré-requisitos para uma exportação real, sem uso de CI pública
+
+1. **Custódia prévia:** a Mel e o responsável definem local privado e independente para a chave, a política de retenção e quem pode restaurar. O kit legado mantém uma chave junto dos manifestos; não mover, apagar nem divulgar a cópia atual antes de estabelecer recuperação independente. Não colar connection strings, senhas ou chaves em GitHub, screenshots ou mensagens.
+2. **Ferramenta compatível:** seguir a documentação oficial de migração Supabase para exportar **roles, schema e data** com a CLI Supabase e filtros da plataforma, em vez de tratar `pg_dump` genérico como réplica operacional completa. Descobrir versão/comandos por `--help`; executar somente em ambiente autorizado e suficientemente isolado, com entrada de credenciais sem histórico/log.
+3. **Cópia cifrada e verificável:** obter snapshot consistente atual, cifrar antes da transferência, gerar manifesto de versão e SHA-256, confirmar a presença no destino privado `05`; não confundir hash do arquivo cifrado com integridade lógica dos dados restaurados. Proteger o arquivo em trânsito e em repouso.
+4. **Componentes fora do dump:** arquivar os bytes do Storage separadamente, validar hashes, mapear configurações de Auth/SMTP/OAuth, Edge Functions, Vault e chaves sem registrá-las no repositório. Desabilitar saídas reais (e-mail, cron, callbacks, Drive) durante o ensaio isolado.
+5. **Restore integral:** restaurar em destino separado e controlado, verificar permissões negativas/RLS e Auth fictício, reconciliar tabelas, constraints, sequências e versões, recuperar Storage e exercitar os fluxos com dados fictícios. Registrar lacunas, RPO/RTO e aceite técnico/clínico antes de publicação.
+6. **Operação futura:** Cloud Shell é ferramenta interativa e temporária, **não** hospedagem da BC nem agendador permanente. A automação por gravação e os snapshots recorrentes devem ter worker, segredos, idempotência e alertas próprios, sem novos custos ou deploy sem aprovação.
+
+**Status:** o teste sintético de exportação/restauração de PostgreSQL passou; exportação completa e atual do Supabase, custódia independente da chave, recuperação integral e automatização por evento **continuam pendentes**. Não altera o gate de domínio próprio do PR #69.
+
+Referência adicional: [Supabase — restauração de projeto gerenciado para self-hosted](https://supabase.com/docs/guides/self-hosting/restore-from-platform) e [backups](https://supabase.com/docs/guides/platform/backups).
+
 ## Objetivo de comportamento
 
 **Quando um registro for efetivamente salvo**, o sistema registra um evento durável sem conteúdo sensível e solicita, de forma assíncrona, uma cópia **versionada** no Drive. Não executar upload ao Drive dentro da transação do usuário. Não expor dados no payload de webhook nem travar agendamento/atendimento quando o Drive estiver lento. Conservar o cron horário como reconciliação e alertar se uma mudança permanecer sem backup.
