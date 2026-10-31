@@ -33,11 +33,11 @@ test('home SEO head is explicit, local and share-ready', async () => {
   const title = html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() || '';
   assert.equal(title, 'BC Estética Avançada | Beleza, Ciência e Cuidado em BH');
   assert.ok(title.length >= 30 && title.length <= 65);
-  assert.match(html, /<link\s+rel=["']canonical["']\s+href=["']https:\/\/bcesteticaavancada\.github\.io\/bcesteticaavancada-alt\/["']\s*\/?\s*>/i);
+  assert.match(html, /<link\s+rel=["']canonical["']\s+href=["']https:\/\/www\.bcesteticaavancada\.com\.br\/["']\s*\/?\s*>/i);
   assert.equal(extractMeta(html, 'og:title'), title);
   assert.ok(extractMeta(html, 'og:description').length >= 60);
-  assert.equal(extractMeta(html, 'og:url'), 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/');
-  assert.equal(extractMeta(html, 'og:image'), 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/01-mel-perfil.jpg');
+  assert.equal(extractMeta(html, 'og:url'), 'https://www.bcesteticaavancada.com.br/');
+  assert.equal(extractMeta(html, 'og:image'), 'https://www.bcesteticaavancada.com.br/assets/01-mel-perfil.jpg');
 });
 
 test('home follows the approved glamorous editorial structure without becoming content-heavy', async () => {

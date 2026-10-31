@@ -22,9 +22,20 @@ select is((select count(*)::integer from public.bc_cliente_duplicate_candidates(
 select is((select count(*)::integer from public.bc_cliente_duplicate_candidates('','Pessoa Fictícia Básica',null,'31900000099')),0,'Telefone diferente não causa falso duplicado');
 
 select lives_ok(format('select public.bc_agendamento_create(%L,%L,%L,%L)',pg_temp.f('basic'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot from test_clock)),'Cliente básico pode ser agendado');
+insert into fixture values('basic_appointment',(
+  select id from public.agendamentos
+  where cliente_id=pg_temp.f('basic') and colaboradora_user_id=pg_temp.f('worker')
+    and inicio=(select slot from test_clock)
+  limit 1
+));
 select lives_ok(format('select public.bc_quick_visit_create(%L,%L,%L,%L,%L)',gen_random_uuid(),pg_temp.f('basic'),pg_temp.f('worker'),pg_temp.f('procedure'),(select slot+interval '1 hour' from test_clock)),'Cliente básico pode abrir encaixe com procedimento');
 select set_config('request.jwt.claim.sub',pg_temp.f('worker')::text,true);
-select lives_ok(format('select public.bc_treatment_create(%L,%L)',pg_temp.f('basic'),pg_temp.f('procedure')),'Profissional pode abrir atendimento clínico com cadastro básico');
+-- Na virada do mês, um encaixe automático em now() pode colidir com o
+-- horário reservado pelo teste. Valida este cliente pelo vínculo já agendado;
+-- o fluxo de encaixe direto segue coberto por clinical_rpc_execution.test.sql.
+select lives_ok(format('select public.bc_treatment_create(%L,%L,%L)',
+  pg_temp.f('basic'),pg_temp.f('procedure'),pg_temp.f('basic_appointment')),
+  'Profissional pode abrir atendimento clínico com cadastro básico agendado');
 select lives_ok($$select public.bc_cliente_create_v2('{"nome":"Cadastro Colaboradora Fictício","telefone":"31900000004"}')$$,'Colaboradora também cria cliente somente com nome e telefone');
 select lives_ok(format('select public.bc_cliente_update_v2(%L,%L)',pg_temp.f('basic'),'{"email":"teste@example.invalid","cidade":"Belo Horizonte","cpf":"123.456.789-00"}'),'Complementos podem ser adicionados aos poucos');
 select lives_ok(format('select public.bc_cliente_update_v2(%L,%L)',pg_temp.f('basic'),'{"nome":"Pessoa Fictícia Atualizada","telefone":"31900000005"}'),'Editar nome e telefone não exige reenviar complementos');

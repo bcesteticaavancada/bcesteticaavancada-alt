@@ -4,6 +4,8 @@ import { validateRequest, type PublicAgendaAction } from './validation.ts';
 
 const ALLOWED_ORIGINS = new Set([
   'https://bcesteticaavancada.github.io',
+  'https://www.bcesteticaavancada.com.br',
+  'https://bcesteticaavancada.com.br',
   'http://localhost:8000',
   'http://127.0.0.1:8000',
 ]);

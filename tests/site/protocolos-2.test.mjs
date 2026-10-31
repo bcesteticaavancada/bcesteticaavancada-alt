@@ -17,7 +17,7 @@ function article(id) {
 }
 
 test('Protocolos preserves canonical, navigation, scheduling and the reference catalogue', () => {
-  assert.match(html, /rel="canonical" href="https:\/\/bcesteticaavancada\.github\.io\/bcesteticaavancada-alt\/protocolos\/"/);
+  assert.match(html, /rel="canonical" href="https:\/\/www\.bcesteticaavancada\.com\.br\/protocolos\/"/);
   assert.match(html, /href="\.\.\/agendamento\/"[^>]*>Agendar/);
   assert.match(html, /https:\/\/wa\.me\/5531995184110/);
   assert.equal(existsSync(new URL('../../docs/catalogo-procedimentos-em-espera.md', import.meta.url)), true);
