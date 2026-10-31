@@ -293,7 +293,7 @@ export default function App() {
         </View>
         {visibleProcedures.length ? visibleProcedures.map((item, index) =>
           <ProcedureCard key={item.id} index={index} item={item} onPress={() => setSelectedProcedure(item)} />,
-        )} : <Text style={styles.emptyText}>{showSavedOnly ? 'Ainda não há cuidados salvos que combinem com estes filtros.' : 'Nenhum procedimento encontrado.'}</Text>}
+        ) : <Text style={styles.emptyText}>{showSavedOnly ? 'Ainda não há cuidados salvos que combinem com estes filtros.' : 'Nenhum procedimento encontrado.'}</Text>}
       </View>
     );
   }
