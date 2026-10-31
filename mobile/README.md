@@ -2,7 +2,19 @@
 
 Este diretório contém a **primeira implementação de interface própria em React Native / Expo** da BC. Não é uma WebView, não redireciona para o site e não compartilha o HTML do GitHub Pages. O mesmo backend da BC poderá ser conectado futuramente por APIs autenticadas, após homologação.
 
-## Estado atual — V0.5 (Black · Rose Gold · Ouro Branco, em revisão)
+## Estado atual — V0.6 (fluxo nativo e preparação para Google Play)
+
+- ✨ Navegação com retorno físico do Android: fecha a tela de privacidade, volta do detalhe de procedimento e retorna ao início antes de sair do aplicativo.
+- ✨ A mudança de aba ou detalhe reinicia a rolagem no topo, facilitando uso no celular.
+- ✨ Lista de **interesses** no catálogo: guardar/desmarcar procedimentos e filtrar os salvos; apenas estado de memória (sem transmissão ou persistência).
+- 🔒 Tela acessível de privacidade da demonstração e aviso de ausência de diagnóstico; **ainda não é uma política definitiva**.
+- 📦 Versão 0.6.0 e Android versionCode 6; perfis EAS separados para **APK de teste interno** e **AAB da futura Google Play**, sem publicar ou criar credenciais nesta fase.
+- ✅ Testes estáticos para as configurações mínimas de preparação da loja em `npm run test:play`.
+- 🧭 Roteiro de homologação para a Play em `docs/google-play-gates.md`.
+
+**Status: rascunho interno.** As imagens da equipe são institucionais, e os horários, a área da cliente, mensagens e interesse são demonstrativos. A versão de loja só poderá ser submetida quando oferecer fluxo real homologado, política pública, consentimento e segurança dos dados, além de autorização expressa de Fernando e Mel.
+
+### Histórico da V0.5 (Black · Rose Gold · Ouro Branco)
 
 - ✨ Tipografia ampliada e contrastes reforçados em navegação, agenda, catálogo, contato e área da cliente.
 - ✨ Identidade premium preto/rose gold/ouro branco com superfícies claras e painéis escuros de alto contraste.
@@ -52,7 +64,7 @@ npm start
 
 Abra o QR Code no Expo Go compatível com SDK 57. A versão de Expo Go nas lojas pode mudar: em 29/10/2026 o Expo SDK 58 já foi lançado, mas a transição de Expo Go ainda estava em andamento. Se o Expo Go instalado não suportar SDK 57, use development build ou atualize o projeto com validação de dependências.
 
-A V0.5 utiliza logo e ícones da BC que já constam nos arquivos oficiais do site; precisam de aceite visual da Mel e do Fernando para distribuição. Ainda não há assinatura de produção para AAB/IPA nem configuração EAS de publicação. A paleta permanece provisória até homologação.
+A V0.6 utiliza logo e ícones da BC que já constam nos arquivos oficiais do site; precisam de aceite visual da Mel e do Fernando para distribuição. Há perfis EAS de compilação, mas ainda não há assinatura de produção para AAB/IPA, vinculação EAS ao proprietário nem configuração de publicação. A paleta permanece provisória até homologação.
 
 ## Arquitetura pretendida (fases posteriores)
 
@@ -84,5 +96,5 @@ As implementações da Maya, do Drive, do TCLE e da migração de domínio em PR
 - Minha BC apresenta somente registros e documentos explicitamente ilustrativos, sem acesso aos pacientes.
 - Nenhuma mensagem é enviada ou armazenada fora da memória local da tela.
 - TypeScript e testes da agenda devem passar no CI após cada alteração.
-- O APK V0.3 foi gerado e recebeu avaliação inicial de Fernando em 30/10/2026. A V0.5 deve passar por build, instalação e aceite visual em celular físico.
+- O APK V0.3 foi gerado e recebeu avaliação inicial de Fernando em 30/10/2026. A V0.6 deve passar por build, instalação e aceite visual/funcional em Android físico.
 - Nenhum aceite para publicação na Google Play ou Apple App Store foi concedido.

@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  BackHandler,
   Image,
   Platform,
   Pressable,
@@ -97,20 +98,51 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [service, setService] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
 
   const visibleProcedures = useMemo(
     () => procedures.filter((item) => {
       const matchesFamily = filter === 'Todos' || filter === item.family;
       const matchesText = item.name.toLocaleLowerCase('pt-BR').includes(search.trim().toLocaleLowerCase('pt-BR'));
-      return matchesFamily && matchesText;
+      return matchesFamily && matchesText && (!showSavedOnly || savedIds.includes(item.id));
     }),
-    [filter, search],
+    [filter, search, savedIds, showSavedOnly],
   );
 
   function changeTab(nextTab: Tab) {
     setTab(nextTab);
     setSelectedProcedure(null);
+    setPrivacyOpen(false);
   }
+
+  function toggleSavedProcedure(id: string) {
+    setSavedIds((current) =>
+      current.includes(id) ? current.filter((savedId) => savedId !== id) : [...current, id],
+    );
+  }
+
+  // The physical Android Back button follows the app's own navigation first.
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (privacyOpen) {
+        setPrivacyOpen(false);
+        return true;
+      }
+      if (selectedProcedure && tab === 'procedimentos') {
+        setSelectedProcedure(null);
+        return true;
+      }
+      if (tab !== 'inicio') {
+        changeTab('inicio');
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+  }, [privacyOpen, selectedProcedure, tab]);
 
   function showDemoNotice(subject: string) {
     Alert.alert(
@@ -270,7 +302,7 @@ export default function App() {
           </View>
           <View style={styles.previewCard}>
             <Text style={styles.previewStar}>✧</Text>
-            <Text style={styles.previewDisclaimer}>PRÉVIA V0.5 · Este app funciona com dados ilustrativos. Nenhum atendimento, mensagem ou documento real é consultado ou enviado.</Text>
+            <Text style={styles.previewDisclaimer}>PRÉVIA V0.6 · Este app funciona com dados ilustrativos. Nenhum atendimento, mensagem ou documento real é consultado ou enviado.</Text>
           </View>
         </View>
       </>
@@ -295,6 +327,17 @@ export default function App() {
             <Text style={styles.infoTitle}>Atendimento individualizado</Text>
             <Text style={styles.bodyText}>A indicação, as contraindicações e os cuidados necessários são definidos por profissional habilitada durante a avaliação. Este aplicativo não realiza diagnóstico.</Text>
           </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: savedIds.includes(selectedProcedure.id) }}
+            style={[styles.savedButton, savedIds.includes(selectedProcedure.id) && styles.savedButtonActive]}
+            onPress={() => toggleSavedProcedure(selectedProcedure.id)}
+          >
+            <Text style={[styles.savedButtonText, savedIds.includes(selectedProcedure.id) && styles.savedButtonTextActive]}>
+              {savedIds.includes(selectedProcedure.id) ? '♥  Salvo nos meus interesses' : '♡  Guardar nos meus interesses'}
+            </Text>
+          </Pressable>
+          <Text style={styles.saveHint}>Sua seleção fica somente nesta sessão de demonstração e não é enviada à clínica.</Text>
           <PrimaryButton label="Consultar disponibilidade" onPress={() => { setService(selectedProcedure.id); changeTab('agenda'); }} />
         </View>
       );
@@ -322,9 +365,20 @@ export default function App() {
             <Pill key={item} label={item} active={filter === item} onPress={() => setFilter(item)} />,
           )}
         </ScrollView>
+        <View style={styles.savedFilterRow}>
+          <Text style={styles.savedFilterCount}>♡  {savedIds.length} {savedIds.length === 1 ? 'interesse salvo' : 'interesses salvos'}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: showSavedOnly }}
+            onPress={() => setShowSavedOnly((v) => !v)}
+            style={styles.savedFilterAction}
+          >
+            <Text style={styles.savedFilterActionText}>{showSavedOnly ? 'Mostrar todos' : 'Ver salvos  ›'}</Text>
+          </Pressable>
+        </View>
         {visibleProcedures.length ? visibleProcedures.map((item) =>
           <ProcedureCard key={item.id} item={item} onPress={() => setSelectedProcedure(item)} />,
-        ) : <Text style={styles.emptyText}>Nenhum procedimento encontrado.</Text>}
+        ) : <Text style={styles.emptyText}>{showSavedOnly ? 'Ainda não há cuidados salvos que combinem com estes filtros.' : 'Nenhum procedimento encontrado.'}</Text>}
       </View>
     );
   }
@@ -381,7 +435,40 @@ export default function App() {
     return <ClientAreaDemo />;
   }
 
-  const content = {
+  function privacyScreen() {
+    return (
+      <View style={styles.content}>
+        <Pressable accessibilityRole="button" onPress={() => setPrivacyOpen(false)}>
+          <Text style={styles.backLink}>‹ Voltar ao aplicativo</Text>
+        </Pressable>
+        <View style={styles.privacyHero}>
+          <Text style={styles.privacyEyebrow}>BC · CONFIANÇA E TRANSPARÊNCIA</Text>
+          <Text style={styles.privacyTitle}>Seu cuidado merece privacidade.</Text>
+          <View style={styles.heroRoseLine} />
+          <Text style={styles.privacySubtitle}>Informações sobre a versão demonstrativa do aplicativo BC Estética Avançada.</Text>
+        </View>
+        <View style={styles.privacyInfoCard}>
+          <Text style={styles.privacyHeading}>O que acontece nesta prévia?</Text>
+          <Text style={styles.privacyBody}>Os catálogos, horários, registros ilustrativos e orientações não consultam a base real da clínica. Nenhuma reserva, mensagem ou documento é enviado.</Text>
+          <Text style={styles.privacyBody}>Os cuidados marcados como interesse e os rascunhos de contato ficam somente na memória enquanto o aplicativo estiver aberto. Não há login, conta de cliente ou sincronização nesta versão.</Text>
+        </View>
+        <View style={styles.privacyInfoCard}>
+          <Text style={styles.privacyHeading}>Antes de liberar contas de clientes</Text>
+          <Text style={styles.privacyBody}>Disponibilizaremos a política de privacidade oficial, identificaremos o responsável pelo tratamento de dados, revisaremos os acessos a documentos e ofereceremos os canais necessários para solicitar exclusão de conta e dados, respeitando obrigações legais de guarda.</Text>
+        </View>
+        <View style={styles.privacyInfoCard}>
+          <Text style={styles.privacyHeading}>Atendimento e orientações</Text>
+          <Text style={styles.privacyBody}>Este aplicativo não faz diagnóstico nem substitui a avaliação de uma profissional habilitada. Os conteúdos sobre procedimentos têm caráter institucional.</Text>
+        </View>
+        <View style={styles.demoBanner}>
+          <Text style={styles.demoText}>VERSÃO DE TESTE · Este texto informativo não substitui a política pública definitiva exigida pela Google Play.</Text>
+        </View>
+        <PrimaryButton label="Voltar para a BC" onPress={() => setPrivacyOpen(false)} />
+      </View>
+    );
+  }
+
+  const content = privacyOpen ? privacyScreen : {
     inicio: home,
     procedimentos: procedureScreen,
     agenda: scheduleScreen,
@@ -391,18 +478,23 @@ export default function App() {
 
   return (
     <View style={styles.app}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar barStyle="light-content" backgroundColor="#141316" />
       <View style={styles.topBar}>
-        <View style={styles.brandBlock}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Ir para a tela inicial da BC" onPress={() => changeTab('inicio')} style={styles.brandBlock}>
           <View style={styles.brandSeal}><Image source={require('./assets/logo-transparente.png')} style={styles.brandImage} resizeMode="contain" accessibilityLabel="Identidade visual BC Estética Avançada" /></View>
           <View style={styles.brandWords}>
             <Text style={styles.brandCaption}>BC ESTÉTICA</Text>
             <Text style={styles.brandSubtitle}>AVANÇADA</Text>
           </View>
+        </Pressable>
+        <View style={styles.headerActions}>
+          <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>V0.6 · TESTE</Text></View>
+          <Pressable accessibilityRole="button" onPress={() => setPrivacyOpen(true)} style={styles.headerPrivacyButton}>
+            <Text style={styles.headerPrivacyText}>Privacidade  ›</Text>
+          </Pressable>
         </View>
-        <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>V0.5  ✧  PRÉVIA</Text></View>
       </View>
-      <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.scrollContent}>
+      <ScrollView key={privacyOpen ? 'privacidade' : tab + (selectedProcedure ? selectedProcedure.id : '')} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.scrollContent}>
         {content()}
       </ScrollView>
       <View style={styles.bottomNav}>
@@ -530,6 +622,25 @@ const styles = StyleSheet.create({
   brand: { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.roseDeep, fontSize: 31, fontWeight: '700', letterSpacing: 2, lineHeight: 34 },
   brandCaption: { color: '#E6DDD0', letterSpacing: 1.0, fontSize: 11, fontWeight: '800' },
   prototypeBadge: { paddingVertical: 9, paddingHorizontal: 9, backgroundColor: '#30242C', borderColor: '#A87784', borderWidth: 1, borderRadius: 50 },
+  headerActions: { alignItems: 'flex-end', justifyContent: 'center', gap: 6, flexShrink: 0 },
+  headerPrivacyButton: { borderBottomWidth: 1, borderBottomColor: '#D1A6B2', paddingHorizontal: 3, paddingVertical: 3 },
+  headerPrivacyText: { fontSize: 11, color: '#F5E5E7', fontWeight: '700' },
+  savedButton: { borderWidth: 1.5, borderColor: '#BE909D', borderRadius: 20, padding: 16, backgroundColor: '#F9F3EE', alignItems: 'center', marginVertical: 10 },
+  savedButtonActive: { backgroundColor: '#30232A', borderColor: '#DCB2BA' },
+  savedButtonText: { fontSize: 15, fontWeight: '800', color: '#6D3F50', textAlign: 'center' },
+  savedButtonTextActive: { color: '#FFF0EA' },
+  saveHint: { fontSize: 12, lineHeight: 18, color: '#766A6F', textAlign: 'center', marginTop: 0, marginBottom: 10 },
+  savedFilterRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', paddingVertical: 8, gap: 10 },
+  savedFilterCount: { fontSize: 13, color: '#805263', fontWeight: '700' },
+  savedFilterAction: { paddingVertical: 10, paddingHorizontal: 13, borderRadius: 14, backgroundColor: '#E6D3D4', borderWidth: 1, borderColor: '#C9A8AF' },
+  savedFilterActionText: { fontSize: 13, color: '#452D3A', fontWeight: '800' },
+  privacyHero: { backgroundColor: '#171418', borderWidth: 1.5, borderColor: '#D4A8B4', borderRadius: 20, padding: 24, gap: 13 },
+  privacyEyebrow: { fontSize: 12, color: '#E6BAC4', fontWeight: '800', letterSpacing: 1.1 },
+  privacyTitle: { color: '#FFF7F0', fontSize: 31, lineHeight: 40, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  privacySubtitle: { color: '#F4E3DF', fontSize: 16, lineHeight: 23 },
+  privacyInfoCard: { backgroundColor: '#FFF9F4', borderWidth: 1, borderColor: '#D4B9B8', borderRadius: 16, padding: 18, gap: 9 },
+  privacyHeading: { color: '#442B37', fontSize: 20, fontWeight: '800' },
+  privacyBody: { color: '#554F50', fontSize: 15, lineHeight: 24 }
   prototypeBadgeText: { fontSize: 9, letterSpacing: 0.3, fontWeight: '800', color: '#F3E9DF' },
   scrollContent: { paddingBottom: 30 },
   content: { paddingHorizontal: 20, paddingTop: 23, gap: 12 },
