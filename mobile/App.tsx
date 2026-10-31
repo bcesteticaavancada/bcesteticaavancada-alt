@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
   privacySubtitle: { color: '#F4E3DF', fontSize: 16, lineHeight: 23 },
   privacyInfoCard: { backgroundColor: '#FFF9F4', borderWidth: 1, borderColor: '#D4B9B8', borderRadius: 16, padding: 18, gap: 9 },
   privacyHeading: { color: '#442B37', fontSize: 20, fontWeight: '800' },
-  privacyBody: { color: '#554F50', fontSize: 15, lineHeight: 24 }
+  privacyBody: { color: '#554F50', fontSize: 15, lineHeight: 24 },
   prototypeBadgeText: { fontSize: 9, letterSpacing: 0.3, fontWeight: '800', color: '#F3E9DF' },
   scrollContent: { paddingBottom: 30 },
   content: { paddingHorizontal: 20, paddingTop: 23, gap: 12 },
