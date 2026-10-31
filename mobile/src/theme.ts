@@ -1,13 +1,26 @@
+// Paleta da versão mobile: hierarquia editorial do site BC,
+// com acentos rose gold aprováveis separadamente da identidade web.
+export const siteIdentity = {
+  paper: '#FCFAF8',
+  cream: '#F2E9DF',
+  dark: '#171310',
+  ink: '#211B18',
+  muted: '#756C66',
+  line: '#D8CEC4',
+  roseGold: '#B68682',
+  champagne: '#D7B6A8',
+} as const;
+
 export const colors = {
-  background: '#F8F6F3',
-  surface: '#FFFCFA',
-  ink: '#2E252A',
-  muted: '#665F62',
-  rose: '#B78693',
-  roseDeep: '#62404D',
-  blush: '#F0E7E6',
-  gold: '#A88E88',
-  line: '#E0D6D2',
+  background: siteIdentity.paper,
+  surface: '#FFFDFB',
+  ink: siteIdentity.ink,
+  muted: siteIdentity.muted,
+  rose: siteIdentity.roseGold,
+  roseDeep: '#6C4745',
+  blush: siteIdentity.cream,
+  gold: '#B58E7C',
+  line: siteIdentity.line,
   success: '#39745B',
   warning: '#8B5E25',
 } as const;

@@ -76,10 +76,10 @@ function PrimaryButton({ label, onPress, muted }: { label: string; onPress: () =
   );
 }
 
-function ProcedureCard({ item, onPress }: { item: Procedure; onPress: () => void }) {
+function ProcedureCard({ item, index, onPress }: { item: Procedure; index: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={styles.procedureCard}>
-      <View style={styles.procedureIcon}><Text style={styles.procedureIconText}>{item.icon}</Text></View>
+      <Text style={styles.procedureIndex}>{String(index + 1).padStart(2, '0')}</Text>
       <View style={styles.flex}>
         <Text style={styles.procedureFamily}>{item.family}</Text>
         <Text style={styles.procedureTitle}>{item.name}</Text>
@@ -155,18 +155,18 @@ export default function App() {
       <>
         <View style={styles.homeHero}>
           <Image
-            source={require('./assets/recepcao.jpg')}
+            source={require('./assets/sala-atendimento.jpg')}
             resizeMode="cover"
             style={styles.homeHeroPhoto}
-            accessibilityLabel="Recepção da BC Estética Avançada"
+            accessibilityLabel="Sala de estética facial da BC Estética Avançada"
           />
           <View style={styles.homeHeroTint} />
           <View style={styles.homeHeroInner}>
-            <Text style={styles.homeOverline}>BC · ESTÉTICA AVANÇADA</Text>
-            <Text style={styles.homeHeadline}>O luxo de cuidar de você.</Text>
-            <Text style={styles.homeSubline}>Beleza, atenção e acolhimento em cada detalhe.</Text>
+            <Text style={styles.homeOverline}>BEAUTY CENTER · ESTÉTICA AVANÇADA</Text>
+            <Text style={styles.homeHeadline}>Beleza com propósito.</Text>
+            <Text style={styles.homeSubline}>Ciência e estética para uma beleza real, natural e que acompanha a sua história.</Text>
             <Pressable accessibilityRole="button" style={styles.homeMainButton} onPress={() => changeTab('agenda')}>
-              <Text style={styles.homeMainButtonText}>Agendar atendimento  ›</Text>
+              <Text style={styles.homeMainButtonText}>Agende sua avaliação  ›</Text>
             </Pressable>
           </View>
         </View>
@@ -184,6 +184,14 @@ export default function App() {
               <Text style={styles.homeQuickCaptionSecondary}>Conheça a BC</Text>
               <Text style={styles.homeQuickArrowSecondary}>↗</Text>
             </Pressable>
+          </View>
+          <View style={styles.homeClinicCard}>
+            <Image source={require('./assets/sala-procedimentos.jpg')} resizeMode="cover" style={styles.homeClinicPhoto} accessibilityLabel="Sala de Estética Avançada" />
+            <View style={styles.homeClinicTint} />
+            <View style={styles.homeClinicCaption}>
+              <Text style={styles.homeClinicKicker}>A CLÍNICA</Text>
+              <Text style={styles.homeClinicTitle}>Um espaço pensado para você.</Text>
+            </View>
           </View>
           <View style={styles.homeTeamHeading}>
             <Text style={styles.homeTeamOverline}>O TOQUE HUMANO DA BC</Text>
@@ -225,10 +233,10 @@ export default function App() {
             <Text style={styles.backLink}>‹ Voltar aos procedimentos</Text>
           </Pressable>
           <View style={styles.detailBanner}>
-            <View style={styles.detailDeco} />
-            <Text style={styles.detailEyebrow}>BC · UM CUIDADO PARA VOCÊ</Text>
-            <Text style={styles.detailGlyph}>{selectedProcedure.icon}</Text>
-            <Text style={styles.detailFooter}>✧  EXPERIÊNCIA PERSONALIZADA  ✧</Text>
+            <Image source={require('./assets/sala-atendimento.jpg')} resizeMode="cover" style={styles.detailPhoto} accessibilityLabel="Ambiente de atendimento da BC" />
+            <View style={styles.detailPhotoTint} />
+            <Text style={styles.detailEyebrow}>BC · CUIDADO INDIVIDUAL</Text>
+            <Text style={styles.detailHeroTitle}>Um cuidado para você.</Text>
           </View>
           <Heading eyebrow={selectedProcedure.family} title={selectedProcedure.name} caption={selectedProcedure.description} />
           <View style={styles.infoBox}>
@@ -253,12 +261,11 @@ export default function App() {
 
     return (
       <View style={styles.content}>
-        <View style={styles.catalogHero}>
-          <View style={styles.catalogHalo} />
-          <Text style={styles.catalogGold}>CATÁLOGO BC  /  ESTÉTICA AVANÇADA</Text>
-          <Text style={styles.catalogTitle}>Rituais de beleza e cuidado.</Text>
-          <Text style={styles.catalogIntro}>Explore as possibilidades e converse com a equipe sobre o atendimento indicado para você.</Text>
-          <Text style={styles.catalogCount}>{procedures.length} PROCEDIMENTOS EM DESTAQUE  ✧</Text>
+        <View style={styles.catalogEditorial}>
+          <Text style={styles.catalogGold}>BC · CUIDADOS</Text>
+          <Text style={styles.catalogEditorialTitle}>Beleza em todas as suas fases.</Text>
+          <Text style={styles.catalogEditorialLead}>Explore nossos cuidados e escolha seu próximo momento.</Text>
+          <View style={styles.catalogRule} />
         </View>
         <TextInput
           accessibilityLabel="Buscar procedimento"
@@ -284,9 +291,9 @@ export default function App() {
             <Text style={styles.savedFilterActionText}>{showSavedOnly ? 'Mostrar todos' : 'Ver salvos  ›'}</Text>
           </Pressable>
         </View>
-        {visibleProcedures.length ? visibleProcedures.map((item) =>
-          <ProcedureCard key={item.id} item={item} onPress={() => setSelectedProcedure(item)} />,
-        ) : <Text style={styles.emptyText}>{showSavedOnly ? 'Ainda não há cuidados salvos que combinem com estes filtros.' : 'Nenhum procedimento encontrado.'}</Text>}
+        {visibleProcedures.length ? visibleProcedures.map((item, index) =>
+          <ProcedureCard key={item.id} index={index} item={item} onPress={() => setSelectedProcedure(item)} />,
+        )} : <Text style={styles.emptyText}>{showSavedOnly ? 'Ainda não há cuidados salvos que combinem com estes filtros.' : 'Nenhum procedimento encontrado.'}</Text>}
       </View>
     );
   }
@@ -373,17 +380,31 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  homeClinicCard: { height: 182, borderRadius: 22, overflow: 'hidden', backgroundColor: '#171310', justifyContent: 'flex-end' },
+  homeClinicPhoto: { position: 'absolute', top: 0, right: 0, left: 0, bottom: 0, width: '100%', height: '100%' },
+  homeClinicTint: { position: 'absolute', top: 0, right: 0, left: 0, bottom: 0, backgroundColor: 'rgba(14,10,9,0.55)' },
+  homeClinicCaption: { padding: 21, gap: 6 },
+  homeClinicKicker: { color: '#DEBBAC', fontSize: 11, fontWeight: '800', letterSpacing: 1.6 },
+  homeClinicTitle: { color: '#FFF9F3', fontSize: 26, lineHeight: 31, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '600', maxWidth: 260 },
+  procedureIndex: { minWidth: 33, color: '#A47C6A', fontSize: 22, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontStyle: 'italic' },
+  detailPhoto: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  detailPhotoTint: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(18,13,11,0.70)' },
+  detailHeroTitle: { color: '#FFF9F3', fontSize: 29, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '600', lineHeight: 35 },
+  catalogEditorial: { minHeight: 214, borderRadius: 20, backgroundColor: '#171310', padding: 24, justifyContent: 'center', gap: 13, marginBottom: 9 },
+  catalogEditorialTitle: { fontSize: 37, lineHeight: 43, color: '#FFF9F3', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '600' },
+  catalogEditorialLead: { color: '#E7D9D0', fontSize: 15, lineHeight: 22 },
+  catalogRule: { width: 61, height: 2, backgroundColor: '#C49B8C', marginTop: 2 },
   headerSide: { width: 44, height: 44 },
   headerInfo: { width: 44, height: 48, alignItems: 'center', justifyContent: 'center' },
   headerInfoText: { color: '#EADBD6', fontSize: 24, fontWeight: '400' },
-  homeHero: { minHeight: 375, overflow: 'hidden', backgroundColor: '#171316', justifyContent: 'flex-end' },
+  homeHero: { minHeight: 396, overflow: 'hidden', backgroundColor: '#171310', justifyContent: 'flex-end' },
   homeHeroPhoto: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, width: '100%', height: '100%' },
-  homeHeroTint: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(13,11,13,0.65)' },
+  homeHeroTint: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(16,12,10,0.77)' },
   homeHeroInner: { paddingHorizontal: 27, paddingTop: 55, paddingBottom: 30, justifyContent: 'flex-end', minHeight: 375, gap: 15 },
-  homeOverline: { color: '#E5BEC4', fontSize: 12, fontWeight: '800', letterSpacing: 2.2 },
-  homeHeadline: { color: '#FFF9F3', fontSize: 42, lineHeight: 49, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '600', maxWidth: 315 },
+  homeOverline: { color: '#E3BEA9', fontSize: 11, fontWeight: '800', letterSpacing: 2.0 },
+  homeHeadline: { color: '#FFF9F3', fontSize: 44, lineHeight: 48, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '600', maxWidth: 330, letterSpacing: -1.2 },
   homeSubline: { color: '#F2EAE5', fontSize: 16, lineHeight: 24, maxWidth: 310 },
-  homeMainButton: { borderRadius: 30, backgroundColor: '#D4A8AF', paddingVertical: 17, paddingHorizontal: 22, alignSelf: 'flex-start', marginTop: 8, borderWidth: 1, borderColor: '#EBD0CA' },
+  homeMainButton: { borderRadius: 30, backgroundColor: '#D1A99B', paddingVertical: 17, paddingHorizontal: 22, alignSelf: 'flex-start', marginTop: 8, borderWidth: 1, borderColor: '#F2D9C8' },
   homeMainButtonText: { color: '#191417', fontSize: 17, fontWeight: '800' },
   homeContent: { paddingHorizontal: 19, paddingVertical: 23, gap: 22 },
   homeQuickRow: { flexDirection: 'row', gap: 12 },
@@ -409,15 +430,8 @@ const styles = StyleSheet.create({
   homePortraitRole: { color: '#70646A', fontSize: 12, lineHeight: 17, minHeight: 34 },
   homePreviewNote: { color: '#877B80', fontSize: 11, textAlign: 'center', lineHeight: 17, marginTop: 4 },
   heroRoseLine: { width: 72, height: 2, backgroundColor: '#D7A98D', marginBottom: 16 },
-  catalogHero: { minHeight: 250, backgroundColor: '#141316', borderRadius: 21, padding: 23, gap: 13, overflow: 'hidden', marginBottom: 8, borderWidth: 1, borderColor: '#C7A7B1' },
-  catalogHalo: { position: 'absolute', width: 250, height: 250, borderRadius: 125, borderWidth: 1, borderColor: 'rgba(235,184,164,0.28)', right: -120, top: -40 },
   catalogGold: { color: '#E2C4C4', fontSize: 11, letterSpacing: 1.4, fontWeight: '800' },
-  catalogTitle: { color: '#FFF7F2', fontFamily: 'serif', fontSize: 36, lineHeight: 42, maxWidth: 275 },
-  catalogIntro: { color: '#F3E1E0', fontSize: 15, lineHeight: 23, maxWidth: 285 },
-  catalogCount: { color: '#E1C2C8', fontSize: 11, letterSpacing: 1, fontWeight: '700', marginTop: 4 },
-  detailDeco: { position: 'absolute', height: 170, width: 170, borderRadius: 90, borderWidth: 1, borderColor: 'rgba(227,178,156,0.33)', right: -35, top: -25 },
   detailEyebrow: { color: '#E9BF9E', fontSize: 10, fontWeight: '800', letterSpacing: 1.4, marginTop: 10 },
-  detailFooter: { fontSize: 9, color: '#E9BF9E', letterSpacing: 1.5, marginBottom: 8 },
   brandBlock: { alignItems: 'center', justifyContent: 'center', width: 144, height: 132 },
   brandImage: { width: 132, height: 132 },
   navIconWrap: { width: 55, height: 38, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
@@ -448,20 +462,17 @@ const styles = StyleSheet.create({
   eyebrow: { color: colors.gold, fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
   headingTitle: { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.ink, fontSize: 31, lineHeight: 38, fontWeight: '600' },
   caption: { color: colors.muted, fontSize: 15, lineHeight: 23 },
-  procedureCard: { flexDirection: 'row', gap: 13, alignItems: 'center', backgroundColor: '#FFFDF9', padding: 16, borderRadius: 15, marginBottom: 4, borderWidth: 1, borderColor: '#DBC8C1' },
-  procedureIcon: { backgroundColor: colors.blush, width: 54, height: 54, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  procedureIconText: { fontSize: 27, color: colors.roseDeep },
-  procedureFamily: { color: colors.roseDeep, fontSize: 11, letterSpacing: 1.0, textTransform: 'uppercase', fontWeight: '800', marginBottom: 4 },
-  procedureTitle: { color: colors.ink, fontSize: 17, fontWeight: '800', marginBottom: 5 },
-  procedureCaption: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  procedureCard: { flexDirection: 'row', gap: 15, alignItems: 'center', paddingVertical: 22, paddingHorizontal: 7, borderBottomWidth: 1, borderBottomColor: '#D8CEC4', minHeight: 112 },
+  procedureFamily: { color: '#926D66', fontSize: 11, letterSpacing: 1.4, textTransform: 'uppercase', fontWeight: '800', marginBottom: 5 },
+  procedureTitle: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: '600', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', marginBottom: 5 },
+  procedureCaption: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   chevron: { color: colors.rose, fontSize: 24 },
   primaryButton: { padding: 18, borderRadius: 22, backgroundColor: '#151316', borderWidth: 1, borderColor: '#C2A2AF', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
   primaryButtonText: { color: '#FFF6EE', fontSize: 15, fontWeight: '800' },
   secondaryButton: { backgroundColor: '#EEDDD9', borderColor: '#C8A4AC' },
   secondaryButtonText: { color: '#231B22' },
   backLink: { color: colors.roseDeep, fontSize: 14, fontWeight: '700', marginBottom: 12 },
-  detailBanner: { height: 225, borderRadius: 20, backgroundColor: '#161418', alignItems: 'center', justifyContent: 'space-around', overflow: 'hidden', marginBottom: 15, borderWidth: 1, borderColor: '#C7A6AE' },
-  detailGlyph: { fontSize: 86, color: '#E5B49C' },
+  detailBanner: { height: 245, borderRadius: 19, backgroundColor: '#171310', alignItems: 'flex-start', justifyContent: 'flex-end', padding: 22, gap: 14, overflow: 'hidden', marginBottom: 15, borderWidth: 1, borderColor: '#C8ACA0' },
   infoBox: { borderRadius: 12, padding: 17, backgroundColor: '#F9F1EC', marginVertical: 10, gap: 8 },
   infoTitle: { color: colors.roseDeep, fontWeight: '800', fontSize: 17 },
   bodyText: { color: colors.muted, fontSize: 15, lineHeight: 23 },

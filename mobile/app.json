@@ -3,7 +3,7 @@
     "name": "BC Estética Avançada",
     "slug": "bc-estetica-mobile",
     "scheme": "bcestetica",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -13,12 +13,12 @@
         "foregroundImage": "./assets/app-adaptive-icon.png",
         "backgroundColor": "#151316"
       },
-      "versionCode": 7
+      "versionCode": 8
     },
     "ios": {
       "bundleIdentifier": "br.com.bcesteticaavancada.app",
       "supportsTablet": true,
-      "buildNumber": "7"
+      "buildNumber": "8"
     },
     "extra": {
       "prototype": true,

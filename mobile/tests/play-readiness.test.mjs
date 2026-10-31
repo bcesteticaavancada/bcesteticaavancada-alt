@@ -9,9 +9,9 @@ const eas = JSON.parse(get('../eas.json'));
 const app = get('../App.tsx');
 
 test('versão e identificadores Android/iOS de lançamento devem ser estáveis', () => {
-  assert.equal(expo.version, '0.7.0');
+  assert.equal(expo.version, '0.8.0');
   assert.equal(pkg.version, expo.version);
-  assert.equal(expo.android.versionCode, 7);
+  assert.equal(expo.android.versionCode, 8);
   assert.equal(expo.android.package, 'br.com.bcesteticaavancada.app');
   assert.equal(expo.ios.bundleIdentifier, 'br.com.bcesteticaavancada.app');
   assert.equal(expo.extra.prototype, true);
@@ -60,4 +60,20 @@ test('Pós-atendimento e chat são prévias locais, sem dados clínicos', () => 
   assert.match(area, /Nenhuma mensagem foi enviada/);
   assert.match(area, /não é um serviço de emergência/);
   assert.doesNotMatch(area, /fetch\(|supabase\.from\(|\.invoke\(/);
+});
+
+test('V0.8 segue a estrutura editorial do site com imagens locais', () => {
+  const theme = get('../src/theme.ts');
+  const doc = get('../docs/paridade-visual-site-v08.md');
+  assert.match(theme, /siteIdentity/);
+  assert.match(theme, /#FCFAF8/);
+  assert.match(theme, /#171310/);
+  assert.match(app, /Beleza com propósito/);
+  assert.match(app, /source=\{require\('\.\/assets\/sala-atendimento\.jpg'\)\}/);
+  assert.match(app, /homeClinicCard/);
+  assert.match(app, /procedureIndex/);
+  assert.match(app, /padStart\(2, '0'\)/);
+  assert.doesNotMatch(app, /procedureIconText/);
+  assert.match(doc, /Nossa Equipe/);
+  assert.match(doc, /Agendamento/);
 });
