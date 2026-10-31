@@ -19,13 +19,24 @@
 | Ensaio anterior | Relatório de 29/10 registra 115 tabelas e 3.898 linhas recuperadas/comparadas em PostgreSQL descartável, com 407 definições de função e 576 constraints aceitas | Foi uma recuperação **de dados**, não uma réplica operacional de Supabase Auth/RLS/Storage/Edge/Vault. |
 | CI do candidato | No HEAD `07916513349c8206b91b4ca5d158612f4063ff5e` do PR #69, Site, Pré-anamnese, Agenda DB e Auth Audit CI passaram | Fixture sintética e migração limpa não substituem um restore de produção. |
 
+### 1.1 Ensaio adicional no Google Cloud Shell — 31/10/2026
+
+Após o inventário inicial, o responsável abriu seu próprio Google Cloud Shell e enviou capturas de tela do terminal. **Escopo exclusivamente sintético, sem acesso ao Supabase de produção, a backups reais, ao Drive ou a segredos.**
+
+- Capacidade observada nas capturas: 7,8 GiB de RAM total, 5,9 GiB disponíveis naquele momento; volume persistente de 4,8 GiB, com 4,3 GiB livres; Docker 29.9.2.
+- Contêiner descartável `postgres:17-alpine` nomeado `bc-recuperacao-teste`, sem publicação de portas. Criação de tabela temporária, inserção e consulta de um registro fictício retornaram `1`.
+- Em tabela fictícia `public.bc_laboratorio`, `pg_dump -Fc` gerou `/tmp/bc_laboratorio.dump` de 1,9 KB **dentro do contêiner**, não no Drive.
+- `createdb` e `pg_restore --exit-on-error` recuperaram o dump em `bc_restauracao_ficticia`; consulta independente retornou **1 registro** e `Registro ficticio BC`, como na origem.
+- A prova é visual, baseada nas capturas do responsável. Ela **valida apenas o mecanismo básico de dump/restore do PostgreSQL local**. Não comprova restauração do snapshot real, integridade completa de Auth/RLS/Vault/Storage/Edge, backup periódico de banco ou operação do site em domínio próprio. G1 permanece parcial e G10 pendente.
+- O Cloud Shell é temporário e sujeito a quotas; não será usado como hospedagem contínua, destino definitivo de backup ou meio de transmissão de dados clínicos sem avaliação e procedimento de custódia aprovado.
+
 ## 2. Bloqueios reais e restrições
 
 1. A cópia completa de 29/10 é um snapshot pontual. Gravações posteriores não entram automaticamente. **Antes da virada, obter uma cópia nova, consistente, cifrada, com verificação de integridade.**
 2. O plano Free não disponibiliza o caminho gerenciado de restaurar backups físicos para um projeto novo. Conforme a documentação do Supabase, esse recurso requer plano pago e pode gerar cobrança adicional; não criar projeto ou branch pago sem orçamento e aprovação expressa.
 3. Mesmo a clonagem gerenciada do banco não copia automaticamente bytes de Storage, Edge Functions, Auth settings/API keys, Realtime settings e várias configurações. Cada componente deve ter procedimento de reprovisionamento e ensaio.
 4. A chave de recuperação consta junto dos manifestos na mesma árvore privada do kit. É preciso definir uma custódia independente e segura, sem registrar segredos em GitHub, logs, planilhas abertas ou nesta documentação.
-5. O ambiente de execução disponível nesta rodada não expõe Supabase CLI, Docker, `psql` ou `pg_restore`. Não transportar dados reais para CI pública nem simular êxito por contagem de arquivos.
+5. O executor inicial não expunha Supabase CLI, Docker, `psql` ou `pg_restore`. O responsável disponibilizou depois seu Google Cloud Shell, onde só houve ensaio com dados fictícios. Esse ambiente temporário ainda não demonstra capacidade de recuperação operacional integral; não transportar dados reais para CI pública nem simular êxito por contagem de arquivos.
 6. As credenciais e chaves-raiz de Vault não são reconstruídas apenas pelo conteúdo cifrado de suas tabelas. A recuperação pode exigir reprovisionamento de segredos e nova autorização de integrações, em ambiente controlado.
 
 ## 3. Ensaio operacional necessário — somente em ambiente isolado
