@@ -1,0 +1,40 @@
+name: BC Mobile Prototype CI
+
+on:
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/bc-mobile-prototype-ci.yml'
+  push:
+    branches:
+      - 'feature/bc-mobile-native-prototype'
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/bc-mobile-prototype-ci.yml'
+
+jobs:
+  typecheck:
+    name: Expo 57 TypeScript check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install prototype dependencies
+        run: npm install --no-audit --no-fund
+      - name: Verify types
+        run: npm run check
+      - name: Verify read-only agenda client fixtures
+        run: npm run test:agenda
+      - name: Verify production services are not configured
+        run: |
+          if rg -n 'service_role|SUPABASE_SERVICE_ROLE|EXPO_PUBLIC_SUPABASE|https?://bcesteticaavancada' App.tsx src; then
+            echo "Unexpected production integration in native prototype."
+            exit 1
+          fi

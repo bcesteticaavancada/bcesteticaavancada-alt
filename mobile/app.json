@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "BC Estética Avançada",
+    "slug": "bc-estetica-mobile",
+    "scheme": "bcestetica",
+    "version": "0.8.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "android": {
+      "package": "br.com.bcesteticaavancada.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/app-adaptive-icon.png",
+        "backgroundColor": "#151316"
+      },
+      "versionCode": 8
+    },
+    "ios": {
+      "bundleIdentifier": "br.com.bcesteticaavancada.app",
+      "supportsTablet": true,
+      "buildNumber": "8"
+    },
+    "extra": {
+      "prototype": true,
+      "stage": "internal-demo",
+      "playProductionEnabled": false
+    },
+    "icon": "./assets/app-icon.png",
+    "splash": {
+      "image": "./assets/app-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#151112"
+    }
+  }
+}
