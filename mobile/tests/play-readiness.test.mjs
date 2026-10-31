@@ -9,9 +9,9 @@ const eas = JSON.parse(get('../eas.json'));
 const app = get('../App.tsx');
 
 test('versão e identificadores Android/iOS de lançamento devem ser estáveis', () => {
-  assert.equal(expo.version, '0.6.0');
+  assert.equal(expo.version, '0.7.0');
   assert.equal(pkg.version, expo.version);
-  assert.equal(expo.android.versionCode, 6);
+  assert.equal(expo.android.versionCode, 7);
   assert.equal(expo.android.package, 'br.com.bcesteticaavancada.app');
   assert.equal(expo.ios.bundleIdentifier, 'br.com.bcesteticaavancada.app');
   assert.equal(expo.extra.prototype, true);
@@ -30,7 +30,7 @@ test('fluxo oferece voltar, privacidade e favoritos locais demonstrativos', () =
   assert.match(app, /function privacyScreen\(\)/);
   assert.match(app, /Guard[a-z]+ nos meus interesses/);
   assert.match(app, /setSavedIds/);
-  assert.match(app, /style=\{styles\.headerPrivacyButton\}/);
+  assert.match(app, /accessibilityLabel="Informações de privacidade da demonstração"/);
   assert.match(app, /key=\{privacyOpen \?/);
   assert.match(app, /não substitui a política pública definitiva/);
 });
@@ -41,4 +41,23 @@ test('documentação de portas de aprovação presente e sem URLs clínicas na t
   assert.match(doc, /política de privacidade/);
   assert.match(doc, /dados fictícios/);
   assert.doesNotMatch(app, /https?:\/\/tpqsmerlxquyrzrjbogj\.supabase\.co/);
+});
+
+test('V0.7 usa logo grande sem distorção e quatro abas acessíveis', () => {
+  assert.match(app, /source=\{require\('\.\/assets\/app-icon\.png'\)\}/);
+  assert.match(app, /resizeMode="contain"/);
+  assert.match(app, /height: 132/);
+  assert.doesNotMatch(app, /\{ id: 'mensagens', label: 'Contato'/);
+  const tabs = app.match(/\{ id: '(inicio|procedimentos|agenda|minha-bc)', label:/g);
+  assert.equal(tabs?.length, 4);
+});
+
+test('Pós-atendimento e chat são prévias locais, sem dados clínicos', () => {
+  const area = get('../src/components/ClientAreaDemo.tsx');
+  assert.match(area, /Pós-atendimento/);
+  assert.match(area, /Fale com sua profissional/);
+  assert.match(area, /'Dúvida', 'Reação', 'Intercorrência'/);
+  assert.match(area, /Nenhuma mensagem foi enviada/);
+  assert.match(area, /não é um serviço de emergência/);
+  assert.doesNotMatch(area, /fetch\(|supabase\.from\(|\.invoke\(/);
 });

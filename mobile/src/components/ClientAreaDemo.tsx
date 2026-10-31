@@ -1,167 +1,203 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { colors } from '../theme';
+type Panel = 'pos' | 'conversa' | 'arquivos';
+type Motivo = 'Dúvida' | 'Reação' | 'Intercorrência';
 
-type Panel = 'historico' | 'orientacoes' | 'documentos';
-const panels: { id: Panel; label: string }[] = [
-  { id: 'historico', label: 'Histórico' },
-  { id: 'orientacoes', label: 'Cuidados' },
-  { id: 'documentos', label: 'Documentos' },
+const sections: { id: Panel; label: string; icon: string }[] = [
+  { id: 'pos', label: 'Pós', icon: '♡' },
+  { id: 'conversa', label: 'Conversas', icon: '✉' },
+  { id: 'arquivos', label: 'Arquivos', icon: '▤' },
 ];
 
-/**
- * Nenhum dado real ou fictício identificável é persistido.
- * Este componente não acessa a BC Gestão, Auth, Drive ou PDFs.
- */
-export default function ClientAreaDemo() {
-  const [panel, setPanel] = useState<Panel>('historico');
+const motivos: Motivo[] = ['Dúvida', 'Reação', 'Intercorrência'];
 
-  function privacyNotice() {
+/**
+ * UI de homologação sem Auth, backend, PDF, mensagens ou arquivos reais.
+ * Não utilizar textos ou dados de pacientes nesta prévia.
+ */
+export default function ClientAreaDemo({ onPrivacyPress }: { onPrivacyPress: () => void }) {
+  const [panel, setPanel] = useState<Panel>('pos');
+  const [motivo, setMotivo] = useState<Motivo>('Dúvida');
+  const [rascunho, setRascunho] = useState('');
+
+  function simularEnvio() {
     Alert.alert(
-      'Área privativa em construção',
-      'A versão real exigirá login, verificação de identidade e regras de acesso por cliente. Nada é baixado, compartilhado ou enviado nesta demonstração.',
+      'Prévia da BC',
+      'Nenhuma mensagem foi enviada. A comunicação direta exigirá uma conta verificada e vinculação à profissional responsável.',
+      [{ text: 'Entendi' }],
     );
   }
 
   return (
-    <View style={styles.content}>
-      <View style={styles.clientHero}>
-        <View style={styles.clientHalo} />
-        <Text style={styles.eyebrow}>BC · UM ESPAÇO SÓ SEU</Text>
-        <Text style={styles.heading}>Sua história de cuidado, com carinho.</Text>
-        <View style={styles.heroRule} />
-        <Text style={styles.caption}>Seus atendimentos, orientações e documentos, em uma experiência pessoal e protegida.</Text>
-        <Text style={styles.heroCaption}>MINHA BC  ·  PRIVATE EXPERIENCE  ✧</Text>
+    <View style={styles.page}>
+      <View style={styles.hero}>
+        <Text style={styles.eyebrow}>MINHA BC  ·  ÁREA RESERVADA</Text>
+        <Text style={styles.heroTitle}>Seu cuidado continua aqui.</Text>
+        <Text style={styles.heroCaption}>Pós-atendimento e contato com sua profissional, em um só lugar.</Text>
       </View>
-      <View style={styles.warning}>
-        <Text style={styles.warningTitle}>PRÉVIA COM DADOS FICTÍCIOS</Text>
-        <Text style={styles.warningText}>Você não está conectada a uma conta. Os exemplos abaixo não representam pacientes ou procedimentos realizados na clínica.</Text>
-      </View>
-      <View style={styles.intro}>
-        <View style={styles.avatar}><Text style={styles.avatarText}>♡</Text></View>
-        <View style={styles.grow}>
-          <Text style={styles.welcome}>Seu cuidado, em um só lugar</Text>
-          <Text style={styles.small}>A área real só aparecerá após autenticação e autorização individual.</Text>
-        </View>
-      </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.panels}>
-        {panels.map((item) => (
+
+      <Text style={styles.previewNote}>PRÉVIA PRIVADA · Nenhum cadastro ou atendimento real está conectado.</Text>
+
+      <View style={styles.tabBar}>
+        {sections.map((item) => (
           <Pressable
             key={item.id}
             accessibilityRole="tab"
             accessibilityState={{ selected: panel === item.id }}
             onPress={() => setPanel(item.id)}
-            style={[styles.panel, panel === item.id && styles.panelActive]}
+            style={[styles.tab, panel === item.id && styles.tabActive]}
           >
-            <Text style={[styles.panelText, panel === item.id && styles.panelTextActive]}>{item.label}</Text>
+            <Text style={[styles.tabIcon, panel === item.id && styles.tabIconActive]}>{item.icon}</Text>
+            <Text style={[styles.tabLabel, panel === item.id && styles.tabLabelActive]}>{item.label}</Text>
           </Pressable>
         ))}
-      </ScrollView>
+      </View>
 
-      {panel === 'historico' ? (
+      {panel === 'pos' ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Como aparecerá seu histórico</Text>
-          <Text style={styles.body}>Exemplos visuais, sem registros reais ou datas de atendimento.</Text>
-          <View style={styles.item}>
-            <Text style={styles.itemIcon}>✧</Text>
-            <View style={styles.grow}>
-              <Text style={styles.itemTitle}>Exemplo · Limpeza de pele</Text>
-              <Text style={styles.small}>Atendimento ilustrativo · informações a confirmar</Text>
-            </View>
+          <Text style={styles.sectionTitle}>Pós-atendimento</Text>
+          <Text style={styles.sectionLead}>O acompanhamento da BC, de maneira próxima e individual.</Text>
+          <View style={styles.highlightCard}>
+            <Text style={styles.cardOverline}>APÓS SEU PROCEDIMENTO</Text>
+            <Text style={styles.cardTitle}>Orientações só para você.</Text>
+            <Text style={styles.cardDescription}>Cuidados aprovados pela profissional e próximos passos vinculados ao seu atendimento.</Text>
+            <Text style={styles.cardStatus}>♡  Acesso após identificação segura</Text>
           </View>
-          <View style={styles.item}>
-            <Text style={styles.itemIcon}>✺</Text>
-            <View style={styles.grow}>
-              <Text style={styles.itemTitle}>Exemplo · Avaliação estética</Text>
-              <Text style={styles.small}>Registro ilustrativo · informações a confirmar</Text>
+          <Pressable
+            accessibilityRole="button"
+            style={styles.actionCard}
+            onPress={() => { setPanel('conversa'); setMotivo('Reação'); }}
+          >
+            <View style={styles.actionIcon}><Text style={styles.actionIconText}>✉</Text></View>
+            <View style={styles.actionBody}>
+              <Text style={styles.actionTitle}>Precisa de orientação?</Text>
+              <Text style={styles.actionDescription}>Dúvidas, reações e intercorrências.</Text>
             </View>
-          </View>
-          <Text style={styles.note}>Na versão real, cada cliente verá somente seus próprios registros autorizados pela BC, vinculados ao cadastro existente.</Text>
+            <Text style={styles.actionArrow}>›</Text>
+          </Pressable>
         </View>
       ) : null}
 
-      {panel === 'orientacoes' ? (
+      {panel === 'conversa' ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Orientações da sua profissional</Text>
-          <View style={styles.item}>
-            <Text style={styles.itemIcon}>♡</Text>
-            <View style={styles.grow}>
-              <Text style={styles.itemTitle}>Orientações personalizadas</Text>
-              <Text style={styles.small}>A profissional responsável poderá disponibilizar orientações específicas de cada atendimento.</Text>
-            </View>
+          <Text style={styles.sectionTitle}>Fale com sua profissional</Text>
+          <Text style={styles.sectionLead}>Um canal de acompanhamento vinculado ao seu atendimento.</Text>
+          <Text style={styles.fieldLabel}>Sobre o que deseja conversar?</Text>
+          <View style={styles.motivos}>
+            {motivos.map((item) => (
+              <Pressable
+                key={item}
+                accessibilityRole="button"
+                accessibilityState={{ selected: motivo === item }}
+                style={[styles.motivo, motivo === item && styles.motivoSelected]}
+                onPress={() => setMotivo(item)}
+              >
+                <Text style={[styles.motivoText, motivo === item && styles.motivoTextSelected]}>{item}</Text>
+              </Pressable>
+            ))}
           </View>
-          <View style={styles.item}>
-            <Text style={styles.itemIcon}>✉</Text>
-            <View style={styles.grow}>
-              <Text style={styles.itemTitle}>Contato com a equipe</Text>
-              <Text style={styles.small}>Canal privativo com acesso conforme o vínculo de atendimento.</Text>
+          {motivo !== 'Dúvida' ? (
+            <View style={styles.urgency}>
+              <Text style={styles.urgencyTitle}>Sua segurança vem primeiro.</Text>
+              <Text style={styles.urgencyText}>Este canal não é um serviço de emergência. Em uma situação grave ou urgente, procure atendimento imediato e não aguarde resposta pelo aplicativo.</Text>
             </View>
-          </View>
-          <Text style={styles.note}>Nenhuma prescrição, recomendação clínica individual ou mensagem é gerada nesta prévia.</Text>
+          ) : null}
+          <TextInput
+            multiline
+            accessibilityLabel="Mensagem fictícia para demonstração"
+            value={rascunho}
+            onChangeText={setRascunho}
+            placeholder="Mensagem de teste..."
+            placeholderTextColor="#8F8586"
+            style={styles.composer}
+          />
+          <Text style={styles.draftNote}>Não inclua dados pessoais ou de saúde nesta prévia. Nada será enviado ou salvo.</Text>
+          <Pressable accessibilityRole="button" onPress={simularEnvio} style={styles.mainButton}>
+            <Text style={styles.mainButtonText}>Simular envio da mensagem  ›</Text>
+          </Pressable>
         </View>
       ) : null}
 
-      {panel === 'documentos' ? (
+      {panel === 'arquivos' ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Seus documentos</Text>
-          <View style={styles.item}>
-            <Text style={styles.itemIcon}>▤</Text>
-            <View style={styles.grow}>
-              <Text style={styles.itemTitle}>Anamneses e consentimentos</Text>
-              <Text style={styles.small}>Em breve, documentos revisados e liberados para cada cliente.</Text>
+          <Text style={styles.sectionLead}>Tudo organizado por atendimento, com acesso individual.</Text>
+          <View style={styles.documentCard}>
+            <Text style={styles.documentIcon}>▤</Text>
+            <View style={styles.documentText}>
+              <Text style={styles.documentTitle}>Orientações e cuidados</Text>
+              <Text style={styles.documentSubtitle}>Liberados pela profissional responsável.</Text>
             </View>
+            <Text style={styles.lockIcon}>⌁</Text>
           </View>
-          <View style={styles.item}>
-            <Text style={styles.itemIcon}>▣</Text>
-            <View style={styles.grow}>
-              <Text style={styles.itemTitle}>Arquivos de procedimentos</Text>
-              <Text style={styles.small}>Acesso individual com autorização e controle de expiração.</Text>
+          <View style={styles.documentCard}>
+            <Text style={styles.documentIcon}>◇</Text>
+            <View style={styles.documentText}>
+              <Text style={styles.documentTitle}>Termos e documentos</Text>
+              <Text style={styles.documentSubtitle}>Disponíveis após autenticação e revisão.</Text>
             </View>
+            <Text style={styles.lockIcon}>⌁</Text>
           </View>
-          <Text style={styles.note}>Não há arquivos reais ou PDFs disponíveis neste protótipo. Nada é sincronizado com o Google Drive.</Text>
+          <Text style={styles.draftNote}>Nenhum prontuário, PDF ou arquivo de paciente foi incluído no aplicativo de teste.</Text>
         </View>
       ) : null}
 
-      <Pressable accessibilityRole="button" onPress={privacyNotice} style={styles.button}>
-        <Text style={styles.buttonText}>Como será protegido meu acesso ›</Text>
+      <Pressable accessibilityRole="button" onPress={onPrivacyPress} style={styles.privacyLink}>
+        <Text style={styles.privacyLinkText}>Privacidade e proteção de dados  ›</Text>
       </Pressable>
-      <Text style={styles.footer}>Antes da liberação: Auth, regras de acesso por cliente, testes de isolamento, revisão da Mel e autorização de publicação.</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  clientHero: { backgroundColor: '#171518', borderRadius: 20, padding: 23, gap: 15, minHeight: 267, overflow: 'hidden', borderWidth: 1, borderColor: '#BD9AA7' },
-  clientHalo: { position: 'absolute', right: -85, top: -65, width: 215, height: 215, borderWidth: 1, borderColor: 'rgba(232,186,165,0.36)', borderRadius: 110 },
-  heroRule: { height: 2, width: 64, backgroundColor: '#E4B69C' },
-  heroCaption: { fontSize: 11, color: '#DFC5C9', letterSpacing: 1.0, fontWeight: '800', marginTop: 6 },
-  content: { paddingHorizontal: 20, paddingTop: 23, gap: 13, paddingBottom: 28 },
-  eyebrow: { color: '#E7D6D6', fontSize: 12, letterSpacing: 1.3, fontWeight: '800' },
-  heading: { color: '#FFF7F3', fontFamily: 'serif', fontSize: 34, lineHeight: 43, fontWeight: '600', maxWidth: 280 },
-  caption: { color: '#F0E5E0', fontSize: 15, lineHeight: 23 },
-  warning: { backgroundColor: '#F6E5DE', padding: 15, borderRadius: 14, gap: 6, borderWidth: 1, borderColor: '#EAC9BF' },
-  warningTitle: { fontSize: 12, fontWeight: '800', color: colors.roseDeep, letterSpacing: 0.9 },
-  warningText: { color: '#543B48', fontSize: 14, lineHeight: 21 },
-  intro: { flexDirection: 'row', alignItems: 'center', gap: 13, backgroundColor: '#FFFCF8', borderRadius: 16, padding: 18, borderColor: '#D2B9BC', borderWidth: 1 },
-  avatar: { width: 55, height: 55, borderRadius: 29, backgroundColor: '#F4DED8', borderWidth: 1, borderColor: '#CEA18E', alignItems: 'center', justifyContent: 'center' },
-  avatarText: { color: colors.roseDeep, fontSize: 29 },
-  grow: { flex: 1 },
-  welcome: { fontSize: 18, color: colors.ink, fontWeight: '800', marginBottom: 6 },
-  small: { color: colors.muted, fontSize: 13, lineHeight: 20 },
-  panels: { gap: 9, paddingVertical: 4 },
-  panel: { borderRadius: 24, paddingHorizontal: 19, paddingVertical: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: '#D7C0BF' },
-  panelActive: { backgroundColor: '#332630', borderColor: '#BA96A3' },
-  panelText: { fontSize: 14, color: colors.ink, fontWeight: '700' },
-  panelTextActive: { color: '#FFFFFF' },
-  section: { gap: 12 },
-  sectionTitle: { fontSize: 23, color: colors.ink, fontFamily: 'serif', fontWeight: '700', marginTop: 7 },
-  body: { color: colors.muted, lineHeight: 21, fontSize: 14 },
-  item: { backgroundColor: '#FFFCF8', borderRadius: 16, borderWidth: 1, borderColor: '#D9C7C2', padding: 18, flexDirection: 'row', gap: 12, alignItems: 'center' },
-  itemIcon: { fontSize: 24, color: colors.roseDeep },
-  itemTitle: { fontSize: 16, color: colors.ink, fontWeight: '800', marginBottom: 6 },
-  note: { fontSize: 14, color: colors.muted, lineHeight: 22, marginTop: 5 },
-  button: { backgroundColor: '#181619', padding: 19, borderRadius: 25, borderWidth: 1, borderColor: '#B895A5' },
-  buttonText: { color: '#FFF8EF', fontWeight: '800', fontSize: 15 },
-  footer: { color: colors.muted, fontSize: 13, lineHeight: 20 },
+  page: { paddingHorizontal: 19, paddingTop: 20, paddingBottom: 36, gap: 18 },
+  hero: { backgroundColor: '#191518', borderRadius: 22, paddingHorizontal: 23, paddingVertical: 28, gap: 12, borderWidth: 1, borderColor: '#AD8492' },
+  eyebrow: { color: '#E5C0C6', fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
+  heroTitle: { color: '#FFF9F3', fontSize: 37, lineHeight: 44, fontFamily: 'serif', fontWeight: '600', maxWidth: 310 },
+  heroCaption: { color: '#EEE1DD', fontSize: 15, lineHeight: 23 },
+  previewNote: { color: '#766A6E', fontSize: 12, lineHeight: 18, textAlign: 'center' },
+  tabBar: { backgroundColor: '#F0EBE7', padding: 5, borderRadius: 18, flexDirection: 'row', gap: 5, borderWidth: 1, borderColor: '#DED0CE' },
+  tab: { flex: 1, minHeight: 77, justifyContent: 'center', alignItems: 'center', gap: 4, borderRadius: 15 },
+  tabActive: { backgroundColor: '#2A2026', borderWidth: 1, borderColor: '#BD98A5' },
+  tabIcon: { color: '#6D4754', fontSize: 24 },
+  tabIconActive: { color: '#EBC6CC' },
+  tabLabel: { color: '#51494C', fontWeight: '800', fontSize: 15 },
+  tabLabelActive: { color: '#FFF6F0' },
+  section: { gap: 14 },
+  sectionTitle: { color: '#292126', fontSize: 30, fontFamily: 'serif', fontWeight: '700' },
+  sectionLead: { color: '#675D61', fontSize: 15, lineHeight: 22 },
+  highlightCard: { backgroundColor: '#282025', borderRadius: 20, padding: 23, minHeight: 214, gap: 12, borderWidth: 1, borderColor: '#B28A96' },
+  cardOverline: { color: '#DBB9C0', fontWeight: '800', letterSpacing: 1.6, fontSize: 12 },
+  cardTitle: { color: '#FFF6EF', fontFamily: 'serif', fontSize: 27, lineHeight: 34, fontWeight: '700' },
+  cardDescription: { color: '#EEE0DD', fontSize: 15, lineHeight: 22 },
+  cardStatus: { color: '#D9B3BD', fontSize: 12, marginTop: 3, fontWeight: '800' },
+  actionCard: { flexDirection: 'row', backgroundColor: '#FFFCFA', padding: 17, gap: 12, alignItems: 'center', borderWidth: 1, borderColor: '#D8C6C2', borderRadius: 18 },
+  actionIcon: { width: 49, height: 49, borderRadius: 24, backgroundColor: '#EAD9D9', alignItems: 'center', justifyContent: 'center' },
+  actionIconText: { fontSize: 23, color: '#6C4554' },
+  actionBody: { flex: 1, gap: 5 },
+  actionTitle: { color: '#33272D', fontSize: 17, fontWeight: '800' },
+  actionDescription: { color: '#73676B', fontSize: 13, lineHeight: 20 },
+  actionArrow: { color: '#A17784', fontSize: 26 },
+  fieldLabel: { fontSize: 16, fontWeight: '800', color: '#3B2B32' },
+  motivos: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  motivo: { borderRadius: 22, borderWidth: 1, borderColor: '#D5BFBE', backgroundColor: '#FFFCFA', paddingHorizontal: 14, paddingVertical: 13 },
+  motivoSelected: { backgroundColor: '#34262E', borderColor: '#BA8E9B' },
+  motivoText: { color: '#573E48', fontSize: 14, fontWeight: '800' },
+  motivoTextSelected: { color: '#FFF3ED' },
+  urgency: { backgroundColor: '#F7F1EE', borderLeftWidth: 3, borderLeftColor: '#9A6E7D', borderRadius: 10, padding: 15, gap: 6 },
+  urgencyTitle: { color: '#513B44', fontWeight: '800', fontSize: 16 },
+  urgencyText: { color: '#61575B', fontSize: 14, lineHeight: 21 },
+  composer: { backgroundColor: '#FFFCFA', borderWidth: 1, borderColor: '#D8C7C3', minHeight: 116, borderRadius: 16, padding: 16, paddingTop: 15, fontSize: 16, color: '#2D2428', textAlignVertical: 'top' },
+  draftNote: { color: '#776C70', fontSize: 12, lineHeight: 19 },
+  mainButton: { padding: 18, minHeight: 58, backgroundColor: '#261C22', borderRadius: 29, justifyContent: 'center', borderWidth: 1, borderColor: '#A97F8D' },
+  mainButtonText: { color: '#FFF7F2', fontSize: 16, fontWeight: '800', textAlign: 'center' },
+  documentCard: { backgroundColor: '#FFFCFA', flexDirection: 'row', alignItems: 'center', padding: 18, borderRadius: 16, borderWidth: 1, borderColor: '#D9C8C5', gap: 12 },
+  documentIcon: { color: '#8F6675', fontSize: 29 },
+  documentText: { flex: 1, gap: 4 },
+  documentTitle: { color: '#392C33', fontSize: 16, fontWeight: '800' },
+  documentSubtitle: { color: '#766A6F', fontSize: 13, lineHeight: 19 },
+  lockIcon: { color: '#AD93A0', fontSize: 21 },
+  privacyLink: { borderTopWidth: 1, borderTopColor: '#D5C8C6', paddingTop: 19, paddingBottom: 12, marginTop: 6 },
+  privacyLinkText: { color: '#6D4353', fontSize: 14, fontWeight: '800', textAlign: 'center' },
 });

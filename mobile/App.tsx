@@ -16,9 +16,9 @@ import {
 import { procedures, type Procedure } from './src/data/procedures';
 import AgendaDemo from './src/components/AgendaDemo';
 import ClientAreaDemo from './src/components/ClientAreaDemo';
-import { colors, shadow } from './src/theme';
+import { colors } from './src/theme';
 
-type Tab = 'inicio' | 'procedimentos' | 'agenda' | 'mensagens' | 'minha-bc';
+type Tab = 'inicio' | 'procedimentos' | 'agenda' | 'minha-bc';
 type Filter = 'Todos' | Procedure['family'];
 
 const team = [
@@ -33,7 +33,6 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'inicio', label: 'Início', icon: '⌂' },
   { id: 'procedimentos', label: 'Cuidados', icon: '✧' },
   { id: 'agenda', label: 'Agenda', icon: '▦' },
-  { id: 'mensagens', label: 'Contato', icon: '✉' },
   { id: 'minha-bc', label: 'Minha BC', icon: '♡' },
 ];
 
@@ -97,7 +96,6 @@ export default function App() {
   const [filter, setFilter] = useState<Filter>('Todos');
   const [search, setSearch] = useState('');
   const [service, setService] = useState<string | null>(null);
-  const [message, setMessage] = useState('');
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
@@ -153,157 +151,67 @@ export default function App() {
   }
 
   function home() {
-    const spaces = [
-      { name: 'Sala de Estética Avançada', caption: 'Tecnologia e cuidado individualizado', image: require('./assets/sala-procedimentos.jpg') },
-      { name: 'Sala de Estética Facial', caption: 'Um ambiente pensado para você', image: require('./assets/sala-atendimento.jpg') },
-      { name: 'Sala de Massagem', caption: 'Conforto e acolhimento', image: require('./assets/sala-massagem.jpg') },
-    ];
-
     return (
       <>
-        <View style={styles.hero}>
-          <Image source={require('./assets/recepcao.jpg')} resizeMode="cover" style={styles.heroImage} accessibilityLabel="Ambiente da BC Estética Avançada" />
-          <View style={styles.heroTint} />
-          <View style={styles.heroRing} />
-          <View style={styles.heroRingInner} />
-          <View style={styles.heroTop}>
-            <Text style={styles.heroGoldMark}>✦  BC · LUXURY BEAUTY EXPERIENCE</Text>
-            <Text style={styles.heroLocation}>BELO HORIZONTE · MG</Text>
-          </View>
-          <View style={styles.heroBody}>
-            <View style={styles.heroEyebrowFrame}><View style={styles.heroEyebrowDot} /><Text style={styles.heroEyebrow}>ESTÉTICA AVANÇADA COM PERSONALIDADE</Text></View>
-            <Text style={styles.heroTitle}>A sua beleza merece ser celebrada.</Text>
-            <View style={styles.heroRoseLine} />
-            <Text style={styles.heroDescription}>Tecnologia, acolhimento e experiências que valorizam o seu cuidado.</Text>
-            <Pressable style={styles.heroButton} accessibilityRole="button" onPress={() => changeTab('agenda')}>
-              <Text style={styles.heroButtonText}>Explorar a agenda  ↗</Text>
+        <View style={styles.homeHero}>
+          <Image
+            source={require('./assets/recepcao.jpg')}
+            resizeMode="cover"
+            style={styles.homeHeroPhoto}
+            accessibilityLabel="Recepção da BC Estética Avançada"
+          />
+          <View style={styles.homeHeroTint} />
+          <View style={styles.homeHeroInner}>
+            <Text style={styles.homeOverline}>BC · ESTÉTICA AVANÇADA</Text>
+            <Text style={styles.homeHeadline}>O luxo de cuidar de você.</Text>
+            <Text style={styles.homeSubline}>Beleza, atenção e acolhimento em cada detalhe.</Text>
+            <Pressable accessibilityRole="button" style={styles.homeMainButton} onPress={() => changeTab('agenda')}>
+              <Text style={styles.homeMainButtonText}>Agendar atendimento  ›</Text>
             </Pressable>
-          </View>
-          <View style={styles.heroFooter}>
-            <Text style={styles.heroFooterText}>BC · ESTÉTICA AVANÇADA</Text>
-            <Text style={styles.heroFooterText}>✧  ✧  ✧</Text>
           </View>
         </View>
-
-        <View style={styles.content}>
-          <View style={styles.welcomeBlock}>
-            <Text style={styles.welcomeEyebrow}>BEM-VINDA À BC</Text>
-            <Text style={styles.welcomeTitle}>Cada detalhe foi pensado para você.</Text>
-            <Text style={styles.welcomeText}>Conheça nossos procedimentos, encontre sua profissional e acompanhe a experiência BC em um só aplicativo.</Text>
-          </View>
-
-          <View style={styles.signatureRibbon}>
-            <View style={styles.signatureMonogram}><Text style={styles.signatureMonogramText}>✧</Text></View>
-            <View style={styles.signatureCopy}>
-              <Text style={styles.signatureEyebrow}>A ESSÊNCIA DA BC</Text>
-              <Text style={styles.signatureTitle}>Elegância em cada detalhe.</Text>
-              <Text style={styles.signatureCaption}>Ambientes acolhedores · atenção individualizada</Text>
-            </View>
-          </View>
-
-          <View style={styles.highlightRow}>
-            <Pressable accessibilityRole="button" style={[styles.highlightCard, styles.highlightCardAccent]} onPress={() => changeTab('agenda')}>
-              <Text style={styles.highlightIcon}>▦</Text>
-              <Text style={styles.highlightTitle}>Agendar</Text>
-              <Text style={styles.highlightCaption}>Organize seu próximo cuidado</Text>
-              <Text style={styles.highlightArrow}>↗</Text>
+        <View style={styles.homeContent}>
+          <View style={styles.homeQuickRow}>
+            <Pressable accessibilityRole="button" onPress={() => changeTab('minha-bc')} style={styles.homeQuickPrimary}>
+              <Text style={styles.homeQuickIcon}>♡</Text>
+              <Text style={styles.homeQuickTitlePrimary}>Minha BC</Text>
+              <Text style={styles.homeQuickCaptionPrimary}>Seu pós-atendimento</Text>
+              <Text style={styles.homeQuickArrowPrimary}>↗</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" style={styles.highlightCard} onPress={() => changeTab('minha-bc')}>
-              <Text style={styles.highlightIcon}>♡</Text>
-              <Text style={styles.highlightTitle}>Minha BC</Text>
-              <Text style={styles.highlightCaption}>Sua jornada em um só lugar</Text>
-              <Text style={styles.highlightArrow}>↗</Text>
+            <Pressable accessibilityRole="button" onPress={() => changeTab('procedimentos')} style={styles.homeQuickSecondary}>
+              <Text style={styles.homeQuickIconSecondary}>✧</Text>
+              <Text style={styles.homeQuickTitleSecondary}>Cuidados</Text>
+              <Text style={styles.homeQuickCaptionSecondary}>Conheça a BC</Text>
+              <Text style={styles.homeQuickArrowSecondary}>↗</Text>
             </Pressable>
           </View>
-
-          <View style={styles.sectionHead}>
-            <View style={styles.goldLine} />
-            <Heading eyebrow="Descubra" title="Cuidados em destaque" caption="Conheça os tratamentos e tire suas dúvidas com nossa equipe." />
+          <View style={styles.homeTeamHeading}>
+            <Text style={styles.homeTeamOverline}>O TOQUE HUMANO DA BC</Text>
+            <Text style={styles.homeTeamTitle}>Quem cuida de você</Text>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featureRow}>
-            {procedures.slice(0, 5).map((item, index) => (
-              <Pressable
-                key={item.id}
-                accessibilityRole="button"
-                style={[styles.featureCard, index % 2 === 0 && styles.featureCardBlush]}
-                onPress={() => { setSelectedProcedure(item); setTab('procedimentos'); }}
-              >
-                <View style={styles.featureCardHalo} />
-                <Text style={styles.featureNumber}>0{index + 1} / {item.family.toUpperCase()}</Text>
-                <View style={styles.featureIconFrame}><Text style={styles.featureIcon}>{item.icon}</Text></View>
-                <View style={styles.featureThinLine} />
-                <Text style={styles.featureTitle}>{item.name}</Text>
-                <Text style={styles.featureCaption} numberOfLines={3}>{item.description}</Text>
-                <Text style={styles.featureAction}>CONHECER  ↗</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-          <PrimaryButton label="Ver catálogo completo" muted onPress={() => changeTab('procedimentos')} />
-
-          <View style={styles.sectionHead}>
-            <View style={styles.goldLine} />
-            <Heading eyebrow="Um espaço especial" title="Conheça nossos ambientes" caption="Um olhar por dentro da clínica BC Estética Avançada." />
+          <View style={styles.homeTeamImageWrap}>
+            <Image
+              source={require('./assets/team-group.webp')}
+              resizeMode="cover"
+              style={styles.homeTeamImage}
+              accessibilityLabel="Equipe institucional da BC Estética Avançada"
+            />
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.spaceRow}>
-            {spaces.map((space) => (
-              <View key={space.name} style={styles.spaceCard}>
-                <Image source={space.image} style={styles.spacePhoto} resizeMode="cover" accessibilityLabel={space.name} />
-                <View style={styles.spaceInfo}>
-                  <Text style={styles.spaceName}>{space.name}</Text>
-                  <Text style={styles.spaceCaption}>{space.caption}</Text>
-                </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.homePortraitRow}>
+            {team.map((person) => (
+              <View key={person.name} style={styles.homePortraitCard}>
+                <Image
+                  source={person.image}
+                  resizeMode="cover"
+                  style={styles.homePortraitImage}
+                  accessibilityLabel={person.isGroup ? 'Vânia representada na foto institucional coletiva' : 'Retrato institucional de ' + person.name}
+                />
+                <Text style={styles.homePortraitName}>{person.name}</Text>
+                <Text style={styles.homePortraitRole} numberOfLines={2}>{person.role}</Text>
               </View>
             ))}
           </ScrollView>
-
-          <View style={styles.sectionHead}>
-            <View style={styles.goldLine} />
-            <Heading eyebrow="Gente que acolhe" title="Quem faz a experiência BC" caption="Conheça os nomes por trás do cuidado e da recepção da clínica." />
-          </View>
-          <View style={styles.teamHero}>
-            <Image source={require('./assets/team-group.webp')} style={styles.teamHeroPhoto} resizeMode="cover" accessibilityLabel="Foto coletiva institucional da equipe BC Estética Avançada" />
-            <View style={styles.teamHeroOverlay}>
-              <Text style={styles.teamHeroLabel}>AS PROFISSIONAIS DA BC  ✧</Text>
-            </View>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.teamRow}>
-            {team.map((person) => (
-              <Pressable key={person.name} accessibilityRole="button" onPress={() => changeTab('mensagens')} style={styles.teamCard}>
-                <View style={styles.teamPortraitPhotoFrame}>
-                  <Image source={person.image} resizeMode="cover" style={styles.teamPhoto} accessibilityLabel={person.isGroup ? 'Foto coletiva da BC incluindo Vânia' : 'Foto institucional de ' + person.name} />
-                </View>
-                {person.isGroup ? <Text style={styles.teamPhotoNote}>FOTO DA EQUIPE</Text> : null}
-                <Text style={styles.teamName}>{person.name}</Text>
-                <Text style={styles.teamRole}>{person.role}</Text>
-                <View style={styles.teamFooter}><Text style={styles.teamFooterText}>EQUIPE BC  ✧</Text></View>
-              </Pressable>
-            ))}
-          </ScrollView>
-          <Text style={styles.teamFootnote}>Retratos institucionais da BC. Vânia aparece na foto coletiva; a imagem individual será incluída após confirmação. Atendimentos e permissões profissionais são definidos pela clínica.</Text>
-
-          <View style={styles.journeyBox}>
-            <Text style={styles.journeyEyebrow}>A EXPERIÊNCIA BC</Text>
-            <Text style={styles.journeyTitle}>Seu cuidado, no seu tempo.</Text>
-            <View style={styles.journeyStep}>
-              <Text style={styles.journeyNum}>01</Text>
-              <View style={styles.flex}><Text style={styles.journeyStepTitle}>Conheça</Text><Text style={styles.journeyStepText}>Explore nossos procedimentos e ambientes.</Text></View>
-            </View>
-            <View style={styles.journeyStep}>
-              <Text style={styles.journeyNum}>02</Text>
-              <View style={styles.flex}><Text style={styles.journeyStepTitle}>Converse</Text><Text style={styles.journeyStepText}>Encontre orientação com uma profissional habilitada.</Text></View>
-            </View>
-            <View style={styles.journeyStep}>
-              <Text style={styles.journeyNum}>03</Text>
-              <View style={styles.flex}><Text style={styles.journeyStepTitle}>Acompanhe</Text><Text style={styles.journeyStepText}>No futuro, consulte sua jornada com acesso protegido.</Text></View>
-            </View>
-            <Pressable accessibilityRole="button" style={styles.journeyButton} onPress={() => changeTab('mensagens')}>
-              <Text style={styles.journeyButtonText}>Conheça o canal de contato  ›</Text>
-            </Pressable>
-          </View>
-          <View style={styles.previewCard}>
-            <Text style={styles.previewStar}>✧</Text>
-            <Text style={styles.previewDisclaimer}>PRÉVIA V0.6 · Este app funciona com dados ilustrativos. Nenhum atendimento, mensagem ou documento real é consultado ou enviado.</Text>
-          </View>
+          <Text style={styles.homePreviewNote}>PRÉVIA INTERNA · Atendimento e mensagens ainda não conectados.</Text>
         </View>
       </>
     );
@@ -387,52 +295,8 @@ export default function App() {
     return <AgendaDemo requestedProcedureName={procedures.find((item) => item.id === service)?.name || null} />;
   }
 
-  function messagesScreen() {
-    return (
-      <View style={styles.content}>
-        <View style={styles.contactHero}>
-          <Text style={styles.contactEyebrow}>BC · CONCIERGE DE CUIDADO</Text>
-          <Text style={styles.contactTitle}>Sempre perto de você.</Text>
-          <View style={styles.contactSeparator} />
-          <Text style={styles.contactCaption}>Estamos preparando um espaço reservado para conversar com as profissionais e acompanhar seu cuidado, com privacidade.</Text>
-          <Text style={styles.contactSignature}>COM CARINHO, EQUIPE BC  ✧</Text>
-        </View>
-        <View style={styles.demoBanner}><Text style={styles.demoText}>CANAL EM PREPARAÇÃO · nenhuma mensagem é enviada</Text></View>
-        <View style={styles.conversationCard}>
-          <View style={styles.avatar}><Text style={styles.avatarText}>BC</Text></View>
-          <View style={styles.flex}>
-            <Text style={styles.conversationTitle}>Equipe BC Estética</Text>
-            <Text style={styles.conversationCaption}>Em breve: mensagens privadas com sua profissional</Text>
-          </View>
-        </View>
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Comunicação com privacidade</Text>
-          <Text style={styles.bodyText}>Cada cliente poderá conversar com as profissionais autorizadas, receber orientações e consultar o próprio histórico. A integração segura será desenvolvida antes da liberação.</Text>
-        </View>
-        <View style={styles.contactBenefits}>
-          <Text style={styles.contactBenefitsTitle}>O que você encontrará aqui</Text>
-          <Text style={styles.contactBenefit}>✧  Canal exclusivo com sua profissional</Text>
-          <Text style={styles.contactBenefit}>✧  Orientações vinculadas aos seus atendimentos</Text>
-          <Text style={styles.contactBenefit}>✧  Histórico protegido por acesso individual</Text>
-        </View>
-        <Text style={styles.sectionLabel}>Experimente a futura área de mensagens</Text>
-        <TextInput
-          accessibilityLabel="Rascunho de mensagem local"
-          multiline
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Escreva um rascunho de demonstração..."
-          placeholderTextColor="#9C9194"
-          style={[styles.input, styles.messageInput]}
-        />
-        <Text style={styles.inputHint}>Rascunho somente na tela. Não é armazenado nem transmitido.</Text>
-        <PrimaryButton label="Como funcionará o envio" onPress={() => showDemoNotice('O envio de mensagens')} />
-      </View>
-    );
-  }
-
   function accountScreen() {
-    return <ClientAreaDemo />;
+    return <ClientAreaDemo onPrivacyPress={() => setPrivacyOpen(true)} />;
   }
 
   function privacyScreen() {
@@ -450,7 +314,7 @@ export default function App() {
         <View style={styles.privacyInfoCard}>
           <Text style={styles.privacyHeading}>O que acontece nesta prévia?</Text>
           <Text style={styles.privacyBody}>Os catálogos, horários, registros ilustrativos e orientações não consultam a base real da clínica. Nenhuma reserva, mensagem ou documento é enviado.</Text>
-          <Text style={styles.privacyBody}>Os cuidados marcados como interesse e os rascunhos de contato ficam somente na memória enquanto o aplicativo estiver aberto. Não há login, conta de cliente ou sincronização nesta versão.</Text>
+          <Text style={styles.privacyBody}>Os procedimentos marcados como interesse e os rascunhos de conversa ficam apenas na memória durante esta prévia. Não há login, conta de cliente ou sincronização nesta versão.</Text>
         </View>
         <View style={styles.privacyInfoCard}>
           <Text style={styles.privacyHeading}>Antes de liberar contas de clientes</Text>
@@ -472,27 +336,20 @@ export default function App() {
     inicio: home,
     procedimentos: procedureScreen,
     agenda: scheduleScreen,
-    mensagens: messagesScreen,
     'minha-bc': accountScreen,
   }[tab];
 
   return (
     <View style={styles.app}>
-      <StatusBar barStyle="light-content" backgroundColor="#141316" />
+      <StatusBar barStyle="light-content" backgroundColor="#171311" />
       <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Ir para a tela inicial da BC" onPress={() => changeTab('inicio')} style={styles.brandBlock}>
-          <View style={styles.brandSeal}><Image source={require('./assets/logo-transparente.png')} style={styles.brandImage} resizeMode="contain" accessibilityLabel="Identidade visual BC Estética Avançada" /></View>
-          <View style={styles.brandWords}>
-            <Text style={styles.brandCaption}>BC ESTÉTICA</Text>
-            <Text style={styles.brandSubtitle}>AVANÇADA</Text>
-          </View>
+        <View style={styles.headerSide} />
+        <Pressable accessibilityRole="button" accessibilityLabel="Ir para o início da BC" onPress={() => changeTab('inicio')} style={styles.brandBlock}>
+          <Image source={require('./assets/app-icon.png')} style={styles.brandImage} resizeMode="contain" accessibilityLabel="Logo dourada BC Estética Avançada" />
         </Pressable>
-        <View style={styles.headerActions}>
-          <View style={styles.prototypeBadge}><Text style={styles.prototypeBadgeText}>V0.6 · TESTE</Text></View>
-          <Pressable accessibilityRole="button" onPress={() => setPrivacyOpen(true)} style={styles.headerPrivacyButton}>
-            <Text style={styles.headerPrivacyText}>Privacidade  ›</Text>
-          </Pressable>
-        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Informações de privacidade da demonstração" onPress={() => setPrivacyOpen(true)} style={styles.headerInfo}>
+          <Text style={styles.headerInfoText}>ⓘ</Text>
+        </Pressable>
       </View>
       <ScrollView key={privacyOpen ? 'privacidade' : tab + (selectedProcedure ? selectedProcedure.id : '')} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={styles.flex} contentContainerStyle={styles.scrollContent}>
         {content()}
@@ -516,39 +373,42 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  teamHero: { overflow: 'hidden', height: 254, borderRadius: 19, borderWidth: 1, borderColor: '#C6A3A1', backgroundColor: '#171518', marginTop: 2 },
-  teamHeroPhoto: { height: '100%', width: '100%' },
-  teamHeroOverlay: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(16,14,17,0.83)', paddingVertical: 14, paddingHorizontal: 18, borderTopWidth: 1, borderTopColor: '#D9BCC0' },
-  teamHeroLabel: { color: '#EFE4D6', fontSize: 13, letterSpacing: 1.5, fontWeight: '800' },
-  teamPortraitPhotoFrame: { height: 170, width: '100%', borderRadius: 13, overflow: 'hidden', borderWidth: 1, borderColor: '#D2A4A9', marginBottom: 10, backgroundColor: '#3D3539' },
-  teamPhoto: { width: '100%', height: '100%' },
-  teamPhotoNote: { color: '#D7B9AE', fontSize: 10, letterSpacing: 0.8, textAlign: 'center', paddingBottom: 4 },
-  brandSeal: { width: 76, height: 76, padding: 6, borderRadius: 22, backgroundColor: '#151316', borderWidth: 1.5, borderColor: '#D2B6BB', alignItems: 'center', justifyContent: 'center', shadowColor: '#D5A4B0', shadowOpacity: 0.17, shadowRadius: 9, elevation: 3 },
-  heroRingInner: { position: 'absolute', width: 138, height: 138, borderWidth: 1, borderColor: 'rgba(255,224,208,0.25)', borderRadius: 69, right: -62, top: 117 },
-  heroEyebrowFrame: { flexDirection: 'row', gap: 9, alignItems: 'center', marginBottom: 15 },
-  heroEyebrowDot: { backgroundColor: '#D4A88C', width: 20, height: 1.5 },
+  headerSide: { width: 44, height: 44 },
+  headerInfo: { width: 44, height: 48, alignItems: 'center', justifyContent: 'center' },
+  headerInfoText: { color: '#EADBD6', fontSize: 24, fontWeight: '400' },
+  homeHero: { minHeight: 375, overflow: 'hidden', backgroundColor: '#171316', justifyContent: 'flex-end' },
+  homeHeroPhoto: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, width: '100%', height: '100%' },
+  homeHeroTint: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(13,11,13,0.65)' },
+  homeHeroInner: { paddingHorizontal: 27, paddingTop: 55, paddingBottom: 30, justifyContent: 'flex-end', minHeight: 375, gap: 15 },
+  homeOverline: { color: '#E5BEC4', fontSize: 12, fontWeight: '800', letterSpacing: 2.2 },
+  homeHeadline: { color: '#FFF9F3', fontSize: 42, lineHeight: 49, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '600', maxWidth: 315 },
+  homeSubline: { color: '#F2EAE5', fontSize: 16, lineHeight: 24, maxWidth: 310 },
+  homeMainButton: { borderRadius: 30, backgroundColor: '#D4A8AF', paddingVertical: 17, paddingHorizontal: 22, alignSelf: 'flex-start', marginTop: 8, borderWidth: 1, borderColor: '#EBD0CA' },
+  homeMainButtonText: { color: '#191417', fontSize: 17, fontWeight: '800' },
+  homeContent: { paddingHorizontal: 19, paddingVertical: 23, gap: 22 },
+  homeQuickRow: { flexDirection: 'row', gap: 12 },
+  homeQuickPrimary: { flex: 1, minHeight: 153, borderRadius: 19, backgroundColor: '#211A1E', padding: 18, gap: 6, borderWidth: 1, borderColor: '#B18A98' },
+  homeQuickSecondary: { flex: 1, minHeight: 153, borderRadius: 19, backgroundColor: '#F0EBE5', padding: 18, gap: 6, borderWidth: 1, borderColor: '#C9B9B3' },
+  homeQuickIcon: { fontSize: 27, color: '#DEB3BA', marginBottom: 3 },
+  homeQuickIconSecondary: { fontSize: 27, color: '#77505C', marginBottom: 3 },
+  homeQuickTitlePrimary: { fontSize: 19, color: '#FFF5EE', fontWeight: '800' },
+  homeQuickTitleSecondary: { fontSize: 19, color: '#33262B', fontWeight: '800' },
+  homeQuickCaptionPrimary: { color: '#E9D9D6', fontSize: 13, lineHeight: 18 },
+  homeQuickCaptionSecondary: { color: '#756A6D', fontSize: 13, lineHeight: 18 },
+  homeQuickArrowPrimary: { color: '#E0B5BC', fontSize: 19, alignSelf: 'flex-end' },
+  homeQuickArrowSecondary: { color: '#7C5661', fontSize: 19, alignSelf: 'flex-end' },
+  homeTeamHeading: { gap: 5, marginTop: 5 },
+  homeTeamOverline: { color: '#976F7B', letterSpacing: 1.5, fontSize: 12, fontWeight: '800' },
+  homeTeamTitle: { color: '#2E2529', fontSize: 31, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', fontWeight: '700' },
+  homeTeamImageWrap: { width: '100%', height: 205, borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: '#C4B0AF' },
+  homeTeamImage: { width: '100%', height: '100%' },
+  homePortraitRow: { gap: 11, paddingRight: 19, paddingBottom: 7 },
+  homePortraitCard: { width: 140, backgroundColor: '#FFFDFC', padding: 9, borderRadius: 16, borderWidth: 1, borderColor: '#DED1CE', gap: 5 },
+  homePortraitImage: { width: 120, height: 134, borderRadius: 11, backgroundColor: '#E7DFDD' },
+  homePortraitName: { color: '#302529', fontSize: 17, fontWeight: '800' },
+  homePortraitRole: { color: '#70646A', fontSize: 12, lineHeight: 17, minHeight: 34 },
+  homePreviewNote: { color: '#877B80', fontSize: 11, textAlign: 'center', lineHeight: 17, marginTop: 4 },
   heroRoseLine: { width: 72, height: 2, backgroundColor: '#D7A98D', marginBottom: 16 },
-  signatureRibbon: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#19171A', borderRadius: 17, borderWidth: 1, borderColor: '#CFABB3', padding: 17, gap: 13, marginBottom: 17, overflow: 'hidden' },
-  signatureMonogram: { height: 66, width: 66, borderRadius: 35, borderWidth: 1.5, borderColor: '#D7BFC3', backgroundColor: '#30252C', alignItems: 'center', justifyContent: 'center' },
-  signatureMonogramText: { color: '#D5B4BA', fontSize: 39 },
-  signatureCopy: { flex: 1, gap: 5 },
-  signatureEyebrow: { fontSize: 11, letterSpacing: 1.8, fontWeight: '800', color: '#DDB8C1' },
-  signatureTitle: { fontSize: 19, color: '#F4ECE3', fontFamily: 'serif', fontWeight: '700' },
-  signatureCaption: { fontSize: 12, lineHeight: 18, color: '#DFD1CE' },
-  featureCardHalo: { position: 'absolute', top: -50, right: -54, height: 125, width: 125, borderRadius: 65, borderWidth: 1, borderColor: '#E4BBAE', backgroundColor: 'rgba(238,202,191,0.20)' },
-  featureThinLine: { height: 1, width: 52, backgroundColor: '#D1B9B7' },
-  teamRow: { gap: 13, paddingVertical: 9, paddingRight: 20 },
-  teamCard: { width: 182, borderWidth: 1, borderColor: '#C0A0A9', borderRadius: 18, padding: 12, backgroundColor: '#181619', alignItems: 'center', overflow: 'hidden', minHeight: 303 },
-  teamPortrait: { height: 96, width: 96, borderRadius: 50, alignItems: 'center', justifyContent: 'center', marginBottom: 7 },
-  teamPortraitInner: { height: 81, width: 81, borderRadius: 45, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#FDF5F1' },
-  teamInitials: { color: '#774353', fontSize: 25, fontFamily: 'serif', fontWeight: '700', letterSpacing: 2 },
-  teamName: { color: '#F8EFE6', fontSize: 18, fontWeight: '800' },
-  teamRole: { fontSize: 13, color: '#E4D8D6', lineHeight: 18, textAlign: 'center', marginTop: 6, minHeight: 40 },
-  teamFooter: { borderTopWidth: 1, borderColor: '#927881', alignSelf: 'stretch', marginTop: 'auto', paddingTop: 10 },
-  teamFooterText: { color: '#DEC1C7', fontSize: 11, letterSpacing: 0.9, textAlign: 'center' },
-  teamFootnote: { fontSize: 12, color: '#6E6066', lineHeight: 19, marginTop: -3 },
-  previewCard: { borderWidth: 1, borderColor: '#C0A0AA', backgroundColor: '#201B22', padding: 13, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 7 },
-  previewStar: { fontSize: 24, color: '#D6BCC3' },
   catalogHero: { minHeight: 250, backgroundColor: '#141316', borderRadius: 21, padding: 23, gap: 13, overflow: 'hidden', marginBottom: 8, borderWidth: 1, borderColor: '#C7A7B1' },
   catalogHalo: { position: 'absolute', width: 250, height: 250, borderRadius: 125, borderWidth: 1, borderColor: 'rgba(235,184,164,0.28)', right: -120, top: -40 },
   catalogGold: { color: '#E2C4C4', fontSize: 11, letterSpacing: 1.4, fontWeight: '800' },
@@ -558,73 +418,14 @@ const styles = StyleSheet.create({
   detailDeco: { position: 'absolute', height: 170, width: 170, borderRadius: 90, borderWidth: 1, borderColor: 'rgba(227,178,156,0.33)', right: -35, top: -25 },
   detailEyebrow: { color: '#E9BF9E', fontSize: 10, fontWeight: '800', letterSpacing: 1.4, marginTop: 10 },
   detailFooter: { fontSize: 9, color: '#E9BF9E', letterSpacing: 1.5, marginBottom: 8 },
-  contactHero: { backgroundColor: '#171518', borderRadius: 21, padding: 23, gap: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#C3A0AC' },
-  contactEyebrow: { color: '#E5BBA2', fontSize: 10, letterSpacing: 1.6, fontWeight: '800' },
-  contactTitle: { color: '#FFF5F1', fontSize: 36, fontFamily: 'serif', lineHeight: 43 },
-  contactSeparator: { width: 54, height: 2, backgroundColor: '#D8A58F' },
-  contactCaption: { color: '#F3E3E2', fontSize: 15, lineHeight: 23 },
-  contactSignature: { color: '#EAC3AF', fontSize: 10, fontWeight: '700', letterSpacing: 1.2, marginTop: 7 },
-  contactBenefits: { borderWidth: 1, borderColor: '#EBD2C7', borderRadius: 15, backgroundColor: '#F8EDE9', padding: 17, gap: 12 },
-  contactBenefitsTitle: { fontFamily: 'serif', fontSize: 19, color: '#613C48', fontWeight: '700' },
-  contactBenefit: { fontSize: 14, color: '#51444C', lineHeight: 21 },
-  brandBlock: { flexDirection: 'row', alignItems: 'center', gap: 9, flex: 1 },
-  brandImage: { width: 65, height: 65, borderRadius: 12 },
-  brandWords: { gap: 3 },
-  brandSubtitle: { color: '#DBAAB4', fontSize: 12, letterSpacing: 2.0, fontWeight: '800' },
-  heroImage: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, width: '100%', height: '100%' },
-  heroTint: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(12,12,15,0.73)' },
-  heroRing: { position: 'absolute', width: 250, height: 250, borderWidth: 1, borderColor: 'rgba(229,176,151,0.50)', borderRadius: 125, right: -116, top: 76 },
-  heroTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 },
-  heroGoldMark: { color: '#F1E5D8', fontSize: 10, letterSpacing: 0.7, fontWeight: '800', flexShrink: 1 },
-  heroLocation: { color: '#EBD8D3', fontSize: 9, letterSpacing: 0.6 },
-  heroBody: { paddingTop: 43, paddingBottom: 28, zIndex: 1 },
-  heroFooter: { flexDirection: 'row', justifyContent: 'space-between', borderTopColor: 'rgba(255,255,255,0.23)', borderTopWidth: 1, paddingTop: 12, zIndex: 1 },
-  heroFooterText: { color: '#ECE1D6', fontSize: 10, fontWeight: '700', letterSpacing: 1.4 },
-  welcomeBlock: { marginVertical: 15, gap: 11 },
-  welcomeEyebrow: { color: colors.gold, letterSpacing: 2.0, fontWeight: '800', fontSize: 12 },
-  welcomeTitle: { color: colors.ink, fontFamily: 'serif', fontWeight: '600', fontSize: 34, lineHeight: 41 },
-  welcomeText: { color: colors.muted, fontSize: 15, lineHeight: 24 },
-  highlightCardAccent: { backgroundColor: '#EED7D9', borderWidth: 1, borderColor: '#CA9EA8' },
-  highlightArrow: { color: colors.gold, fontWeight: '800', fontSize: 17, alignSelf: 'flex-end', marginTop: 8 },
-  sectionHead: { marginTop: 19, gap: 13 },
-  goldLine: { height: 3, width: 55, backgroundColor: '#C4927C', borderRadius: 3 },
-  featureRow: { gap: 12, paddingVertical: 4, paddingRight: 20 },
-  featureCard: { width: 226, minHeight: 295, borderRadius: 19, borderWidth: 1, borderColor: '#B992A0', padding: 18, backgroundColor: '#151316', gap: 10, overflow: 'hidden' },
-  featureCardBlush: { backgroundColor: '#292128' },
-  featureNumber: { fontSize: 11, color: '#D9BBC0', letterSpacing: 0.75, fontWeight: '800', minHeight: 25 },
-  featureIconFrame: { width: 65, height: 65, borderRadius: 35, alignItems: 'center', justifyContent: 'center', backgroundColor: '#392B35', borderWidth: 1.5, borderColor: '#D2B2B7', marginBottom: 4 },
-  featureIcon: { fontSize: 33, color: '#E9D9D2' },
-  featureTitle: { fontSize: 21, fontFamily: 'serif', color: '#FFF7EF', fontWeight: '700' },
-  featureCaption: { fontSize: 13, lineHeight: 20, color: '#E5D8D4', minHeight: 62 },
-  featureAction: { fontSize: 12, fontWeight: '800', color: '#E2B3BD', letterSpacing: 1, marginTop: 'auto' },
-  spaceRow: { gap: 12, paddingRight: 20, paddingVertical: 5 },
-  spaceCard: { backgroundColor: '#171518', borderRadius: 19, overflow: 'hidden', width: 250, borderWidth: 1, borderColor: '#B793A0' },
-  spacePhoto: { width: '100%', height: 163 },
-  spaceInfo: { padding: 16, gap: 8, backgroundColor: '#171518' },
-  spaceName: { color: '#F6EFE7', fontSize: 17, fontWeight: '800' },
-  spaceCaption: { color: '#E2D4D2', fontSize: 13, lineHeight: 19 },
-  journeyBox: { backgroundColor: '#151317', padding: 23, marginTop: 22, borderRadius: 22, gap: 12, borderWidth: 1, borderColor: '#C7A3AE' },
-  journeyEyebrow: { color: '#D6BEC1', fontSize: 12, letterSpacing: 1.7, fontWeight: '800' },
-  journeyTitle: { color: '#FFF7F0', fontFamily: 'serif', fontSize: 30, lineHeight: 38 },
-  journeyStep: { flexDirection: 'row', gap: 15, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.14)', paddingTop: 13 },
-  journeyNum: { color: '#D7B989', fontSize: 20, fontFamily: 'serif', width: 31 },
-  journeyStepTitle: { fontSize: 16, fontWeight: '800', color: '#FFFFFF', marginBottom: 6 },
-  journeyStepText: { fontSize: 13, lineHeight: 20, color: '#E7D9DC' },
-  journeyButton: { backgroundColor: '#D7B8C1', padding: 17, marginTop: 5, borderRadius: 25 },
-  journeyButtonText: { color: '#1D181D', textAlign: 'center', fontWeight: '800', fontSize: 14 },
-  previewDisclaimer: { flex: 1, color: '#F2E8E3', fontSize: 12, lineHeight: 19 },
-  navIconWrap: { width: 46, height: 32, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
-  navIconWrapActive: { backgroundColor: '#3D2937', borderColor: '#D1AFBA', borderWidth: 1 },
+  brandBlock: { alignItems: 'center', justifyContent: 'center', width: 144, height: 132 },
+  brandImage: { width: 132, height: 132 },
+  navIconWrap: { width: 55, height: 38, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  navIconWrapActive: { backgroundColor: '#49323B', borderColor: '#BE98A6', borderWidth: 1 },
 
   app: { flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 48 },
   flex: { flex: 1 },
-  topBar: { minHeight: 95, paddingHorizontal: 11, backgroundColor: '#141316', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 2, borderBottomColor: '#D5B8BC' },
-  brand: { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.roseDeep, fontSize: 31, fontWeight: '700', letterSpacing: 2, lineHeight: 34 },
-  brandCaption: { color: '#E6DDD0', letterSpacing: 1.0, fontSize: 11, fontWeight: '800' },
-  prototypeBadge: { paddingVertical: 9, paddingHorizontal: 9, backgroundColor: '#30242C', borderColor: '#A87784', borderWidth: 1, borderRadius: 50 },
-  headerActions: { alignItems: 'flex-end', justifyContent: 'center', gap: 6, flexShrink: 0 },
-  headerPrivacyButton: { borderBottomWidth: 1, borderBottomColor: '#D1A6B2', paddingHorizontal: 3, paddingVertical: 3 },
-  headerPrivacyText: { fontSize: 11, color: '#F5E5E7', fontWeight: '700' },
+  topBar: { minHeight: 139, paddingHorizontal: 14, backgroundColor: '#171311', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#B68792' },
   savedButton: { borderWidth: 1.5, borderColor: '#BE909D', borderRadius: 20, padding: 16, backgroundColor: '#F9F3EE', alignItems: 'center', marginVertical: 10 },
   savedButtonActive: { backgroundColor: '#30232A', borderColor: '#DCB2BA' },
   savedButtonText: { fontSize: 15, fontWeight: '800', color: '#6D3F50', textAlign: 'center' },
@@ -641,25 +442,12 @@ const styles = StyleSheet.create({
   privacyInfoCard: { backgroundColor: '#FFF9F4', borderWidth: 1, borderColor: '#D4B9B8', borderRadius: 16, padding: 18, gap: 9 },
   privacyHeading: { color: '#442B37', fontSize: 20, fontWeight: '800' },
   privacyBody: { color: '#554F50', fontSize: 15, lineHeight: 24 },
-  prototypeBadgeText: { fontSize: 9, letterSpacing: 0.3, fontWeight: '800', color: '#F3E9DF' },
   scrollContent: { paddingBottom: 30 },
   content: { paddingHorizontal: 20, paddingTop: 23, gap: 12 },
-  hero: { overflow: 'hidden', padding: 22, backgroundColor: '#121114', minHeight: 482, justifyContent: 'space-between', borderBottomWidth: 4, borderBottomColor: '#D2A6AE' },
-  heroDecor: { width: 230, height: 230, position: 'absolute', right: -80, top: -50, backgroundColor: '#F8EDE9', borderRadius: 115, opacity: 0.7 },
-  heroEyebrow: { color: '#E8B7C0', fontSize: 11, letterSpacing: 0.65, fontWeight: '800', flexShrink: 1 },
-  heroTitle: { maxWidth: 330, fontSize: 40, lineHeight: 48, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: '#FFF9F3', fontWeight: '700', marginBottom: 15 },
-  heroDescription: { maxWidth: 320, fontSize: 16, lineHeight: 24, color: '#F2E9E4', marginBottom: 22 },
-  heroButton: { backgroundColor: '#D7B3B9', paddingHorizontal: 23, paddingVertical: 17, alignSelf: 'flex-start', borderRadius: 26, borderWidth: 1, borderColor: '#F5E8D8' },
-  heroButtonText: { color: '#181419', fontWeight: '800', fontSize: 15 },
   heading: { marginBottom: 9, gap: 8 },
   eyebrow: { color: colors.gold, fontSize: 12, fontWeight: '800', letterSpacing: 1.5 },
   headingTitle: { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.ink, fontSize: 31, lineHeight: 38, fontWeight: '600' },
   caption: { color: colors.muted, fontSize: 15, lineHeight: 23 },
-  highlightRow: { flexDirection: 'row', gap: 12, marginBottom: 15 },
-  highlightCard: { flex: 1, backgroundColor: '#FFFCF8', padding: 18, borderRadius: 17, minHeight: 163, borderColor: '#D3B8B5', borderWidth: 1, ...shadow },
-  highlightIcon: { fontSize: 26, color: colors.rose, marginBottom: 8 },
-  highlightTitle: { color: colors.ink, fontWeight: '800', fontSize: 17, marginBottom: 5 },
-  highlightCaption: { color: colors.muted, fontSize: 13, lineHeight: 19 },
   procedureCard: { flexDirection: 'row', gap: 13, alignItems: 'center', backgroundColor: '#FFFDF9', padding: 16, borderRadius: 15, marginBottom: 4, borderWidth: 1, borderColor: '#DBC8C1' },
   procedureIcon: { backgroundColor: colors.blush, width: 54, height: 54, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   procedureIconText: { fontSize: 27, color: colors.roseDeep },
@@ -683,30 +471,13 @@ const styles = StyleSheet.create({
   pillActive: { backgroundColor: colors.roseDeep, borderColor: colors.roseDeep },
   pillText: { fontSize: 14, fontWeight: '700', color: colors.roseDeep },
   pillTextActive: { color: '#FFFFFF' },
-  sectionLabel: { color: colors.ink, fontWeight: '800', fontSize: 18, marginTop: 14 },
   demoBanner: { backgroundColor: '#F6E9DD', padding: 12, borderRadius: 9, marginBottom: 5 },
   demoText: { color: colors.warning, fontSize: 10, textAlign: 'center', letterSpacing: 0.6, fontWeight: '800' },
-  timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
-  timeCell: { minWidth: '29%' },
   emptyText: { color: colors.muted, paddingVertical: 25, textAlign: 'center' },
-  conversationCard: { backgroundColor: colors.surface, flexDirection: 'row', gap: 13, alignItems: 'center', padding: 16, borderRadius: 13, borderWidth: 1, borderColor: colors.line },
-  avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.roseDeep, justifyContent: 'center', alignItems: 'center' },
-  avatarText: { color: '#FFFFFF', fontWeight: '800', fontSize: 15 },
-  conversationTitle: { fontSize: 17, color: colors.ink, fontWeight: '800', marginBottom: 5 },
-  conversationCaption: { color: colors.muted, fontSize: 14, lineHeight: 20 },
-  messageInput: { minHeight: 115, textAlignVertical: 'top', paddingTop: 14 },
-  inputHint: { color: colors.muted, fontSize: 11 },
-  accountCard: { alignItems: 'center', borderRadius: 16, backgroundColor: colors.blush, padding: 25, gap: 9 },
-  accountAvatar: { backgroundColor: colors.surface, borderRadius: 40, width: 65, height: 65, alignItems: 'center', justifyContent: 'center' },
-  accountAvatarText: { fontSize: 30, color: colors.rose },
-  accountTitle: { color: colors.roseDeep, fontSize: 17, fontWeight: '700' },
-  bodyTextCentered: { textAlign: 'center', color: colors.muted, fontSize: 12, lineHeight: 19 },
-  accountItem: { flexDirection: 'row', gap: 12, padding: 15, backgroundColor: colors.surface, alignItems: 'center', borderRadius: 10, borderWidth: 1, borderColor: colors.line },
-  accountItemIcon: { fontSize: 24, color: colors.rose, width: 35, textAlign: 'center' },
-  bottomNav: { flexDirection: 'row', backgroundColor: '#131215', borderTopWidth: 1.5, borderTopColor: '#C9A6B3', paddingTop: 10, paddingBottom: Platform.OS === 'ios' ? 20 : 13 },
-  tabButton: { flex: 1, alignItems: 'center', gap: 5 },
-  tabIcon: { fontSize: 24, color: '#CEC1BD' },
+  bottomNav: { flexDirection: 'row', backgroundColor: '#171311', borderTopWidth: 1, borderTopColor: '#C4A0A8', paddingTop: 12, paddingBottom: Platform.OS === 'ios' ? 22 : 16 },
+  tabButton: { flex: 1, minHeight: 62, alignItems: 'center', gap: 5, justifyContent: 'center' },
+  tabIcon: { fontSize: 28, color: '#CEC1BD' },
   tabIconActive: { color: '#EAD7D8' },
-  tabText: { fontSize: 11, color: '#E6DAD4', fontWeight: '700' },
+  tabText: { fontSize: 14, color: '#EEE3DE', fontWeight: '700' },
   tabTextActive: { color: '#F6EAE2', fontWeight: '800' },
 });
