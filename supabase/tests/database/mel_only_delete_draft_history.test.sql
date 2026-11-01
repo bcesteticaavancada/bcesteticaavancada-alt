@@ -37,9 +37,9 @@ values(pg_temp.f('delete_procedure'),'Procedimento descartável CI',25,true,pg_t
 select set_config('request.jwt.claim.sub',pg_temp.f('admin')::text,true);
 set local role authenticated;
 select is(private.bc_can_delete_finalized(),false,'Outro administrador não se torna Mel');
-select is((with removed as (
-  delete from public.procedimentos where id=pg_temp.f('delete_procedure') returning id
-) select count(*)::integer from removed),0,'Admin técnico não exclui registro definitivo');
+delete from public.procedimentos where id=pg_temp.f('delete_procedure');
+select is((select count(*)::integer from public.procedimentos
+  where id=pg_temp.f('delete_procedure')),1,'Admin técnico não exclui registro definitivo');
 reset role;
 
 select set_config('request.jwt.claim.sub',pg_temp.f('ordinary')::text,true);
@@ -50,12 +50,12 @@ reset role;
 select set_config('request.jwt.claim.sub',pg_temp.f('chief')::text,true);
 set local role authenticated;
 select is(private.bc_can_delete_finalized(),true,'A identidade configurada Mel, ativa e admin, recebe autorização');
-select is((with removed as (
-  delete from public.procedimentos where id=pg_temp.f('delete_procedure') returning id
-) select count(*)::integer from removed),1,'Somente Mel exclui definitivamente');
-select is((with removed as (
-  delete from public.staff_profiles where user_id=pg_temp.f('chief') returning user_id
-) select count(*)::integer from removed),0,'Mel não pode excluir o próprio perfil por engano');
+delete from public.procedimentos where id=pg_temp.f('delete_procedure');
+select is((select count(*)::integer from public.procedimentos
+  where id=pg_temp.f('delete_procedure')),0,'Somente Mel exclui definitivamente');
+delete from public.staff_profiles where user_id=pg_temp.f('chief');
+select is((select count(*)::integer from public.staff_profiles
+  where user_id=pg_temp.f('chief')),1,'Mel não pode excluir o próprio perfil por engano');
 reset role;
 
 select is((select old_data->>'nome' from public.audit_log
