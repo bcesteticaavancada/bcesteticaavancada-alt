@@ -88,7 +88,7 @@ declare
   v_after public.clinical_treatments%rowtype;
 begin
   if v_user is null or not private.is_bc_active_staff() then
-    raise exception 'Profissional inativa ou não autenticada.' using errcode='42501';
+    raise exception 'Acesso restrito à equipe clínica ativa.' using errcode='42501';
   end if;
   select * into v_before from public.clinical_treatments where id=p_treatment_id for update;
   if not found then raise exception 'Atendimento não encontrado.' using errcode='P0002'; end if;
