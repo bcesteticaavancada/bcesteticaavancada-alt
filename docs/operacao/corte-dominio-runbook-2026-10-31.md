@@ -5,6 +5,14 @@
 **Origem preservada:** `https://bcesteticaavancada.github.io/bcesteticaavancada-alt/`  
 **Estado:** PREPARADO / CORTE NÃO EXECUTADO. Este documento não autoriza publicação.
 
+## Complemento de preparação — 02/11/2026
+
+O endereço **`/nfc/` do novo domínio** foi incluído **somente no branch deste PR** a partir do cartão digital atual do repositório `bcesteticaavancada.github.io`, mantendo apresentação e contatos públicos existentes. Links de site, imagem e compartilhamento na cópia agora usam `https://www.bcesteticaavancada.com.br/nfc/`. O `sitemap.xml` do branch passou a listar a rota e foram adicionados testes locais de integridade do conteúdo e recursos.
+
+**Não alterar o repositório do NFC legado nem os QR codes físicos já distribuídos durante a preparação.** O cartão antigo em `https://bcesteticaavancada.github.io/nfc/` seguirá independente. Após o corte autorizado, testar presencialmente os dois endereços e os QR/NFC de aparelhos reais antes de escolher se um redirecionamento futuro é desejável. Não forçar redirecionamento do NFC legado agora.
+
+A alteração do cartão NFC **não libera** os gates de backup, SMTP, Auth, Drive/OAuth, login, HTTPS, DNS ou homologação clínica abaixo. Esta atualização não implica publicação do site.
+
 ## 1. Estado observado
 
 - **GitHub:** PR #69 (`feature/bc-dominio-proprio-preparacao`) aberto e em rascunho, HEAD `b3584789829f5337feb4cc4f63839ed076ce1305`; PR #74 também aberto em rascunho, HEAD `6189bdc12bc97f094448abcde2ef68cc39960112`. Nenhum merge foi feito nesta conferência.
