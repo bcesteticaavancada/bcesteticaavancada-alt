@@ -150,6 +150,12 @@ for (const [engine, browserType] of Object.entries({chromium, webkit})) {
           await go(route);
           assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),canonical + route);
         }
+        // O cartão novo deve funcionar no domínio www, raiz e rota legada.
+        await go('nfc/');
+        assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),canonical + 'nfc/');
+        assert.equal(await page.locator('a.link.site').getAttribute('href'),canonical);
+        assert.equal(await page.locator('a.link.whatsapp').count(),1);
+        await page.screenshot({path:`test-results/custom-domain/${engine}-${index}-nfc.png`,fullPage:true});
         await go('gestao/configurar-drive/');
         await page.waitForFunction(() => document.querySelector('#setupStatus').textContent.includes('Entre no BC Gestão'));
         assert.equal(await page.locator('#confirmFolders').isDisabled(),true);
@@ -159,7 +165,7 @@ for (const [engine, browserType] of Object.entries({chromium, webkit})) {
         assert.deepEqual(missing,[],'Missing local assets');
         assert.deepEqual(unexpected,[],'Unexpected external requests (all blocked)');
         passed++;
-        console.log(`PASS ${engine} mobile ${base}: menu, footer, synthetic booking, manifest/icons, reset destination, Maya, Drive pages; no live network`);
+        console.log(`PASS ${engine} mobile ${base}: menu, footer, synthetic booking, manifest/icons, reset destination, Maya, NFC, Drive pages; no live network`);
       } finally { await context.close(); }
     }
   } finally { await browser.close(); }
