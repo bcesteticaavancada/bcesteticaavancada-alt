@@ -207,12 +207,12 @@ declare
   v_user uuid := auth.uid();
   v_file public.client_files%rowtype;
 begin
-  if v_user is null or not private.is_bc_active_staff() then
+  if v_user is null then
     raise exception 'Acesso negado aos documentos da cliente.' using errcode='42501';
   end if;
 
   if not private.bc_can_delete_finalized() then
-    raise exception 'Somente Mel pode anular documentos definitivos.' using errcode='42501';
+    raise exception 'Somente responsáveis de contingência autorizados podem anular documentos definitivos.' using errcode='42501';
   end if;
 
   select * into v_file
