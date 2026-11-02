@@ -29,7 +29,7 @@ test('Home publishes LocalBusiness structured data with official clinic facts', 
   assert.equal(business.image, canonical + 'assets/01-mel-perfil.jpg');
 });
 
-test('Robots and sitemap retain public destinations and include the native agenda at the custom root', () => {
+test('Robots and sitemap retain public destinations, agenda and NFC at the custom root', () => {
   const robotsUrl = new URL('../../robots.txt', import.meta.url);
   const sitemapUrl = new URL('../../sitemap.xml', import.meta.url);
   assert.equal(existsSync(robotsUrl), true);
@@ -39,7 +39,7 @@ test('Robots and sitemap retain public destinations and include the native agend
   assert.match(robots, /User-agent: \*/);
   assert.match(robots, /Allow: \//);
   assert.ok(robots.includes('Sitemap: ' + canonical + 'sitemap.xml'));
-  const paths = ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/', 'agenda/'];
+  const paths = ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/', 'agenda/', 'nfc/'];
   assert.equal((sitemap.match(/<url>/g) || []).length, paths.length);
   for (const path of paths) {
     assert.match(sitemap, new RegExp(`<loc>${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</loc>`));
@@ -48,7 +48,7 @@ test('Robots and sitemap retain public destinations and include the native agend
 
 test('every public page declares one canonical URL at its matching custom-domain route', () => {
   for (const route of ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/',
-    'ambiente/', 'valores/', 'agendamento/', 'contato/', 'agenda/', 'instalar/', 'backup/', 'backup/privacidade/', 'backup/termos/']) {
+    'ambiente/', 'valores/', 'agendamento/', 'contato/', 'agenda/', 'nfc/', 'instalar/', 'backup/', 'backup/privacidade/', 'backup/termos/']) {
     const html = readFileSync(new URL('../../' + route + 'index.html', import.meta.url), 'utf8');
     const { document } = parseHTML(html);
     const links = document.querySelectorAll('link[rel="canonical"]');
