@@ -5,7 +5,7 @@
 ## Dados públicos
 
 - Fluxo: BC Estética Avançada - Web.
-- ID de medição: `G-24OXLK51VK` (identificador público, não segredo).
+- ID de medição: `G-240XLK51VK` (identificador público, não segredo).
 - Destinos previstos: `https://www.bcesteticaavancada.com.br/` e `https://bcesteticaavancada.com.br/`.
 - Medição inicial: apenas visualização de página institucional após consentimento explícito.
 
@@ -21,11 +21,13 @@ O arquivo `analytics-public.js` está referenciado somente em dez páginas insti
 - Recusa impede carregamento de script do Google; revogação provoca recarregamento.
 - Aceite/recusa é armazenado no navegador por origem, via localStorage.
 
-**Atenção:** este código não substitui revisão jurídica/LGPD e não garante que os eventos de medição otimizada do painel GA4 estejam desativados. Não publicar até a verificação das configurações.
+**Verificação no painel GA4 (03/11/2026):** identificador `G-240XLK51VK` confirmado diretamente no fluxo `16261909241` da propriedade BC. Opções de rolagens, pesquisa no site e engajamento de vídeo foram desativadas e salvas; cliques de saída, interações com formulário e downloads já estavam desligados. Após reabrir o painel, todas essas seis opções estavam inativas; restou apenas a opção de visualização de página. A tag proposta mantém `send_page_view: false` e envia um único evento manual de página consentida. A coleta real ainda não foi testada e depende da publicação autorizada.
+
+**Atenção:** esta verificação não substitui a revisão jurídica/LGPD. A política de privacidade e os testes em celulares continuam pendentes.
 
 ## Bloqueios antes do merge/publicação
 
-1. Confirmar na interface do GA4 que **interações com formulário**, **pesquisa no site**, **downloads de arquivo** e **cliques de saída** estão desativados para o fluxo.
+1. **Concluído em 03/11/2026:** conferidas no painel GA4 as seis medições automáticas não essenciais, todas inativas após salvar. Reconfirmar se o painel for alterado.
 2. Mel revisar o texto do consentimento e a política de privacidade, inclusive a retenção de dados.
 3. Rodar `npm run test:site` e confirmar CI sem falhas, usando apenas dados fictícios.
 4. Validar visual e funcionalmente no Android e iPhone os botões de aceitar, recusar e alterar preferências.

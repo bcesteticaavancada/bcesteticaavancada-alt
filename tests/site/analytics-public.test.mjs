@@ -66,7 +66,7 @@ test("tag da BC somente nas dez páginas institucionais", async () => {
   }
   for (const path of protectedPages) {
     const html = await readFile(fromRoot(path), "utf8");
-    assert.doesNotMatch(html, /analytics-public\.js|G-24OXLK51VK/, path);
+    assert.doesNotMatch(html, /analytics-public\.js|G-240XLK51VK/, path);
   }
 });
 
@@ -83,7 +83,7 @@ test("nenhuma tag de terceiros antes do aceite expresso", async () => {
   assert.equal(ctx.values.get("bc_analytics_consent_v1"), "accepted");
   const tags = ctx.head.children.filter((node) => node.tagName === "script");
   assert.equal(tags.length, 1);
-  assert.match(tags[0].src, /^https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-24OXLK51VK$/);
+  assert.match(tags[0].src, /^https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-240XLK51VK$/);
   const events = ctx.window.dataLayer.map((args) => Array.from(args));
   const config = events.find((entry) => entry[0] === "config");
   const pageview = events.find((entry) => entry[0] === "event" && entry[1] === "page_view");

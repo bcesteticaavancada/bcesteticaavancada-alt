@@ -2,7 +2,7 @@
 (() => {
   "use strict";
 
-  const measurementId = "G-24OXLK51VK";
+  const measurementId = "G-240XLK51VK";
   const choiceKey = "bc_analytics_consent_v1";
   const hosts = new Set([
     "bcesteticaavancada.com.br",
