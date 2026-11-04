@@ -38,6 +38,27 @@ export async function addTreatmentProductUsage({client,treatmentId,productId,lot
   },'Não foi possível registrar o produto no atendimento.');
 }
 
+// Entrada rápida por texto: o backend vincula/cria produto e lote de modo atômico,
+// valida a validade e preserva as permissões de edição do atendimento.
+export async function addTreatmentProductUsageByName({client,treatmentId,productName,lotCode,expiresOn,quantity,unit}){
+  const numeric=Number(quantity);
+  if(!Number.isFinite(numeric)||numeric<=0)throw new Error('Quantidade deve ser maior que zero.');
+  const name=required(productName,'Produto');
+  const lot=required(lotCode,'Lote');
+  const expiry=required(expiresOn,'Validade do lote');
+  const cleanUnit=required(unit,'Unidade');
+  if(name.length>160||lot.length>100||cleanUnit.length>30)throw new Error('Produto, lote ou unidade excede o limite de caracteres.');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(expiry))throw new Error('Informe a validade do lote.');
+  return await call(client,'bc_treatment_product_usage_add_text',{
+    p_treatment_id:required(treatmentId,'Atendimento'),
+    p_product_name:name,
+    p_lot_code:lot,
+    p_expires_on:expiry,
+    p_quantity:numeric,
+    p_unit:cleanUnit,
+  },'Não foi possível registrar o produto e lote no atendimento.');
+}
+
 export async function removeTreatmentProductUsage({client,usageId}){
   return await call(client,'bc_treatment_product_usage_remove',{p_usage_id:required(usageId,'Uso de produto')},'Não foi possível remover o produto do atendimento.');
 }
