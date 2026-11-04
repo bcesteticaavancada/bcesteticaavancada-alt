@@ -1,5 +1,5 @@
 import {listTreatmentPhotos,uploadTreatmentPhoto,voidTreatmentPhoto,getTreatmentPhotoUrl} from './treatment-photos-api.js';
-import {listClinicalProducts,listProductLots,listTreatmentProductUsages,addTreatmentProductUsage,removeTreatmentProductUsage} from './treatment-products-api.js';
+import {listClinicalProducts,listProductLots,listTreatmentProductUsages,addTreatmentProductUsageByName,removeTreatmentProductUsage} from './treatment-products-api.js';
 import {listClinicalEquipment,listTreatmentEquipmentUsages,addTreatmentEquipmentUsage,removeTreatmentEquipmentUsage} from './treatment-equipment-api.js';
 import {listTreatmentIntercurrences,createTreatmentIntercurrence,addIntercurrenceEvolution,confirmOpenIntercurrencesForFinalization} from './treatment-intercurrences-api.js';
 
@@ -40,7 +40,9 @@ function renderProducts({treatment,products,productUsages}){
   const canEdit=editable(treatment); const gates=gateSet(treatment); const required=Boolean(treatment?.procedure_version?.requires_product_lot);
   const rows=(productUsages||[]).length?`<div class="bcg-6d-list">${productUsages.map((u)=>`<article><div><strong>${esc(u.product_name_snapshot)}</strong><small>${u.manufacturer_snapshot?esc(u.manufacturer_snapshot)+' • ':''}${u.lot_code_snapshot?`Lote ${esc(u.lot_code_snapshot)} • `:''}${u.expires_on_snapshot?`Val. ${esc(formatDate(u.expires_on_snapshot))} • `:''}${esc(u.quantity)} ${esc(u.unit)}</small></div>${canEdit?`<button type="button" class="bcg-link-button" data-6d-product-remove="${esc(u.id)}">Remover</button>`:''}</article>`).join('')}</div>`:'<p class="bcg-muted">Nenhum produto/insumo registrado nesta sessão.</p>';
   const active=(products||[]).filter((p)=>p.active!==false);
-  const form=canEdit?`<form class="bcg-form bcg-6d-form" data-6d-product-form><label>Produto<select class="bcg-input" name="product_id" data-6d-product-select required><option value="">Selecione</option>${active.map((p)=>`<option value="${esc(p.id)}" data-unit="${esc(p.default_unit||'')}">${esc(p.name)}</option>`).join('')}</select></label><label>Lote<select class="bcg-input" name="lot_id" data-6d-lot-select><option value="">Selecione o produto</option></select></label><label>Quantidade<input class="bcg-input" name="quantity" type="number" min="0.0001" step="any" required></label><label>Unidade<input class="bcg-input" name="unit" required></label><button class="bcg-small-button" type="submit" data-6d-product-submit>Registrar uso</button></form>`:'<p class="bcg-muted">Somente leitura — produtos desta versão não podem mais ser alterados.</p>';
+  const suggestions=`bcg-product-suggestions-${esc(treatment.id)}`;
+  const lotSuggestions=`bcg-lot-suggestions-${esc(treatment.id)}`;
+  const form=canEdit?`<form class="bcg-form bcg-6d-form" data-6d-product-form><label>Produto<input class="bcg-input" name="product_name" data-6d-product-input list="${suggestions}" placeholder="Digite o nome do produto" maxlength="160" autocomplete="off" required><datalist id="${suggestions}">${active.map((p)=>`<option value="${esc(p.name)}"></option>`).join('')}</datalist></label><label>Lote<input class="bcg-input" name="lot_code" data-6d-lot-input list="${lotSuggestions}" placeholder="Digite o número do lote" maxlength="100" autocomplete="off" required><datalist id="${lotSuggestions}" data-6d-lot-suggestions></datalist></label><label>Validade do lote<input class="bcg-input" name="expires_on" type="date" required></label><label>Quantidade<input class="bcg-input" name="quantity" type="number" min="0.0001" step="any" required></label><label>Unidade<input class="bcg-input" name="unit" maxlength="30" placeholder="mL, unidade, g..." required></label><p class="bcg-muted bcg-field-wide">Digite livremente. Produtos e lotes novos serão cadastrados ao registrar o uso. A validade é obrigatória para segurança e rastreabilidade.</p><button class="bcg-small-button" type="submit" data-6d-product-submit>Registrar uso</button></form>`:'<p class="bcg-muted">Somente leitura — produtos desta versão não podem mais ser alterados.</p>';
   return card({key:'products',title:'Produtos e lotes',required,pending:gates.has('produto_lote_pendente'),summary:summaryCount(treatment.phase6d_summary?.product_usages,'uso(s)'),body:rows+form});
 }
 
@@ -69,11 +71,11 @@ function status(root,message,kind=''){const el=root?.querySelector?.('[data-6d-s
 
 export function initTreatment6dController({client,root,getClientRecord,refreshTreatment}={}){
   if(!client||!root)throw new Error('Contexto 6D inválido.');
-  let treatment=null,photos=[],products=[],productUsages=[],equipment=[],equipmentUsages=[],intercurrences=[];
+  let treatment=null,photos=[],products=[],productUsages=[],equipment=[],equipmentUsages=[],intercurrences=[],suggestedLots=[];
   const slot=()=>root.querySelector?.('[data-treatment-6d-slot]');
   const render=()=>{if(slot()&&treatment)slot().innerHTML=renderTreatment6dCards({treatment,photos,products,productUsages,equipment,equipmentUsages,intercurrences});};
   async function loadTreatment(next){
-    treatment=next;if(!treatment?.id)return;
+    treatment=next;suggestedLots=[];if(!treatment?.id)return;
     [photos,products,productUsages,equipment,equipmentUsages,intercurrences]=await Promise.all([
       listTreatmentPhotos({client,treatmentId:treatment.id}),listClinicalProducts({client}),listTreatmentProductUsages({client,treatmentId:treatment.id}),
       listClinicalEquipment({client}),listTreatmentEquipmentUsages({client,treatmentId:treatment.id}),listTreatmentIntercurrences({client,treatmentId:treatment.id}),
@@ -86,8 +88,26 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
     for(const img of details.querySelectorAll?.('[data-6d-photo-path]')||[]){if(img.src)continue;try{img.src=await getTreatmentPhotoUrl({client,storagePath:img.dataset.sixdPhotoPath||img.getAttribute('data-6d-photo-path')});}catch{} }
   },true);
   root.addEventListener('change',async(event)=>{
-    const product=event.target?.closest?.('[data-6d-product-select]');
-    if(product){const form=product.closest('form');const lot=form?.querySelector?.('[data-6d-lot-select]');const unit=form?.elements?.unit;const option=product.options?.[product.selectedIndex];if(unit&&option?.dataset?.unit)unit.value=option.dataset.unit;if(lot){if(!product.value){lot.innerHTML='<option value="">Selecione o produto</option>';return;}try{const lots=await listProductLots({client,productId:product.value});lot.innerHTML='<option value="">Selecione</option>'+lots.map((l)=>`<option value="${esc(l.id)}">${esc(l.lot_code)} • val. ${esc(formatDate(l.expires_on))}</option>`).join('');}catch(error){status(slot(),error?.message||'Não foi possível carregar lotes.','error');}}return;}
+    const product=event.target?.closest?.('[data-6d-product-input]');
+    if(product){
+      const form=product.closest('form');const lot=form?.querySelector?.('[data-6d-lot-input]');const list=form?.querySelector?.('[data-6d-lot-suggestions]');
+      if(lot)lot.value='';if(form?.elements?.expires_on)form.elements.expires_on.value='';
+      suggestedLots=[];if(list)list.innerHTML='';
+      const matches=products.filter((p)=>p.active!==false&&p.name?.trim().toLocaleLowerCase('pt-BR')===product.value.trim().toLocaleLowerCase('pt-BR'));
+      if(matches.length===1){
+        if(form?.elements?.unit&&!form.elements.unit.value&&matches[0].default_unit)form.elements.unit.value=matches[0].default_unit;
+        const requestedName=product.value;
+        try{
+          const lots=await listProductLots({client,productId:matches[0].id});
+          if(product.value!==requestedName)return;
+          suggestedLots=lots.filter((l)=>l.active!==false);
+          if(list)list.innerHTML=suggestedLots.map((l)=>`<option value="${esc(l.lot_code)}"></option>`).join('');
+        }catch(error){status(slot(),error?.message||'Não foi possível carregar sugestões de lotes.','error');}
+      }
+      return;
+    }
+    const lot=event.target?.closest?.('[data-6d-lot-input]');
+    if(lot){const matches=suggestedLots.filter((l)=>l.lot_code?.trim().toLocaleLowerCase('pt-BR')===lot.value.trim().toLocaleLowerCase('pt-BR'));const expiry=lot.closest('form')?.elements?.expires_on;if(expiry)expiry.value=matches.length===1?matches[0].expires_on:'';return;}
     const eq=event.target?.closest?.('[data-6d-equipment-select]');if(eq){const form=eq.closest('form');const target=form?.querySelector?.('[data-6d-equipment-parameters]');const selected=equipment.find((e)=>e.id===eq.value);if(target)target.innerHTML=selected?renderEquipmentParameterFields(selected.parameter_schema):'<p class="bcg-muted">Selecione o equipamento.</p>';}
   });
   root.addEventListener('click',async(event)=>{
@@ -105,7 +125,7 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
     if(!photoForm&&!productForm&&!equipmentForm&&!interForm&&!evolution)return;event.preventDefault();
     try{
       if(photoForm){await uploadTreatmentPhoto({client,treatmentId:treatment.id,clienteId:treatment.cliente_id||getClientRecord?.()?.id,kind:photoForm.elements.kind.value,region:photoForm.elements.region.value,view:photoForm.elements.view.value,caption:photoForm.elements.caption.value,file:photoForm.elements.file.files?.[0]});}
-      else if(productForm){await addTreatmentProductUsage({client,treatmentId:treatment.id,productId:productForm.elements.product_id.value,lotId:productForm.elements.lot_id.value||null,quantity:productForm.elements.quantity.value,unit:productForm.elements.unit.value});}
+      else if(productForm){await addTreatmentProductUsageByName({client,treatmentId:treatment.id,productName:productForm.elements.product_name.value,lotCode:productForm.elements.lot_code.value,expiresOn:productForm.elements.expires_on.value,quantity:productForm.elements.quantity.value,unit:productForm.elements.unit.value});}
       else if(equipmentForm){await addTreatmentEquipmentUsage({client,treatmentId:treatment.id,equipmentId:equipmentForm.elements.equipment_id.value,parameterValues:readParams(equipmentForm)});}
       else if(interForm){await createTreatmentIntercurrence({client,treatmentId:treatment.id,moment:interForm.elements.moment.value,severity:interForm.elements.severity.value,description:interForm.elements.description.value,actionTaken:interForm.elements.action_taken.value});}
       else if(evolution){await addIntercurrenceEvolution({client,intercurrenceId:evolution.dataset.intercurrenceId,evolution:evolution.elements.evolution.value,statusAfter:evolution.elements.status_after.value});}
