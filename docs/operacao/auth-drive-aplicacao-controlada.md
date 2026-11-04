@@ -42,7 +42,7 @@ O PR #74 já corrige:
 Para aplicação autorizada, seguir a sequência do próprio PR:
 
 1. Conferir dependências de OAuth/backup, continuidade e recuperação; manter `BC_DRIVE_OAUTH_ENABLE_ACTIVE_RECONNECT` desabilitado.
-2. Aplicar somente a migration revisada `20261029132944_bc_drive_oauth_safe_rotation.sql`, depois das dependências existentes. Não executar reset nem aplicação indiscriminada de migrations da branch.
+2. Aplicar somente a migration revisada `20261030101934_bc_drive_oauth_safe_rotation.sql`, depois das dependências existentes. Não executar reset nem aplicação indiscriminada de migrations da branch.
 3. Implantar start, callback e setup do mesmo commit. Preservar callback Supabase, conta, client ID, `drive.file`, duas pastas originais, cron e permissões.
 4. Homologar status/Picker/origens e continuidade do backup com a administração. A inspeção da central não ativa cópias novas nem amplia a cobertura do worker.
 5. Somente depois, decidir sobre a reconexão ativa e consentimento interativo da proprietária; validar refresh e execução posterior do backup.

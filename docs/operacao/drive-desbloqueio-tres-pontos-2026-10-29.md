@@ -28,7 +28,7 @@ O `save` legado redefine `folders_ready=false`. Por isso, o fluxo ativo não o r
 - `handler.ts` e `protocol.ts`: política, retorno por requisição e vínculo do handshake à credencial anterior.
 - `central.ts`: catálogo e inspeção privada, sem persistência de destinos novos.
 - `runtime.ts`: roteamento da RPC de rotação e opt-in independente.
-- `20261029132944_bc_drive_oauth_safe_rotation.sql`: duas funções com grants explícitos; nenhuma tabela clínica/financeira, cron ou dado é alterado. Criada com Supabase CLI, não aplicada a produção.
+- `20261030101934_bc_drive_oauth_safe_rotation.sql`: duas funções com grants explícitos; nenhuma tabela clínica/financeira, cron ou dado é alterado. Criada com Supabase CLI, não aplicada a produção.
 - `gestao/configurar-drive/`: consulta com backup ativo e seleção da central/subpastas, com aviso de que não ativa cópias.
 - Workflow OAuth cobre a base de backup e main, regressões Deno, UI, PostgreSQL descartável e ensaio TLS.
 
