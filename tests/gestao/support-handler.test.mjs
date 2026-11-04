@@ -9,7 +9,7 @@ function fixture({rpcError=null,authError=null,resumeUser=null,finishError=false
   const calls=[],uploads=[],removed=[],invites=[],created=[];
   const service={rpc:async(name,args)=>{calls.push({name,...args});if(rpcError)return {error:rpcError};const action=args.p_action;if(action==='invite_finish'&&finishError)return {error:{code:'08006'}};return {data:action==='invite_reserve'?{invitationId:documentId,userId:resumeUser}:action==='download'?{path:'documentos/consentimentos/ficticio.pdf',clientName:'Pessoa fictícia',title:'Consentimento'}:action==='register_returned'?{fileId:documentId}:{client:{id:clientId,nome:'Pessoa fictícia',telefone:'31000000000',updated_at:'2026-10-25T12:00:00Z'},documents:[]}};},auth:{admin:{inviteUserByEmail:async()=>{throw Error('SMTP must not run');},createUser:async(options)=>{created.push(options);return {data:{user:{id:documentId}}};},generateLink:async(options)=>{invites.push(options);return {data:{user:{id:documentId},properties:{action_link:'https://example.invalid/auth/v1/verify?type=invite&token=FAKE'}}};}}},storage:{from:()=>({upload:async(path,bytes,options)=>{uploads.push({path,bytes:Buffer.from(bytes),options});return {error:null};},remove:async(paths)=>{removed.push(paths);return {error:null};},createSignedUrl:async(path)=>({data:{signedUrl:'https://example.invalid/private-document'}})})}};
   const handler=createSupportHandler({crypto:webcrypto,makeClients:()=>({caller:{auth:{getUser:async received=>({data:authError?null:{user:{id:actor}},error:authError||(received!==token?{message:'Invalid token'}:null)})}},service})});
-  const request=body=>new Request('https://example.invalid/client-support',{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json',origin:'https://bcesteticaavancada.github.io'},body:JSON.stringify(body)});
+  const request=(body,origin='https://bcesteticaavancada.github.io')=>new Request('https://example.invalid/client-support',{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json',...(origin?{origin}:{})},body:JSON.stringify(body)});
   return {handler,request,calls,uploads,removed,invites,created};
 }
 test('support rejects unauthenticated calls and foreign origins before creating clients',async()=>{
@@ -89,4 +89,60 @@ test('a retry resumes the reserved identity without creating another Auth accoun
 test('a partial invitation releases its lease and never sends SMTP',async()=>{
   const f=fixture({finishError:true});const r=await f.handler(f.request({action:'invite',name:'Fictícia',email:'novo@example.invalid'}));
   assert.equal(r.status,500);assert.deepEqual(f.calls.map(c=>c.p_action),['invite_reserve','invite_finish','invite_fail']);assert.doesNotMatch(await r.text(),/FAKE/);
+});
+
+for(const [origin,redirect] of [
+  ['https://bcesteticaavancada.github.io','https://bcesteticaavancada.github.io/bcesteticaavancada-alt/gestao/redefinir-senha/'],
+  ['https://www.bcesteticaavancada.com.br','https://www.bcesteticaavancada.com.br/gestao/redefinir-senha/'],
+  ['https://bcesteticaavancada.com.br','https://bcesteticaavancada.com.br/gestao/redefinir-senha/'],
+]) {
+  test(`support preflight permits only its exact official origin without contacting the backend: ${origin}`,async()=>{
+    const handler=createSupportHandler({makeClients:()=>{throw Error('preflight must not create clients');}});
+    const response=await handler(new Request('https://example.invalid/client-support',{method:'OPTIONS',headers:{origin}}));
+    assert.equal(response.status,204);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'),origin);
+    assert.equal(response.headers.get('Vary'),'Origin');
+    assert.equal(response.headers.get('Access-Control-Allow-Methods'),'POST,OPTIONS');
+    const unauthorized=await handler(new Request('https://example.invalid/client-support',{method:'POST',headers:{origin},body:'{}'}));
+    assert.equal(unauthorized.status,401,'allowing a domain must not bypass authentication');
+  });
+  test(`support invitation returns to the approved installation: ${origin}`,async()=>{
+    const f=fixture();
+    const response=await f.handler(f.request({action:'invite',name:'Pessoa Fictícia',email:'novo@example.invalid'},origin));
+    assert.equal(response.status,200);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'),origin);
+    assert.equal(f.invites[0].options.redirectTo,redirect);
+    assert.deepEqual(f.calls.map(call=>call.p_action),['invite_reserve','invite_finish']);
+    assert.deepEqual(f.created[0].app_metadata,{bc_support_invitation_id:documentId});
+  });
+}
+
+test('support rejects lookalike and insecure origins before creating privileged clients',async()=>{
+  let clients=0;
+  const handler=createSupportHandler({makeClients:()=>{clients++;throw Error('must not create clients');}});
+  for(const origin of ['https://www.bcesteticaavancada.com.br.evil.invalid',
+    'https://evil-bcesteticaavancada.com.br','http://www.bcesteticaavancada.com.br',
+    'https://www.bcesteticaavancada.com.br:8443','https://bcesteticaavancada.github.io.evil.invalid','null']) {
+    for(const method of ['OPTIONS','POST']) {
+      const response=await handler(new Request('https://example.invalid/client-support',{method,headers:{origin},...(method==='POST'?{body:'{}'}:{})}));
+      assert.equal(response.status,403,origin+' '+method);
+      assert.notEqual(response.headers.get('Access-Control-Allow-Origin'),origin);
+    }
+  }
+  assert.equal(clients,0);
+});
+
+test('support preserves the legacy invitation fallback for internal callers without Origin',async()=>{
+  const f=fixture();
+  const response=await f.handler(f.request({action:'invite',name:'Pessoa Fictícia',email:'novo@example.invalid'},null));
+  assert.equal(response.status,200);
+  assert.equal(f.invites[0].options.redirectTo,'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/gestao/redefinir-senha/');
+});
+
+test('support never accepts an invitation destination from the request body',async()=>{
+  const f=fixture();
+  const response=await f.handler(f.request({action:'invite',name:'Pessoa Fictícia',email:'novo@example.invalid',redirectTo:'https://evil.invalid'},'https://www.bcesteticaavancada.com.br'));
+  assert.equal(response.status,400);
+  assert.equal(f.invites.length,0);
+  assert.equal(f.calls.length,0);
 });

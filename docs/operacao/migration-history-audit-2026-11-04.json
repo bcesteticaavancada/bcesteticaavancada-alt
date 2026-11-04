@@ -1,0 +1,1381 @@
+{
+  "schema_version": 1,
+  "observed_at_brasilia": "2026-11-04T09:46:48.126696-03:00",
+  "source_head": "1a381f0bd3433e906fda6d8bfe8bd301090062ec",
+  "project_ref": "tpqsmerlxquyrzrjbogj",
+  "remote_writes": false,
+  "generic_db_push_ready": false,
+  "scope": "Read-only comparison of migration history; not a database backup or schema equivalence proof",
+  "production_history": [
+    {
+      "version": "20261009123429",
+      "name": "bc_gestao_core",
+      "sha256": "c8c75d117880d5436461678e86b880ea10a0d080252d9192c49494b2f10a6493",
+      "bytes": 10125
+    },
+    {
+      "version": "20261009123831",
+      "name": "bc_gestao_security_hardening",
+      "sha256": "ed3c0ee60b2c98c26e9cd00e33c060d4d74fd5e52533554f75880aef8ef1a70e",
+      "bytes": 4564
+    },
+    {
+      "version": "20261009130130",
+      "name": "bc_gestao_policy_hardening",
+      "sha256": "010aaf624f4bc6bb29f26fc1b0508ae6cb8ebf0eb86c09f4b878f1665ad3d453",
+      "bytes": 386
+    },
+    {
+      "version": "20261009222431",
+      "name": "bc_gestao_phase3_agenda_atendimento",
+      "sha256": "621f24d18ba640a539669ca6c4e33bdd198090cd36a5683939ca0e4997eb1a14",
+      "bytes": 5987
+    },
+    {
+      "version": "20261009222722",
+      "name": "bc_gestao_phase3_rpc_hardening",
+      "sha256": "23b49712ba5b4d7644332e9be597794342d5b320295647c3779f56f689db1f5e",
+      "bytes": 7598
+    },
+    {
+      "version": "20261010033945",
+      "name": "bc_gestao_phase4_shared_clients_audit",
+      "sha256": "b27515c4172e1209e94c9d4a1f747031e7fb99015bafc06b74457de69098b979",
+      "bytes": 18463
+    },
+    {
+      "version": "20261010112042",
+      "name": "bc_gestao_phase4_rpc_grants_fix",
+      "sha256": "8379ab91450f9fa8f615eb72656047c725aab7175a39fde43a9acd58a0166fad",
+      "bytes": 3222
+    },
+    {
+      "version": "20261010215148",
+      "name": "bc_gestao_phase5_financial_foundation",
+      "sha256": "83f8af61dc1c8ffdfd4e0f243b8a3e573d3f1814a334bfaf6aef33a1a6752f76",
+      "bytes": 8353
+    },
+    {
+      "version": "20261010215228",
+      "name": "bc_gestao_phase5_receipts_rpc",
+      "sha256": "d5154b551349fcd53fe21a728faca97eb21d1a7d4af41e73dab400809a760e7b",
+      "bytes": 14218
+    },
+    {
+      "version": "20261010215325",
+      "name": "bc_gestao_phase5_books_rpc",
+      "sha256": "03ba6fa63d8b69e4b9cb617b3cd3772216bc255eaaa072708e1d7e45c55f3be5",
+      "bytes": 22271
+    },
+    {
+      "version": "20261010215406",
+      "name": "bc_gestao_phase5_payouts_rpc",
+      "sha256": "4ef93740f0a7c251417d846278a4eddd525b3fc5a160e2412f29df3e8291a85f",
+      "bytes": 14990
+    },
+    {
+      "version": "20261010215422",
+      "name": "bc_gestao_phase5_audit_hardening",
+      "sha256": "c59010ca3e12a021eb2b72aacb0f535ef8f4e40a11683c98b3683ceb23c370af",
+      "bytes": 4474
+    },
+    {
+      "version": "20261010215558",
+      "name": "bc_gestao_phase5_audit_hardening_followup",
+      "sha256": "56aa8aa02e283d470c630e840b16c3f55a83bcc982c8181d08bb85fd99287e1a",
+      "bytes": 343
+    },
+    {
+      "version": "20261011191037",
+      "name": "bc_gestao_phase5_receipt_book_guard",
+      "sha256": "57f1c25989b02b74eb902d44b77d01c3ba1f8cc5e2ff7c33568a452bdb9ba94e",
+      "bytes": 1676
+    },
+    {
+      "version": "20261012033813",
+      "name": "bc_gestao_phase6a_client_core",
+      "sha256": "e7651c8df35d21296737e9f282e31e385e303c1380f2ed148eeeb990daa5ad10",
+      "bytes": 11456
+    },
+    {
+      "version": "20261012033834",
+      "name": "bc_gestao_phase6a_client_photo",
+      "sha256": "32201ef14f59ea581e4b195c423cac8340961e7739cf2dd732aa92033e9cb93d",
+      "bytes": 7775
+    },
+    {
+      "version": "20261012034133",
+      "name": "bc_gestao_phase6a_photo_created_by_index",
+      "sha256": "7aeb4ab364c3ca7c63c26c89a04a18242474fc8182c464ae32a7d2671db4a52a",
+      "bytes": 121
+    },
+    {
+      "version": "20261012150055",
+      "name": "bc_gestao_phase6b_anamnese_core",
+      "sha256": "5a856d286211a64f1707c963044123fdd88b37c84932ecd83e98c5fef0332a73",
+      "bytes": 21231
+    },
+    {
+      "version": "20261012150205",
+      "name": "bc_gestao_phase6b_alertas",
+      "sha256": "27df6b8ea893be6db829a53ce5b89fa00483eec844d0fbb8120e509e907875bd",
+      "bytes": 15226
+    },
+    {
+      "version": "20261012150326",
+      "name": "bc_gestao_phase6b_documentos_assinaturas",
+      "sha256": "bd1a68d1f731ae9b9c99e6e54ac43658cddc9ccfad5dca4e8fd1a52ac33ccf9f",
+      "bytes": 18316
+    },
+    {
+      "version": "20261012150423",
+      "name": "bc_gestao_phase6b_remote_links",
+      "sha256": "353ba59f602ea494248b6bc5948b87af8f1519fd3c682206bd112c268d28d80d",
+      "bytes": 11008
+    },
+    {
+      "version": "20261012150436",
+      "name": "bc_gestao_phase6b_signature_read",
+      "sha256": "f4813d47470e87c8c057cf5e984cb99cc1d011dede70c47cb205e89f2f909180",
+      "bytes": 897
+    },
+    {
+      "version": "20261012151016",
+      "name": "bc_gestao_phase6b_signature_storage_guard",
+      "sha256": "9cd9990116e573ada60117f0d32f78ba563ae6268fd116c9188eabddc8b30167",
+      "bytes": 4559
+    },
+    {
+      "version": "20261012230720",
+      "name": "bc_gestao_phase6c_procedure_library",
+      "sha256": "3aa6bc8d64a7106b7050eb955899bfb5174b51e98a58cc81902f0f3dbc2fc706",
+      "bytes": 29898
+    },
+    {
+      "version": "20261012230906",
+      "name": "bc_gestao_phase6c_procedure_name_snapshot",
+      "sha256": "6d345ee6d7acfc57f92228c9a821e1d7c1a8f109c412b0ad213744d99e903a41",
+      "bytes": 11863
+    },
+    {
+      "version": "20261012231406",
+      "name": "bc_gestao_phase6c_procedure_performance_hardening",
+      "sha256": "b5acdcbf56dad2535de4baafc24b0c3349f567fb540a605ba922b18b4b46099b",
+      "bytes": 1121
+    },
+    {
+      "version": "20261012232442",
+      "name": "bc_gestao_phase6c_catalog_seed",
+      "sha256": "5a4bf67b84779c68d663206c010165c7441fa108db395d2c1c09786ffcb9fdef",
+      "bytes": 13383
+    },
+    {
+      "version": "20261012232627",
+      "name": "bc_gestao_phase6c_dynamic_protocols",
+      "sha256": "cc88be27a7136eaab1a268d3662963a5c5e0b7af7b0625d4cdb0157c7e9ff735",
+      "bytes": 7697
+    },
+    {
+      "version": "20261012233206",
+      "name": "bc_gestao_phase6c_procedure_defaults",
+      "sha256": "1d3c0a9911d31b52f717bf2ba99254cebb5bb03ea36d2e317e4368cd04ad51ac",
+      "bytes": 1777
+    },
+    {
+      "version": "20261013003656",
+      "name": "bc_gestao_phase6c_documents",
+      "sha256": "5ed0688c7f3829a60a96c7890723865fae3e6f8320afbbd604c381628b3120a8",
+      "bytes": 19414
+    },
+    {
+      "version": "20261013004353",
+      "name": "bc_gestao_phase6c_consent_rpc_grants_fix",
+      "sha256": "ab34a0855e4807f22a628041a1268251b409e1fee9c6de97177e45259cc0b99e",
+      "bytes": 517
+    },
+    {
+      "version": "20261013004837",
+      "name": "bc_gestao_phase6c_treatment_core",
+      "sha256": "09f53a199b6920c46b7565fafcd8727353419ed612f6f6fc7ddfbff5958f2af4",
+      "bytes": 58154
+    },
+    {
+      "version": "20261013012904",
+      "name": "bc_gestao_phase6c_document_column_compat",
+      "sha256": "e619ddd2bb50de32394140dab6ec42148522d8b0782c9636b56fce6313f52be6",
+      "bytes": 12753
+    },
+    {
+      "version": "20261013013637",
+      "name": "bc_gestao_phase6c_procedure_list_execution",
+      "sha256": "70edc7a2602268ed5707cf0c090e7f28d13782f38a5701e2675b590f844ce7c0",
+      "bytes": 1917
+    },
+    {
+      "version": "20261013013744",
+      "name": "bc_gestao_phase6c_treatment_get_consent",
+      "sha256": "659bb1bf5eef498e52fab343d73f08c5d8721a1dd802ecdd7ee7829d13f6d91c",
+      "bytes": 2160
+    },
+    {
+      "version": "20261013014456",
+      "name": "bc_gestao_phase6c_appointment_clinical_context",
+      "sha256": "7a8f2c2e24e78d60349245086be706acd50913a89a3284b9fc2525ba7aae80ad",
+      "bytes": 2063
+    },
+    {
+      "version": "20261013015657",
+      "name": "bc_gestao_phase6c_treatment_performance",
+      "sha256": "11f5d8c6aa8ad8dcc28d4a6c1854aff64d6ad66bb00be73d44e1002ff854b62c",
+      "bytes": 1964
+    },
+    {
+      "version": "20261013115815",
+      "name": "bc_gestao_allow_pdf_in_private_storage",
+      "sha256": "e7872e678e2089f32b326c6c653e28690887ad546268473dc016ca4bc5da1ebf",
+      "bytes": 237
+    },
+    {
+      "version": "20261013183842",
+      "name": "bc_gestao_phase6d_photos",
+      "sha256": "fe96038d2b69035d22e78bf881e061a5e0f6fff6ca745640d5a12f1acbfdf948",
+      "bytes": 9442
+    },
+    {
+      "version": "20261013183934",
+      "name": "bc_gestao_phase6d_products",
+      "sha256": "b632461b6bb51d379153c74d2f76841d979fb587dde974253ec7e47eb04271ab",
+      "bytes": 17744
+    },
+    {
+      "version": "20261013184019",
+      "name": "bc_gestao_phase6d_equipment",
+      "sha256": "bb7f8f1d1f4f466f54df592c7e50ec2f69b3a778e738f51d83d4c1d805de9cda",
+      "bytes": 16708
+    },
+    {
+      "version": "20261013184103",
+      "name": "bc_gestao_phase6d_intercurrences",
+      "sha256": "29d921d57ffb3b2629216b5b515667e48cd09ad8eb1da2d03608a7f0b9ffe7a9",
+      "bytes": 16246
+    },
+    {
+      "version": "20261013184142",
+      "name": "bc_gestao_phase6d_treatment_integration",
+      "sha256": "7513e0c6b30001da217a56ad27b9bff3d158768ba8eb9aafc369db6b2de23a07",
+      "bytes": 13093
+    },
+    {
+      "version": "20261013184155",
+      "name": "bc_gestao_phase6d_security_hardening",
+      "sha256": "4b81d4eae3aabbcfa2023d0759f53a07781dcbabe216d23b9a76ee2315ee2717",
+      "bytes": 885
+    },
+    {
+      "version": "20261013193427",
+      "name": "bc_gestao_consent_v2_botox",
+      "sha256": "367f64d2837c0ad907008c4b7e64fb810bb202cbf1c3dc8cf1d2c8d20ef3acf0",
+      "bytes": 10970
+    },
+    {
+      "version": "20261013195810",
+      "name": "bc_gestao_consent_v2_filler",
+      "sha256": "035ec0471307fedb6c9ec7e99f0195b11ec7c57a77f4a6dc0c73a0151d3c9fa7",
+      "bytes": 7009
+    },
+    {
+      "version": "20261014134602",
+      "name": "bc_gestao_bioestimulador_consent",
+      "sha256": "8f3c1d017fc7dc9ccf55295fa6536df2dc7177b76fdec05e74631347f9ee39f1",
+      "bytes": 6510
+    },
+    {
+      "version": "20261014134643",
+      "name": "bc_gestao_client_files",
+      "sha256": "d0a19a028d63dae0cc72c28c2e3984e9d6026808884c262ef97774ee52842f2c",
+      "bytes": 9148
+    },
+    {
+      "version": "20261014134705",
+      "name": "bc_gestao_client_document_feed",
+      "sha256": "b8e6181587a18e809190e2797d6e1a18a4b0796c16824bd2b313a972ac0621da",
+      "bytes": 2872
+    },
+    {
+      "version": "20261014134932",
+      "name": "bc_gestao_quick_visit",
+      "sha256": "62c0931437b7561dc15daa3da70b06dbbe1f99bb24b5ca3ab4b2568d5aacebc8",
+      "bytes": 16726
+    },
+    {
+      "version": "20261014134950",
+      "name": "bc_gestao_quick_visit_request_key",
+      "sha256": "baa0f807dfe22946078dbb5c7fc4dad1dc1d259cd484b26daee098814b6416f5",
+      "bytes": 982
+    },
+    {
+      "version": "20261014135011",
+      "name": "bc_gestao_quick_visit_options",
+      "sha256": "f7adb02ec2e19a0a2f6b5d80c240c051e55a8142f78dc3bee9077d570143e2e3",
+      "bytes": 1702
+    },
+    {
+      "version": "20261014135117",
+      "name": "bc_gestao_treatment_reports",
+      "sha256": "6987e6d8c7b5551278ae7b9d56ca05043c9ae9222f3834e3a4a821f7f6f76c3e",
+      "bytes": 14407
+    },
+    {
+      "version": "20261014135211",
+      "name": "bc_gestao_external_consents",
+      "sha256": "4967a018647d0610aa6a7faa0f3b71acdbd7fdc9574cb3404c86891dd9b493d3",
+      "bytes": 12683
+    },
+    {
+      "version": "20261014135242",
+      "name": "bc_gestao_client_central_hardening",
+      "sha256": "99ece3f49a89bf58bdae08338fa554e18ffe521d2d604ecb92e02b7c51d4df2c",
+      "bytes": 4291
+    },
+    {
+      "version": "20261014172456",
+      "name": "bc_gestao_storage_photo_policy_hotfix",
+      "sha256": "bf7f2dd33ebce9c1e97bdd0f2ceed85e75488a57ab3b843946605895f9c3d15c",
+      "bytes": 1498
+    },
+    {
+      "version": "20261014173632",
+      "name": "bc_gestao_anamnese_remote_schema_hotfix",
+      "sha256": "2254b3a409c276c0f79e37b81bf8434ae028fe2a8f6372eb28db2ace2e7f0c7e",
+      "bytes": 1617
+    },
+    {
+      "version": "20261016090114",
+      "name": "bc_gestao_public_agenda_schema",
+      "sha256": "907d4f664e6571700a09b119ca6f4715725e1cf3b7ed33f1dcfa3475147ad37a",
+      "bytes": 6575
+    },
+    {
+      "version": "20261016090230",
+      "name": "bc_gestao_public_agenda_engine",
+      "sha256": "082dc4fd280d0473e2b4a9a1355182e437bd4a82a62beadcf06e5f3ad3fb4776",
+      "bytes": 34254
+    },
+    {
+      "version": "20261016090255",
+      "name": "bc_gestao_agenda_v2_permissions",
+      "sha256": "e9583044ce37d23c64670e0af0c7a988c3f5e27caf18ae7b8df3dad01bd4f703",
+      "bytes": 8535
+    },
+    {
+      "version": "20261016090345",
+      "name": "bc_gestao_agenda_v2_homologation",
+      "sha256": "5a040882355c567d38155c8d65546c582250c5f62bec3307eabfaef4cd7430f0",
+      "bytes": 18988
+    },
+    {
+      "version": "20261016090406",
+      "name": "bc_gestao_rls_advisor_cleanup",
+      "sha256": "79157305b28462e48e1dc2f61c338db5a6afab42ac7252d6c6fe7fff2ba472f3",
+      "bytes": 5345
+    },
+    {
+      "version": "20261016090414",
+      "name": "bc_gestao_preserve_chief_rls_scope",
+      "sha256": "2ec55e000055f84a43ac07f9999992bab096f09b370f4adacfbdf27240eb67f1",
+      "bytes": 587
+    },
+    {
+      "version": "20261017113420",
+      "name": "bc_public_agenda_month_overview",
+      "sha256": "b662b3c38a004bc765d100994fd7e562343bfc3e4ee8490284648cf5af4ef0c1",
+      "bytes": 9921
+    },
+    {
+      "version": "20261018022250",
+      "name": "bc_client_basic_registration",
+      "sha256": "02e25e47627303a09457bd28ffe0059663a33a3b5d128805eabec3b3830a92ef",
+      "bytes": 9115
+    },
+    {
+      "version": "20261018210627",
+      "name": "bc_pre_anamnese_active_project",
+      "sha256": "14806f5e1e56d631eeab54a13283f07e68d7ed42946b8e4867b78e7831fa395d",
+      "bytes": 10531
+    },
+    {
+      "version": "20261018210637",
+      "name": "bc_clinical_financial_bridge",
+      "sha256": "d22b4f0e5733674c3d05d8e638b3e3ec3113068bde42f5c9974be9a7fb24e37b",
+      "bytes": 12674
+    },
+    {
+      "version": "20261020023910",
+      "name": "bc_procedure_scope_and_storage_context",
+      "sha256": "34c24b147ee7b6658c5737619d0101ef8221380602ac06a6e09e3d5d145fbd35",
+      "bytes": 7697
+    },
+    {
+      "version": "20261020023945",
+      "name": "bc_public_booking_recovery",
+      "sha256": "eaefc55bf8e03906eabb228b88b1c215fe5217416ac11a4a34c089d2fdff341e",
+      "bytes": 6348
+    },
+    {
+      "version": "20261021172346",
+      "name": "bc_creation_admin_readonly",
+      "sha256": "9c7c06ae62afb733a47496bf19dec4ea0c4ebaf97d0b47f3cc76551d80bcb2c8",
+      "bytes": 24767
+    },
+    {
+      "version": "20261022191531",
+      "name": "bc_finance_charge_total",
+      "sha256": "f9406e4786d3bad3651d5948a5748eec89b1fd7d8d1ffd01007b431ebecbb270",
+      "bytes": 7756
+    },
+    {
+      "version": "20261022191534",
+      "name": "bc_finance_receipt_idempotency",
+      "sha256": "025805cd5dd4769994d84f3c1f36245de035f69b958cf07e1a450ed08cf394ad",
+      "bytes": 6519
+    },
+    {
+      "version": "20261022191937",
+      "name": "bc_finance_book_payout_guard",
+      "sha256": "e40916d99ecda590fd98358437e522e12ed921d9a19929186bf4c8ffdcb6c0c8",
+      "bytes": 7132
+    },
+    {
+      "version": "20261022191943",
+      "name": "bc_finance_payout_settlement_guard",
+      "sha256": "adc91c5781bd86cff061f231df7a9dfeb7a1f693a0a4bd74a5dea8120d07886f",
+      "bytes": 6140
+    },
+    {
+      "version": "20261022194140",
+      "name": "bc_finance_serialization_lock",
+      "sha256": "5ed2d568a21a59e0fbece71567340ffa8782774c6a8d841f265ec3c47e709803",
+      "bytes": 695
+    },
+    {
+      "version": "20261022194146",
+      "name": "bc_finance_serialization_receipt",
+      "sha256": "2fc63ca3e52fed8ca36dbb3c63680551791b0236679afadd710336c1e6ed6ce2",
+      "bytes": 6242
+    },
+    {
+      "version": "20261022194151",
+      "name": "bc_finance_serialization_reversal",
+      "sha256": "91fe2997695b23926c654dde57f9b8caaa37b55fba59d58dfa41f202b1f9f252",
+      "bytes": 3979
+    },
+    {
+      "version": "20261022194156",
+      "name": "bc_finance_serialization_closing",
+      "sha256": "dacde5a1f0cac7a4ae90f390ac2ebe4e83b1840cb6790ecba1f2b85a85d71fd5",
+      "bytes": 4388
+    },
+    {
+      "version": "20261022195243",
+      "name": "bc_finance_serialization_commission",
+      "sha256": "ec90b7d9e804f6b9cb53763a99edc633f1a2b96f7bdb8c073bf6337da35de72f",
+      "bytes": 2371
+    },
+    {
+      "version": "20261022195251",
+      "name": "bc_finance_serialization_period_guard",
+      "sha256": "9b8620df8d8efe4207ecc6563d7a881ddf8f83950cbf6f207fd4a8591ec5a156",
+      "bytes": 1485
+    },
+    {
+      "version": "20261022195328",
+      "name": "bc_finance_movement_serialization",
+      "sha256": "5cd280a818ad18b698205e800a0398fd4d04fbc2972733a2239150e5b7729912",
+      "bytes": 5510
+    },
+    {
+      "version": "20261023015036",
+      "name": "bc_finance_optional_prices",
+      "sha256": "770c8c12ebfe1e599bd1a8ed24ab15e949a60a6c9adef42c772409b6f44a88b5",
+      "bytes": 18320
+    },
+    {
+      "version": "20261023015037",
+      "name": "bc_finance_simple_core",
+      "sha256": "2981543fe2d7219870988f11414ea8c7610e36b3d6b532afadb955fb8b7da8ec",
+      "bytes": 28930
+    },
+    {
+      "version": "20261023015038",
+      "name": "bc_finance_simple_read",
+      "sha256": "a834c6f50bbfcc6ba87d67cfb31581d0ec7caf6c569ff0d994caef70b5c88d32",
+      "bytes": 19184
+    },
+    {
+      "version": "20261023015039",
+      "name": "bc_finance_simple_files",
+      "sha256": "f44bf79071dd6005e9bd248393da8c3d6bb7613458efa628e7bc341cff4e123b",
+      "bytes": 9716
+    },
+    {
+      "version": "20261023015040",
+      "name": "bc_finance_simple_enable",
+      "sha256": "84bd9bddc90fdc4988d2fc7774ff1cdc3e67498cf393756a43e8615280b38a22",
+      "bytes": 975
+    },
+    {
+      "version": "20261024043221",
+      "name": "bc_drive_oauth_test_setup",
+      "sha256": "68b667203d852251a1fe366dca4834f3cd273327e47ab7abe769c11313f28bcb",
+      "bytes": 6623
+    },
+    {
+      "version": "20261024045620",
+      "name": "bc_finance_optional_prices_schema",
+      "sha256": "07de1d117d531ea823a355543c157645c910aefa20694cd13d4dd7221e8cac99",
+      "bytes": 1602
+    },
+    {
+      "version": "20261024160853",
+      "name": "bc_clinical_rpc_execution_grants",
+      "sha256": "e031a4901c18433dd6b7b20b6d6b312b13b83303d4db4f548da0f670fcdf8a45",
+      "bytes": 2759
+    },
+    {
+      "version": "20261025021446",
+      "name": "bc_drive_automatic_backup",
+      "sha256": "182c022e60c3557da27a62a90d2f1c63076433ff6a97879f7ad3d01150a67a31",
+      "bytes": 11953
+    },
+    {
+      "version": "20261025042745",
+      "name": "bc_drive_backup_one_time_invocation",
+      "sha256": "1972c8bbd89b1f3e0997fd5eabafe502db5bd416acd35d98988a6a026dd935a8",
+      "bytes": 2968
+    },
+    {
+      "version": "20261026013651",
+      "name": "bc_support_operations",
+      "sha256": "d736967c769b83f595851819ee5aae96b86476d29435dbd8631286bad3716305",
+      "bytes": 21725
+    },
+    {
+      "version": "20261030101934",
+      "name": "bc_drive_oauth_safe_rotation",
+      "sha256": "7f58898798daeb2e9e4a72663d6bc28904c53f361f81580f68a8a2bbff341349",
+      "bytes": 3563
+    }
+  ],
+  "candidate_files_after_drive_renames": [
+    {
+      "path": "supabase/migrations/20261003_001_pre_anamnese.sql",
+      "name": "001_pre_anamnese",
+      "version": "20261003",
+      "sha256": "f50dfde2e4af71917fc671ae3d838293cc5a603d33b81f56ed9808a12e521b95",
+      "bytes": 4070,
+      "production_version": null,
+      "content_status": "no_matching_name"
+    },
+    {
+      "path": "supabase/migrations/20261003_002_submission_token.sql",
+      "name": "002_submission_token",
+      "version": "20261003",
+      "sha256": "9483c56b7cabbf0609fa9bf2692e256528fed10086d7c991fcf6c336cb11b379",
+      "bytes": 249,
+      "production_version": null,
+      "content_status": "no_matching_name"
+    },
+    {
+      "path": "supabase/migrations/20261003_003_admin_status_only.sql",
+      "name": "003_admin_status_only",
+      "version": "20261003",
+      "sha256": "6c51ee0ba7da1523bd45f514a12fdcc9a35ab26586a4acb4d50209b409874a07",
+      "bytes": 151,
+      "production_version": null,
+      "content_status": "no_matching_name"
+    },
+    {
+      "path": "supabase/migrations/20261004_004_cpf_rubric_integrity.sql",
+      "name": "004_cpf_rubric_integrity",
+      "version": "20261004",
+      "sha256": "e53a63fcd745fb3c74455e6a4c8d59128e8d41e3ea86164e4ef8e5b7f67df00f",
+      "bytes": 1358,
+      "production_version": null,
+      "content_status": "no_matching_name"
+    },
+    {
+      "path": "supabase/migrations/20261009_bc_gestao_core.sql",
+      "name": "bc_gestao_core",
+      "version": "20261009",
+      "sha256": "c8c75d117880d5436461678e86b880ea10a0d080252d9192c49494b2f10a6493",
+      "bytes": 10125,
+      "production_version": "20261009123429",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261009_bc_gestao_phase3_agenda_atendimento.sql",
+      "name": "bc_gestao_phase3_agenda_atendimento",
+      "version": "20261009",
+      "sha256": "621f24d18ba640a539669ca6c4e33bdd198090cd36a5683939ca0e4997eb1a14",
+      "bytes": 5987,
+      "production_version": "20261009222431",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261009_bc_gestao_phase3_rpc_hardening.sql",
+      "name": "bc_gestao_phase3_rpc_hardening",
+      "version": "20261009",
+      "sha256": "23b49712ba5b4d7644332e9be597794342d5b320295647c3779f56f689db1f5e",
+      "bytes": 7598,
+      "production_version": "20261009222722",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261009_bc_gestao_policy_hardening.sql",
+      "name": "bc_gestao_policy_hardening",
+      "version": "20261009",
+      "sha256": "010aaf624f4bc6bb29f26fc1b0508ae6cb8ebf0eb86c09f4b878f1665ad3d453",
+      "bytes": 386,
+      "production_version": "20261009130130",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261009_bc_gestao_security_hardening.sql",
+      "name": "bc_gestao_security_hardening",
+      "version": "20261009",
+      "sha256": "ed3c0ee60b2c98c26e9cd00e33c060d4d74fd5e52533554f75880aef8ef1a70e",
+      "bytes": 4564,
+      "production_version": "20261009123831",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase4_rpc_grants_fix.sql",
+      "name": "bc_gestao_phase4_rpc_grants_fix",
+      "version": "20261010",
+      "sha256": "af6e5613cb963f457eb91145130502e229611c878619d7ff9366d5c0f4cc2e8a",
+      "bytes": 3223,
+      "production_version": "20261010112042",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase4_shared_clients_audit.sql",
+      "name": "bc_gestao_phase4_shared_clients_audit",
+      "version": "20261010",
+      "sha256": "c21048515c000fcc191886fd6d21389bbdd1495feeebde869b6a06ab3d91db7d",
+      "bytes": 18622,
+      "production_version": "20261010033945",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase5_audit_hardening.sql",
+      "name": "bc_gestao_phase5_audit_hardening",
+      "version": "20261010",
+      "sha256": "f8c40197b2cb8ff8c165179acf2ba4d625f3698679a83146629431cb14dbfd10",
+      "bytes": 4475,
+      "production_version": "20261010215422",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase5_audit_hardening_followup.sql",
+      "name": "bc_gestao_phase5_audit_hardening_followup",
+      "version": "20261010",
+      "sha256": "b35420752c296bbc71badde8e5799ea469800acecf2eb854dc1664d7a4d7bfa3",
+      "bytes": 344,
+      "production_version": "20261010215558",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase5_books_rpc.sql",
+      "name": "bc_gestao_phase5_books_rpc",
+      "version": "20261010",
+      "sha256": "9a303e12148452bd97a1045e4c8ba3083e36580a6d6a448d0b1286d39d14754e",
+      "bytes": 22272,
+      "production_version": "20261010215325",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase5_financial_foundation.sql",
+      "name": "bc_gestao_phase5_financial_foundation",
+      "version": "20261010",
+      "sha256": "407160c8d0d74696b4d5b740c2340d1521e5581d57d4a52436278d32a176787e",
+      "bytes": 8354,
+      "production_version": "20261010215148",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase5_payouts_rpc.sql",
+      "name": "bc_gestao_phase5_payouts_rpc",
+      "version": "20261010",
+      "sha256": "51815f9252ee56bc0ed6d635c67c470a242eda44b1f6fa0b7ce42a333069d160",
+      "bytes": 14991,
+      "production_version": "20261010215406",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261010_bc_gestao_phase5_receipts_rpc.sql",
+      "name": "bc_gestao_phase5_receipts_rpc",
+      "version": "20261010",
+      "sha256": "46a5469c47b1a96fb58cb5c7e5dec857eaae3f88bf8c831a0b1caa5cc2f90351",
+      "bytes": 14219,
+      "production_version": "20261010215228",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261011_bc_gestao_phase5_receipt_book_guard.sql",
+      "name": "bc_gestao_phase5_receipt_book_guard",
+      "version": "20261011",
+      "sha256": "a4c647e130f3e6a7f86d1c31d8aad1d57a2b47e20c33d2502571e189bed5f832",
+      "bytes": 1677,
+      "production_version": "20261011191037",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261012230720_bc_gestao_phase6c_procedure_library.sql",
+      "name": "bc_gestao_phase6c_procedure_library",
+      "version": "20261012230720",
+      "sha256": "3aa6bc8d64a7106b7050eb955899bfb5174b51e98a58cc81902f0f3dbc2fc706",
+      "bytes": 29898,
+      "production_version": "20261012230720",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261012230906_bc_gestao_phase6c_procedure_name_snapshot.sql",
+      "name": "bc_gestao_phase6c_procedure_name_snapshot",
+      "version": "20261012230906",
+      "sha256": "6d345ee6d7acfc57f92228c9a821e1d7c1a8f109c412b0ad213744d99e903a41",
+      "bytes": 11863,
+      "production_version": "20261012230906",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261012231406_bc_gestao_phase6c_procedure_performance_hardening.sql",
+      "name": "bc_gestao_phase6c_procedure_performance_hardening",
+      "version": "20261012231406",
+      "sha256": "b5acdcbf56dad2535de4baafc24b0c3349f567fb540a605ba922b18b4b46099b",
+      "bytes": 1121,
+      "production_version": "20261012231406",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261012232442_bc_gestao_phase6c_catalog_seed.sql",
+      "name": "bc_gestao_phase6c_catalog_seed",
+      "version": "20261012232442",
+      "sha256": "5a4bf67b84779c68d663206c010165c7441fa108db395d2c1c09786ffcb9fdef",
+      "bytes": 13383,
+      "production_version": "20261012232442",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261012232627_bc_gestao_phase6c_dynamic_protocols.sql",
+      "name": "bc_gestao_phase6c_dynamic_protocols",
+      "version": "20261012232627",
+      "sha256": "cc88be27a7136eaab1a268d3662963a5c5e0b7af7b0625d4cdb0157c7e9ff735",
+      "bytes": 7697,
+      "production_version": "20261012232627",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261012233206_bc_gestao_phase6c_procedure_defaults.sql",
+      "name": "bc_gestao_phase6c_procedure_defaults",
+      "version": "20261012233206",
+      "sha256": "1d3c0a9911d31b52f717bf2ba99254cebb5bb03ea36d2e317e4368cd04ad51ac",
+      "bytes": 1777,
+      "production_version": "20261012233206",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6a_client_core.sql",
+      "name": "bc_gestao_phase6a_client_core",
+      "version": "20261012",
+      "sha256": "c2f17b147434cb3aa2b811d16ba0c57dbf14d9c0f2b6b43ad7d9ec0a2ea210ac",
+      "bytes": 12237,
+      "production_version": "20261012033813",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6a_client_photo.sql",
+      "name": "bc_gestao_phase6a_client_photo",
+      "version": "20261012",
+      "sha256": "b7d9e0dffc6c509f44d90675e8ef502b2ac0ee9396260099473dc2c3d65f86da",
+      "bytes": 8734,
+      "production_version": "20261012033834",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6a_photo_created_by_index.sql",
+      "name": "bc_gestao_phase6a_photo_created_by_index",
+      "version": "20261012",
+      "sha256": "0e69e24dc16d1862153af3b526133c588e3d505fb101b451862b827c330ed303",
+      "bytes": 272,
+      "production_version": "20261012034133",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6b_alertas.sql",
+      "name": "bc_gestao_phase6b_alertas",
+      "version": "20261012",
+      "sha256": "d149b1d338bffcef19afb7b18c3cc147e1a7d0a524bf4716653f24ea4e771251",
+      "bytes": 15227,
+      "production_version": "20261012150205",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6b_anamnese_core.sql",
+      "name": "bc_gestao_phase6b_anamnese_core",
+      "version": "20261012",
+      "sha256": "3936c4475472655c994a80c5d506f9dac9c98e65e748e652947e1431b13c4766",
+      "bytes": 21232,
+      "production_version": "20261012150055",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6b_documentos_assinaturas.sql",
+      "name": "bc_gestao_phase6b_documentos_assinaturas",
+      "version": "20261012",
+      "sha256": "351716331c5b695c81bbf399b6d831634c69482bf1ec51b84031f1266db9273e",
+      "bytes": 18317,
+      "production_version": "20261012150326",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6b_remote_links.sql",
+      "name": "bc_gestao_phase6b_remote_links",
+      "version": "20261012",
+      "sha256": "a868ef0207bc325c22cb98e016b655557a4c24eb6328e9da850abb70522cdc87",
+      "bytes": 11008,
+      "production_version": "20261012150423",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6b_signature_read.sql",
+      "name": "bc_gestao_phase6b_signature_read",
+      "version": "20261012",
+      "sha256": "247f7c96327421f7ebbea25ebd0c5d0d615b660482007fdf71f154a122fd5caa",
+      "bytes": 898,
+      "production_version": "20261012150436",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261012_bc_gestao_phase6b_signature_storage_guard.sql",
+      "name": "bc_gestao_phase6b_signature_storage_guard",
+      "version": "20261012",
+      "sha256": "18c843e85fc5f63720773ec90057eea353a815b9e4c75633f2be3f23de974700",
+      "bytes": 4560,
+      "production_version": "20261012151016",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261013003656_bc_gestao_phase6c_documents.sql",
+      "name": "bc_gestao_phase6c_documents",
+      "version": "20261013003656",
+      "sha256": "5ed0688c7f3829a60a96c7890723865fae3e6f8320afbbd604c381628b3120a8",
+      "bytes": 19414,
+      "production_version": "20261013003656",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261013004353_bc_gestao_phase6c_consent_rpc_grants_fix.sql",
+      "name": "bc_gestao_phase6c_consent_rpc_grants_fix",
+      "version": "20261013004353",
+      "sha256": "ab34a0855e4807f22a628041a1268251b409e1fee9c6de97177e45259cc0b99e",
+      "bytes": 517,
+      "production_version": "20261013004353",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261013004837_bc_gestao_phase6c_treatment_core.sql",
+      "name": "bc_gestao_phase6c_treatment_core",
+      "version": "20261013004837",
+      "sha256": "09f53a199b6920c46b7565fafcd8727353419ed612f6f6fc7ddfbff5958f2af4",
+      "bytes": 58154,
+      "production_version": "20261013004837",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261013012904_bc_gestao_phase6c_document_column_compat.sql",
+      "name": "bc_gestao_phase6c_document_column_compat",
+      "version": "20261013012904",
+      "sha256": "bda669b782a0dfb861f44e8c2190222bf9027f0c7509309c8a0ce3a6fe090f7b",
+      "bytes": 12250,
+      "production_version": "20261013012904",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013013637_bc_gestao_phase6c_procedure_list_execution.sql",
+      "name": "bc_gestao_phase6c_procedure_list_execution",
+      "version": "20261013013637",
+      "sha256": "badef341560259d6f088cc982c8d40ec5a60bb0139c2093494e7012ba1b255ec",
+      "bytes": 1918,
+      "production_version": "20261013013637",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261013013744_bc_gestao_phase6c_treatment_get_consent.sql",
+      "name": "bc_gestao_phase6c_treatment_get_consent",
+      "version": "20261013013744",
+      "sha256": "1aa6e5297c0419c4f997523dc4c50aeea3037ae6822faf73b928dfedf5558b33",
+      "bytes": 2161,
+      "production_version": "20261013013744",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261013014456_bc_gestao_phase6c_appointment_clinical_context.sql",
+      "name": "bc_gestao_phase6c_appointment_clinical_context",
+      "version": "20261013014456",
+      "sha256": "47b63fccb009e347143d1f327f01874aa4650216e030e8ec060e8b458fd8f22e",
+      "bytes": 2064,
+      "production_version": "20261013014456",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261013015657_bc_gestao_phase6c_treatment_performance.sql",
+      "name": "bc_gestao_phase6c_treatment_performance",
+      "version": "20261013015657",
+      "sha256": "a994a8d87b4920b7662bd89e525bcd05260f45d3c8d81c769dd9a22c3ef74c99",
+      "bytes": 1948,
+      "production_version": "20261013015657",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013115815_bc_gestao_allow_pdf_in_private_storage.sql",
+      "name": "bc_gestao_allow_pdf_in_private_storage",
+      "version": "20261013115815",
+      "sha256": "92661b265fc0499f51c908dea2c789d52e692dd9d6bc3a904a91e6a880fc20d4",
+      "bytes": 419,
+      "production_version": "20261013115815",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013170000_bc_gestao_phase6d_photos.sql",
+      "name": "bc_gestao_phase6d_photos",
+      "version": "20261013170000",
+      "sha256": "fe96038d2b69035d22e78bf881e061a5e0f6fff6ca745640d5a12f1acbfdf948",
+      "bytes": 9442,
+      "production_version": "20261013183842",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261013171000_bc_gestao_phase6d_products.sql",
+      "name": "bc_gestao_phase6d_products",
+      "version": "20261013171000",
+      "sha256": "3f19cf216939fc9ec78eb44a839ef50dcfd620210f8b6c9e4030b790462cb278",
+      "bytes": 17745,
+      "production_version": "20261013183934",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261013172000_bc_gestao_phase6d_equipment.sql",
+      "name": "bc_gestao_phase6d_equipment",
+      "version": "20261013172000",
+      "sha256": "e0425257421339f9d6d092768d92dc0b0e361370f6d07df3cdcfcd7d83340991",
+      "bytes": 16861,
+      "production_version": "20261013184019",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013173000_bc_gestao_phase6d_intercurrences.sql",
+      "name": "bc_gestao_phase6d_intercurrences",
+      "version": "20261013173000",
+      "sha256": "43132125e24b93365c5fbbe8dfff07e0a3d98c35d4180e91479877f21006e305",
+      "bytes": 16279,
+      "production_version": "20261013184103",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013174000_bc_gestao_phase6d_treatment_integration.sql",
+      "name": "bc_gestao_phase6d_treatment_integration",
+      "version": "20261013174000",
+      "sha256": "68f416eea2043e185bb8378a79e91e9fc9744137c0d0892a0cdf394988569c9a",
+      "bytes": 13799,
+      "production_version": "20261013184142",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013175000_bc_gestao_phase6d_security_hardening.sql",
+      "name": "bc_gestao_phase6d_security_hardening",
+      "version": "20261013175000",
+      "sha256": "92ca63ace6a3b369920ba7f316f7c92e67d657732de3d936dc5e7f255f63df88",
+      "bytes": 886,
+      "production_version": "20261013184155",
+      "content_status": "trailing_whitespace_only"
+    },
+    {
+      "path": "supabase/migrations/20261013191000_bc_gestao_consent_v2_botox.sql",
+      "name": "bc_gestao_consent_v2_botox",
+      "version": "20261013191000",
+      "sha256": "58b6a6e59528a00788ae5a9f73eb20ea967f27342c2d5ce6e993595eac3e9f95",
+      "bytes": 11066,
+      "production_version": "20261013193427",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261013195000_bc_gestao_consent_v2_filler.sql",
+      "name": "bc_gestao_consent_v2_filler",
+      "version": "20261013195000",
+      "sha256": "035ec0471307fedb6c9ec7e99f0195b11ec7c57a77f4a6dc0c73a0151d3c9fa7",
+      "bytes": 7009,
+      "production_version": "20261013195810",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261014010000_bc_gestao_bioestimulador_consent.sql",
+      "name": "bc_gestao_bioestimulador_consent",
+      "version": "20261014010000",
+      "sha256": "8c9becdf9bc6b575f41480d68e145b89afbf041b0d6978ea396e72aa8fdf6e47",
+      "bytes": 6601,
+      "production_version": "20261014134602",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014011000_bc_gestao_client_files.sql",
+      "name": "bc_gestao_client_files",
+      "version": "20261014011000",
+      "sha256": "27ad895eadf633a3f809274751e35affe09b9947ba95152758506efbd223498c",
+      "bytes": 9903,
+      "production_version": "20261014134643",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014011500_bc_gestao_client_document_feed.sql",
+      "name": "bc_gestao_client_document_feed",
+      "version": "20261014011500",
+      "sha256": "9e49019d3a8e462bda7bc43bebd6f03a3e09400096edbe740f51204cbeeac270",
+      "bytes": 3458,
+      "production_version": "20261014134705",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014012000_bc_gestao_quick_visit.sql",
+      "name": "bc_gestao_quick_visit",
+      "version": "20261014012000",
+      "sha256": "078a09d6abd184de0e30860cdfdb88de519252d9cd2056f0fb4e8b6524106a24",
+      "bytes": 17223,
+      "production_version": "20261014134932",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014012100_bc_gestao_quick_visit_request_key.sql",
+      "name": "bc_gestao_quick_visit_request_key",
+      "version": "20261014012100",
+      "sha256": "4f5c3911119b21cb0d839927fafed8df76fdfef1091fc4954f6632967ce77171",
+      "bytes": 1170,
+      "production_version": "20261014134950",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014012200_bc_gestao_quick_visit_options.sql",
+      "name": "bc_gestao_quick_visit_options",
+      "version": "20261014012200",
+      "sha256": "9e3aa040c97468d2e7ae8ee2221b24e8e89553cd70dddd936e4c4b0e3d30abe4",
+      "bytes": 2036,
+      "production_version": "20261014135011",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014013000_bc_gestao_treatment_reports.sql",
+      "name": "bc_gestao_treatment_reports",
+      "version": "20261014013000",
+      "sha256": "e9ea11ae9496d2447657b95375a028b2e25dc057e882a9e5a2d88e72b3ef9d0d",
+      "bytes": 15479,
+      "production_version": "20261014135117",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014014000_bc_gestao_external_consents.sql",
+      "name": "bc_gestao_external_consents",
+      "version": "20261014014000",
+      "sha256": "25bd0b40b2f33a9bd0d411d01fde1c93fb99d1d63b1e8cbf25ae5b6b8ffa27ff",
+      "bytes": 13251,
+      "production_version": "20261014135211",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014015000_bc_gestao_client_central_hardening.sql",
+      "name": "bc_gestao_client_central_hardening",
+      "version": "20261014015000",
+      "sha256": "0fb3c6b6a1ac85d0216d2778665ea63001e150b53e37db9c70e79ad577734410",
+      "bytes": 4545,
+      "production_version": "20261014135242",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014016000_bc_gestao_storage_photo_policy_hotfix.sql",
+      "name": "bc_gestao_storage_photo_policy_hotfix",
+      "version": "20261014016000",
+      "sha256": "bf7f2dd33ebce9c1e97bdd0f2ceed85e75488a57ab3b843946605895f9c3d15c",
+      "bytes": 1498,
+      "production_version": "20261014172456",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261014017000_bc_gestao_anamnese_remote_schema_hotfix.sql",
+      "name": "bc_gestao_anamnese_remote_schema_hotfix",
+      "version": "20261014017000",
+      "sha256": "4f56ad84555e87b5210115be62b43c27fb9927dcfadb8003c74d14161fabbbba",
+      "bytes": 1867,
+      "production_version": "20261014173632",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261014180000_bc_gestao_public_agenda_schema.sql",
+      "name": "bc_gestao_public_agenda_schema",
+      "version": "20261014180000",
+      "sha256": "907d4f664e6571700a09b119ca6f4715725e1cf3b7ed33f1dcfa3475147ad37a",
+      "bytes": 6575,
+      "production_version": "20261016090114",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261014184500_bc_gestao_public_agenda_engine.sql",
+      "name": "bc_gestao_public_agenda_engine",
+      "version": "20261014184500",
+      "sha256": "433dbcc29d49841be4c06363767db270665a9802391a3e1629b76a13b31af236",
+      "bytes": 34906,
+      "production_version": "20261016090230",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261015205157_bc_gestao_agenda_v2_permissions.sql",
+      "name": "bc_gestao_agenda_v2_permissions",
+      "version": "20261015205157",
+      "sha256": "f7beefacf0b69b544c511cfa17af6faf3690a5c0406d7cfc2e89bc9a1c89757d",
+      "bytes": 9096,
+      "production_version": "20261016090255",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261016001707_bc_gestao_agenda_v2_homologation.sql",
+      "name": "bc_gestao_agenda_v2_homologation",
+      "version": "20261016001707",
+      "sha256": "5a040882355c567d38155c8d65546c582250c5f62bec3307eabfaef4cd7430f0",
+      "bytes": 18988,
+      "production_version": "20261016090345",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261016021500_bc_gestao_rls_advisor_cleanup.sql",
+      "name": "bc_gestao_rls_advisor_cleanup",
+      "version": "20261016021500",
+      "sha256": "79157305b28462e48e1dc2f61c338db5a6afab42ac7252d6c6fe7fff2ba472f3",
+      "bytes": 5345,
+      "production_version": "20261016090406",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261016083349_bc_gestao_preserve_chief_rls_scope.sql",
+      "name": "bc_gestao_preserve_chief_rls_scope",
+      "version": "20261016083349",
+      "sha256": "2ec55e000055f84a43ac07f9999992bab096f09b370f4adacfbdf27240eb67f1",
+      "bytes": 587,
+      "production_version": "20261016090414",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261017111622_bc_public_agenda_month_overview.sql",
+      "name": "bc_public_agenda_month_overview",
+      "version": "20261017111622",
+      "sha256": "b662b3c38a004bc765d100994fd7e562343bfc3e4ee8490284648cf5af4ef0c1",
+      "bytes": 9921,
+      "production_version": "20261017113420",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261018021443_bc_client_basic_registration.sql",
+      "name": "bc_client_basic_registration",
+      "version": "20261018021443",
+      "sha256": "02e25e47627303a09457bd28ffe0059663a33a3b5d128805eabec3b3830a92ef",
+      "bytes": 9115,
+      "production_version": "20261018022250",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261018025521_bc_pre_anamnese_active_project.sql",
+      "name": "bc_pre_anamnese_active_project",
+      "version": "20261018025521",
+      "sha256": "14806f5e1e56d631eeab54a13283f07e68d7ed42946b8e4867b78e7831fa395d",
+      "bytes": 10531,
+      "production_version": "20261018210627",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261018030017_bc_clinical_financial_bridge.sql",
+      "name": "bc_clinical_financial_bridge",
+      "version": "20261018030017",
+      "sha256": "d22b4f0e5733674c3d05d8e638b3e3ec3113068bde42f5c9974be9a7fb24e37b",
+      "bytes": 12674,
+      "production_version": "20261018210637",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261018204546_bc_procedure_scope_and_storage_context.sql",
+      "name": "bc_procedure_scope_and_storage_context",
+      "version": "20261018204546",
+      "sha256": "34c24b147ee7b6658c5737619d0101ef8221380602ac06a6e09e3d5d145fbd35",
+      "bytes": 7697,
+      "production_version": "20261020023910",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261018205201_bc_public_booking_recovery.sql",
+      "name": "bc_public_booking_recovery",
+      "version": "20261018205201",
+      "sha256": "eaefc55bf8e03906eabb228b88b1c215fe5217416ac11a4a34c089d2fdff341e",
+      "bytes": 6348,
+      "production_version": "20261020023945",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261021165646_bc_creation_admin_readonly.sql",
+      "name": "bc_creation_admin_readonly",
+      "version": "20261021165646",
+      "sha256": "9c7c06ae62afb733a47496bf19dec4ea0c4ebaf97d0b47f3cc76551d80bcb2c8",
+      "bytes": 24767,
+      "production_version": "20261021172346",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261022190000_bc_finance_charge_total.sql",
+      "name": "bc_finance_charge_total",
+      "version": "20261022190000",
+      "sha256": "f9406e4786d3bad3651d5948a5748eec89b1fd7d8d1ffd01007b431ebecbb270",
+      "bytes": 7756,
+      "production_version": "20261022191531",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261022191000_bc_finance_receipt_idempotency.sql",
+      "name": "bc_finance_receipt_idempotency",
+      "version": "20261022191000",
+      "sha256": "025805cd5dd4769994d84f3c1f36245de035f69b958cf07e1a450ed08cf394ad",
+      "bytes": 6519,
+      "production_version": "20261022191534",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261022192000_bc_finance_book_payout_guard.sql",
+      "name": "bc_finance_book_payout_guard",
+      "version": "20261022192000",
+      "sha256": "e40916d99ecda590fd98358437e522e12ed921d9a19929186bf4c8ffdcb6c0c8",
+      "bytes": 7132,
+      "production_version": "20261022191937",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261022193000_bc_finance_payout_settlement_guard.sql",
+      "name": "bc_finance_payout_settlement_guard",
+      "version": "20261022193000",
+      "sha256": "adc91c5781bd86cff061f231df7a9dfeb7a1f693a0a4bd74a5dea8120d07886f",
+      "bytes": 6140,
+      "production_version": "20261022191943",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261022194000_bc_finance_movement_serialization.sql",
+      "name": "bc_finance_movement_serialization",
+      "version": "20261022194000",
+      "sha256": "22700830c678a49ccf2efb434fd7be08a8dbff12e5849d85a9b6df144e0f5686",
+      "bytes": 24395,
+      "production_version": "20261022195328",
+      "content_status": "diff_review_required"
+    },
+    {
+      "path": "supabase/migrations/20261023015036_bc_finance_optional_prices.sql",
+      "name": "bc_finance_optional_prices",
+      "version": "20261023015036",
+      "sha256": "770c8c12ebfe1e599bd1a8ed24ab15e949a60a6c9adef42c772409b6f44a88b5",
+      "bytes": 18320,
+      "production_version": "20261023015036",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261023015037_bc_finance_simple_core.sql",
+      "name": "bc_finance_simple_core",
+      "version": "20261023015037",
+      "sha256": "2981543fe2d7219870988f11414ea8c7610e36b3d6b532afadb955fb8b7da8ec",
+      "bytes": 28930,
+      "production_version": "20261023015037",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261023015038_bc_finance_simple_read.sql",
+      "name": "bc_finance_simple_read",
+      "version": "20261023015038",
+      "sha256": "a834c6f50bbfcc6ba87d67cfb31581d0ec7caf6c569ff0d994caef70b5c88d32",
+      "bytes": 19184,
+      "production_version": "20261023015038",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261023015039_bc_finance_simple_files.sql",
+      "name": "bc_finance_simple_files",
+      "version": "20261023015039",
+      "sha256": "f44bf79071dd6005e9bd248393da8c3d6bb7613458efa628e7bc341cff4e123b",
+      "bytes": 9716,
+      "production_version": "20261023015039",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261023015040_bc_finance_simple_enable.sql",
+      "name": "bc_finance_simple_enable",
+      "version": "20261023015040",
+      "sha256": "84bd9bddc90fdc4988d2fc7774ff1cdc3e67498cf393756a43e8615280b38a22",
+      "bytes": 975,
+      "production_version": "20261023015040",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261024043221_bc_drive_oauth_test_setup.sql",
+      "name": "bc_drive_oauth_test_setup",
+      "version": "20261024043221",
+      "sha256": "68b667203d852251a1fe366dca4834f3cd273327e47ab7abe769c11313f28bcb",
+      "bytes": 6623,
+      "production_version": "20261024043221",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261024155546_bc_clinical_rpc_execution_grants.sql",
+      "name": "bc_clinical_rpc_execution_grants",
+      "version": "20261024155546",
+      "sha256": "e031a4901c18433dd6b7b20b6d6b312b13b83303d4db4f548da0f670fcdf8a45",
+      "bytes": 2759,
+      "production_version": "20261024160853",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261025021446_bc_drive_automatic_backup.sql",
+      "name": "bc_drive_automatic_backup",
+      "version": "20261025021446",
+      "sha256": "182c022e60c3557da27a62a90d2f1c63076433ff6a97879f7ad3d01150a67a31",
+      "bytes": 11953,
+      "production_version": "20261025021446",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261025042745_bc_drive_backup_one_time_invocation.sql",
+      "name": "bc_drive_backup_one_time_invocation",
+      "version": "20261025042745",
+      "sha256": "1972c8bbd89b1f3e0997fd5eabafe502db5bd416acd35d98988a6a026dd935a8",
+      "bytes": 2968,
+      "production_version": "20261025042745",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261026005946_bc_support_operations.sql",
+      "name": "bc_support_operations",
+      "version": "20261026005946",
+      "sha256": "d736967c769b83f595851819ee5aae96b86476d29435dbd8631286bad3716305",
+      "bytes": 21725,
+      "production_version": "20261026013651",
+      "content_status": "byte_identical"
+    },
+    {
+      "path": "supabase/migrations/20261030101934_bc_drive_oauth_safe_rotation.sql",
+      "name": "bc_drive_oauth_safe_rotation",
+      "version": "20261030101934",
+      "sha256": "7f58898798daeb2e9e4a72663d6bc28904c53f361f81580f68a8a2bbff341349",
+      "bytes": 3563,
+      "production_version": "20261030101934",
+      "content_status": "byte_identical"
+    }
+  ]
+}
