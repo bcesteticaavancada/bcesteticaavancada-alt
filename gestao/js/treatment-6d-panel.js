@@ -74,6 +74,7 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
   let treatment=null,photos=[],products=[],productUsages=[],equipment=[],equipmentUsages=[],intercurrences=[],suggestedLots=[];
   let loadVersion=0,lotRequest=0;
   const productSubmissions=new WeakSet();
+  const suggestedUnits=new WeakMap();
   const slot=()=>root.querySelector?.('[data-treatment-6d-slot]');
   const render=()=>{if(slot()&&treatment)slot().innerHTML=renderTreatment6dCards({treatment,photos,products,productUsages,equipment,equipmentUsages,intercurrences});};
   async function loadTreatment(next){
@@ -91,6 +92,11 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
     const details=event.target?.closest?.('[data-6d-card="photos"]');if(!details?.open)return;
     for(const img of details.querySelectorAll?.('[data-6d-photo-path]')||[]){if(img.src)continue;try{img.src=await getTreatmentPhotoUrl({client,storagePath:img.dataset.sixdPhotoPath||img.getAttribute('data-6d-photo-path')});}catch{} }
   },true);
+  root.addEventListener('input',(event)=>{
+    const unit=event.target?.closest?.('[name="unit"]');
+    const form=unit?.closest?.('[data-6d-product-form]');
+    if(form)suggestedUnits.delete(form);
+  });
   root.addEventListener('change',async(event)=>{
     const product=event.target?.closest?.('[data-6d-product-input]');
     if(product){
@@ -99,8 +105,12 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
       if(lot)lot.value='';if(form?.elements?.expires_on)form.elements.expires_on.value='';
       suggestedLots=[];if(list)list.innerHTML='';
       const matches=products.filter((p)=>p.active!==false&&p.name?.trim().toLocaleLowerCase('pt-BR')===product.value.trim().toLocaleLowerCase('pt-BR'));
+      const unit=form?.elements?.unit;
+      if(unit&&(!unit.value||unit.value===suggestedUnits.get(form))){
+        unit.value=matches.length===1?matches[0].default_unit||'':'';
+        suggestedUnits.set(form,unit.value);
+      }
       if(matches.length===1){
-        if(form?.elements?.unit&&!form.elements.unit.value&&matches[0].default_unit)form.elements.unit.value=matches[0].default_unit;
         const requestedName=product.value;
         try{
           const lots=await listProductLots({client,productId:matches[0].id});

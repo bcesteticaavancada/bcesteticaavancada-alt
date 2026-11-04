@@ -26,8 +26,24 @@ async function harness({save,refresh,products=[],lots=async()=>[]}={}){
   Object.entries({product_name:'Bio fictício',lot_code:'QA-01',expires_on:'2028-04-15',quantity:'1',unit:'mL'}).forEach(([k,v])=>{fields[k].value=v;});
   const submit=()=>form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
   const change=field=>field.dispatchEvent(new window.Event('change',{bubbles:true}));
-  return {root,form,fields,calls,submit,change,controller};
+  const input=field=>field.dispatchEvent(new window.Event('input',{bubbles:true}));
+  return {root,form,fields,calls,submit,change,input,controller};
 }
+
+test('corrigir o produto atualiza a unidade automática e preserva a unidade digitada',async()=>{
+  const h=await harness({products:[{id:'a',name:'Produto A',default_unit:'mL'},{id:'b',name:'Produto B',default_unit:'U'}]});
+  h.fields.unit.value='';
+  h.fields.product_name.value='Produto A';h.change(h.fields.product_name);await tick();
+  assert.equal(h.fields.unit.value,'mL');
+  h.fields.product_name.value='Produto B';h.change(h.fields.product_name);await tick();
+  assert.equal(h.fields.unit.value,'U');
+  h.fields.product_name.value='Produto novo';h.change(h.fields.product_name);await tick();
+  assert.equal(h.fields.unit.value,'');
+  h.fields.product_name.value='Produto A';h.change(h.fields.product_name);await tick();
+  h.input(h.fields.unit); // A usuária confirmou explicitamente mL.
+  h.fields.product_name.value='Produto B';h.change(h.fields.product_name);await tick();
+  assert.equal(h.fields.unit.value,'mL');
+});
 
 test('duplo envio durante gravação não duplica o uso clínico',async()=>{
   const pending=deferred();
