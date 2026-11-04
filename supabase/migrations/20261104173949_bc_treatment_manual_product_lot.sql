@@ -18,13 +18,14 @@ as $function$
 declare
   v_user uuid := auth.uid();
   v_treatment public.clinical_treatments%rowtype;
-  v_product_name text := nullif(btrim(p_product_name), '');
-  v_lot_code text := nullif(btrim(p_lot_code), '');
-  v_unit text := nullif(btrim(p_unit), '');
+  v_product_name text := nullif(pg_catalog.regexp_replace(p_product_name, '^[[:space:]]+|[[:space:]]+$', '', 'g'), '');
+  v_lot_code text := nullif(pg_catalog.regexp_replace(p_lot_code, '^[[:space:]]+|[[:space:]]+$', '', 'g'), '');
+  v_unit text := nullif(pg_catalog.regexp_replace(p_unit, '^[[:space:]]+|[[:space:]]+$', '', 'g'), '');
   v_product_id uuid;
   v_lot_id uuid;
   v_usage_id uuid;
   v_matches integer;
+  v_product public.clinical_products%rowtype;
   v_lot public.clinical_product_lots%rowtype;
 begin
   if v_user is null or not private.is_bc_active_staff() then
@@ -40,6 +41,7 @@ begin
   end if;
   if v_treatment.profissional_user_id is distinct from v_user
     or v_treatment.status not in ('rascunho', 'pronto_para_iniciar', 'em_atendimento')
+    or v_treatment.pending_version_id is not null
     or v_treatment.pending_document_id is not null then
     raise exception 'Somente a profissional responsável pode registrar produtos enquanto a sessão está editável.' using errcode = '42501';
   end if;
@@ -53,10 +55,10 @@ begin
   if v_unit is null or char_length(v_unit) > 30 then
     raise exception 'Informe a unidade (até 30 caracteres).' using errcode = '22023';
   end if;
-  if p_quantity is null or p_quantity <= 0 then
+  if p_quantity is null or p_quantity <= 0 or p_quantity::text in ('NaN', 'Infinity', '-Infinity') then
     raise exception 'Quantidade deve ser maior que zero.' using errcode = '22023';
   end if;
-  if p_expires_on is null then
+  if p_expires_on is null or not pg_catalog.isfinite(p_expires_on) then
     raise exception 'Informe a validade do lote.' using errcode = '22023';
   end if;
   if p_expires_on < (now() at time zone 'America/Sao_Paulo')::date then
@@ -69,13 +71,22 @@ begin
     pg_catalog.hashtext(lower(v_product_name))
   );
 
-  select count(*), min(id) into v_matches, v_product_id
+  -- PostgreSQL não oferece min(uuid). O ID só é usado com um único resultado.
+  select count(*), (array_agg(id order by id))[1] into v_matches, v_product_id
     from public.clinical_products
-    where active and lower(btrim(name)) = lower(v_product_name);
+    where lower(pg_catalog.regexp_replace(name, '^[[:space:]]+|[[:space:]]+$', '', 'g')) = lower(v_product_name);
   if v_matches > 1 then
     raise exception 'Há produtos diferentes com esse nome. Identifique o produto na biblioteca antes do registro.' using errcode = '22023';
   end if;
-  if v_matches = 0 then
+  if v_matches = 1 then
+    select * into v_product from public.clinical_products where id = v_product_id for share;
+    if not v_product.active then
+      raise exception 'Este produto está inativo. Solicite revisão da biblioteca.' using errcode = '22023';
+    end if;
+    if lower(pg_catalog.regexp_replace(v_product.name, '^[[:space:]]+|[[:space:]]+$', '', 'g')) <> lower(v_product_name) then
+      raise exception 'O produto foi atualizado durante o registro. Confira o nome e tente novamente.' using errcode = '22023';
+    end if;
+  else
     insert into public.clinical_products(name, default_unit, tracks_lot, active, created_by)
       values (v_product_name, v_unit, true, true, v_user)
       returning id into v_product_id;
@@ -84,17 +95,21 @@ begin
         pg_catalog.jsonb_build_object('active', true, 'origin', 'clinical_treatment_manual'));
   end if;
 
-  select count(*), min(id) into v_matches, v_lot_id
+  select count(*), (array_agg(id order by id))[1] into v_matches, v_lot_id
     from public.clinical_product_lots
     where product_id = v_product_id
-      and lower(btrim(lot_code)) = lower(v_lot_code);
+      and lower(pg_catalog.regexp_replace(lot_code, '^[[:space:]]+|[[:space:]]+$', '', 'g')) = lower(v_lot_code);
   if v_matches > 1 then
     raise exception 'Há mais de um lote com esse código. Solicite revisão da biblioteca.' using errcode = '22023';
   end if;
   if v_matches = 1 then
-    select * into v_lot from public.clinical_product_lots where id = v_lot_id;
+    select * into v_lot from public.clinical_product_lots where id = v_lot_id for share;
     if not v_lot.active then
       raise exception 'Este lote está inativo. Solicite revisão da biblioteca.' using errcode = '22023';
+    end if;
+    if v_lot.product_id <> v_product_id
+      or lower(pg_catalog.regexp_replace(v_lot.lot_code, '^[[:space:]]+|[[:space:]]+$', '', 'g')) <> lower(v_lot_code) then
+      raise exception 'O lote foi atualizado durante o registro. Confira a identificação e tente novamente.' using errcode = '22023';
     end if;
     if v_lot.expires_on <> p_expires_on then
       raise exception 'Validade diferente do lote já cadastrado. Confira a embalagem antes de registrar.' using errcode = '22023';

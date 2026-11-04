@@ -70,6 +70,10 @@ jobs:
         if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
         run: python3 scripts/test-finance-simple-concurrency.py
 
+      - name: Concurrent manual clinical products and lots
+        if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
+        run: python3 scripts/test-treatment-product-concurrency.py
+
       - name: Stop ephemeral Supabase
         if: always()
         run: supabase stop --no-backup

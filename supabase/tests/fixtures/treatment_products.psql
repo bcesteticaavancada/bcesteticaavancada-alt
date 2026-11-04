@@ -1,0 +1,40 @@
+-- SOMENTE no banco descartável de testes. Nunca executar em produção.
+create temporary table product_fixture(name text primary key,id uuid not null);
+insert into product_fixture values
+ ('author','b8000000-0000-4000-8000-000000000001'),
+ ('other','b8000000-0000-4000-8000-000000000002'),
+ ('client','b8000000-0000-4000-8000-000000000003'),
+ ('procedure','b8000000-0000-4000-8000-000000000004'),
+ ('version','b8000000-0000-4000-8000-000000000005'),
+ ('treatment','b8000000-0000-4000-8000-000000000006'),
+ ('finalized','b8000000-0000-4000-8000-000000000007'),
+ ('second-treatment','b8000000-0000-4000-8000-000000000008'),
+ ('template','b8000000-0000-4000-8000-000000000009'),
+ ('file','b8000000-0000-4000-8000-000000000010');
+grant select,insert,update on product_fixture to authenticated;
+create function pg_temp.p80(text) returns uuid language sql as $$select id from product_fixture where name=$1$$;
+insert into auth.users(instance_id,id,aud,role,email,created_at,updated_at)
+select '00000000-0000-0000-0000-000000000000',id,'authenticated','authenticated',name||'-p80@example.invalid',now(),now()
+from product_fixture where name in ('author','other');
+insert into public.staff_profiles(user_id,display_name,role,active,atende_clientes,profissao,conselho,registro_conselho)
+select id,'Profissional fictícia '||name,'colaborador',true,true,'Biomédica','CRBM','TESTE-000'
+from product_fixture where name in ('author','other');
+insert into public.clientes(id,nome,telefone,created_by)
+values(pg_temp.p80('client'),'Pessoa fictícia PR80','31900000000',pg_temp.p80('author'));
+insert into public.procedimentos(id,nome,duracao_padrao,ativo,created_by)
+values(pg_temp.p80('procedure'),'Procedimento fictício PR80',30,true,pg_temp.p80('author'));
+insert into public.procedure_versions(id,procedimento_id,version,status,nome,classe_documental,price_mode,base_price,requires_general_anamnesis,requires_product_lot,requires_photo,requires_equipment,created_by)
+values(pg_temp.p80('version'),pg_temp.p80('procedure'),1,'published','Procedimento fictício PR80','nao_injetavel','fixed',100,false,true,false,false,pg_temp.p80('author'));
+insert into public.clinical_treatments(id,cliente_id,procedimento_id,procedure_version_id,profissional_user_id,status,treatment_date,price_mode_snapshot,base_price_snapshot,final_price,objetivo,regiao,created_by)
+select id,pg_temp.p80('client'),pg_temp.p80('procedure'),pg_temp.p80('version'),pg_temp.p80('author'),
+ case when name='finalized' then 'finalizado' else 'em_atendimento' end,
+ current_date,'fixed',100,100,'Teste de rastreabilidade','Região fictícia',pg_temp.p80('author')
+from product_fixture where name in ('treatment','finalized','second-treatment');
+insert into public.clinical_treatment_reports(treatment_id,descricao_sessao,resposta_observada,orientacoes,created_by)
+values(pg_temp.p80('treatment'),'Registro fictício','Resposta fictícia','Orientação fictícia',pg_temp.p80('author'));
+insert into public.consent_template_versions(id,consent_class,version,title,body)
+values(pg_temp.p80('template'),'nao_injetavel',80000,'TCLE fictício PR80','Documento exclusivo do teste descartável.');
+insert into public.client_files(id,cliente_id,title,category,origin,storage_path,mime_type,size_bytes,sha256,uploaded_by)
+values(pg_temp.p80('file'),pg_temp.p80('client'),'TCLE fictício PR80','tcle_externo','upload_manual','arquivos-clientes/pr80/tcle-ficticio.pdf','application/pdf',100,repeat('a',64),pg_temp.p80('author'));
+insert into public.treatment_external_consents(treatment_id,client_file_id,cliente_id,procedure_version_id,consent_template_version_id,consent_class,reviewed_by)
+values(pg_temp.p80('treatment'),pg_temp.p80('file'),pg_temp.p80('client'),pg_temp.p80('version'),pg_temp.p80('template'),'nao_injetavel',pg_temp.p80('author'));

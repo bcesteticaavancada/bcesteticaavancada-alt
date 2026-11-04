@@ -4,12 +4,12 @@ import {listClinicalEquipment,listTreatmentEquipmentUsages,addTreatmentEquipment
 import {listTreatmentIntercurrences,createTreatmentIntercurrence,addIntercurrenceEvolution,confirmOpenIntercurrencesForFinalization} from './treatment-intercurrences-api.js';
 
 function esc(value){return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
-function editable(t={}){return t.status!=='finalizado'&&!t.pending_document_id;}
+function editable(t={}){return ['rascunho','pronto_para_iniciar','em_atendimento'].includes(t.status)&&!t.pending_document_id&&!t.pending_version_id;}
 function gateSet(t={}){return new Set(Array.isArray(t.finalization_gate_reasons)?t.finalization_gate_reasons:[]);}
 function requiredChip(flag){return flag?'<span class="bcg-chip bcg-6d-required">Obrigatório</span>':'';}
 function pendingChip(isPending){return isPending?'<span class="bcg-chip bcg-6d-pending">Pendente</span>':'<span class="bcg-chip">OK</span>';}
 function summaryCount(value,label){return `${Number(value||0)} ${label}`;}
-function formatDate(value){if(!value)return '—';const raw=String(value);const date=new Date(raw);if(Number.isNaN(date.getTime()))return raw.slice(0,10);return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short'}).format(date);}
+function formatDate(value){if(!value)return '—';const raw=String(value);if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){const [y,m,d]=raw.split('-');return `${d}/${m}/${y}`;}const date=new Date(raw);if(Number.isNaN(date.getTime()))return raw.slice(0,10);return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',dateStyle:'short'}).format(date);}
 
 export function renderEquipmentParameterFields(schema={}){
   const fields=Array.isArray(schema?.fields)?schema.fields:[];
@@ -72,14 +72,18 @@ function status(root,message,kind=''){const el=root?.querySelector?.('[data-6d-s
 export function initTreatment6dController({client,root,getClientRecord,refreshTreatment}={}){
   if(!client||!root)throw new Error('Contexto 6D inválido.');
   let treatment=null,photos=[],products=[],productUsages=[],equipment=[],equipmentUsages=[],intercurrences=[],suggestedLots=[];
+  let loadVersion=0,lotRequest=0;
+  const productSubmissions=new WeakSet();
   const slot=()=>root.querySelector?.('[data-treatment-6d-slot]');
   const render=()=>{if(slot()&&treatment)slot().innerHTML=renderTreatment6dCards({treatment,photos,products,productUsages,equipment,equipmentUsages,intercurrences});};
   async function loadTreatment(next){
-    treatment=next;suggestedLots=[];if(!treatment?.id)return;
-    [photos,products,productUsages,equipment,equipmentUsages,intercurrences]=await Promise.all([
+    const version=++loadVersion;++lotRequest;treatment=next;suggestedLots=[];if(!treatment?.id)return;
+    const loaded=await Promise.all([
       listTreatmentPhotos({client,treatmentId:treatment.id}),listClinicalProducts({client}),listTreatmentProductUsages({client,treatmentId:treatment.id}),
       listClinicalEquipment({client}),listTreatmentEquipmentUsages({client,treatmentId:treatment.id}),listTreatmentIntercurrences({client,treatmentId:treatment.id}),
-    ]);render();
+    ]);
+    if(version!==loadVersion)return;
+    [photos,products,productUsages,equipment,equipmentUsages,intercurrences]=loaded;render();
   }
   async function refresh(){if(refreshTreatment)await refreshTreatment();else if(treatment)await loadTreatment(treatment);}
 
@@ -90,6 +94,7 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
   root.addEventListener('change',async(event)=>{
     const product=event.target?.closest?.('[data-6d-product-input]');
     if(product){
+      const request=++lotRequest;
       const form=product.closest('form');const lot=form?.querySelector?.('[data-6d-lot-input]');const list=form?.querySelector?.('[data-6d-lot-suggestions]');
       if(lot)lot.value='';if(form?.elements?.expires_on)form.elements.expires_on.value='';
       suggestedLots=[];if(list)list.innerHTML='';
@@ -99,10 +104,10 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
         const requestedName=product.value;
         try{
           const lots=await listProductLots({client,productId:matches[0].id});
-          if(product.value!==requestedName)return;
+          if(request!==lotRequest||product.value!==requestedName||!form.isConnected)return;
           suggestedLots=lots.filter((l)=>l.active!==false);
           if(list)list.innerHTML=suggestedLots.map((l)=>`<option value="${esc(l.lot_code)}"></option>`).join('');
-        }catch(error){status(slot(),error?.message||'Não foi possível carregar sugestões de lotes.','error');}
+        }catch(error){if(request===lotRequest)status(slot(),error?.message||'Não foi possível carregar sugestões de lotes.','error');}
       }
       return;
     }
@@ -123,9 +128,29 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
     if(!treatment)return;
     const photoForm=event.target?.closest?.('[data-6d-photo-form]');const productForm=event.target?.closest?.('[data-6d-product-form]');const equipmentForm=event.target?.closest?.('[data-6d-equipment-form]');const interForm=event.target?.closest?.('[data-6d-intercurrence-form]');const evolution=event.target?.closest?.('[data-6d-intercurrence-evolution]');
     if(!photoForm&&!productForm&&!equipmentForm&&!interForm&&!evolution)return;event.preventDefault();
+    if(productForm){
+      if(productSubmissions.has(productForm))return;
+      productSubmissions.add(productForm);
+      const button=productForm.querySelector('[data-6d-product-submit]');
+      const treatmentId=treatment.id;let saved=false;
+      if(button)button.disabled=true;productForm.setAttribute('aria-busy','true');
+      try{
+        await addTreatmentProductUsageByName({client,treatmentId,productName:productForm.elements.product_name.value,lotCode:productForm.elements.lot_code.value,expiresOn:productForm.elements.expires_on.value,quantity:productForm.elements.quantity.value,unit:productForm.elements.unit.value});
+        saved=true;productForm.reset();
+        await refresh();
+        if(treatment?.id===treatmentId){
+          const card=slot()?.querySelector('[data-6d-card="products"]');if(card)card.open=true;
+          status(slot(),'Uso de produto e lote registrado.','success');
+        }
+      }catch(error){
+        if(treatment?.id===treatmentId)status(slot(),saved?'Uso registrado. Atualize a página para conferir o histórico.':error?.message||'Não foi possível registrar o produto e lote.','error');
+      }finally{
+        productSubmissions.delete(productForm);if(button)button.disabled=false;productForm.removeAttribute('aria-busy');
+      }
+      return;
+    }
     try{
       if(photoForm){await uploadTreatmentPhoto({client,treatmentId:treatment.id,clienteId:treatment.cliente_id||getClientRecord?.()?.id,kind:photoForm.elements.kind.value,region:photoForm.elements.region.value,view:photoForm.elements.view.value,caption:photoForm.elements.caption.value,file:photoForm.elements.file.files?.[0]});}
-      else if(productForm){await addTreatmentProductUsageByName({client,treatmentId:treatment.id,productName:productForm.elements.product_name.value,lotCode:productForm.elements.lot_code.value,expiresOn:productForm.elements.expires_on.value,quantity:productForm.elements.quantity.value,unit:productForm.elements.unit.value});}
       else if(equipmentForm){await addTreatmentEquipmentUsage({client,treatmentId:treatment.id,equipmentId:equipmentForm.elements.equipment_id.value,parameterValues:readParams(equipmentForm)});}
       else if(interForm){await createTreatmentIntercurrence({client,treatmentId:treatment.id,moment:interForm.elements.moment.value,severity:interForm.elements.severity.value,description:interForm.elements.description.value,actionTaken:interForm.elements.action_taken.value});}
       else if(evolution){await addIntercurrenceEvolution({client,intercurrenceId:evolution.dataset.intercurrenceId,evolution:evolution.elements.evolution.value,statusAfter:evolution.elements.status_after.value});}

@@ -48,7 +48,8 @@ export async function addTreatmentProductUsageByName({client,treatmentId,product
   const expiry=required(expiresOn,'Validade do lote');
   const cleanUnit=required(unit,'Unidade');
   if(name.length>160||lot.length>100||cleanUnit.length>30)throw new Error('Produto, lote ou unidade excede o limite de caracteres.');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(expiry))throw new Error('Informe a validade do lote.');
+  const expiryDate=new Date(`${expiry}T12:00:00Z`);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(expiry)||expiry.startsWith('0000-')||!Number.isFinite(expiryDate.getTime())||expiryDate.toISOString().slice(0,10)!==expiry)throw new Error('Informe uma validade do lote válida.');
   return await call(client,'bc_treatment_product_usage_add_text',{
     p_treatment_id:required(treatmentId,'Atendimento'),
     p_product_name:name,

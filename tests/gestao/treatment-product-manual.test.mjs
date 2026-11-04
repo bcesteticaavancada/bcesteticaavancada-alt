@@ -4,6 +4,27 @@ import {readFileSync} from 'node:fs';
 import {addTreatmentProductUsageByName} from '../../gestao/js/treatment-products-api.js';
 import {renderTreatment6dCards} from '../../gestao/js/treatment-6d-panel.js';
 
+test('validade em data civil aparece no mesmo dia registrado no lote',()=>{
+  const html=renderTreatment6dCards({treatment:{id:'ficticio',status:'em_atendimento'},productUsages:[{
+    id:'uso',product_name_snapshot:'Bio fictício',lot_code_snapshot:'QA-01',expires_on_snapshot:'2028-04-15',quantity:1,unit:'mL',
+  }]});
+  assert.match(html,/Val\. 15\/04\/2028/);
+});
+
+test('datas impossíveis são rejeitadas antes da RPC',async()=>{
+  const mock=mockClient();
+  const base={client:mock.client,treatmentId:'ficticio',productName:'Produto',lotCode:'L1',quantity:1,unit:'mL'};
+  for(const expiresOn of ['2028-02-30','2027-02-29','2028-13-01','0000-01-01']){
+    await assert.rejects(()=>addTreatmentProductUsageByName({...base,expiresOn}),/validade/i);
+  }
+  assert.equal(mock.calls.length,0);
+});
+
+test('versão pendente sem documento também deixa produto e lote em somente leitura',()=>{
+  const html=renderTreatment6dCards({treatment:{id:'ficticio',status:'em_atendimento',pending_version_id:'versao-ficticia'}});
+  assert.doesNotMatch(html,/data-6d-product-form/);
+});
+
 function mockClient(){
   const calls=[];
   return {calls,client:{async rpc(name,payload){calls.push({name,payload});return {data:'usage-fake-01',error:null};}}};
