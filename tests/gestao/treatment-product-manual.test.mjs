@@ -76,7 +76,7 @@ test('não chama banco quando produto, lote, validade ou quantidade estiverem in
 });
 
 test('migration não altera tabelas, mantém gateway de validação e revoga acesso anônimo',()=>{
-  const sql=readFileSync(new URL('../../supabase/migrations/20261104173949_bc_treatment_manual_product_lot.sql',import.meta.url),'utf8');
+  const sql=readFileSync(new URL('../../supabase/migrations/20261104190113_bc_treatment_manual_product_lot.sql',import.meta.url),'utf8');
   assert.match(sql,/private\.bc_treatment_product_usage_add_impl\(/);
   assert.match(sql,/profissional_user_id is distinct from v_user/i);
   assert.match(sql,/p_expires_on < \(now\(\) at time zone/i);
