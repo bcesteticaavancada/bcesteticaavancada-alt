@@ -10,6 +10,7 @@ on:
       - 'scripts/test-agenda-concurrency.py'
       - 'scripts/test-finance-concurrency.py'
       - 'scripts/test-finance-simple-concurrency.py'
+      - 'scripts/test-treatment-product-concurrency.py'
       - 'scripts/fixtures/**'
       - '.github/workflows/agenda-db-ci.yml'
   pull_request:
@@ -20,6 +21,7 @@ on:
       - 'scripts/test-agenda-concurrency.py'
       - 'scripts/test-finance-concurrency.py'
       - 'scripts/test-finance-simple-concurrency.py'
+      - 'scripts/test-treatment-product-concurrency.py'
       - 'scripts/fixtures/**'
       - '.github/workflows/agenda-db-ci.yml'
   workflow_dispatch:
@@ -69,6 +71,10 @@ jobs:
       - name: Concurrent simple commissions and expenses
         if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
         run: python3 scripts/test-finance-simple-concurrency.py
+
+      - name: Concurrent manual clinical products and lots
+        if: ${{ !cancelled() && steps.replay.outcome == 'success' }}
+        run: python3 scripts/test-treatment-product-concurrency.py
 
       - name: Stop ephemeral Supabase
         if: always()
