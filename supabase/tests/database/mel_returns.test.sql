@@ -83,5 +83,9 @@ reset role;
 select is((select snapshot->>'original' from public.clinical_treatment_versions where treatment_id=pg_temp.p80('finalized') and version=1),'preservado','versão original permanece intacta');
 select is((select profissional_user_id from public.clinical_treatments where id=pg_temp.p80('finalized')),pg_temp.p80('author'),'correção não transfere autoria clínica');
 select is((select correction_mode from public.clinical_treatments where id=pg_temp.p80('finalized')),'reopened','reabertura prepara nova versão');
+-- A última tentativa abandonada precisa encerrar mesmo sem outro trabalho na fila.
+update private.bc_return_push_deliveries set status='processing',attempts=5,claim_token=gen_random_uuid(),lease_until=now()-interval '1 minute' where id=pg_temp.p80('claimed-delivery');
+select lives_ok('select private.bc_return_push_tick()','tick limpa quinta tentativa abandonada sem depender de outro envio');
+select is((select status from private.bc_return_push_deliveries where id=pg_temp.p80('claimed-delivery')),'failed','última tentativa expirada aparece como falha definitiva');
 select * from finish();
 rollback;

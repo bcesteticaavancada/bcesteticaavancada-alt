@@ -13,7 +13,7 @@ self.addEventListener('notificationclick',event=>{
  event.waitUntil((async()=>{
   const tabs=await self.clients.matchAll({type:'window',includeUncontrolled:true});
   const existing=tabs.find(tab=>new URL(tab.url).pathname.startsWith('/gestao/'));
-  if(existing){const url=new URL(existing.url);if(/\/gestao\/(admin|colaborador)\//.test(url.pathname)){url.hash='lembretes';await existing.navigate(url.href);}await existing.focus();return;}
+  if(existing){const url=new URL(existing.url);if(/\/gestao\/(admin|colaborador|login)\//.test(url.pathname)){url.hash='lembretes';await existing.navigate(url.href);}await existing.focus();return;}
   await self.clients.openWindow('/gestao/login/#lembretes');
  })());
 });

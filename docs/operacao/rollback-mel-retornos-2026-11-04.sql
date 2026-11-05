@@ -1,5 +1,6 @@
 -- Reversão funcional sem apagar dados ou versões clínicas.
 -- Aplicar somente em uma decisão operacional de reversão desta entrega.
+begin;
 CREATE OR REPLACE FUNCTION private.bc_treatment_equipment_usage_add_impl(p_treatment_id uuid, p_equipment_id uuid, p_parameter_values jsonb)
  RETURNS uuid
  LANGUAGE plpgsql
@@ -402,7 +403,13 @@ begin
 end;$function$
 ;
 
-do $fn$begin if exists(select 1 from pg_extension where extname='pg_cron') and exists(select 1 from cron.job where jobname='bc-return-reminders-minute') then perform cron.unschedule('bc-return-reminders-minute');end if;end;$fn$;
+do $fn$begin
+ if exists(select 1 from pg_extension where extname='pg_cron') then
+  if exists(select 1 from cron.job where jobname='bc-return-reminders-minute') then
+   perform cron.unschedule('bc-return-reminders-minute');
+  end if;
+ end if;
+end;$fn$;
 
 -- Desativa os pontos de entrada novos sem remover os dados já salvos.
 do $acl$declare f record;begin
@@ -411,4 +418,6 @@ do $acl$declare f record;begin
   execute 'revoke execute on function '||f.signature||' from public,anon,authenticated';
  end loop;
 end;$acl$;
+
+commit;
 

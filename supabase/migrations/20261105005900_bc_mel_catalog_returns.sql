@@ -657,6 +657,8 @@ end;$fn$;
 create or replace function private.bc_return_push_tick()
 returns bigint language plpgsql security definer set search_path=''
 as $fn$declare c private.bc_return_push_settings%rowtype;v_secret text;v_request bigint;begin
+ -- Finaliza a última tentativa abandonada mesmo quando não há outro envio para chamar o worker.
+ update private.bc_return_push_deliveries set status='failed',claim_token=null,lease_until=null where status='processing' and lease_until<now() and attempts>=5;
  perform private.bc_return_materialize();
  if not exists(select 1 from private.bc_return_push_deliveries d join public.bc_return_notifications n on n.id=d.notification_id
  join public.bc_return_reminders r on r.id=n.reminder_id and r.revision=n.revision and r.active

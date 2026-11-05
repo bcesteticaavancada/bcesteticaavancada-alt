@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
+import {initTreatmentController} from '../../gestao/js/treatment-panel.js';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 
 test('lembrete usa horário de Brasília e aceita observação livre sem exigir parecer',async()=>{
   const api=await import('../../gestao/js/return-reminders-api.js');
@@ -60,4 +63,76 @@ test('consulta pendente de lembretes respeita formulário aberto e canApply',asy
  const runtime=await initReturnReminders({client,root:document});pending=true;let canApply=true;const poll=runtime.refresh({canApply:()=>canApply});await Promise.resolve();
  const form=document.createElement('form');form.dataset.returnReminderForm='';form.innerHTML='<textarea name="note">Observação em edição</textarea>';document.getElementById('lembretes').append(form);canApply=false;release();await poll;
  assert.equal(document.querySelector('[name="note"]').textContent,'Observação em edição');runtime.destroy();
+});
+
+test('recarregar a mesma sessão preserva o lembrete ainda não salvo sem levar o texto a outra sessão',async()=>{
+ const {document}=parseHTML('<html><body><section data-treatment-panel><div data-treatment-workspace></div><div data-treatment-history></div></section></body></html>');
+ const client={storage:{from(){throw Error('Nenhum arquivo deve ser acessado neste teste');}},rpc:async(name,payload)=>{
+  if(name==='bc_treatment_get')return {data:{id:payload.p_treatment_id,cliente_id:'c1',status:'rascunho',procedure_version:{nome:'Teste',specific_schema:{fields:[]}},phase6d_summary:{}}};
+  if(['bc_treatment_report_get','bc_treatment_external_consent_get','bc_return_reminder_get'].includes(name))return {data:null};
+  return {data:[]};
+ }};
+ const controller=initTreatmentController({client,root:document.body,getClientRecord:()=>({id:'c1'})});
+ await controller.openTreatment('t1');
+ document.querySelector('[name="return_on"]').value='2026-12-10';
+ document.querySelector('[name="remind_at"]').value='2026-12-09T09:00';
+ document.querySelector('[data-return-reminder-form] [name="note"]').value='Observação ainda não salva';
+ await controller.openTreatment('t1');
+ assert.equal(document.querySelector('[name="return_on"]').value,'2026-12-10');
+ assert.equal(document.querySelector('[name="remind_at"]').value,'2026-12-09T09:00');
+ assert.equal(document.querySelector('[data-return-reminder-form] [name="note"]').value,'Observação ainda não salva');
+ await controller.openTreatment('t2');
+ assert.equal(document.querySelector('[data-return-reminder-form] [name="note"]').value,'');
+});
+
+test('concluir outro lembrete conserva o editor aberto e atualiza o item concluído',async()=>{
+ const {initReturnReminders}=await import('../../gestao/js/return-reminders-panel.js');
+ const {document,window}=parseHTML('<html><body><section id="lembretes"></section></body></html>');
+ const rows=['a','b'].map(id=>({id,treatment_id:`t-${id}`,client_name:`Fictícia ${id}`,return_on:'2026-12-10',remind_at:'2026-12-09T12:00:00Z',active:true}));
+ const client={rpc:async(name,payload)=>{
+  if(name==='bc_return_reminder_complete'){rows.find(r=>r.id===payload.p_reminder_id).active=false;return {data:payload.p_reminder_id};}
+  return {data:rows};
+ }};
+ const runtime=await initReturnReminders({client,root:document});
+ const click=selector=>document.querySelector(selector).dispatchEvent(new window.Event('click',{bubbles:true}));
+ click('[data-reminder-edit="a"]');
+ document.querySelector('[data-return-reminder="a"] [name="note"]').value='Não apagar esta edição';
+ click('[data-reminder-complete="b"]');
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(document.querySelector('[data-return-reminder="a"] [name="note"]')?.value,'Não apagar esta edição');
+ assert.match(document.querySelector('[data-return-reminder="b"]').textContent,/Concluído/);
+ runtime.destroy();
+});
+
+test('salvar um editor atualiza o aviso salvo e conserva outro lembrete em edição',async()=>{
+ const {initReturnReminders}=await import('../../gestao/js/return-reminders-panel.js');
+ const {document,window}=parseHTML('<html><body><section id="lembretes"></section></body></html>');
+ const rows=['a','b'].map(id=>({id,treatment_id:`t-${id}`,client_name:`Fictícia ${id}`,return_on:'2026-12-10',remind_at:'2026-12-09T12:00:00Z',active:true}));
+ const client={rpc:async(name,payload)=>{
+  if(name==='bc_return_reminder_save'){const r=rows.find(row=>row.treatment_id===payload.p_treatment_id);r.note=payload.p_note;return {data:r.id};}
+  return {data:rows};
+ }};
+ const runtime=await initReturnReminders({client,root:document});
+ for(const id of ['a','b'])document.querySelector(`[data-reminder-edit="${id}"]`).dispatchEvent(new window.Event('click',{bubbles:true}));
+ document.querySelector('[data-return-reminder="a"] [name="note"]').value='Rascunho A';
+ const form=document.querySelector('[data-return-reminder="b"] form');
+ Object.defineProperty(form,'elements',{value:Object.fromEntries([...form.querySelectorAll('[name]')].map(el=>[el.name,el]))});
+ form.elements.note.value='B salvo';
+ form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(document.querySelector('[data-return-reminder="a"] [name="note"]')?.value,'Rascunho A');
+ assert.match(document.querySelector('[data-return-reminder="b"]').textContent,/B salvo/);
+ assert.equal(document.querySelector('[data-return-reminder="b"] form'),null);
+ runtime.destroy();
+});
+
+test('clique na notificação conserva destino lembretes quando já existe janela de login',async()=>{
+ const handlers={},navigations=[];let pending,focused=false;
+ const tab={url:'https://www.bcesteticaavancada.com.br/gestao/login/',navigate:async url=>navigations.push(url),focus:async()=>{focused=true;}};
+ const self={addEventListener:(name,handler)=>{handlers[name]=handler;},clients:{matchAll:async()=>[tab],openWindow:async()=>assert.fail('A janela existente deve ser usada')}};
+ vm.runInNewContext(readFileSync(new URL('../../gestao/return-reminder-sw.js',import.meta.url),'utf8'),{self,URL});
+ handlers.notificationclick({notification:{close(){}},waitUntil:promise=>{pending=promise;}});
+ await pending;
+ assert.deepEqual(navigations,['https://www.bcesteticaavancada.com.br/gestao/login/#lembretes']);
+ assert.equal(focused,true);
 });

@@ -306,14 +306,17 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     }
     const appointmentOptions = activeTreatment.agendamento_id || activeTreatment.can_resolve_appointment !== true ? [] : await listTreatmentAppointmentOptions({client,treatmentId:id});
     const pendingExternalConsent = externalConsent ? null : (folder()?.__bcPendingExternalConsent || null);
-    returnReminderPanel?.destroy();returnReminderPanel=null;
+    const previousReminderSlot=workspace().querySelector('[data-return-reminder-slot]');
+    const reuseReminder=previousReminderSlot?.querySelector('[data-return-reminder-form]')?.dataset.treatmentId===id;
+    if(!reuseReminder){returnReminderPanel?.destroy();returnReminderPanel=null;}
     workspace().innerHTML = renderTreatmentWizard({ step:'clinical', appointmentOptions, treatment:activeTreatment, report, consent, consentSignatures, finalSignatures, clientRecord:clientRecord(), externalConsent, pendingExternalConsent });
     receiptPanel?.destroy();receiptPanel=null;
     if(activeTreatment.status==='finalizado'&&activeTreatment.agendamento_id){
       const host=root.ownerDocument.createElement('section');host.className='bcg-treatment-stage bcg-finance-current';workspace().append(host);
       receiptPanel=await mountAppointmentReceipt({client,root:host,appointmentId:activeTreatment.agendamento_id,onChanged:()=>{const doc=root.ownerDocument;const EventCtor=doc.defaultView?.CustomEvent||globalThis.CustomEvent;if(EventCtor)doc.dispatchEvent(new EventCtor('bc:finance-changed'));}});
     }
-    returnReminderPanel=await mountTreatmentReturnReminder({client,root:workspace().querySelector('[data-return-reminder-slot]'),treatment:activeTreatment,report});
+    if(reuseReminder)workspace().querySelector('[data-return-reminder-slot]').replaceWith(previousReminderSlot);
+    else returnReminderPanel=await mountTreatmentReturnReminder({client,root:workspace().querySelector('[data-return-reminder-slot]'),treatment:activeTreatment,report});
     mountPads();
     await phase6dController?.loadTreatment(activeTreatment);
   }

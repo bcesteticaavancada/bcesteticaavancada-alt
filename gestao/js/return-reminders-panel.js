@@ -26,14 +26,14 @@ function attachActions({client,root,afterSave}){
  const submit=async event=>{
   const form=event.target.closest?.('[data-return-reminder-form]');if(!form||!root.contains(form))return;event.preventDefault();if(busy)return;busy=true;
   const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
-  try{await saveReturnReminder({client,treatmentId:form.dataset.treatmentId,returnOn:form.elements.return_on.value,remindAt:form.elements.remind_at.value,note:form.elements.note.value});await afterSave();setStatus(root,'Lembrete salvo na gestão. Ative as notificações neste aparelho para receber o aviso fora da página.','success');}
+  try{await saveReturnReminder({client,treatmentId:form.dataset.treatmentId,returnOn:form.elements.return_on.value,remindAt:form.elements.remind_at.value,note:form.elements.note.value});await afterSave({reminderId:form.closest('[data-return-reminder]')?.dataset.returnReminder});setStatus(root,'Lembrete salvo na gestão. Ative as notificações neste aparelho para receber o aviso fora da página.','success');}
   catch(error){setStatus(root,error.message,'error');}finally{busy=false;if(button)button.disabled=false;}
  };
  const click=async event=>{
   const push=event.target.closest?.('[data-return-push-enable]');const complete=event.target.closest?.('[data-reminder-complete]');if(!push&&!complete)return;
   const button=push||complete;button.disabled=true;
   try{if(push){await enableReturnPush({client});setStatus(root,'Notificações ativadas para esta conta neste aparelho.','success');}
-  else{await completeReturnReminder({client,reminderId:complete.dataset.reminderComplete});await afterSave();setStatus(root,'Lembrete concluído / cancelado.','success');}}
+  else{await completeReturnReminder({client,reminderId:complete.dataset.reminderComplete});await afterSave({reminderId:complete.dataset.reminderComplete});setStatus(root,'Lembrete concluído / cancelado.','success');}}
   catch(error){setStatus(root,error.message,'error');}finally{button.disabled=false;}
  };
  root.addEventListener('submit',submit);root.addEventListener('click',click);
@@ -52,8 +52,15 @@ export async function mountTreatmentReturnReminder({client,root,treatment,report
 
 export async function initReturnReminders({client,root=document}={}){
  const host=root.getElementById('lembretes');if(!host)throw Error('Caixa de lembretes indisponível.');let rows=[];
- async function refresh({canApply=()=>true,force=false}={}){const loaded=await listReturnReminders({client})||[];if(!force&&(!canApply()||host.querySelector('[data-return-reminder-form],button[type="submit"]:disabled')))return;rows=loaded;host.innerHTML=`<p class="bcg-eyebrow">ACOMPANHAMENTO</p><h2>Meus lembretes de retorno</h2>${pushButton()}<p class="bcg-status" data-reminder-status role="status" aria-live="polite"></p><div data-return-inbox>${renderReturnInbox(rows)}</div>`;}
- const detach=attachActions({client,root:host,afterSave:()=>refresh({force:true})});
+ async function refresh({canApply=()=>true,force=false,reminderId}={}){
+  const loaded=await listReturnReminders({client})||[];
+  if(!force&&(!canApply()||host.querySelector('[data-return-reminder-form],button[type="submit"]:disabled')))return;
+  // Keep other editors as live DOM nodes: no unsaved note is serialized or discarded.
+  const editors=[...host.querySelectorAll('[data-return-reminder-form]')].map(form=>({form,id:form.closest('[data-return-reminder]')?.dataset.returnReminder})).filter(editor=>editor.id!==reminderId);
+  rows=loaded;host.innerHTML=`<p class="bcg-eyebrow">ACOMPANHAMENTO</p><h2>Meus lembretes de retorno</h2>${pushButton()}<p class="bcg-status" data-reminder-status role="status" aria-live="polite"></p><div data-return-inbox>${renderReturnInbox(rows)}</div>`;
+  for(const editor of editors){const row=[...host.querySelectorAll('[data-return-reminder]')].find(el=>el.dataset.returnReminder===editor.id);row?.querySelector('[data-reminder-editor]')?.append(editor.form);}
+ }
+ const detach=attachActions({client,root:host,afterSave:({reminderId}={})=>refresh({force:true,reminderId})});
  const edit=event=>{const button=event.target.closest?.('[data-reminder-edit]');if(!button)return;const r=rows.find(x=>x.id===button.dataset.reminderEdit);const target=button.closest('[data-return-reminder]').querySelector('[data-reminder-editor]');if(r)target.innerHTML=reminderForm(r,r.treatment_id);};
  host.addEventListener('click',edit);await refresh();
  return {refresh:async(options={})=>{if(!host.querySelector('[data-return-reminder-form]'))await refresh(options);},destroy(){detach();host.removeEventListener('click',edit);}};
