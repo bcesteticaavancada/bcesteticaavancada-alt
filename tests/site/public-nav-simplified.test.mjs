@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import { parseHTML } from 'linkedom';
 
 const source = readFileSync(new URL('../../script.js', import.meta.url), 'utf8');
-const base = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/';
+const base = 'https://www.bcesteticaavancada.com.br/';
 
 function page(filename) {
   const html = readFileSync(new URL('../../' + filename, import.meta.url), 'utf8');
@@ -44,7 +44,7 @@ test('links de agenda são canônicos e seções da página atual abrem no menu'
   const appointment = page('agenda/index.html').document;
   const link = appointment.querySelector('[data-bc-agendar-link="true"]');
   assert.ok(link);
-  assert.equal(new URL(link.href).pathname, '/bcesteticaavancada-alt/agenda/');
+  assert.equal(new URL(link.href).pathname, '/agenda/');
   const protocol = page('protocolos/index.html').document;
   assert.equal(protocol.querySelector('.bc-drawer-group').open, true);
   const team = page('equipe/index.html').document;

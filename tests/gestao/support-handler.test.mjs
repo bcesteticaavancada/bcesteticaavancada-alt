@@ -18,6 +18,19 @@ test('support rejects unauthenticated calls and foreign origins before creating 
   assert.equal((await handler(new Request('https://example.invalid',{method:'POST',headers:{origin:'https://evil.invalid'},body:'{}'}))).status,403);
   assert.equal(created,0);
 });
+for(const origin of ['https://www.bcesteticaavancada.com.br','https://bcesteticaavancada.com.br']){
+  test(`support preflight accepts the official clinic origin ${origin} without authentication`,async()=>{
+    let created=0;const handler=createSupportHandler({makeClients:()=>{created++;throw Error('must not run');}});
+    const response=await handler(new Request('https://example.invalid/client-support',{method:'OPTIONS',headers:{origin}}));
+    assert.equal(response.status,204);assert.equal(response.headers.get('Access-Control-Allow-Origin'),origin);assert.equal(created,0);
+  });
+  test(`support invitation returns to the same approved clinic origin ${origin}`,async()=>{
+    const f=fixture();const request=f.request({action:'invite',name:'Colaboradora fictícia',email:'novo@example.invalid'});request.headers.set('origin',origin);
+    const response=await f.handler(request);
+    assert.equal(response.status,200);assert.equal(response.headers.get('Access-Control-Allow-Origin'),origin);
+    assert.equal(f.invites[0].options.redirectTo,new URL('/gestao/redefinir-senha/',origin).href);
+  });
+}
 test('support binds actor and session to the authenticated identity and fixed service RPC',async()=>{
   const f=fixture();const response=await f.handler(f.request({action:'client_get',clientId,reason:'Apoio cadastral'}));
   assert.equal(response.status,200);assert.equal((await response.json()).client.id,clientId);
