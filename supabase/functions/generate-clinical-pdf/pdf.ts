@@ -131,6 +131,7 @@ export function buildTreatment6dSections(snapshot: AnyRecord | null | undefined)
       const values = item.parameter_values && typeof item.parameter_values === 'object' ? item.parameter_values as AnyRecord : {};
       const params = Object.entries(values).map(([key,value]) => `${key}: ${asText(value)}`).join(' • ');
       if (params) lines.push(`Parâmetros: ${params}`);
+      if (asText(item.usage_notes)) lines.push(`Observações: ${asText(item.usage_notes)}`);
     }
     sections.push({ title:'Equipamentos e parâmetros', lines });
   }

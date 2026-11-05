@@ -48,7 +48,7 @@ Deno.test('modelo textual 6D registra rastreabilidade sem path/URL/bytes de foto
       {id:'ph2',kind:'depois',region:'Face',view:'frontal',captured_at:'2026-10-12T11:00:00-03:00'},
     ],
     product_usages:[{product_name_snapshot:'Produto Teste',manufacturer_snapshot:'Fabricante Teste',lot_code_snapshot:'LOT-123',expires_on_snapshot:'2027-12-31',quantity:1.5,unit:'mL'}],
-    equipment_usages:[{equipment_name_snapshot:'Equipamento Teste',manufacturer_snapshot:'Marca',model_snapshot:'Modelo X',parameter_values:{potencia:10,modo:'A'}}],
+    equipment_usages:[{equipment_name_snapshot:'Equipamento Teste',manufacturer_snapshot:'Marca',model_snapshot:'Modelo X',parameter_values:{potencia:10,modo:'A'},usage_notes:'Anotação livre do aparelho'}],
     intercurrences:[{moment:'durante',severity:'moderada',description:'Descrição sintética',action_taken:'Conduta registrada',status:'acompanhamento',updates:[{evolution:'Evolução sintética',status_after:'acompanhamento'}]}],
   });
   const text=sections.map((s)=>`${s.title}\n${s.lines.join('\n')}`).join('\n');

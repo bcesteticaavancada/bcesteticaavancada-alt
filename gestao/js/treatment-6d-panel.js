@@ -1,6 +1,6 @@
 import {listTreatmentPhotos,uploadTreatmentPhoto,voidTreatmentPhoto,getTreatmentPhotoUrl} from './treatment-photos-api.js';
 import {listClinicalProducts,listProductLots,listTreatmentProductUsages,addTreatmentProductUsageByName,removeTreatmentProductUsage} from './treatment-products-api.js';
-import {listClinicalEquipment,listTreatmentEquipmentUsages,addTreatmentEquipmentUsage,removeTreatmentEquipmentUsage} from './treatment-equipment-api.js';
+import {listClinicalEquipment,listTreatmentEquipmentUsages,addTreatmentEquipmentUsageByName,removeTreatmentEquipmentUsage} from './treatment-equipment-api.js';
 import {listTreatmentIntercurrences,createTreatmentIntercurrence,addIntercurrenceEvolution,confirmOpenIntercurrencesForFinalization} from './treatment-intercurrences-api.js';
 
 function esc(value){return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
@@ -48,9 +48,9 @@ function renderProducts({treatment,products,productUsages}){
 
 function renderEquipment({treatment,equipment,equipmentUsages}){
   const canEdit=editable(treatment); const gates=gateSet(treatment); const required=Boolean(treatment?.procedure_version?.requires_equipment);
-  const rows=(equipmentUsages||[]).length?`<div class="bcg-6d-list">${equipmentUsages.map((u)=>`<article><div><strong>${esc(u.equipment_name_snapshot)}</strong><small>${[u.manufacturer_snapshot,u.model_snapshot,u.internal_code_snapshot].filter(Boolean).map(esc).join(' • ')}</small><p>${Object.entries(u.parameter_values||{}).map(([k,v])=>`${esc(k)}: ${esc(v)}`).join(' • ')||'Sem parâmetros'}</p></div>${canEdit?`<button type="button" class="bcg-link-button" data-6d-equipment-remove="${esc(u.id)}">Remover</button>`:''}</article>`).join('')}</div>`:'<p class="bcg-muted">Nenhum equipamento registrado nesta sessão.</p>';
+  const rows=(equipmentUsages||[]).length?`<div class="bcg-6d-list">${equipmentUsages.map((u)=>`<article><div><strong>${esc(u.equipment_name_snapshot)}</strong><small>${[u.manufacturer_snapshot,u.model_snapshot,u.internal_code_snapshot].filter(Boolean).map(esc).join(' • ')}</small><p>${Object.entries(u.parameter_values||{}).map(([k,v])=>`${esc(k)}: ${esc(v)}`).join(' • ')||'Sem parâmetros'}</p>${u.usage_notes?`<p>${esc(u.usage_notes)}</p>`:''}</div>${canEdit?`<button type="button" class="bcg-link-button" data-6d-equipment-remove="${esc(u.id)}">Remover</button>`:''}</article>`).join('')}</div>`:'<p class="bcg-muted">Nenhum equipamento registrado nesta sessão.</p>';
   const active=(equipment||[]).filter((e)=>e.active!==false);
-  const form=canEdit?`<form class="bcg-form bcg-6d-form" data-6d-equipment-form><label>Equipamento<select class="bcg-input" name="equipment_id" data-6d-equipment-select required><option value="">Selecione</option>${active.map((e)=>`<option value="${esc(e.id)}">${esc(e.name)}</option>`).join('')}</select></label><div class="bcg-field-wide" data-6d-equipment-parameters><p class="bcg-muted">Selecione o equipamento para preencher os parâmetros.</p></div><button class="bcg-small-button" type="submit" data-6d-equipment-submit>Registrar equipamento</button></form>`:'<p class="bcg-muted">Somente leitura — equipamentos desta versão não podem mais ser alterados.</p>';
+  const form=canEdit?`<form class="bcg-form bcg-6d-form" data-6d-equipment-form><label>Equipamento<input class="bcg-input" name="equipment_name" data-6d-equipment-input list="bcg-equipment-${esc(treatment.id)}" maxlength="160" placeholder="Digite o equipamento utilizado" autocomplete="off" required><datalist id="bcg-equipment-${esc(treatment.id)}">${active.map((e)=>`<option value="${esc(e.name)}"></option>`).join('')}</datalist></label><div class="bcg-field-wide" data-6d-equipment-parameters></div><label class="bcg-field-wide">Parâmetros / observações<textarea class="bcg-input" name="equipment_notes" rows="3" maxlength="4000" placeholder="Potência, tempo, ponteira, região e demais informações"></textarea></label><p class="bcg-muted bcg-field-wide">Digite livremente. Um equipamento novo será cadastrado ao registrar o uso.</p><button class="bcg-small-button" type="submit" data-6d-equipment-submit>Registrar equipamento</button></form>`:'<p class="bcg-muted">Somente leitura — equipamentos desta versão não podem mais ser alterados.</p>';
   return card({key:'equipment',title:'Equipamentos',required,pending:gates.has('equipamento_pendente'),summary:summaryCount(treatment.phase6d_summary?.equipment_usages,'uso(s)'),body:rows+form});
 }
 
@@ -74,6 +74,7 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
   let treatment=null,photos=[],products=[],productUsages=[],equipment=[],equipmentUsages=[],intercurrences=[],suggestedLots=[];
   let loadVersion=0,lotRequest=0;
   const productSubmissions=new WeakSet();
+  const equipmentSubmissions=new WeakSet();
   const suggestedUnits=new WeakMap();
   const slot=()=>root.querySelector?.('[data-treatment-6d-slot]');
   const render=()=>{if(slot()&&treatment)slot().innerHTML=renderTreatment6dCards({treatment,photos,products,productUsages,equipment,equipmentUsages,intercurrences});};
@@ -123,7 +124,7 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
     }
     const lot=event.target?.closest?.('[data-6d-lot-input]');
     if(lot){const matches=suggestedLots.filter((l)=>l.lot_code?.trim().toLocaleLowerCase('pt-BR')===lot.value.trim().toLocaleLowerCase('pt-BR'));const expiry=lot.closest('form')?.elements?.expires_on;if(expiry)expiry.value=matches.length===1?matches[0].expires_on:'';return;}
-    const eq=event.target?.closest?.('[data-6d-equipment-select]');if(eq){const form=eq.closest('form');const target=form?.querySelector?.('[data-6d-equipment-parameters]');const selected=equipment.find((e)=>e.id===eq.value);if(target)target.innerHTML=selected?renderEquipmentParameterFields(selected.parameter_schema):'<p class="bcg-muted">Selecione o equipamento.</p>';}
+    const eq=event.target?.closest?.('[data-6d-equipment-input]');if(eq){const form=eq.closest('form');const target=form?.querySelector?.('[data-6d-equipment-parameters]');const selected=equipment.find((e)=>e.active!==false&&e.name.trim().toLocaleLowerCase('pt-BR')===eq.value.trim().toLocaleLowerCase('pt-BR'));if(target)target.innerHTML=selected?renderEquipmentParameterFields(selected.parameter_schema):'';}
   });
   root.addEventListener('click',async(event)=>{
     if(!treatment)return;
@@ -159,9 +160,21 @@ export function initTreatment6dController({client,root,getClientRecord,refreshTr
       }
       return;
     }
+    if(equipmentForm){
+      if(equipmentSubmissions.has(equipmentForm))return;
+      equipmentSubmissions.add(equipmentForm);
+      const button=equipmentForm.querySelector('[data-6d-equipment-submit]');if(button)button.disabled=true;
+      try{
+        await addTreatmentEquipmentUsageByName({client,treatmentId:treatment.id,equipmentName:equipmentForm.elements.equipment_name.value,parameterValues:readParams(equipmentForm),notes:equipmentForm.elements.equipment_notes.value});
+        equipmentForm.reset();await refresh();const card=slot()?.querySelector('[data-6d-card="equipment"]');if(card)card.open=true;
+        status(slot(),'Equipamento registrado.','success');
+      }catch(error){status(slot(),error?.message||'Não foi possível registrar o equipamento.','error');}
+      finally{equipmentSubmissions.delete(equipmentForm);if(button)button.disabled=false;}
+      return;
+    }
     try{
       if(photoForm){await uploadTreatmentPhoto({client,treatmentId:treatment.id,clienteId:treatment.cliente_id||getClientRecord?.()?.id,kind:photoForm.elements.kind.value,region:photoForm.elements.region.value,view:photoForm.elements.view.value,caption:photoForm.elements.caption.value,file:photoForm.elements.file.files?.[0]});}
-      else if(equipmentForm){await addTreatmentEquipmentUsage({client,treatmentId:treatment.id,equipmentId:equipmentForm.elements.equipment_id.value,parameterValues:readParams(equipmentForm)});}
+      else if(equipmentForm){await addTreatmentEquipmentUsageByName({client,treatmentId:treatment.id,equipmentName:equipmentForm.elements.equipment_name.value,parameterValues:readParams(equipmentForm),notes:equipmentForm.elements.equipment_notes.value});}
       else if(interForm){await createTreatmentIntercurrence({client,treatmentId:treatment.id,moment:interForm.elements.moment.value,severity:interForm.elements.severity.value,description:interForm.elements.description.value,actionTaken:interForm.elements.action_taken.value});}
       else if(evolution){await addIntercurrenceEvolution({client,intercurrenceId:evolution.dataset.intercurrenceId,evolution:evolution.elements.evolution.value,statusAfter:evolution.elements.status_after.value});}
       await refresh();

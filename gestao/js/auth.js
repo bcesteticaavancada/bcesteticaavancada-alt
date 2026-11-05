@@ -1,3 +1,4 @@
+import {disableReturnPush} from './return-notifications.js';
 import { createBcGestaoClient } from './supabase-client.js';
 
 const VALID_ROLES = new Set(['admin', 'colaborador', 'admin_criacao']);
@@ -88,6 +89,7 @@ export async function updatePassword(password, client = getDefaultClient()) {
 }
 
 export async function signOut(client = getDefaultClient()) {
+  try { await disableReturnPush({client}); } catch {}
   const { error } = await client.auth.signOut();
   if (error) throw error;
 }
