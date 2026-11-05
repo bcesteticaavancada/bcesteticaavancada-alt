@@ -3,6 +3,10 @@ create extension if not exists pgtap with schema extensions;
 select no_plan();
 \ir ../fixtures/treatment_products.psql
 
+select case when exists(select 1 from pg_available_extensions where name='pg_net')
+ then ok(exists(select 1 from pg_extension where extname='pg_net'),'pg_net habilitado para o despachante')
+ else skip('adaptador pg_net indisponível neste runtime isolado') end;
+
 insert into auth.users(id,email) values('b9000000-0000-4000-8000-000000000001','admin-retorno@example.invalid');
 insert into public.staff_profiles(user_id,display_name,role,active,atende_clientes) values('b9000000-0000-4000-8000-000000000001','Admin fictícia','admin',true,true);
 select ok(not has_function_privilege('anon','public.bc_return_reminder_save(uuid,date,timestamp with time zone,text)','EXECUTE'),'anônimo sem gravação de retorno');

@@ -404,3 +404,11 @@ end;$function$
 
 do $fn$begin if exists(select 1 from pg_extension where extname='pg_cron') and exists(select 1 from cron.job where jobname='bc-return-reminders-minute') then perform cron.unschedule('bc-return-reminders-minute');end if;end;$fn$;
 
+-- Desativa os pontos de entrada novos sem remover os dados já salvos.
+do $acl$declare f record;begin
+ for f in select p.oid::regprocedure signature from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+ where n.nspname in ('public','private') and (p.proname like 'bc_return_%' or p.proname in ('bc_treatment_equipment_usage_add_text','bc_treatment_equipment_usage_add_text_impl','bc_treatment_admin_reopen','bc_treatment_admin_reopen_impl')) loop
+  execute 'revoke execute on function '||f.signature||' from public,anon,authenticated';
+ end loop;
+end;$acl$;
+

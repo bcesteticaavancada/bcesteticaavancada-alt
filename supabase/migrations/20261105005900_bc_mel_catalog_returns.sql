@@ -1,6 +1,9 @@
 -- Mel: cadastros, equipamentos por texto e lembretes de retorno.
 -- Aplicação específica; histórico de migrations anterior permanece intacto.
 
+-- Dependência explícita do despachante HTTP, inclusive no replay descartável do CI.
+create extension if not exists pg_net with schema extensions;
+
 alter table public.clinical_treatment_equipment_usages add column if not exists usage_notes text;
 
 CREATE OR REPLACE FUNCTION private.bc_treatment_update_draft_impl(p_treatment_id uuid, p_patch jsonb)
