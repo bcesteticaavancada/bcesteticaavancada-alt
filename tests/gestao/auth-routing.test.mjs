@@ -146,6 +146,37 @@ test('requireRole fails closed, signs out and redirects on role mismatch', async
   assert.deepEqual(redirects, ['../login/']);
 });
 
+test('expired session keeps the reminder destination at login', async () => {
+  const { requireRole } = await importFresh('gestao/js/auth.js');
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'location');
+  Object.defineProperty(globalThis, 'location', { configurable: true, value: { hash: '#lembretes' } });
+  try {
+    const expired = makeClient({ userId: null, profile: null });
+    const redirects = [];
+    assert.equal(await requireRole('admin', expired.client, url => redirects.push(url)), null);
+    assert.equal(expired.calls.signOut, 1);
+    assert.deepEqual(redirects, ['../login/#lembretes']);
+  } finally {
+    if (previous) Object.defineProperty(globalThis, 'location', previous);
+    else delete globalThis.location;
+  }
+});
+
+test('login redirect ignores destinations outside the approved reminder route', async () => {
+  const { requireRole } = await importFresh('gestao/js/auth.js');
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'location');
+  Object.defineProperty(globalThis, 'location', { configurable: true, value: { hash: '#https://example.invalid/' } });
+  try {
+    const expired = makeClient({ userId: null, profile: null });
+    const redirects = [];
+    await requireRole('colaborador', expired.client, url => redirects.push(url));
+    assert.deepEqual(redirects, ['../login/']);
+  } finally {
+    if (previous) Object.defineProperty(globalThis, 'location', previous);
+    else delete globalThis.location;
+  }
+});
+
 test('login and role pages are wired to real authentication without hardcoded staff email', () => {
   const login = fs.readFileSync(path.join(root, 'gestao/login/index.html'), 'utf8');
   assert.match(login, /id=["']loginForm["']/);

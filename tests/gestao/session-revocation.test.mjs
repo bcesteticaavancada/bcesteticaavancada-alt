@@ -15,3 +15,11 @@ test('returning active session is denied when server disables the staff profile'
  const guard=installSessionGuard({client,profile:{user_id:'worker',role:'colaborador'},app:document.getElementById('app'),view:{location:{replace(value){url=value;}}}});
  assert.equal(await guard.authorize(),false);assert.equal(document.getElementById('app').textContent,'');assert.equal(url,'../login/');
 });
+test('revoking a session clears private content and keeps the reminder destination',()=>{
+ const {document}=parseHTML('<main id="app">Registro fictício privado</main>');let listener,url;
+ const client={auth:{onAuthStateChange(fn){listener=fn;return {data:{subscription:{unsubscribe(){}}}};}}};
+ const app=document.getElementById('app');
+ installSessionGuard({client,profile:{user_id:'worker',role:'colaborador'},app,view:{location:{hash:'#lembretes',replace(value){url=value;}}}});
+ listener('SIGNED_OUT',null);
+ assert.equal(app.hidden,true);assert.equal(app.textContent,'');assert.equal(url,'../login/#lembretes');
+});

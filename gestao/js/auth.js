@@ -20,6 +20,10 @@ function defaultRedirect(url) {
   if (globalThis.location) globalThis.location.href = url;
 }
 
+function loginDestination(location = globalThis.location) {
+  return '../login/' + (location?.hash === '#lembretes' ? '#lembretes' : '');
+}
+
 function applyRolePresentation(profile) {
   if (typeof document === 'undefined' || profile?.role !== 'colaborador') return;
   const isChief = profile?.pode_gerenciar_agendas === true;
@@ -102,7 +106,7 @@ export async function requireRole(role, client = getDefaultClient(), redirect = 
   }
   if (!profile || profile.role !== expectedRole) {
     try { await client.auth.signOut(); } catch {}
-    redirect('../login/');
+    redirect(loginDestination());
     return null;
   }
   applyRolePresentation(profile);
@@ -113,7 +117,7 @@ export async function requireRole(role, client = getDefaultClient(), redirect = 
 export function installSessionGuard({client,profile,app,view=globalThis.window,onProfile}) {
   let stopped=false;
   function revoke(){
-    if(stopped)return;stopped=true;app.hidden=true;app.replaceChildren();view.location.replace('../login/');
+    if(stopped)return;stopped=true;app.hidden=true;app.replaceChildren();view.location.replace(loginDestination(view.location));
   }
   const subscription=client.auth.onAuthStateChange?.((event,session)=>{if(event==='SIGNED_OUT' || (event==='SIGNED_IN' && session?.user?.id!==profile.user_id))revoke();});
   return {
