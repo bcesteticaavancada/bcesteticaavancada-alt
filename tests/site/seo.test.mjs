@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 
 const home = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
-const canonical = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/';
+const canonical = 'https://www.bcesteticaavancada.com.br/';
 
 test('Home exposes canonical and Open Graph metadata without changing visible content', () => {
   assert.match(home, new RegExp(`<link rel="canonical" href="${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
   assert.match(home, /property="og:type" content="website"/);
   assert.match(home, /property="og:title"/);
   assert.match(home, /property="og:description"/);
-  assert.match(home, /property="og:url" content="https:\/\/bcesteticaavancada\.github\.io\/bcesteticaavancada-alt\/"/);
+  assert.match(home, /property="og:url" content="https:\/\/www\.bcesteticaavancada\.com\.br\/"/);
   assert.match(home, /property="og:image"/);
 });
 
@@ -31,7 +31,7 @@ test('Robots and sitemap cover exactly the eleven public navigation destinations
   const sitemap = readFileSync(sitemapUrl, 'utf8');
   assert.match(robots, /User-agent: \*/);
   assert.match(robots, /Allow: \//);
-  assert.match(robots, /Sitemap: https:\/\/bcesteticaavancada\.github\.io\/bcesteticaavancada-alt\/sitemap\.xml/);
+  assert.match(robots, /Sitemap: https:\/\/www\.bcesteticaavancada\.com\.br\/sitemap\.xml/);
   const paths = ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/'];
   assert.equal((sitemap.match(/<url>/g) || []).length, paths.length);
   for (const path of paths) {

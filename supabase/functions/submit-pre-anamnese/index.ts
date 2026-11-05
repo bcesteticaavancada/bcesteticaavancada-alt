@@ -9,6 +9,8 @@ import { buildPdfDownloadFilename } from './download-filename.js';
 
 const ALLOWED_ORIGINS = new Set([
   'https://bcesteticaavancada.github.io',
+  'https://www.bcesteticaavancada.com.br',
+  'https://bcesteticaavancada.com.br',
   'http://localhost:8000',
   'http://127.0.0.1:8000',
 ]);
@@ -16,7 +18,7 @@ const PDF_TTL_SECONDS = 600;
 const MAX_CONTENT_LENGTH = 3_000_000;
 const BUCKET = 'bc-prontuario-private';
 const TABLE = 'bc_pre_anamneses';
-const LOGO_URL = 'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/logo-oficial/logo-bc-estetica-sem-fundo.png';
+const LOGO_URL = 'https://www.bcesteticaavancada.com.br/assets/logo-oficial/logo-bc-estetica-sem-fundo.png';
 
 function corsHeaders(origin: string | null): HeadersInit {
   return {

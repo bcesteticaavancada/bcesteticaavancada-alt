@@ -2,7 +2,7 @@ import { generatePreAnamnesePdf } from '../supabase/functions/submit-pre-anamnes
 
 async function fetchLogo(): Promise<Uint8Array | null> {
   try {
-    const response = await fetch('https://bcesteticaavancada.github.io/bcesteticaavancada-alt/assets/logo-oficial/logo-bc-estetica-sem-fundo.png');
+    const response = await fetch('https://www.bcesteticaavancada.com.br/assets/logo-oficial/logo-bc-estetica-sem-fundo.png');
     if (!response.ok) return null;
     return new Uint8Array(await response.arrayBuffer());
   } catch {
