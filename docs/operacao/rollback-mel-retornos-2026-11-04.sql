@@ -420,4 +420,3 @@ do $acl$declare f record;begin
 end;$acl$;
 
 commit;
-
