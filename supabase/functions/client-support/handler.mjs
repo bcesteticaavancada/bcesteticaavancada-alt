@@ -1,5 +1,9 @@
 const ORIGIN='https://bcesteticaavancada.github.io';
-const REDIRECT=ORIGIN+'/bcesteticaavancada-alt/gestao/redefinir-senha/';
+const SITE_BASES=new Map([
+  [ORIGIN,'https://bcesteticaavancada.github.io/bcesteticaavancada-alt/'],
+  ['https://www.bcesteticaavancada.com.br','https://www.bcesteticaavancada.com.br/'],
+  ['https://bcesteticaavancada.com.br','https://bcesteticaavancada.com.br/'],
+]);
 const BUCKET='bc-prontuario-private',MAX_PDF=8*1024*1024;
 const FIELDS=new Set(['nome','telefone','email','cpf','data_nascimento','cep','logradouro','numero','complemento','bairro','cidade','uf','responsavel_nome','responsavel_cpf','responsavel_parentesco','responsavel_telefone']);
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -22,9 +26,11 @@ function filename(name){return 'BC_'+String(name||'Cliente').normalize('NFD').re
 export function createSupportHandler({makeClients,crypto=globalThis.crypto}){
   return async request=>{
     const origin=request.headers.get('origin');
-    const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Headers':'authorization,content-type,apikey,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS',Vary:'Origin'};
+    const approvedOrigin=origin&&SITE_BASES.has(origin)?origin:ORIGIN;
+    const redirectTo=new URL('gestao/redefinir-senha/',SITE_BASES.get(approvedOrigin)).href;
+    const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':approvedOrigin,'Access-Control-Allow-Headers':'authorization,content-type,apikey,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS',Vary:'Origin'};
     const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
-    if(origin&&origin!==ORIGIN)return json({error:'Origem não autorizada.'},403);
+    if(origin&&!SITE_BASES.has(origin))return json({error:'Origem não autorizada.'},403);
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
     if(request.method!=='POST')return json({error:'Método não permitido.'},405);
     let uploadedPath=null,service=null,committed=false,call=null,uploadContext=null;
@@ -69,7 +75,7 @@ export function createSupportHandler({makeClients,crypto=globalThis.crypto}){
             if(error||!data?.user?.id)throw new PublicError('Não foi possível criar o convite. Confira o e-mail e tente novamente.',409);
             userId=data.user.id;
           }
-          const {data,error}=await service.auth.admin.generateLink({type:'invite',email,options:{redirectTo:REDIRECT}});
+          const {data,error}=await service.auth.admin.generateLink({type:'invite',email,options:{redirectTo}});
           if(error||data?.user?.id!==userId||!data?.properties?.action_link)throw new PublicError('Não foi possível gerar o convite. Tente novamente.',502);
           const link=new URL(data.properties.action_link);if(link.protocol!=='https:')throw new PublicError('Convite indisponível.',502);
           await call('invite_finish',{invitationId,userId});
