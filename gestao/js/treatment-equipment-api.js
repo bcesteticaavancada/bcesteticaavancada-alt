@@ -21,3 +21,14 @@ export async function addTreatmentEquipmentUsage({client,treatmentId,equipmentId
 export async function removeTreatmentEquipmentUsage({client,usageId}){
   return await call(client,'bc_treatment_equipment_usage_remove',{p_usage_id:required(usageId,'Uso de equipamento')},'Não foi possível remover o equipamento do atendimento.');
 }
+
+export async function addTreatmentEquipmentUsageByName({client,treatmentId,equipmentName,parameterValues={},notes=''}){
+  const name=required(equipmentName,'Equipamento');
+  if(name.length>160)throw new Error('Nome do equipamento deve ter até 160 caracteres.');
+  const cleanNotes=String(notes??'').trim();
+  if(cleanNotes.length>4000)throw new Error('Observações do equipamento devem ter até 4000 caracteres.');
+  return call(client,'bc_treatment_equipment_usage_add_text',{
+    p_treatment_id:required(treatmentId,'Atendimento'),p_equipment_name:name,
+    p_parameter_values:object(parameterValues),p_notes:cleanNotes||null,
+  },'Não foi possível registrar o equipamento.');
+}

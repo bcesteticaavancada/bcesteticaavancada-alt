@@ -58,7 +58,7 @@
     function goToProfile(profile) {
       const destination = routeForRole(profile?.role);
       if (!destination) return false;
-      window.location.replace(destination);
+      window.location.replace(destination + (window.location.hash === '#lembretes' && profile?.role !== 'admin_criacao' ? '#lembretes' : ''));
       return true;
     }
 
