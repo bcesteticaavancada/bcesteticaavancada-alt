@@ -18,6 +18,7 @@ export type ClinicalPdfSnapshot = {
   consent?: AnyRecord | null;
   consentTemplate?: AnyRecord | null;
   treatmentVersion?: AnyRecord | null;
+  externalSignatureCopy?: boolean;
 };
 
 export type Treatment6dSection = { title: string; lines: string[] };
@@ -206,7 +207,8 @@ export async function buildClinicalPdf(snapshot: ClinicalPdfSnapshot): Promise<U
 
   const documentType = String(snapshot.document.document_type || '');
   const isConsent = documentType === 'consentimento_procedimento';
-  const title = isConsent ? 'CONSENTIMENTO E AUTORIZAÇÃO • PRONTUÁRIO CLÍNICO' : 'FICHA DE ATENDIMENTO • PRONTUÁRIO CLÍNICO';
+  const isExternalCopy = isConsent && snapshot.externalSignatureCopy === true;
+  const title = isExternalCopy ? 'TCLE E CIÊNCIA DOS RISCOS • PARA ASSINATURA EXTERNA' : isConsent ? 'CONSENTIMENTO E AUTORIZAÇÃO • PRONTUÁRIO CLÍNICO' : 'FICHA DE ATENDIMENTO • PRONTUÁRIO CLÍNICO';
 
   page.drawText('BC Estética Avançada', { x:margin, y, size:20, font:bold, color:ink });
   y -= 27;
@@ -214,6 +216,7 @@ export async function buildClinicalPdf(snapshot: ClinicalPdfSnapshot): Promise<U
   y -= 19;
   pair('Código do documento', snapshot.document.document_code);
   pair('Versão do documento', snapshot.document.document_version || 1);
+  if (isExternalCopy) line('VIA INTERMEDIÁRIA — assinatura da cliente / responsável pendente', 8.8, bold, gold);
   divider();
 
   section('Identificação da cliente');
@@ -334,8 +337,16 @@ export async function buildClinicalPdf(snapshot: ClinicalPdfSnapshot): Promise<U
     y -= 6;
   }
 
+  if (isExternalCopy) {
+    y -= 6;
+    section('Assinatura da cliente / responsável pendente');
+    paragraph('A profissional assinou graficamente no aplicativo BC Gestão. A cliente ou responsável deverá assinar este PDF em serviço externo, baixar o arquivo efetivamente assinado e devolvê-lo à clínica.', 9.1);
+    paragraph('Esta via ainda não comprova o consentimento da cliente. A equipe deve conferir a assinatura do arquivo devolvido e vinculá-lo ao atendimento antes do procedimento.', 8.8, regular, muted);
+  }
+
   divider();
-  if (isConsent) paragraph('Este documento registra informação, ciência e consentimento para o procedimento descrito. Não constitui promessa de resultado nem substitui avaliação clínica individualizada.', 8.4, regular, muted);
+  if (isExternalCopy) paragraph('Termo de Consentimento Livre e Esclarecido e Ciência dos Riscos do Procedimento. Pendente de assinatura da cliente ou responsável.', 8.4, regular, muted);
+  else if (isConsent) paragraph('Este documento registra informação, ciência e consentimento para o procedimento descrito. Não constitui promessa de resultado nem substitui avaliação clínica individualizada.', 8.4, regular, muted);
   else paragraph('Esta ficha registra a sessão clínica e a versão assinada pela profissional responsável. Correções posteriores geram nova versão e preservam o registro anterior.', 8.4, regular, muted);
   paragraph(`Documento gerado em ${formatDate(new Date().toISOString())}.`, 8.2, regular, muted);
 

@@ -24,6 +24,7 @@ import {
   registerClinicalSignature,
   uploadClinicalSignature,
   finalizeProcedureConsent,
+  generateProfessionalSignedConsentPdf,
 } from './clinical-documents-api.js';
 import { getTreatmentReport, saveTreatmentReport } from './treatment-report-api.js';
 import { createSignaturePad, sha256Blob } from './signature-pad.js';
@@ -141,7 +142,8 @@ function renderConsentSection({ consent = null, signatures = [], clientRecord = 
   const subjectDone = signatures.some((item) => item.signer_kind === subjectKind);
   const professionalDone = signatures.some((item) => item.signer_kind === 'profissional');
   const finalized = consent.status === 'finalizado' || consent.reused === true;
-  return `<section class="bcg-treatment-stage" data-treatment-consent-stage data-document-id="${escapeHtml(consent.document_id)}"><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>${escapeHtml(consent.title || 'Consentimento do procedimento')}</h4>${pending}<p><strong>${escapeHtml(consent.procedure_name || '')}</strong></p>${consent.body ? `<div class="bcg-treatment-consent-copy">${escapeHtml(consent.body).replaceAll('\n','<br>')}</div>` : '<p class="bcg-muted">Termo institucional preparado e vinculado a esta sessão.</p>'}${consent.supplement ? `<div class="bcg-treatment-supplement"><strong>Complemento específico</strong><p>${escapeHtml(consent.supplement)}</p></div>` : ''}${finalized ? '<p class="bcg-status" data-kind="success">Consentimento finalizado.</p>' : `<div class="bcg-signature-grid">${subjectDone ? '<section><strong>Cliente / responsável</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Cliente / responsável</strong><canvas data-treatment-signature-canvas="subject" aria-label="Assinatura da cliente ou responsável"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="subject">Limpar</button></section>'}${professionalDone ? '<section><strong>Profissional</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Profissional</strong><canvas data-treatment-signature-canvas="professional" aria-label="Assinatura profissional"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="professional">Limpar</button></section>'}</div><button type="button" class="bcg-button" data-treatment-consent-sign>Registrar assinaturas</button>`}</section>`;
+  const externalSigningActions = finalized ? '' : `<div class="bcg-treatment-supplement" data-consent-external-flow><strong>Cliente assinará fora do aplicativo (ex.: gov.br)</strong><p>1. A profissional assina aqui. 2. Baixa o PDF com sua assinatura gráfica e envia ao cliente. 3. O cliente devolve o PDF assinado, que deve ser anexado na aba Documentos e revisado pela profissional. O BC Gestão não acessa o gov.br.</p>${professionalDone ? '<button type="button" class="bcg-small-button" data-treatment-consent-export>Baixar PDF para assinatura da cliente</button>' : '<button type="button" class="bcg-small-button" data-treatment-professional-sign>Registrar assinatura da profissional</button>'}</div>`;
+  return `<section class="bcg-treatment-stage" data-treatment-consent-stage data-document-id="${escapeHtml(consent.document_id)}"><p class="bcg-eyebrow">CONSENTIMENTO</p><h4>${escapeHtml(consent.title || 'Consentimento do procedimento')}</h4>${pending}<p><strong>${escapeHtml(consent.procedure_name || '')}</strong></p>${consent.body ? `<div class="bcg-treatment-consent-copy">${escapeHtml(consent.body).replaceAll('\n','<br>')}</div>` : '<p class="bcg-muted">Termo institucional preparado e vinculado a esta sessão.</p>'}${consent.supplement ? `<div class="bcg-treatment-supplement"><strong>Complemento específico</strong><p>${escapeHtml(consent.supplement)}</p></div>` : ''}${externalSigningActions}${finalized ? '<p class="bcg-status" data-kind="success">Consentimento finalizado.</p>' : `<div class="bcg-signature-grid">${subjectDone ? '<section><strong>Cliente / responsável</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Cliente / responsável</strong><canvas data-treatment-signature-canvas="subject" aria-label="Assinatura da cliente ou responsável"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="subject">Limpar</button></section>'}${professionalDone ? '<section><strong>Profissional</strong><p class="bcg-status" data-kind="success">Assinatura registrada.</p></section>' : '<section><strong>Profissional</strong><canvas data-treatment-signature-canvas="professional" aria-label="Assinatura profissional"></canvas><button type="button" class="bcg-small-button" data-treatment-signature-clear="professional">Limpar</button></section>'}</div><button type="button" class="bcg-button" data-treatment-consent-sign>Registrar assinaturas</button>`}</section>`;
 }
 
 function renderSpecificFields(treatment = {}) {
@@ -403,6 +405,33 @@ export function initTreatmentController({ client, root, getClientRecord, refresh
     }
     const clear = event.target.closest?.('[data-treatment-signature-clear]');
     if (clear) { pads[clear.dataset.treatmentSignatureClear]?.clear?.(); return; }
+    if (event.target.closest?.('[data-treatment-professional-sign]') && activeTreatment && consent?.document_id) {
+      const button=event.target.closest('[data-treatment-professional-sign]');button.disabled=true;
+      try {
+        if(!consentSignatures.some((item)=>item.signer_kind==='profissional')){
+          await saveSignaturePad({client,documentId:consent.document_id,signerKind:'profissional',pad:pads.professional});
+        }
+        await reloadTreatment();
+      } catch(error) { setStatus(workspace(),error?.message||'Não foi possível registrar a assinatura profissional.','error'); }
+      finally { button.disabled=false; }
+      return;
+    }
+    if (event.target.closest?.('[data-treatment-consent-export]') && activeTreatment && consent?.document_id) {
+      const button=event.target.closest('[data-treatment-consent-export]');button.disabled=true;
+      try {
+        const pdf=await generateProfessionalSignedConsentPdf({client,documentId:consent.document_id});
+        const win=root.ownerDocument.defaultView;
+        if(!win?.URL?.createObjectURL)throw new Error('Download indisponível neste navegador.');
+        const url=win.URL.createObjectURL(pdf);
+        const anchor=root.ownerDocument.createElement('a');
+        anchor.href=url;anchor.download=`BC_TCLE_${consent.document_id.slice(0,8)}_para_assinatura.pdf`;
+        anchor.hidden=true;root.ownerDocument.body.append(anchor);
+        anchor.click();anchor.remove();
+        win.setTimeout(()=>win.URL.revokeObjectURL(url),60000);
+      } catch(error) { setStatus(workspace(),error?.message||'Não foi possível baixar o PDF.','error'); }
+      finally { button.disabled=false; }
+      return;
+    }
     if (event.target.closest?.('[data-treatment-consent-sign]') && activeTreatment && consent?.document_id) {
       const button = event.target.closest('[data-treatment-consent-sign]');
       button.disabled=true;

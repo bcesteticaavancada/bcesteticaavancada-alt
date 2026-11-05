@@ -12,7 +12,9 @@ const ALLOWED_ORIGINS=new Set([
 function corsHeaders(origin:string|null):HeadersInit{return {
   'Access-Control-Allow-Origin':origin&&ALLOWED_ORIGINS.has(origin)?origin:'https://bcesteticaavancada.github.io',
   'Access-Control-Allow-Headers':'authorization, content-type, apikey, x-client-info',
-  'Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin',
+  'Access-Control-Allow-Methods':'POST, OPTIONS',
+  'Access-Control-Expose-Headers':'Content-Disposition',
+  'Vary':'Origin',
 };}
 function json(body:unknown,status=200,origin:string|null=null){return new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',...corsHeaders(origin)}});}
 function isUuid(value:unknown):value is string{return typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);}
@@ -51,12 +53,38 @@ Deno.serve(async(req:Request)=>{
     let body:Record<string,unknown>;
     try{body=await req.json();}catch{return json({error:'JSON inválido.'},400,origin);}
     const keys=Object.keys(body||{});
-    if(keys.length!==1||keys[0]!=='documentId'||!isUuid(body.documentId))return json({error:'Informe somente um documentId válido.'},400,origin);
+    const externalCopy=keys.length===2&&keys.includes('documentId')&&keys.includes('mode')&&body.mode==='professional_signed_for_external';
+    if(!isUuid(body.documentId)||!(externalCopy||(keys.length===1&&keys[0]==='documentId')))return json({error:'Informe um documentId válido e um modo permitido.'},400,origin);
     documentId=body.documentId;
 
     const {data:document,error:documentError}=await service.from('clinical_documents').select('*').eq('id',documentId).single();
     if(documentError||!document)return json({error:'Documento clínico não encontrado.'},404,origin);
     if(!['consentimento_procedimento','treatment_record'].includes(document.document_type))return json({error:'Tipo de documento não suportado por este gerador.'},409,origin);
+
+    // A cópia intermediária não altera o estado do TCLE e não grava um documento final.
+    if(externalCopy){
+      if(document.document_type!=='consentimento_procedimento'||document.status!=='aguardando_assinaturas')return json({error:'TCLE fora da etapa de assinatura externa.'},409,origin);
+      const {data:consent,error:consentError}=await service.from('procedure_consents').select('*').eq('id',document.source_id).single();
+      if(consentError||!consent||consent.status!=='aguardando_assinaturas'||consent.cliente_id!==document.cliente_id)return json({error:'TCLE pendente não encontrado.'},409,origin);
+      if(staff.role!=='admin'&&consent.profissional_user_id!==user.id)return json({error:'Apenas a profissional responsável pode baixar esta via.'},403,origin);
+      const [clientResult,templateResult,signaturesResult]=await Promise.all([
+        service.from('clientes').select('*').eq('id',document.cliente_id).single(),
+        service.from('consent_template_versions').select('*').eq('id',consent.consent_template_version_id).single(),
+        service.from('clinical_signatures').select('*').eq('document_id',documentId),
+      ]);
+      if(clientResult.error||templateResult.error||signaturesResult.error)throw clientResult.error||templateResult.error||signaturesResult.error;
+      const signed=signaturesResult.data||[];
+      const professional=signed.find((item:any)=>item.signer_kind==='profissional');
+      if(!professional)return json({error:'A profissional deve assinar no aplicativo antes de baixar o PDF.'},409,origin);
+      if(signed.some((item:any)=>item.signer_kind==='paciente'||item.signer_kind==='responsavel'))return json({error:'Já existe assinatura interna da cliente neste documento.'},409,origin);
+      const bytes=await downloadBytes(service,professional.storage_path);
+      if(!bytes||await sha256Hex(bytes)!==String(professional.sha256||'').trim().toLowerCase())return json({error:'Integridade da assinatura profissional inválida.'},409,origin);
+      const pdfBytes=await buildClinicalPdf({document,client:clientResult.data,signatures:[{...professional,bytes}],consent,consentTemplate:templateResult.data,externalSignatureCopy:true});
+      return new Response(new Blob([pdfBytes],{type:'application/pdf'}),{
+        status:200,
+        headers:{...corsHeaders(origin),'Content-Type':'application/pdf','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff','Content-Disposition':'attachment; filename="BC_TCLE_para_assinatura.pdf"'},
+      });
+    }
     if(document.status==='emitido'&&document.storage_path)return json({ok:true,documentId,status:'emitido',storagePath:document.storage_path,idempotent:true},200,origin);
     if(!['pronto_para_pdf','erro_pdf'].includes(document.status))return json({error:'Documento ainda não está pronto para geração do PDF.'},409,origin);
 

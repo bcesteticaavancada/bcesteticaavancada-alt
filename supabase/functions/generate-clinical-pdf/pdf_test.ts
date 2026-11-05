@@ -124,3 +124,15 @@ Deno.test('gera PDF institucional válido para ficha final de atendimento com 6D
   assert(bytes.length > 1000);
   assertEquals(new TextDecoder().decode(bytes.slice(0, 4)), '%PDF');
 });
+Deno.test('PDF intermediário da profissional não se apresenta como consentimento final',async()=>{
+  const bytes=await buildClinicalPdf({
+    document:{...document,document_type:'consentimento_procedimento'},
+    client,
+    signatures:signatures.filter((item)=>item.signer_kind==='profissional'),
+    consent:{consent_class:'nao_injetavel',procedure_name_snapshot:'Limpeza de pele'},
+    consentTemplate:{title:'TCLE e ciência dos riscos',body:'Informações e riscos de teste.'},
+    externalSignatureCopy:true,
+  });
+  assert(bytes.length>1000);
+  assertEquals(new TextDecoder().decode(bytes.slice(0,4)),'%PDF');
+});

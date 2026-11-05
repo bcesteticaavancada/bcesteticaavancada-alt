@@ -140,3 +140,18 @@ test('checklist de início traduz apenas gates 6C sem exigir dados do fim da ses
 });
 
 test('controller compartilhado existe para hidratar a pasta',()=>assert.equal(typeof initTreatmentController,'function'));
+
+test('TCLE oferece assinatura profissional, PDF externo e mantém assinatura interna opcional',()=>{
+  const consent={document_id:'d1',title:'TCLE',procedure_name:'Peeling',body:'Riscos e orientações',status:'aguardando_assinaturas'};
+  const basic={step:'clinical',treatment:baseTreatment,consent};
+  const unsigned=renderTreatmentWizard({...basic,consentSignatures:[]});
+  assert.match(unsigned,/data-treatment-professional-sign/);
+  assert.doesNotMatch(unsigned,/data-treatment-consent-export/);
+  assert.match(unsigned,/data-treatment-consent-sign/);
+  const professional=renderTreatmentWizard({...basic,consentSignatures:[{signer_kind:'profissional'}]});
+  assert.match(professional,/data-treatment-consent-export/);
+  assert.doesNotMatch(professional,/data-treatment-professional-sign/);
+  const reviewed=renderTreatmentWizard({...basic,externalConsent:{client_file_id:'f1',file_title:'TCLE devolvido',consent_class:'nao_injetavel'}});
+  assert.doesNotMatch(reviewed,/data-treatment-consent-export/);
+  assert.match(reviewed,/revisado/i);
+});
