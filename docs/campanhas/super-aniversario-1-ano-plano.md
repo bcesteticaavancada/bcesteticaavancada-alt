@@ -6,11 +6,11 @@ Status: PR #84 em rascunho. Esta campanha substitui a Black Friday proposta ante
 ## Objetivo e contexto confirmado
 
 Transformar a comemoração de 1 ano em uma campanha de captação, conversas qualificadas e agendamentos.
-O site será o destino principal da divulgação; o grupo VIP dará continuidade ao relacionamento e às promoções semanais.
+O site será o destino principal da divulgação; o Grupo Diamond dará continuidade ao relacionamento e às campanhas de venda semanais.
 
 Confirmado por Fernando: aniversário de 1 ano, nova área Campanhas, prioridade em vendas e manutenção do grupo após a campanha.
 Confirmado no site: atendimento em Belo Horizonte, cuidados faciais, estética avançada, cuidados corporais, equipe e endereço institucional.
-Ainda não definidos: convite do grupo, datas, serviços participantes, valores, formas de pagamento, capacidade de agenda e verba de mídia.
+Ainda não definidos: datas, serviços participantes, valores, formas de pagamento, capacidade de agenda e verba de mídia.
 Não há histórico de conversão ou CRM consultado para este plano. As táticas abaixo são propostas, não resultados comprovados da BC.
 
 ## Arquitetura comercial do site
@@ -18,9 +18,10 @@ Não há histórico de conversão ou CRM consultado para este plano. As táticas
 | Área | Papel | Conteúdo |
 | --- | --- | --- |
 | Página inicial | Dar visibilidade sem sobrecarregar a Home | Uma chamada curta para o aniversário e um botão para conhecer a campanha. |
-| `/campanhas/` | Vitrine permanente | Uma campanha em destaque; entrada para o grupo VIP; futuras campanhas substituem o destaque. |
-| `/campanhas/aniversario-1-ano/` | Página de conversão | Celebração, equipe, caminhos de interesse, condições consultadas no atendimento, dúvidas e chamadas claras. |
-| Grupo VIP | Distribuição e relacionamento | Novidades e ofertas aprovadas, com envio pela equipe. |
+| `/campanhas/` | Vitrine permanente | Uma campanha em destaque; entrada para o Grupo Diamond; futuras campanhas substituem o destaque. |
+| `/diamond/` | Página principal de conversão | Apresentação editorial Diamond, arte original do casal, convite real e limite administrado de 100 participantes. |
+| `/campanhas/aniversario-1-ano/` | Informações complementares | Celebração, caminhos de interesse, condições consultadas no atendimento, dúvidas e chamadas claras. |
+| Grupo Diamond | Distribuição e relacionamento | Novidades e ofertas aprovadas, com envio pela equipe. |
 | Atendimento particular | Qualificar e fechar | Entender o interesse, informar a condição completa, esclarecer dúvidas e conduzir ao agendamento. |
 
 As rotas estão preparadas no código, ainda sem publicação. Não há pop-up, carrossel de ofertas ou múltiplos banners na Home.
@@ -29,12 +30,12 @@ As páginas novas têm metadados de compartilhamento, canonical e inclusão no s
 
 ## Posicionamento e mensagem central
 
-Nome: **Super Aniversário de 1 Ano da BC Estética Avançada**.
+Nome: **1 Ano Diamond — Super Aniversário da BC Estética Avançada**.
 
-Mensagem: **Um ano de BC. Uma celebração feita para você.**
+Mensagem: **Sua beleza merece ser celebrada.**
 
 O aniversário cria uma razão concreta para conversar com a clínica. A comunicação combina celebração, equipe, experiência de cuidado e uma condição comercial clara.
-A identidade usa o preto, o dourado e o creme já presentes no site, com selo tipográfico de 1 ano e a foto institucional existente.
+A identidade usa o preto, o dourado e o creme já presentes no site. Fernando forneceu a capa horizontal 1 Ano Diamond e a arte quadrada do Grupo Diamond. As duas imagens são incorporadas em PNG, sem alterações visuais ou cortes no conteúdo da capa.
 
 Chamada para a Home:
 
@@ -42,7 +43,7 @@ Chamada para a Home:
 
 Chamada curta para divulgação:
 
-> A BC faz 1 ano e essa celebração também é sua. Conheça nossa campanha de aniversário e entre no grupo VIP para acompanhar as novidades. Acesse a página da campanha no site.
+> A BC faz 1 ano e essa celebração também é sua. Conheça nossa campanha de aniversário e entre no Grupo Diamond para acompanhar as novidades. Acesse a página da campanha no site.
 
 ## Desenho das ofertas para a Mel definir
 
@@ -64,12 +65,12 @@ Não há sorteio, benefício, desconto, brinde ou preço criado automaticamente 
 ## Jornada de compra e atendimento
 
 1. A pessoa chega ao site pela rede social, Status, indicação, QR ou NFC.
-2. A página explica o motivo da campanha e oferece o grupo VIP ou o atendimento particular.
+2. A página explica o motivo da campanha e oferece o Grupo Diamond ou o atendimento particular.
 3. Os links por área já abrem uma mensagem de interesse em cuidados faciais, estética avançada ou cuidados corporais.
 4. A equipe informa a condição completa e pergunta qual cuidado a pessoa procura e sua preferência de horário.
 5. Quando necessário, a avaliação orienta a indicação; a equipe conduz ao agendamento adequado.
 6. A equipe acompanha a conclusão do agendamento, sem tratar um clique no WhatsApp como venda.
-7. Após a campanha, o grupo continua com uma rotina de promoções semanais.
+7. Após a campanha, o grupo continua com uma rotina de campanhas de venda semanais.
 
 Mensagem sugerida de primeira resposta:
 
@@ -96,7 +97,7 @@ As referências D-7 e D0 são relativas ao lançamento que Fernando e Mel defini
 | D0: abertura | Publicar a oferta principal com condições completas | Uma comunicação principal, link direto da campanha e reforço no grupo/Status. | Agendamentos efetivos. |
 | Durante a campanha | Manter condições e disponibilidade corretas | Alternar oferta principal, esclarecimentos e experiências da clínica. | Conversão com informação suficiente. |
 | Encerramento confirmado | Informar fim real da condição | Lembrete do prazo verdadeiro, sem prorrogação ou contagem fictícia. | Concluir decisões em andamento. |
-| Após a campanha | Encerrar a oferta e atualizar a vitrine | Agradecimento e transição para as promoções semanais. | Continuidade de relacionamento e retorno. |
+| Após a campanha | Encerrar a oferta e atualizar a vitrine | Agradecimento e transição para as campanhas de venda semanais. | Continuidade de relacionamento e retorno. |
 
 ## Conteúdo mínimo para uma divulgação forte
 
@@ -110,18 +111,20 @@ As referências D-7 e D0 são relativas ao lançamento que Fernando e Mel defini
 Fotografias da clínica e equipe já existentes podem sustentar a confiança. Depoimentos ou resultados de clientes só entram quando fornecidos e aprovados para divulgação.
 Não publicar um preço ou criar um depoimento apenas para preencher a página.
 
-## Grupo: do aniversário às promoções semanais
+## Grupo: do aniversário às campanhas de venda semanais
 
-Nome sugerido para a comemoração: **BC 1 Ano | Grupo VIP**.
-Nome sugerido para a continuidade: **BC VIP | Novidades e Promoções**.
+Nome confirmado do grupo no convite público: **Super Aniversário 1 ano - BC Diamond**.
+A identidade de relacionamento é **Grupo Diamond**. Após o aniversário, o mesmo grupo continua com campanhas de venda semanais.
 
 A entrada permanece voluntária. A comunicação da página informa que os números são visíveis aos participantes.
 Recomendação operacional: envio de mensagens restrito à equipe e dúvidas tratadas no atendimento particular.
-A clínica decide se exigirá aprovação de novos participantes.
+Para cumprir o limite de **100 participantes** solicitado por Fernando, os administradores devem ativar a aprovação de novas entradas, restringir a inclusão de membros à equipe e interromper as aprovações ao atingir 100 participantes totais, incluindo administradores. O site divulga a capacidade, mas não lê a lista de membros, não sabe quantas pessoas já entraram e não bloqueia a lotação no WhatsApp. Não exibir contadores de vagas restantes.
+
+Referência: [WhatsApp — configurações dos administradores e aprovação de novos membros](https://faq.whatsapp.com/526742385997912/?cms_platform=web). A configuração de admissão deve ser conferida pela própria equipe no WhatsApp.
 
 Mensagem de boas-vindas sugerida:
 
-> Bem-vinda ao grupo VIP da comemoração de 1 ano da BC Estética Avançada! Por aqui, nossa equipe compartilha as novidades e condições da campanha. Para dúvidas, avaliação e agendamento, fale com a BC no atendimento particular. Depois do aniversário, este espaço continua com novidades e promoções semanais. Sua participação é voluntária e você pode sair quando quiser.
+> Bem-vinda ao Grupo Diamond da comemoração de 1 ano da BC Estética Avançada! Por aqui, nossa equipe compartilha as novidades e condições da campanha. Para dúvidas, avaliação e agendamento, fale com a BC no atendimento particular. Depois do aniversário, este espaço continua com novidades e campanhas de venda semanais. Sua participação é voluntária e você pode sair quando quiser.
 
 Rotina sugerida após o aniversário: uma condição principal por semana, um conteúdo útil relacionado e um lembrete com a vigência real.
 Manter um calendário simples de campanhas e evitar ofertas concorrentes que dificultem a escolha.
@@ -155,7 +158,7 @@ Mídia paga, pixels e integrações adicionais ficam como uma fase opcional, dep
 
 | Prioridade | Ação | Responsável sugerido | Momento | Resultado |
 | --- | --- | --- | --- | --- |
-| 1 | Enviar e confirmar o convite do grupo de 1 ano | Fernando | Próximo passo | Ativar os botões VIP com destino correto. |
+| 1 | Convite fornecido por Fernando e conferido em prévia pública; conferir aprovação e limite de 100 pessoas no WhatsApp | Fernando e Mel | Antes da divulgação | Entrada pelo convite correto e controle de capacidade pela equipe. |
 | 2 | Definir início, encerramento e período de uso das condições | Mel e Fernando | Antes da divulgação | Comunicar datas verdadeiras. |
 | 3 | Escolher oferta principal e até duas complementares | Mel | Antes da abertura comercial | Oferta clara, executável e com margem. |
 | 4 | Conferir páginas e aprovar os materiais | Fernando e Mel | Antes da publicação | Mensagem consistente e navegação validada. |
@@ -166,12 +169,12 @@ Mídia paga, pixels e integrações adicionais ficam como uma fase opcional, dep
 ## Implementação e homologação
 
 Preparado: chamada compacta da Home, menu Campanhas, vitrine permanente, página do aniversário, mensagem de WhatsApp por interesse, FAQ, botões adaptados ao celular e convite compartilhado validado por domínio.
-O convite não foi inventado: sem uma URL válida, os botões VIP permanecem desativados; o atendimento particular continua acessível.
+O convite real foi fornecido por Fernando e retorna HTTP 200, com o título público “Super Aniversário 1 ano - BC Diamond”. A conferência não entrou no grupo nem enviou mensagens. Os links nativos funcionam também sem JavaScript. Se a configuração contiver um destino inválido, o controlador desativa os links e mantém o atendimento particular acessível.
 O módulo aceita apenas HTTPS em `chat.whatsapp.com`, sem credenciais, portas alternativas, fragmentos ou caminhos adicionais.
 Não há integração com mensagens do grupo, confirmação de entrada, pagamento ou promessa de vaga.
 
 Verificações previstas: regressões locais; navegação existente; link inválido/ausente/válido; páginas em 320, 390, 768 e 1440 px em Chromium e WebKit, com tráfego externo bloqueado e convite fictício sem navegação.
-Os resultados executados serão registrados no PR. Conferência do convite real no Android e iPhone permanece dependente do link.
+Os resultados executados serão registrados no PR. A prévia pública do convite real foi conferida. O teste de abertura no aplicativo nativo Android/iPhone e a configuração de admissão continuam a cargo da equipe.
 Os cenários de navegador geram capturas no artifact `campaigns-screenshots` do Site CI.
 Regressão local executada: 981 testes aprovados (69 de pré-anamnese, 137 do site e 775 de gestão), sem falhas.
 O navegador local está indisponível; a instalação dos motores recebeu arquivos truncados. No primeiro envio ao CI, os cenários de Chromium/WebKit passaram e as capturas da página do aniversário foram revisadas. A cobertura foi ampliada para registrar também a chamada da Home e a vitrine Campanhas; a conclusão no HEAD final será registrada no PR.
@@ -180,10 +183,32 @@ Na revisão das capturas, o contato fixo foi retirado para preservar a leitura e
 ## Publicação, manutenção e recuperação
 
 O PR #84 permanece em rascunho até a revisão final e a autorização de publicação.
-Para publicar a fase de convite, basta o link confirmado e o aceite da página; as ofertas comerciais entram quando a Mel concluir as condições.
+O link já está conectado no rascunho. Para publicar a fase de convite, falta o aceite final da página e da operação do grupo; as ofertas comerciais entram quando a Mel concluir as condições.
 Ao encerrar, atualizar o destaque de `/campanhas/` e retirar condições vencidas. Preservar a página histórica com mensagem de encerramento e chamada para a vitrine atual.
 Não mudar o endereço da página a cada postagem. A área Campanhas é permanente e permite reaproveitar a estrutura nas semanas seguintes.
 
 Caso seja necessário desfazer uma publicação, reverter o merge/squash do PR #84 completo, retornando ao estado anterior à inclusão de campanhas.
 Reverter apenas o commit de reformulação poderia restaurar a Black Friday antiga dentro da branch; a recuperação deve considerar o PR como um conjunto.
 Nenhuma migration, dado clínico, permissão de acesso ou configuração financeira foi alterada.
+
+
+## Atualização Diamond — convite e artes de divulgação
+
+- Convite conectado: `https://chat.whatsapp.com/CTS5DY84aUuJiLIthDjN7R?s=cl&p=a&iam=2`.
+- Limite de comunicação: até **100 participantes**, sem simular ocupação ou vagas disponíveis.
+- Linguagem: usar **campanha de venda** e **Grupo Diamond** na comunicação pública.
+- Capa: `assets/campanhas/bc-1-ano-diamond-capa.png`, 1536 × 864, SHA-256 `fb4d07351a4c43a55e31cfeb3801b5b4a0d8ad06184981c7694d2a750a874183`.
+- Perfil do grupo: `assets/campanhas/bc-1-ano-diamond-perfil.png`, 1536 × 1536, SHA-256 `b0129eb2a9d22177d6e18d4335e52b1e7b664c7e8201561e362825ed350be409`.
+- As cópias no repositório são idênticas aos arquivos enviados; a foto do grupo no aplicativo WhatsApp deve ser aplicada pela equipe.
+- O banner da Home e o da vitrine Campanhas são links para `/diamond/`, preservando a nova página editorial adicionada à mesma branch. A página de aniversário continua como conteúdo complementar. A capa aparece inteira, sem recortar o rosto, a marca ou o texto.
+- Open Graph passa a usar a capa horizontal em PNG e a chamada Diamond, preparando a prévia ao compartilhar o endereço da página. A renderização da prévia depende do aplicativo de destino.
+- Uma imagem enviada como foto avulsa no WhatsApp não incorpora um botão de navegação. Para divulgação, enviar o link da página junto da arte ou compartilhar o próprio link com a prévia.
+
+Chamada sugerida:
+
+> **1 ANO DIAMOND — BC ESTÉTICA AVANÇADA**
+> Sua beleza merece ser celebrada. Conheça nossa campanha de venda de aniversário e faça parte do Grupo Diamond, exclusivo e limitado a 100 participantes. Acesse nosso site e solicite sua entrada.
+
+A atualização prepara a divulgação da fase de convite; não cria serviços, preços ou datas comerciais que ainda não foram definidos.
+
+A atualização foi integrada sobre os commits de Diamond já existentes na branch, sem removê-los. A dependência `assets/campanhas/diamond-casal-original.webp` foi recuperada do arquivo original autorizado e incorporada para evitar a imagem de fallback. A apresentação usa `object-fit: contain` para preservar toda a arte. O sitemap inclui `/diamond/`.

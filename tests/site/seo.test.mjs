@@ -32,7 +32,7 @@ test('Robots and sitemap cover public destinations and the campaign area', () =>
   assert.match(robots, /User-agent: \*/);
   assert.match(robots, /Allow: \//);
   assert.match(robots, /Sitemap: https:\/\/www\.bcesteticaavancada\.com\.br\/sitemap\.xml/);
-  const paths = ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/', 'campanhas/', 'campanhas/aniversario-1-ano/'];
+  const paths = ['', 'clinica/', 'equipe/', 'mel/', 'procedimentos/', 'resultados/', 'protocolos/', 'ambiente/', 'valores/', 'agendamento/', 'contato/', 'campanhas/', 'campanhas/aniversario-1-ano/', 'diamond/'];
   assert.equal((sitemap.match(/<url>/g) || []).length, paths.length);
   for (const path of paths) {
     assert.match(sitemap, new RegExp(`<loc>${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}${path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</loc>`));

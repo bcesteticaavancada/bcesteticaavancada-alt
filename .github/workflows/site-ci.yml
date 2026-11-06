@@ -70,7 +70,7 @@ jobs:
         run: npm run test:gestao
       - name: Install browser test engines
         run: npx playwright install --with-deps chromium webkit
-      - name: Campaign pages and safe VIP invitation browser tests
+      - name: Campaign pages and safe Diamond invitation browser tests
         run: node scripts/test-campaigns-browser.mjs
       - name: Agenda mobile, tablet and desktop browser tests
         run: node scripts/test-agenda-browser.mjs

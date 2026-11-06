@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { readFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium, webkit } from 'playwright';
+import { VIP_GROUP_INVITE_URL } from '../campanhas/vip-config.js';
 
 const base = process.cwd();
 const types = { '.html':'text/html', '.css':'text/css', '.js':'text/javascript', '.json':'application/json', '.webp':'image/webp', '.jpg':'image/jpeg', '.png':'image/png' };
@@ -33,15 +34,22 @@ try {
         await page.goto(root+'/',{waitUntil:'networkidle'});
         const strip=page.locator('.bc-campaign-strip');
         await strip.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-home-strip.png'});
-        await strip.getByRole('link',{name:'Conhecer a campanha',exact:false}).click();
-        await page.waitForURL('**/campanhas/aniversario-1-ano/');
+        await strip.locator('a[data-campaign-banner]').click();
+        await page.waitForURL('**/diamond/');
+        assert.equal(await page.locator('[data-vip-link]').count(),2);
+        assert.equal(await page.locator('.photo img').evaluate(img=>img.complete && img.naturalWidth>0 && img.currentSrc.endsWith('/diamond-casal-original.webp')),true);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1),true,engine+'/'+width+' Diamond overflow');
+        await page.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-diamond.png',fullPage:true});
         await page.goto(root+'/campanhas/',{waitUntil:'networkidle'});
         await page.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-hub.png'});
-        await page.getByRole('link',{name:'Conhecer a campanha de 1 ano',exact:false}).click();
+        await page.getByRole('link',{name:'Conhecer o Grupo Diamond',exact:false}).click();
+        await page.waitForURL('**/diamond/');
+        await page.goto(root+'/campanhas/aniversario-1-ano/',{waitUntil:'networkidle'});
         await page.waitForURL('**/campanhas/aniversario-1-ano/');
-        assert.match(await page.locator('h1').innerText(),/Super Aniversário\s+de 1 ano\./);
-        assert.equal(await page.locator('[data-vip-join]').count(),2);
-        for (const button of await page.locator('[data-vip-join]').all()) assert.equal(await button.isDisabled(),true);
+        assert.match(await page.locator('h1').innerText(),/1 ano\s+Diamond\./);
+        assert.equal(await page.locator('[data-vip-link]').count(),2);
+        for (const link of await page.locator('[data-vip-link]').all()) assert.equal(await link.getAttribute('href'),VIP_GROUP_INVITE_URL);
+        assert.equal(await page.locator('[data-vip-pending]').isVisible(),false);
         assert.equal(await page.locator('a[href^="https://wa.me/5531995184110?text="]').count()>0,true);
         await page.locator('#menuToggle').click();
         assert.equal(await page.locator('.drawer-nav [data-bc-campaigns-link]').count(),1);
@@ -66,6 +74,24 @@ try {
       await page.screenshot({path:'test-results/campaigns/'+engine+'-vip-ficticio.png',fullPage:true});
       await context.close();
       console.log('PASS campaigns '+engine+'/synthetic-invite-without-navigation');
+      const invalid = await browser.newContext({viewport:{width:390,height:900}});
+      await invalid.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
+      await invalid.route('**/campanhas/vip-config.js',route => route.fulfill({contentType:'text/javascript',body:'export const VIP_GROUP_INVITE_URL = "https://chat.whatsapp.com.evil.example/invalid";'}));
+      const invalidPage = await invalid.newPage();
+      await invalidPage.goto(root+'/campanhas/aniversario-1-ano/',{waitUntil:'networkidle'});
+      assert.equal(await invalidPage.locator('[data-vip-link]').count(),0);
+      assert.equal(await invalidPage.locator('[data-vip-join]').count(),2);
+      for (const button of await invalidPage.locator('[data-vip-join]').all()) assert.equal(await button.isDisabled(),true);
+      assert.equal(await invalidPage.locator('[data-vip-pending]').isVisible(),true);
+      await invalid.close();
+      const noJs = await browser.newContext({viewport:{width:390,height:900},javaScriptEnabled:false});
+      await noJs.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
+      const noJsPage = await noJs.newPage();
+      await noJsPage.goto(root+'/campanhas/aniversario-1-ano/',{waitUntil:'networkidle'});
+      assert.equal(await noJsPage.locator('[data-vip-link]').count(),2);
+      for (const link of await noJsPage.locator('[data-vip-link]').all()) assert.equal(await link.getAttribute('href'),VIP_GROUP_INVITE_URL);
+      await noJs.close();
+      console.log('PASS campaigns '+engine+'/invalid-invite-and-no-javascript');
     } finally { await browser.close(); }
   }
 } finally { server.close(); }
