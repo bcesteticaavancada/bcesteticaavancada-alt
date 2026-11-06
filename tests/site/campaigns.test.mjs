@@ -43,6 +43,21 @@ test('um convite válido ativa os dois pontos de entrada sem inserir HTML', () =
   }
 });
 
+test('Diamond compartilha a página oficial em um rascunho do WhatsApp', () => {
+  const { document } = parseHTML(read('diamond/index.html'));
+  const share = document.querySelector('[data-diamond-share]');
+  assert.ok(share, 'o convite oferece compartilhamento pelo WhatsApp');
+  const target = new URL(share.getAttribute('href'));
+  assert.equal(target.origin, 'https://wa.me');
+  assert.equal(target.pathname, '/');
+  const message = target.searchParams.get('text');
+  assert.match(message, /1 ano.*BC Estética Avançada/);
+  assert.match(message, /https:\/\/www\.bcesteticaavancada\.com\.br\/diamond\//);
+  assert.doesNotMatch(message, /chat\.whatsapp\.com/, 'a divulgação passa primeiro pelo site');
+  assert.equal(share.getAttribute('target'), '_blank');
+  assert.equal(share.getAttribute('rel'), 'noopener noreferrer');
+});
+
 test('as páginas oferecem atendimento real e destinos locais válidos mesmo sem JavaScript', () => {
   for (const file of pages) {
     const { document } = parseHTML(read(file));

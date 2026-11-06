@@ -38,6 +38,19 @@ try {
         await page.waitForURL('**/diamond/');
         assert.equal(await page.locator('[data-vip-link]').count(),2);
         assert.equal(await page.locator('.photo img').evaluate(img=>img.complete && img.naturalWidth>0 && img.currentSrc.endsWith('/diamond-casal-original.webp')),true);
+        const backdrop = await page.locator('.photo').evaluate(el => {
+          const rect = el.getBoundingClientRect();
+          const image = el.querySelector('img');
+          return { left: rect.left, top: rect.top, width: rect.width, height: rect.height,
+            viewportWidth: innerWidth, viewportHeight: innerHeight, position: getComputedStyle(el).position,
+            fit: getComputedStyle(image).objectFit, animation: getComputedStyle(image).animationName };
+        });
+        assert.equal(backdrop.position,'fixed',engine+'/'+width+' full-page photograph');
+        assert.equal(backdrop.fit,'cover');
+        assert.equal(Math.abs(backdrop.left)<=1 && Math.abs(backdrop.top)<=1,true);
+        assert.equal(backdrop.width>=backdrop.viewportWidth-1 && backdrop.height>=backdrop.viewportHeight-1,true);
+        assert.equal(backdrop.animation,'none','reduced motion keeps the photograph still');
+        assert.equal(await page.getByRole('link',{name:'Compartilhar convite no WhatsApp'}).count(),1);
         await page.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-diamond.png',fullPage:true});
         const diamondBounds = await page.evaluate(() => ({
           viewport: innerWidth,
@@ -82,6 +95,18 @@ try {
       await page.screenshot({path:'test-results/campaigns/'+engine+'-vip-ficticio.png',fullPage:true});
       await context.close();
       console.log('PASS campaigns '+engine+'/synthetic-invite-without-navigation');
+      const motion = await browser.newContext({viewport:{width:390,height:900},reducedMotion:'no-preference'});
+      await motion.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
+      const motionPage = await motion.newPage();
+      await motionPage.goto(root+'/diamond/',{waitUntil:'networkidle'});
+      assert.notEqual(await motionPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationName),'none');
+      await motionPage.locator('label[for="diamond-motion"]').click();
+      assert.equal(await motionPage.locator('#diamond-motion').isChecked(),true);
+      assert.equal(await motionPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationPlayState),'paused');
+      await motionPage.locator('label[for="diamond-motion"]').click();
+      assert.equal(await motionPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationPlayState),'running');
+      await motion.close();
+      console.log('PASS campaigns '+engine+'/motion-and-native-pause');
       const invalid = await browser.newContext({viewport:{width:390,height:900}});
       await invalid.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
       await invalid.route('**/campanhas/vip-config.js',route => route.fulfill({contentType:'text/javascript',body:'export const VIP_GROUP_INVITE_URL = "https://chat.whatsapp.com.evil.example/invalid";'}));
@@ -92,12 +117,18 @@ try {
       for (const button of await invalidPage.locator('[data-vip-join]').all()) assert.equal(await button.isDisabled(),true);
       assert.equal(await invalidPage.locator('[data-vip-pending]').isVisible(),true);
       await invalid.close();
-      const noJs = await browser.newContext({viewport:{width:390,height:900},javaScriptEnabled:false});
+      const noJs = await browser.newContext({viewport:{width:390,height:900},javaScriptEnabled:false,reducedMotion:'no-preference'});
       await noJs.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
       const noJsPage = await noJs.newPage();
       await noJsPage.goto(root+'/campanhas/aniversario-1-ano/',{waitUntil:'networkidle'});
       assert.equal(await noJsPage.locator('[data-vip-link]').count(),2);
       for (const link of await noJsPage.locator('[data-vip-link]').all()) assert.equal(await link.getAttribute('href'),VIP_GROUP_INVITE_URL);
+      await noJsPage.goto(root+'/diamond/',{waitUntil:'networkidle'});
+      assert.equal(await noJsPage.locator('[data-vip-link]').count(),2);
+      for (const link of await noJsPage.locator('[data-vip-link]').all()) assert.equal(await link.getAttribute('href'),VIP_GROUP_INVITE_URL);
+      assert.equal(await noJsPage.getByRole('link',{name:'Compartilhar convite no WhatsApp'}).count(),1);
+      await noJsPage.locator('label[for="diamond-motion"]').click();
+      assert.equal(await noJsPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationPlayState),'paused');
       await noJs.close();
       console.log('PASS campaigns '+engine+'/invalid-invite-and-no-javascript');
     } finally { await browser.close(); }
