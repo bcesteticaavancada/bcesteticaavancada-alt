@@ -1,4 +1,4 @@
-import { VIP_GROUP_INVITE_URL } from './vip-config.js';
+import { VIP_GROUP_INVITE_URL } from './vip-config.js?v=20261106-convite2';
 
 export function safeGroupInvite(value) {
   if (typeof value !== 'string' || !value.trim()) return null;

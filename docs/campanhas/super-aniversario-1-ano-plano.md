@@ -128,7 +128,7 @@ Mensagem de boas-vindas sugerida:
 
 Rotina sugerida após o aniversário: uma condição principal por semana, um conteúdo útil relacionado e um lembrete com a vigência real.
 Manter um calendário simples de campanhas e evitar ofertas concorrentes que dificultem a escolha.
-O convite fica centralizado em `campanhas/vip-config.js`; se a clínica redefinir o convite, atualizar esse arquivo e conferir novamente a abertura.
+O convite é configurado em `campanhas/vip-config.js`. Se for redefinido no WhatsApp, atualizar também os cinco links nativos das páginas Diamond e Campanhas, versionar o módulo e sua configuração para evitar cache antigo e conferir novamente a abertura. A divulgação atual usa `/diamond/?convite=2`.
 
 ## Medição: vendas, não apenas tamanho do grupo
 
@@ -194,7 +194,7 @@ Nenhuma migration, dado clínico, permissão de acesso ou configuração finance
 
 ## Atualização Diamond — convite e artes de divulgação
 
-- Convite conectado: `https://chat.whatsapp.com/CTS5DY84aUuJiLIthDjN7R?s=cl&p=a&iam=2`.
+- Convite conectado: `https://chat.whatsapp.com/FOobLznD7FY2yailr3BkQF?s=sh&p=a&iam=2`.
 - Limite de comunicação: até **100 participantes**, sem simular ocupação ou vagas disponíveis.
 - Linguagem: usar **campanha de venda** e **Grupo Diamond** na comunicação pública.
 - Capa: `assets/campanhas/bc-1-ano-diamond-capa.png`, 1536 × 864, SHA-256 `fb4d07351a4c43a55e31cfeb3801b5b4a0d8ad06184981c7694d2a750a874183`.
@@ -212,3 +212,8 @@ Chamada sugerida:
 A atualização prepara a divulgação da fase de convite; não cria serviços, preços ou datas comerciais que ainda não foram definidos.
 
 A atualização foi integrada sobre os commits de Diamond já existentes na branch, sem removê-los. A dependência `assets/campanhas/diamond-casal-original.webp` foi recuperada do arquivo original autorizado e incorporada para evitar a imagem de fallback. A apresentação usa `object-fit: contain` para preservar toda a arte. O sitemap inclui `/diamond/`.
+
+
+## Convite redefinido — 6 de novembro de 2026
+
+Fernando enviou um novo convite após o WhatsApp informar que o anterior havia sido redefinido. O novo destino foi aplicado à configuração e aos cinco links nativos, incluindo navegação sem JavaScript. Os módulos recebem versão `20261106-convite2`; o compartilhamento usa `/diamond/?convite=2` para carregar a página atualizada. A alteração não redefine o convite no WhatsApp nem entra no grupo.
