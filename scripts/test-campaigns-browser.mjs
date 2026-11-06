@@ -100,8 +100,10 @@ try {
       const motionPage = await motion.newPage();
       await motionPage.goto(root+'/diamond/',{waitUntil:'networkidle'});
       assert.notEqual(await motionPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationName),'none');
+      assert.equal(await motionPage.getByRole('checkbox',{name:'Pausar movimento',exact:true}).count(),1);
       await motionPage.locator('label[for="diamond-motion"]').click();
       assert.equal(await motionPage.locator('#diamond-motion').isChecked(),true);
+      assert.equal(await motionPage.getByRole('checkbox',{name:'Retomar movimento',exact:true}).count(),1);
       assert.equal(await motionPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationPlayState),'paused');
       await motionPage.locator('label[for="diamond-motion"]').click();
       assert.equal(await motionPage.locator('.photo img').evaluate(el=>getComputedStyle(el).animationPlayState),'running');

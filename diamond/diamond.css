@@ -20,8 +20,8 @@ a:focus-visible { outline: 2px solid var(--ivory); outline-offset: 6px; }
 
 .top, main { position: relative; z-index: 1; }
 .top { min-height: 92px; padding: 14px 6%; display: flex; align-items: center; justify-content: space-between; gap: 22px; border-bottom: 1px solid #dfc18a30; background: linear-gradient(180deg, #090807b8, #09080720); }
-.brand { display: block; flex: 0 0 145px; }
-.brand img { display: block; width: 145px; height: auto; }
+.brand { display: block; flex: 0 0 auto; }
+.brand img { display: block; width: auto; height: 64px; }
 .top-tools { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 28px; }
 .campaign-link { text-decoration: none; font-size: 10px; line-height: 1.6; letter-spacing: .16em; text-transform: uppercase; }
 .campaign-link span { margin-left: 8px; color: var(--gold); }
@@ -61,8 +61,7 @@ h2 em { color: var(--gold); }
 .footer-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px 30px; margin-top: 32px; color: #d6c6aa; font-size: 11px; line-height: 1.8; text-underline-offset: 4px; }
 @media (max-width: 760px) {
   .top { min-height: 80px; padding: 12px 6%; gap: 14px; }
-  .brand { flex-basis: 100px; }
-  .brand img { width: 100px; }
+  .brand img { height: 56px; }
   .top-tools { max-width: 180px; gap: 8px; }
   .campaign-link { font-size: 9px; letter-spacing: .1em; }
   .motion-label { font-size: 10px; }
