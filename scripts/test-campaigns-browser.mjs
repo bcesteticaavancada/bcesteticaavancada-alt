@@ -38,8 +38,16 @@ try {
         await page.waitForURL('**/diamond/');
         assert.equal(await page.locator('[data-vip-link]').count(),2);
         assert.equal(await page.locator('.photo img').evaluate(img=>img.complete && img.naturalWidth>0 && img.currentSrc.endsWith('/diamond-casal-original.webp')),true);
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1),true,engine+'/'+width+' Diamond overflow');
         await page.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-diamond.png',fullPage:true});
+        const diamondBounds = await page.evaluate(() => ({
+          viewport: innerWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          overflowing: [...document.querySelectorAll('body *')].map(el => {
+            const bounds = el.getBoundingClientRect();
+            return { tag: el.tagName, className: el.className, left: bounds.left, right: bounds.right };
+          }).filter(el => el.left < -1 || el.right > innerWidth+1)
+        }));
+        assert.equal(diamondBounds.scrollWidth <= diamondBounds.viewport+1,true,engine+'/'+width+' Diamond overflow: '+JSON.stringify(diamondBounds));
         await page.goto(root+'/campanhas/',{waitUntil:'networkidle'});
         await page.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-hub.png'});
         await page.getByRole('link',{name:'Conhecer o Grupo Diamond',exact:false}).click();
