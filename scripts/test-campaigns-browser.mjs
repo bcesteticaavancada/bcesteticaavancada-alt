@@ -86,7 +86,7 @@ try {
       }
       const context = await browser.newContext({viewport:{width:390,height:900}});
       await context.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
-      await context.route('**/campanhas/vip-config.js',route => route.fulfill({contentType:'text/javascript',body:'export const VIP_GROUP_INVITE_URL = "https://chat.whatsapp.com/ExemploFicticioGrupo123";'}));
+      await context.route('**/campanhas/vip-config.js*',route => route.fulfill({contentType:'text/javascript',body:'export const VIP_GROUP_INVITE_URL = "https://chat.whatsapp.com/ExemploFicticioGrupo123";'}));
       const page = await context.newPage();
       await page.goto(root+'/campanhas/aniversario-1-ano/',{waitUntil:'networkidle'});
       assert.equal(await page.locator('[data-vip-link]').count(),2);
@@ -111,7 +111,7 @@ try {
       console.log('PASS campaigns '+engine+'/motion-and-native-pause');
       const invalid = await browser.newContext({viewport:{width:390,height:900}});
       await invalid.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
-      await invalid.route('**/campanhas/vip-config.js',route => route.fulfill({contentType:'text/javascript',body:'export const VIP_GROUP_INVITE_URL = "https://chat.whatsapp.com.evil.example/invalid";'}));
+      await invalid.route('**/campanhas/vip-config.js*',route => route.fulfill({contentType:'text/javascript',body:'export const VIP_GROUP_INVITE_URL = "https://chat.whatsapp.com.evil.example/invalid";'}));
       const invalidPage = await invalid.newPage();
       await invalidPage.goto(root+'/campanhas/aniversario-1-ano/',{waitUntil:'networkidle'});
       assert.equal(await invalidPage.locator('[data-vip-link]').count(),0);
