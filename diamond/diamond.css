@@ -7,6 +7,7 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #090807; color: var(--ivory); font-family: Arial, sans-serif; }
 a { color: inherit; }
+a svg { display: inline-block; vertical-align: middle; }
 a:focus-visible { outline: 2px solid var(--ivory); outline-offset: 6px; }
 [hidden] { display: none !important; }
 .skip-link { position: fixed; z-index: 5; top: 16px; left: 16px; padding: 12px 18px; background: #f4dca9; color: #17110b; transform: translateY(-180%); }
@@ -27,17 +28,18 @@ a:focus-visible { outline: 2px solid var(--ivory); outline-offset: 6px; }
 .campaign-link span { margin-left: 8px; color: var(--gold); }
 .motion-control { position: fixed; top: 0; left: 0; width: 1px; height: 1px; margin: 0; padding: 0; clip-path: inset(50%); overflow: hidden; opacity: 0; }
 .motion-label { display: inline-flex; align-items: center; gap: 8px; color: #e8d8ba; font-size: 11px; line-height: 1.6; cursor: pointer; }
-.motion-symbol { color: var(--gold); letter-spacing: -.12em; }
+.motion-symbol { display: inline-block; flex: 0 0 8px; width: 8px; height: 9px; border-inline: 2px solid var(--gold); }
 .motion-play { display: none; }
 .motion-control:focus-visible ~ .top .motion-label { outline: 2px solid var(--ivory); outline-offset: 6px; }
 .motion-control:checked ~ .top .motion-pause { display: none; }
 .motion-control:checked ~ .top .motion-play { display: inline; }
+.motion-control:checked ~ .top .motion-symbol { height: 10px; border: 0; border-left: 8px solid var(--gold); border-block: 5px solid transparent; }
 .motion-control:checked ~ .photo img, .motion-control:checked ~ .photo::before { animation-play-state: paused; }
 
 .hero { position: relative; min-height: calc(100svh - 92px); max-width: 1600px; margin-inline: auto; display: flex; align-items: flex-end; padding: clamp(220px, 32svh, 430px) 6% 92px; }
 .copy { width: 100%; min-width: 0; max-width: 710px; }
 .eyebrow { margin: 0 0 20px; color: var(--gold); font-size: 10px; line-height: 1.8; letter-spacing: .25em; text-transform: uppercase; }
-.eyebrow > span { margin-right: 8px; font-size: 16px; }
+.eyebrow > span { display: inline-block; width: 7px; height: 7px; margin-right: 10px; border: 1px solid currentColor; transform: rotate(45deg); }
 h1 { margin: 0 0 22px; color: #f4dca9; font: italic clamp(84px, 11.5vw, 168px)/.95 Georgia, serif; letter-spacing: -.065em; }
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {
   h1 { background: linear-gradient(110deg, #fff6df 15%, #dfbe7e 56%, #fff0c8 88%); -webkit-background-clip: text; background-clip: text; color: transparent; }
