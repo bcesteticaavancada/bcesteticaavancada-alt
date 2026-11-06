@@ -27,9 +27,10 @@ function block(source, start, end) {
   return source.slice(a, b);
 }
 
-test('home keeps the static 11-link drawer shell', () => {
+test('home keeps its navigation destinations and adds Campanhas', () => {
   const nav = block(home, '<nav class="drawer-nav"', '</nav>');
-  assert.equal((nav.match(/<a\b/g) || []).length, 11);
+  assert.equal((nav.match(/<a\b/g) || []).length, 12);
+  assert.match(nav, /href="campanhas\/">Campanhas<\/a>/);
   assert.match(home, /class="menu-toggle"[^>]*id="menuToggle"/);
   assert.ok(home.indexOf('class="brand"') < home.indexOf('class="header-cta"'));
   assert.match(styles, /\.menu-toggle\s*\{[^}]*justify-self\s*:\s*end/s);

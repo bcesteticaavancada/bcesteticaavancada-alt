@@ -51,13 +51,24 @@ function simplifyPublicDrawer(){
   });
   const home=links.find(link=>link.textContent.trim()==="Início");
   const contact=bySlug("contato");
+  const campaigns=bySlug("campanhas")||document.createElement("a");
+  if(contact){
+    campaigns.href=new URL("../campanhas/",contact.href).href;
+    campaigns.textContent="Campanhas";
+    campaigns.dataset.bcCampaignsLink="true";
+  }
   const results=bySlug("resultados");
   const treatments=["protocolos","procedimentos","valores"].map(bySlug).filter(Boolean);
   const clinic=["equipe","clinica","mel","ambiente"].map(bySlug).filter(Boolean);
   if(!home||!contact||!results||!treatments.length||!clinic.length)return;
 
-  const used=new Set([home,contact,results,...treatments,...clinic]);
+  const used=new Set([home,contact,campaigns,results,...treatments,...clinic]);
   const activePath=window.location.pathname.replace(/\/index\.html$/,"").replace(/\/+$/,"");
+  const campaignsPath=new URL(campaigns.href).pathname.replace(/\/+$/,"");
+  if(activePath===campaignsPath||activePath.startsWith(campaignsPath+"/")){
+    campaigns.classList.add("active");
+    if(activePath===campaignsPath)campaigns.setAttribute("aria-current","page");
+  }
   const matchesPage=link=>{
     const path=new URL(link.getAttribute("href"),window.location.href).pathname;
     return path.replace(/\/index\.html$/,"").replace(/\/+$/,"")===activePath;
@@ -88,7 +99,7 @@ function simplifyPublicDrawer(){
   const install=links.find(link=>link.dataset.bcInstallLink==="true");
   const secondary=[pre,login,install,...links.filter(link=>!used.has(link)&&link!==pre&&link!==login&&link!==install)]
     .filter(Boolean);
-  nav.replaceChildren(home,group("Tratamentos",treatments),results,group("Equipe e Clínica",clinic),agendar,contact);
+  nav.replaceChildren(home,campaigns,group("Tratamentos",treatments),results,group("Equipe e Clínica",clinic),agendar,contact);
   secondary.forEach(link=>{link.classList.add("bc-drawer-secondary");nav.appendChild(link);});
   nav.dataset.bcSimplified="true";
 }
@@ -135,6 +146,7 @@ if(drawer){
 
 function ensureBCFooter(){
   if(document.querySelector('footer[data-bc-footer="home"]'))return;
+  if(document.querySelector('footer[data-bc-footer="campaigns"]'))return;
   const existing=document.querySelector("footer.footer");
   let footer=document.querySelector("footer.site-footer-bc");
   if(existing){

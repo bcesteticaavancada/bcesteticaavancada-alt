@@ -20,6 +20,7 @@ on:
       - 'scripts/test-simple-dashboard-browser.mjs'
       - 'scripts/test-creation-dashboard-browser.mjs'
       - 'scripts/test-public-navigation-browser.mjs'
+      - 'scripts/test-campaigns-browser.mjs'
       - 'scripts/test-maya-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
@@ -41,6 +42,7 @@ on:
       - 'scripts/test-simple-dashboard-browser.mjs'
       - 'scripts/test-creation-dashboard-browser.mjs'
       - 'scripts/test-public-navigation-browser.mjs'
+      - 'scripts/test-campaigns-browser.mjs'
       - 'scripts/test-maya-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
@@ -68,6 +70,8 @@ jobs:
         run: npm run test:gestao
       - name: Install browser test engines
         run: npx playwright install --with-deps chromium webkit
+      - name: Campaign pages and safe VIP invitation browser tests
+        run: node scripts/test-campaigns-browser.mjs
       - name: Agenda mobile, tablet and desktop browser tests
         run: node scripts/test-agenda-browser.mjs
       - name: Basic client registration browser tests
@@ -98,6 +102,12 @@ jobs:
         with:
           name: public-navigation-screenshots
           path: test-results/public-navigation/
+      - name: Upload campaign screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: campaigns-screenshots
+          path: test-results/campaigns/
       - name: Upload creation dashboard screenshots
         if: always()
         uses: actions/upload-artifact@v4
