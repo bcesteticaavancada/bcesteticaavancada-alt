@@ -174,7 +174,7 @@ Verificações previstas: regressões locais; navegação existente; link invál
 Os resultados executados serão registrados no PR. Conferência do convite real no Android e iPhone permanece dependente do link.
 Os cenários de navegador geram capturas no artifact `campaigns-screenshots` do Site CI.
 Regressão local executada: 981 testes aprovados (69 de pré-anamnese, 137 do site e 775 de gestão), sem falhas.
-O navegador local está indisponível; a instalação dos motores recebeu arquivos truncados. A conferência visual deve ser concluída no CI e registrada antes de publicar.
+O navegador local está indisponível; a instalação dos motores recebeu arquivos truncados. No primeiro envio ao CI, os cenários de Chromium/WebKit passaram e as capturas da página do aniversário foram revisadas. A cobertura foi ampliada para registrar também a chamada da Home e a vitrine Campanhas; a conclusão no HEAD final será registrada no PR.
 
 ## Publicação, manutenção e recuperação
 

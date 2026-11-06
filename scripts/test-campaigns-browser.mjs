@@ -26,10 +26,17 @@ try {
         const context = await browser.newContext({viewport:{width,height:1000},reducedMotion:'reduce'});
         // Somente arquivos locais: sem pacientes, Supabase, mensagens ou chamadas ao WhatsApp.
         await context.route('**/*',route => route.request().url().startsWith(root+'/') ? route.continue() : route.abort());
+        await context.route(/\.supabase\.co\//,route => route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'GET, POST, OPTIONS'},body:JSON.stringify({days:[],slots:[],procedures:[],professionals:[]})}));
         const page = await context.newPage();
         const errors = [];
         page.on('pageerror',e => errors.push(e.message));
+        await page.goto(root+'/',{waitUntil:'networkidle'});
+        const strip=page.locator('.bc-campaign-strip');
+        await strip.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-home-strip.png'});
+        await strip.getByRole('link',{name:'Conhecer a campanha',exact:false}).click();
+        await page.waitForURL('**/campanhas/aniversario-1-ano/');
         await page.goto(root+'/campanhas/',{waitUntil:'networkidle'});
+        await page.screenshot({path:'test-results/campaigns/'+engine+'-'+width+'-hub.png'});
         await page.getByRole('link',{name:'Conhecer a campanha de 1 ano',exact:false}).click();
         await page.waitForURL('**/campanhas/aniversario-1-ano/');
         assert.match(await page.locator('h1').innerText(),/Super Aniversário\s+de 1 ano\./);
