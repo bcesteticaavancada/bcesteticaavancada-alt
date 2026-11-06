@@ -1,7 +1,7 @@
 # Super Aniversário de 1 Ano da BC Estética Avançada
 
 Plano comercial e de implementação — 6 de novembro de 2026.
-Status: PR #84 em rascunho. Esta campanha substitui a Black Friday proposta anteriormente.
+Status: fase de convite autorizada por Fernando em 6 de novembro de 2026, com publicação após a validação final do PR #84. Esta campanha substitui a Black Friday proposta anteriormente.
 
 ## Objetivo e contexto confirmado
 
@@ -24,7 +24,7 @@ Não há histórico de conversão ou CRM consultado para este plano. As táticas
 | Grupo Diamond | Distribuição e relacionamento | Novidades e ofertas aprovadas, com envio pela equipe. |
 | Atendimento particular | Qualificar e fechar | Entender o interesse, informar a condição completa, esclarecer dúvidas e conduzir ao agendamento. |
 
-As rotas estão preparadas no código, ainda sem publicação. Não há pop-up, carrossel de ofertas ou múltiplos banners na Home.
+As rotas estão implementadas no código; o resultado da validação e da publicação fica registrado no PR #84. Não há pop-up, carrossel de ofertas ou múltiplos banners na Home.
 O item Campanhas aparece no menu compartilhado. A agenda e os destinos existentes continuam acessíveis.
 As páginas novas têm metadados de compartilhamento, canonical e inclusão no sitemap.
 
@@ -177,13 +177,13 @@ Verificações previstas: regressões locais; navegação existente; link invál
 Os resultados executados serão registrados no PR. A prévia pública do convite real foi conferida. O teste de abertura no aplicativo nativo Android/iPhone e a configuração de admissão continuam a cargo da equipe.
 Os cenários de navegador geram capturas no artifact `campaigns-screenshots` do Site CI.
 Regressão local executada: 981 testes aprovados (69 de pré-anamnese, 137 do site e 775 de gestão), sem falhas.
-O navegador local está indisponível; a instalação dos motores recebeu arquivos truncados. No primeiro envio ao CI, os cenários de Chromium/WebKit passaram e as capturas da página do aniversário foram revisadas. A cobertura foi ampliada para registrar também a chamada da Home e a vitrine Campanhas; a conclusão no HEAD final será registrada no PR.
+A validação de navegador é executada pelo Site CI em Chromium e WebKit. A revisão de 6 de novembro identificou o bloco de texto Diamond com 337 px em uma tela WebKit de 320 px. O ajuste define a largura do bloco móvel e permite seu encolhimento, mantendo o teste de ausência de rolagem horizontal e as capturas da Home, Diamond e Campanhas. A conclusão no HEAD final fica registrada no PR #84.
 Na revisão das capturas, o contato fixo foi retirado para preservar a leitura e a foto da equipe no celular. Os botões permanecem no início e no fim da página e nos caminhos por interesse.
 
 ## Publicação, manutenção e recuperação
 
-O PR #84 permanece em rascunho até a revisão final e a autorização de publicação.
-O link já está conectado no rascunho. Para publicar a fase de convite, falta o aceite final da página e da operação do grupo; as ofertas comerciais entram quando a Mel concluir as condições.
+Fernando autorizou a continuidade do plano e a publicação da fase de convite em 6 de novembro de 2026. A integração do PR #84 ocorre após a validação final; em seguida, é conferido o percurso público Home → Diamond → convite do WhatsApp.
+O convite já está conectado. A equipe administra o limite de participantes e confere a abertura no aplicativo nativo. As ofertas comerciais entram quando a Mel concluir as condições.
 Ao encerrar, atualizar o destaque de `/campanhas/` e retirar condições vencidas. Preservar a página histórica com mensagem de encerramento e chamada para a vitrine atual.
 Não mudar o endereço da página a cada postagem. A área Campanhas é permanente e permite reaproveitar a estrutura nas semanas seguintes.
 
