@@ -1,3 +1,2 @@
-// Convite público de marketing. Fernando enviará o link do grupo de 1 ano.
-// O mesmo grupo poderá continuar com as promoções semanais após a comemoração.
-export const VIP_GROUP_INVITE_URL = '';
+// Convite oficial Diamond BC; controle de lotação é manual no WhatsApp.
+export const VIP_GROUP_INVITE_URL = 'https://chat.whatsapp.com/CTS5DY84aUuJiLIthDjN7R';
