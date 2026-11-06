@@ -69,7 +69,6 @@
 .campaign-footer strong { color:#fcfaf8; }
 .campaign-footer p { margin:7px 0 0; font-size:13px; }
 .campaign-footer a { text-decoration:underline; text-underline-offset:4px; }
-.campaign-mobile-contact { display:none; }
 
 @media (max-width:900px) {
   .campaign-hero-grid { gap:32px; }
@@ -81,7 +80,6 @@
   .bc-campaign-strip-inner { width:90%; align-items:flex-start; flex-direction:column; gap:18px; padding:24px 0; }
   .bc-campaign-strip p { font-size:9px; }
   .bc-campaign-strip .bc-campaign-button { width:100%; }
-  .campaign-shell { padding-bottom:84px; }
   .campaign-shell .site-header .header-inner { grid-template-columns:44px minmax(0,1fr) 82px; gap:9px; }
   .campaign-shell .site-header .header-cta { padding:10px 12px; font-size:9px; }
   .campaign-wrap { width:90%; }
@@ -99,6 +97,4 @@
   .campaign-feature-cover { padding:28px; }
   .campaign-feature-cover strong { font-size:108px; }
   .campaign-feature-copy { padding:26px; }
-  .campaign-mobile-contact { display:flex; position:fixed; z-index:90; bottom:0; left:0; right:0; align-items:center; justify-content:center; min-height:72px; padding:10px 5% calc(10px + env(safe-area-inset-bottom)); background:#171310; border-top:1px solid #776044; }
-  .campaign-mobile-contact .bc-campaign-button { width:100%; min-height:48px; }
 }

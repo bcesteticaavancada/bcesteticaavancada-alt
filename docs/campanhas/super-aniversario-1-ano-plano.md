@@ -165,7 +165,7 @@ Mídia paga, pixels e integrações adicionais ficam como uma fase opcional, dep
 
 ## Implementação e homologação
 
-Preparado: chamada compacta da Home, menu Campanhas, vitrine permanente, página do aniversário, mensagem de WhatsApp por interesse, FAQ, CTA móvel e convite compartilhado validado por domínio.
+Preparado: chamada compacta da Home, menu Campanhas, vitrine permanente, página do aniversário, mensagem de WhatsApp por interesse, FAQ, botões adaptados ao celular e convite compartilhado validado por domínio.
 O convite não foi inventado: sem uma URL válida, os botões VIP permanecem desativados; o atendimento particular continua acessível.
 O módulo aceita apenas HTTPS em `chat.whatsapp.com`, sem credenciais, portas alternativas, fragmentos ou caminhos adicionais.
 Não há integração com mensagens do grupo, confirmação de entrada, pagamento ou promessa de vaga.
@@ -175,6 +175,7 @@ Os resultados executados serão registrados no PR. Conferência do convite real 
 Os cenários de navegador geram capturas no artifact `campaigns-screenshots` do Site CI.
 Regressão local executada: 981 testes aprovados (69 de pré-anamnese, 137 do site e 775 de gestão), sem falhas.
 O navegador local está indisponível; a instalação dos motores recebeu arquivos truncados. No primeiro envio ao CI, os cenários de Chromium/WebKit passaram e as capturas da página do aniversário foram revisadas. A cobertura foi ampliada para registrar também a chamada da Home e a vitrine Campanhas; a conclusão no HEAD final será registrada no PR.
+Na revisão das capturas, o contato fixo foi retirado para preservar a leitura e a foto da equipe no celular. Os botões permanecem no início e no fim da página e nos caminhos por interesse.
 
 ## Publicação, manutenção e recuperação
 
