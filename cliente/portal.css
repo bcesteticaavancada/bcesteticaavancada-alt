@@ -1,0 +1,120 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #2b211a;
+  background: #faf6ef;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+
+.portal-header {
+  align-items: center;
+  background: #171310;
+  border-bottom: 1px solid #826741;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem max(1rem, calc((100vw - 58rem) / 2));
+}
+
+.portal-header img {
+  display: block;
+  height: 4rem;
+  object-fit: contain;
+  width: 5rem;
+}
+
+.portal-back {
+  color: #efd9ad;
+  font-size: 0.9rem;
+  padding: 0.65rem 0.1rem;
+}
+
+.portal-main {
+  margin: 0 auto;
+  max-width: 44rem;
+  padding: clamp(2.25rem, 8vw, 4rem) 1rem 3rem;
+}
+
+.portal-kicker {
+  color: #674822;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  margin: 0;
+}
+
+h1, h2 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+
+h1 {
+  font-size: clamp(2.25rem, 7vw, 3.9rem);
+  line-height: 1.05;
+  margin: 0.55rem 0 1.45rem;
+}
+
+.portal-card {
+  background: #fffdfa;
+  border: 1px solid #d9c6a8;
+  border-radius: 1.05rem;
+  box-shadow: 0 12px 35px #422b1510;
+  padding: clamp(1.15rem, 5vw, 2rem);
+}
+
+.portal-card h2 {
+  font-size: clamp(1.6rem, 5vw, 2.25rem);
+  margin: 0 0 0.55rem;
+}
+
+.portal-message {
+  color: #594b3e;
+  line-height: 1.55;
+  margin: 0 0 1.15rem;
+}
+
+.portal-appointments {
+  display: grid;
+  gap: 0.55rem;
+  list-style: none;
+  margin: 0 0 1.2rem;
+  padding: 0;
+}
+
+.portal-appointments li {
+  background: #f7efe2;
+  border: 1px solid #e6d5bc;
+  border-radius: 0.65rem;
+  display: grid;
+  gap: 0.22rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.portal-appointments time { font-weight: 650; }
+.portal-appointments span { color: #5d503c; font-size: 0.82rem; }
+
+.portal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.portal-button {
+  align-items: center;
+  background: #fffdfa;
+  border: 1px solid #a88754;
+  border-radius: 999px;
+  color: #3b2a1b;
+  cursor: pointer;
+  display: inline-flex;
+  font: 650 0.88rem/1.3 system-ui, sans-serif;
+  min-height: 2.8rem;
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+}
+
+.portal-button--primary { background: #231a14; color: #f4dfb5; }
+.portal-button:disabled { cursor: wait; opacity: 0.65; }
+:focus-visible { outline: 2px solid #a4702c; outline-offset: 3px; }

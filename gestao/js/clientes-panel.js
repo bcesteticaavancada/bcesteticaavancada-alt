@@ -20,6 +20,7 @@ import {
   getClientIdPhotoUrl,
   setCurrentClientIdPhoto,
 } from './clientes-photo-api.js';
+import { bindClientPortalControls } from './client-portal-admin.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -192,6 +193,7 @@ export async function initClientesPanel({
   const editor = el('clientEditor');
   const timeline = el('clientHistoryTimeline');
   const createStatus = el('clientCreateStatus');
+  const canManagePortal = profile.role === 'admin';
   if (!search || !list || !createForm || !editor || !timeline) {
     throw new Error('Estrutura do painel de clientes incompleta.');
   }
@@ -223,15 +225,19 @@ export async function initClientesPanel({
       listClientHistory({ client, clienteId }),
       loadPhotoPresentation(client, clienteId),
     ]);
+    if (currentClientId !== clienteId) return null;
     const folderClient = { ...record, foto_identificacao_id: photos.currentPhotoId };
     editor.innerHTML = renderClientFolder({
       client: folderClient,
       history,
       staffMap,
       canArchive,
+      canManagePortal,
       photoUrl: photos.photoUrl,
       photoHistory: photos.photoHistory,
     });
+    const portalControls = editor.querySelector('[data-client-portal-controls]');
+    if (portalControls) bindClientPortalControls({ host: portalControls, client, clienteId });
     return folderClient;
   }
 
@@ -317,7 +323,9 @@ export async function initClientesPanel({
   list.addEventListener('click', (event) => {
     const button = event.target.closest?.('[data-open-client]');
     if (!button) return;
-    openClient(button.dataset.openClient).catch(() => {
+    const clienteId = button.dataset.openClient;
+    openClient(clienteId).catch(() => {
+      if (currentClientId !== clienteId) return;
       editor.innerHTML = '<div class="bcg-empty">Não foi possível abrir a cliente.</div>';
     });
   });

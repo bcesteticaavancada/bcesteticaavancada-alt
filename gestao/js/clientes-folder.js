@@ -1,6 +1,7 @@
 import { calculateAge, clientProfileChecklist, formatCpf, isMinor } from './clientes-domain.js?v=20261018-basic';
 import { formatClinicDateTime } from './agenda-format.js';
 import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
+import { renderClientPortalControls } from './client-portal-admin.js';
 
 if (typeof document !== 'undefined') {
   if (!document.querySelector('link[data-client-folder-styles]')) {
@@ -151,6 +152,7 @@ export function renderClientFolder({
   history = [],
   staffMap = new Map(),
   canArchive = false,
+  canManagePortal = false,
   photoUrl = '',
   photoHistory = [],
   anamneseState = null,
@@ -181,7 +183,12 @@ export function renderClientFolder({
       <button type="button" hidden aria-hidden="true" data-folder-tab="timeline" tabindex="-1">Linha do tempo</button>
       <button type="button" hidden aria-hidden="true" data-folder-tab="cadastro" tabindex="-1">Cadastro</button>
     </nav>
-    <section data-folder-panel="resumo">${alerts}${renderClientFolderChecklist(client, anamneseState)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO RECENTE</p>${renderClientTimeline(history, staffMap)}</section>
+    <section data-folder-panel="resumo">
+      ${alerts}
+      ${canManagePortal ? renderClientPortalControls(active) : ''}
+      ${renderClientFolderChecklist(client, anamneseState)}
+      <div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO RECENTE</p>${renderClientTimeline(history, staffMap)}
+    </section>
     <section data-folder-panel="atendimentos" hidden><div class="bcg-empty">Abra esta área para carregar os atendimentos clínicos…</div></section>
     <section data-folder-panel="anamnese" hidden>${renderAnamnesePanel({ client, state: anamneseState, versions: anamneseVersions, alerts: clinicalAlerts, documents: clinicalDocuments })}</section>
     <section data-folder-panel="fotos" hidden><p class="bcg-eyebrow">FOTOS</p><h3>Identificação da cliente</h3>${renderPhotoControls(active)}<div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO DE IDENTIFICAÇÃO</p><h3>Fotos preservadas</h3>${renderPhotoHistory(photoHistory)}<div data-client-clinical-photos-slot></div></section>
