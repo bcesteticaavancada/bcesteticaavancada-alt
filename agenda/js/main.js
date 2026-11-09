@@ -9,7 +9,7 @@ function normalizePhone(value) {
   return raw.length === 10 || raw.length === 11 ? `55${raw}` : raw;
 }
 
-export function initPublicAgenda({ root = document, api = createPublicAgendaApi(), today = clinicToday() } = {}) {
+export function initPublicAgenda({ root = document, api = createPublicAgendaApi(), today = clinicToday(), demo = false } = {}) {
   const find = selector => root.querySelector(selector);
   const view = root.defaultView || globalThis.window;
   const wideViewport = view?.matchMedia?.('(min-width: 1100px)');
@@ -39,7 +39,8 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
     procedureSelect.disabled = state.submitting || catalogLoading || !state.selectedDate || !state.procedures.length;
     professionalSelect.disabled = state.submitting || state.loadingDetails || !state.professionals.length;
     submitButton.disabled = state.submitting || !state.selectedSlot;
-    submitButton.textContent = state.submitting ? 'Confirmando...' : 'Confirmar agendamento ↗';
+    const confirmationLabel = demo ? 'Confirmar reserva de teste ↗' : 'Confirmar agendamento ↗';
+    submitButton.textContent = state.submitting ? 'Confirmando...' : confirmationLabel;
     find('[data-booking-close]').disabled = state.submitting;
     form.querySelectorAll('input').forEach(input => { input.disabled = state.submitting; });
     slotsRoot.querySelectorAll('button').forEach(button => { button.disabled = state.submitting; });
@@ -161,7 +162,9 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
       const summary = find('[data-booking-summary]');
       summary.hidden = false;
       summary.textContent = `${formatDate(state.selectedDate)} · ${state.selectedSlot} · ${state.procedures.find(item => item.id === state.selectedProcedure)?.durationMinutes || ''} min`;
-      announce('Horário selecionado. Preencha seu nome e WhatsApp para confirmar.');
+      announce(demo
+        ? 'Horário selecionado. Você pode confirmar a reserva de teste.'
+        : 'Horário selecionado. Preencha seu nome e WhatsApp para confirmar.');
       syncControls();
     }));
     if(selected){const button=slotsRoot.querySelector(`[data-slot="${selected}"]`);button?.classList.add('is-selected');button?.setAttribute('aria-pressed','true');find('[data-booking-summary]').hidden=false;}
@@ -228,7 +231,7 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
     text('[data-success-professional]', booking.professionalName || names.professional);
     text('[data-success-date]', formatDate(booking.date || payload.date));
     text('[data-success-time]', booking.time || payload.time);
-    find('[data-success-whatsapp]').href = whatsappUrl;
+    if (!demo) find('[data-success-whatsapp]').href = whatsappUrl;
     form.hidden = true; success.hidden = false;
     success.focus();
   }
@@ -248,8 +251,8 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
       const text = `Olá, BC Estética! Meu agendamento foi confirmado pelo site.\n\nNome: ${payload.name}\nProcedimento: ${booking.procedureName || names.procedure}\nProfissional: ${booking.professionalName || names.professional}\nData: ${formatDate(booking.date || payload.date)}\nHorário: ${booking.time || payload.time}`;
       const whatsappUrl = `https://wa.me/${BC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
       state.uncertain=false;showSuccess(booking, payload, names, whatsappUrl);
-      announce('Agendamento confirmado. Seu horário já está reservado.', 'ok');
-      openWhatsApp(whatsappUrl);
+      announce(demo ? 'Reserva de teste salva neste aparelho.' : 'Agendamento confirmado. Seu horário já está reservado.', 'ok');
+      if (!demo) openWhatsApp(whatsappUrl);
     } catch (error) {
       state.uncertain=!error?.status || error.status>=500;
       if (error?.status === 409) await loadProfessionals();
@@ -299,4 +302,6 @@ export function initPublicAgenda({ root = document, api = createPublicAgendaApi(
   const ready = Promise.all([loadMonth(), loadCatalog()]);
   return { state, ready, loadCatalog, loadMonth, loadProfessionals,refreshAvailability,stop };
 }
-if (typeof document !== 'undefined') initPublicAgenda();
+if (typeof document !== 'undefined' && !document.documentElement.hasAttribute('data-bc-mobile-beta')) {
+  initPublicAgenda();
+}

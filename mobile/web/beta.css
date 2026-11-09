@@ -1,0 +1,170 @@
+:root {
+  --bc-beta-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --bc-beta-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  --bc-beta-bar-height: 4.1rem;
+  --bc-beta-gold: #e7c890;
+  --bc-beta-dark: #171310;
+}
+
+html[data-bc-mobile-beta] body {
+  padding-top: var(--bc-beta-top);
+  padding-bottom: calc(var(--bc-beta-bar-height) + var(--bc-beta-bottom));
+}
+
+html[data-bc-mobile-beta] .site-header {
+  top: var(--bc-beta-top);
+}
+
+@media (max-width: 700px) {
+  html[data-bc-mobile-beta] .site-header .header-inner {
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, 1fr);
+  }
+
+  html[data-bc-mobile-beta] .site-header .brand {
+    max-width: 100%;
+  }
+
+  html[data-bc-mobile-beta] .site-header .header-cta {
+    justify-self: end;
+    padding-inline: 0.7rem;
+  }
+
+  html[data-bc-mobile-beta] .site-header .menu-toggle {
+    justify-self: start;
+  }
+}
+
+html[data-bc-mobile-beta] .whatsapp-float {
+  bottom: calc(1rem + var(--bc-beta-bar-height) + var(--bc-beta-bottom));
+}
+
+.bc-beta-status-area {
+  background: var(--bc-beta-dark);
+  height: var(--bc-beta-top);
+  inset: 0 0 auto;
+  pointer-events: none;
+  position: fixed;
+  z-index: 1000;
+}
+
+.bc-beta-tabs {
+  align-items: stretch;
+  background: var(--bc-beta-dark);
+  border-top: 1px solid #665439;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  left: 0;
+  min-height: calc(var(--bc-beta-bar-height) + var(--bc-beta-bottom));
+  padding: 0.35rem 0.25rem calc(0.35rem + var(--bc-beta-bottom));
+  position: fixed;
+  right: 0;
+  z-index: 65;
+}
+
+.bc-beta-tab {
+  align-items: center;
+  border-radius: 0.6rem;
+  color: #eee5d7;
+  display: flex;
+  flex-direction: column;
+  font: 600 0.71rem/1.15 system-ui, sans-serif;
+  gap: 0.25rem;
+  justify-content: center;
+  padding: 0.2rem 0.1rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.bc-beta-tab[aria-current="page"] {
+  background: #352a1c;
+  color: var(--bc-beta-gold);
+}
+
+.bc-beta-tab:focus-visible,
+.bc-beta-cta:focus-visible {
+  outline: 2px solid var(--bc-beta-gold);
+  outline-offset: 2px;
+}
+
+.bc-beta-tab svg {
+  display: block;
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.menu-open .bc-beta-tabs {
+  visibility: hidden;
+}
+
+.bc-beta-notice {
+  background: var(--bc-beta-dark);
+  border-block: 1px solid #665439;
+  color: #f2e5cf;
+  font: 500 0.84rem/1.45 system-ui, sans-serif;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  text-align: center;
+}
+
+.bc-beta-header {
+  background: var(--bc-beta-dark);
+  display: grid;
+  justify-items: center;
+  padding: 0.35rem;
+}
+
+.bc-beta-header img {
+  display: block;
+  object-fit: contain;
+}
+
+.bc-beta-bookings {
+  margin-inline: auto;
+  max-width: 43rem;
+  min-height: 55vh;
+  padding: 2.5rem 1.25rem;
+}
+
+.bc-beta-kicker {
+  font: 700 0.72rem/1.3 system-ui, sans-serif;
+  letter-spacing: 0.13em;
+}
+
+.bc-beta-bookings h1 {
+  font-size: clamp(2.25rem, 9vw, 4rem);
+  margin-block: 0.5rem;
+}
+
+.bc-beta-bookings-list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+}
+
+.bc-beta-bookings-list li,
+.bc-beta-empty {
+  background: #f4ead9;
+  border: 1px solid #c2ab83;
+  border-radius: 0.8rem;
+  color: #2a2118;
+  padding: 0.9rem 1rem;
+}
+
+.bc-beta-bookings-list h2,
+.bc-beta-bookings-list p {
+  margin: 0.2rem 0;
+}
+
+.bc-beta-cta {
+  background: var(--bc-beta-dark);
+  border-radius: 2rem;
+  color: var(--bc-beta-gold);
+  display: inline-block;
+  font: 650 0.92rem/1.4 system-ui, sans-serif;
+  padding: 0.7rem 1.1rem;
+  text-decoration: none;
+}

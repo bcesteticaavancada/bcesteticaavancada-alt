@@ -1,0 +1,12 @@
+{
+  "appId": "br.com.bcesteticaavancada.beta",
+  "appName": "BC Estética Beta",
+  "webDir": "dist",
+  "backgroundColor": "#171310",
+  "plugins": {
+    "SystemBars": {
+      "style": "DARK",
+      "insetsHandling": "css"
+    }
+  }
+}
