@@ -2,6 +2,7 @@ const toggle=document.getElementById("menuToggle");
 const drawer=document.getElementById("siteDrawer");
 const overlay=document.getElementById("menuOverlay");
 const closeButton=document.getElementById("drawerClose");
+const isMobileBeta=document.documentElement.hasAttribute("data-bc-mobile-beta");
 
 function ensureBCGestaoMenuLink(){
   if(!drawer)return;
@@ -19,7 +20,6 @@ function ensureBCGestaoMenuLink(){
   link.setAttribute("data-bc-gestao-link","true");
   nav.insertBefore(link,contactLink);
 }
-ensureBCGestaoMenuLink();
 
 function ensureBCInstallMenuLink(){
   if(!drawer)return;
@@ -35,7 +35,10 @@ function ensureBCInstallMenuLink(){
   link.setAttribute("data-bc-install-link","true");
   nav.insertBefore(link,contactLink);
 }
-ensureBCInstallMenuLink();
+if(!isMobileBeta){
+  ensureBCGestaoMenuLink();
+  ensureBCInstallMenuLink();
+}
 
 /* Menu público compacto: mantém os destinos antigos, sem alterar conteúdo ou URLs. */
 function simplifyPublicDrawer(){
@@ -46,14 +49,14 @@ function simplifyPublicDrawer(){
   const bySlug=slug=>links.find(link=>{
     try{
       const url=new URL(link.getAttribute("href"),window.location.href);
-      return url.pathname.replace(/\/+$/,"").split("/").pop()===slug;
+      return url.pathname.replace(/\/index\.html$/,"").replace(/\/+$/,"").split("/").pop()===slug;
     }catch{return false;}
   });
   const home=links.find(link=>link.textContent.trim()==="Início");
   const contact=bySlug("contato");
   const campaigns=bySlug("campanhas")||document.createElement("a");
   if(contact){
-    campaigns.href=new URL("../campanhas/",contact.href).href;
+    campaigns.href=new URL(isMobileBeta?"../campanhas/index.html":"../campanhas/",contact.href).href;
     campaigns.textContent="Campanhas";
     campaigns.dataset.bcCampaignsLink="true";
   }
@@ -86,7 +89,7 @@ function simplifyPublicDrawer(){
     return details;
   };
   const agendar=bySlug("agenda")||document.createElement("a");
-  agendar.href=new URL("../agenda/",contact.href).href;
+  agendar.href=new URL(isMobileBeta?"../agenda/index.html":"../agenda/",contact.href).href;
   agendar.textContent="Agendar";
   agendar.classList.add("bc-drawer-primary-action");
   agendar.dataset.bcAgendarLink="true";
