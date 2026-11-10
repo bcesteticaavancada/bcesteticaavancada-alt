@@ -9,6 +9,7 @@ import {
 } from './procedure-api.js';
 import { listStaffDirectory } from './agenda-api.js';
 import { formatProcedurePrice } from './procedure-domain.js';
+import { bindBCParaVocePointRule, renderBCParaVocePointRule } from './bc-para-voce-panel.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -169,6 +170,7 @@ export async function initProcedurePanel({ client, profile, root = document } = 
   let procedures = [];
   let staff = [];
   let selected = null;
+  let editorVersion = 0;
   const library = area.querySelector('#procedureLibrary');
   const listSlot = library.querySelector('[data-procedure-list]');
   const editorSlot = library.querySelector('[data-procedure-editor-slot]');
@@ -187,8 +189,14 @@ export async function initProcedurePanel({ client, profile, root = document } = 
   }
 
   async function openEditor(id) {
-    selected = id ? await getProcedure({ client, procedureId: id }) : null;
-    editorSlot.innerHTML = renderProcedureEditor(profile, selected);
+    const version = ++editorVersion;
+    const record = id ? await getProcedure({ client, procedureId: id }) : null;
+    if (version !== editorVersion) return;
+    selected = record;
+    const showRule = profile.role === 'admin' && selected?.id && !selected.archived_at;
+    editorSlot.innerHTML = renderProcedureEditor(profile, selected) + (showRule ? renderBCParaVocePointRule() : '');
+    const pointRule = editorSlot.querySelector('[data-bc-point-rule]');
+    if (pointRule) bindBCParaVocePointRule(pointRule, client, selected.id);
     editorSlot.scrollIntoView?.({ behavior:'smooth', block:'start' });
   }
 

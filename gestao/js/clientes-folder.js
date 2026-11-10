@@ -2,6 +2,7 @@ import { calculateAge, clientProfileChecklist, formatCpf, isMinor } from './clie
 import { formatClinicDateTime } from './agenda-format.js';
 import { renderAnamnesePanel, renderClinicalAlerts } from './anamnese-panel.js';
 import { renderClientPortalControls } from './client-portal-admin.js';
+import { renderBCParaVoceSummary } from './bc-para-voce-panel.js';
 
 if (typeof document !== 'undefined') {
   if (!document.querySelector('link[data-client-folder-styles]')) {
@@ -153,6 +154,7 @@ export function renderClientFolder({
   staffMap = new Map(),
   canArchive = false,
   canManagePortal = false,
+  canSeeBCParaVoce = false,
   photoUrl = '',
   photoHistory = [],
   anamneseState = null,
@@ -185,6 +187,7 @@ export function renderClientFolder({
     </nav>
     <section data-folder-panel="resumo">
       ${alerts}
+      ${canSeeBCParaVoce ? renderBCParaVoceSummary() : ''}
       ${canManagePortal ? renderClientPortalControls(active) : ''}
       ${renderClientFolderChecklist(client, anamneseState)}
       <div class="bcg-divider"></div><p class="bcg-eyebrow">HISTÓRICO RECENTE</p>${renderClientTimeline(history, staffMap)}

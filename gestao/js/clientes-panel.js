@@ -21,6 +21,7 @@ import {
   setCurrentClientIdPhoto,
 } from './clientes-photo-api.js';
 import { bindClientPortalControls } from './client-portal-admin.js';
+import { bindBCParaVoceSummary } from './bc-para-voce-panel.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -194,6 +195,7 @@ export async function initClientesPanel({
   const timeline = el('clientHistoryTimeline');
   const createStatus = el('clientCreateStatus');
   const canManagePortal = profile.role === 'admin';
+  const canSeeBCParaVoce = canManagePortal || profile.role === 'colaborador';
   if (!search || !list || !createForm || !editor || !timeline) {
     throw new Error('Estrutura do painel de clientes incompleta.');
   }
@@ -233,11 +235,14 @@ export async function initClientesPanel({
       staffMap,
       canArchive,
       canManagePortal,
+      canSeeBCParaVoce,
       photoUrl: photos.photoUrl,
       photoHistory: photos.photoHistory,
     });
     const portalControls = editor.querySelector('[data-client-portal-controls]');
     if (portalControls) bindClientPortalControls({ host: portalControls, client, clienteId });
+    const membership = editor.querySelector('[data-bc-para-voce]');
+    if (membership) bindBCParaVoceSummary(membership, client, clienteId);
     return folderClient;
   }
 
