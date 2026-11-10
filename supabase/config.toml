@@ -1,3 +1,11 @@
+[api]
+# Supabase CLI >= 2.102.0: local starts/resets match the 2026-10-30 cutoff.
+auto_expose_new_tables = false
+
+[db]
+# Match the active BC project when running disposable CI.
+major_version = 17
+
 [functions.public-agenda]
 verify_jwt = false
 
