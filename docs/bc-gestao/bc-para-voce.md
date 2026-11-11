@@ -5,9 +5,9 @@ O portal da cliente usa os atendimentos e a agenda do BC Gestão. A cliente enco
 ## Fundação em revisão
 
 - O BC Gestão prepara um cadastro espelho quando Mel ou uma colaboradora salva uma nova cliente. O espelho guarda o vínculo com o cadastro interno e a data de preparação. O cadastro básico continua aceitando nome e telefone.
-- **BC Gestão → Clientes → Resumo** mostra o estado da ativação, o total de pontos e o nível para a equipe clínica.
+- **BC Gestão → Clientes → Resumo** consulta automaticamente o estado da ativação, o total de pontos, o nível, o progresso até o próximo e a quantidade de créditos pendentes de revisão. Há também botão para atualizar.
 - A administradora configura quantos pontos cada procedimento concede na **Biblioteca de Procedimentos**. Zero desativa a concessão futura. O lançamento ocorre na conclusão, usa a regra daquele momento e tem o atendimento como chave. Reabrir e concluir a mesma ficha preserva o lançamento original.
-- As regras comerciais começam vazias. Pontuação retroativa, validade dos cupons e benefícios reais dependem de uma definição da clínica. A prévia interativa usa cadastros e benefícios fictícios.
+- As regras manuais começam vazias. O cálculo misto foi preparado com uma chave de homologação **desligada por padrão**, e não credita automaticamente após aplicar a migration até aprovação expressa de ativação. Regras manuais anteriores continuam válidas. Pontuação retroativa, resolução de créditos pendentes, validade dos cupons e benefícios reais dependem de definição da clínica. A prévia interativa usa cadastros e benefícios fictícios.
 
 ## Ativação da conta
 
@@ -32,9 +32,9 @@ Vincular o PDF pós aprovado à versão do procedimento registrada naquele atend
 
 ## Pontos BC — escala comercial proposta para homologação
 
-**Regra sugerida:** 1 Ponto BC para cada R$ 1 do valor-base positivo do procedimento, arredondado para o ponto inteiro mais próximo. A escala é proporcional e crescente: uma sessão de R$ 190 sugere 190 pontos; uma de R$ 990, 990; e uma de R$ 2.990, 2.990. O número de pontos não equivale a reais resgatáveis ou cashback.
+**Modelo misto aprovado para preparação de homologação:** 1 Ponto BC por R$ 1, arredondado para o inteiro mais próximo. Em procedimentos de valor fixo, a referência é o preço-base congelado na ficha. Nos serviços com valor “a partir de”, a referência passa a ser o preço final confirmado na ficha. Por exemplo: R$ 190 gera 190 pontos, R$ 990 gera 990 e um valor final de R$ 2.990 gera 2.990. O número de pontos não equivale a reais resgatáveis ou cashback.
 
-Os valores abaixo são os **valores-base do catálogo inicial do repositório**, não uma confirmação dos preços atuais praticados pela clínica. Na Biblioteca de Procedimentos, a tela administrativa recalcula as sugestões a partir do valor da versão publicada, organiza da mais barata à mais cara e permite que **somente a administradora** revise e salve cada regra. Nada é aplicado automaticamente; regras não aprovadas continuam com zero pontos. Para procedimentos com preço **“a partir de”**, a sugestão corresponde ao mínimo cadastrado, não a um preço final ou pagamento confirmado. Alterações comerciais e descontos não mudam retroativamente os lançamentos concluídos.
+Os valores abaixo são os **valores-base do catálogo inicial do repositório**, não uma confirmação dos preços atuais praticados pela clínica. Na Biblioteca de Procedimentos, a tela administrativa organiza as sugestões do menor para o maior valor. A administradora pode manter o cálculo misto, definir uma exceção manual ou desativar o crédito do procedimento com uma regra manual de zero ponto. **A ativação global automática permanece desligada até o corte homologado.** Nas linhas **“a partir de”**, os pontos da tabela são somente referência do mínimo: o crédito real depende do preço final confirmado. Alterações de preço não mudam eventos já concedidos.
 
 | Procedimento | Valor-base do catálogo | Pontos sugeridos |
 |---|---:|---:|
@@ -71,6 +71,17 @@ Os valores abaixo são os **valores-base do catálogo inicial do repositório**,
 
 Quando o preço-base for gratuito ou não estiver definido, não sugerir pontos. A Mel poderá usar zero para impedir concessão ou aprovar uma regra específica. A atualização de uma regra vale somente para os próximos atendimentos finalizados, e a pontuação concedida em cada conclusão permanece registrada.
 
+### Motor automático misto e salvaguardas
+
+1. A migration `20261111165430_bc_para_voce_mixed_points_homologation.sql` acrescenta `private.bc_para_voce_program_settings` com `automatic_enabled=false` e `effective_at=null`. Não há habilitação automática, nem publicação ou SQL no projeto produtivo nesta etapa.
+2. Uma regra manual por procedimento tem prioridade (inclusive zero, que desativa o crédito). Sem override, o modelo misto só calcula pontos após o programa ter sido habilitado e atingido a data efetiva aprovada. A remoção da regra manual restaura o modelo misto, **não** ativa o programa global.
+3. O crédito acontece na transição de atendimento clínico para `finalizado`, em trigger no banco, com uma chave única por atendimento. Isso evita duplicação em reconclusões, sem confiar em pontuação enviada pelo navegador.
+4. O registro guarda pontos concedidos, fonte do cálculo, preço de referência usado e versão da política. Preço ausente/inválido fica marcado `pending_price`; ciclos com `cycle_key` ficam `pending_cycle` (ambos com zero até revisão), evitando multiplicar pontuação de pacote.
+5. O resumo interno mostra a soma dos créditos e conta as pendências. Dados financeiros e registros clínicos não ficam disponíveis publicamente; a área externa ainda depende de autenticação da cliente.
+6. Não há conversão automática de pendências, estorno, cálculo retroativo ou resgate real nesta etapa. Definir um procedimento de conciliação de recebimentos, pacotes e estornos antes de ativar produção.
+
+Para homologação no banco **isolado**, o teste `bc_para_voce_mixed_points.test.sql` habilita temporariamente a flag em uma transação revertida por `ROLLBACK` e verifica valor fixo, final variável, falta de preço, ciclo, reconclusão, permissão e restauração da regra mista. Não executar esse teste contra dados reais.
+
 | Nível | Pontos acumulados | Benefício de exemplo |
 |---|---:|---|
 | Em adesão | 0 a 999 | Acompanhamento do progresso |
@@ -82,11 +93,13 @@ Quando o preço-base for gratuito ou não estiver definido, não sugerir pontos.
 
 **Progressão pretendida:** Bronze equivale a aproximadamente seis limpezas de R$ 190 ou uma sessão acima de R$ 1.000; Prata exige mais 1.000 pontos após Bronze; Ouro mais 2.000; Pérola mais 2.000; Diamante mais 4.000. Assim, uma cliente de serviços menores avança por recorrência, enquanto uma cliente de serviços avançados progride proporcionalmente ao valor, sem receber benefícios monetários automaticamente. Os limiares são cumulativos, nunca reiniciam entre níveis. Esta é uma proposta a calibrar após conhecer frequência real de visitas, margem e orçamento de recompensas.
 
-Proposta para homologação comercial. Cada nível prevê um voucher individual uma vez e a equipe confirma o resgate. Os pontos acumulados continuam contando para o nível após o resgate. Definir serviços elegíveis, validade, política de estorno, elegibilidade por campanha e custo máximo dos benefícios antes de emitir cupons reais. A interface administrativa já pode sugerir as 30 pontuações, mas não há concessão automática de toda a tabela nem ativação de cupons.
+Proposta para homologação comercial. Cada nível prevê um voucher individual uma vez e a equipe confirma o resgate. Os pontos acumulados continuam contando para o nível após o resgate. Definir serviços elegíveis, validade, política de estorno, elegibilidade por campanha e custo máximo dos benefícios antes de emitir cupons reais. A interface administrativa sugere as 30 pontuações e apresenta o modo misto; a ativação automática global e os cupons continuam bloqueados.
 
 ## Aceite em homologação
 
 - Preparar dois cadastros fictícios pela mesma entrada usada no Gestão. Validar convite expirado, uso único, recuperação, arquivamento e troca de contato.
 - Verificar que trocar o identificador de um atendimento, documento, foto ou conversa pela URL continua bloqueando o acesso cruzado. Conferir também o acesso às áreas internas com uma conta de cliente.
 - Finalizar um Botox fictício com a regra de 250 pontos e a ficha pós aprovada. Conferir o PDF da versão certa, a pontuação e a mudança de nível. Reabrir e concluir novamente para checar a deduplicação.
+- Em outra sessão fictícia, habilitar a flag somente no PostgreSQL isolado e comprovar: valor fixo usa base; “a partir de” usa valor final; sem preço/ciclo não credita; reconclusão não duplica; colaboradora não altera política; o BC Gestão mostra pendências.
+- Revisar a tabela real de preços com a Mel, definir se o Monaco Glow e outros protocolos representam pacote ou sessão, conferir política de devolução, regras de resgate e data efetiva. Manter o motor automático desativado até esse aceite.
 - Testar o retorno com confirmação da equipe e a conversa privada nos dois perfis. Conferir o fluxo em celular antes de liberar o site.

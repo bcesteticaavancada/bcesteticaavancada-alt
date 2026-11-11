@@ -21,13 +21,17 @@ test('resumo interno do BC para Você consulta somente o cadastro aberto', async
   bindBCParaVoceSummary(host, {
     async rpc(name, params) {
       calls.push({ name, params });
-      return { data: { account_state: 'ativacao_pendente', total_points: 2100, level: 'prata' } };
+      return { data: { account_state: 'ativacao_pendente', total_points: 2100, level: 'prata', pending_count: 1 } };
     },
   }, record.id);
-  host.querySelector('button').click();
   await nextTick();
   assert.deepEqual(calls, [{ name: 'bc_para_voce_staff_summary', params: { p_cliente_id: record.id } }]);
   assert.match(host.querySelector('[role=status]').textContent, /Ativação pendente · 2\.100 Pontos BC · Prata/);
+  assert.match(host.querySelector('[role=status]').textContent, /Faltam 1\.900 para Ouro/);
+  assert.match(host.querySelector('[role=status]').textContent, /1 crédito\(s\) pendente\(s\) de revisão/);
+  host.querySelector('button').click();
+  await nextTick();
+  assert.equal(calls.length, 2, 'Atualização manual permanece disponível após carregamento automático');
 });
 
 test('regra de Pontos BC carrega o valor atual antes de editar e salva pelo procedimento aberto', async () => {
@@ -40,7 +44,9 @@ test('regra de Pontos BC carrega o valor atual antes de editar e salva pelo proc
   bindBCParaVocePointRule(host, {
     async rpc(name, params) {
       calls.push({ name, params });
-      return { data: name.includes('_get_') ? 100 : 250 };
+      return { data: name.includes('_get_') ? {
+        mode: 'manual', points: 100, automatic_enabled: false, effective_at: null,
+      } : 250 };
     },
   }, 'botox-ficticio');
   assert.equal(form.hidden, true);
@@ -52,9 +58,10 @@ test('regra de Pontos BC carrega o valor atual antes de editar e salva pelo proc
   form.dispatchEvent(new Event('submit', { cancelable: true }));
   await nextTick();
   assert.deepEqual(calls, [
-    { name: 'bc_para_voce_get_point_rule', params: { p_procedimento_id: 'botox-ficticio' } },
+    { name: 'bc_para_voce_get_point_policy', params: { p_procedimento_id: 'botox-ficticio' } },
     { name: 'bc_para_voce_set_point_rule', params: { p_procedimento_id: 'botox-ficticio', p_points: 250 } },
   ]);
+  assert.match(host.querySelector('[data-point-policy-status]').textContent, /Exceção manual ativa/);
 });
 
 test('escala proporcional só sugere pontos para preços-base positivos', () => {
@@ -84,7 +91,7 @@ test('tabela administrativa ordena do mais barato ao mais caro e sinaliza a part
   assert.match(html, /Revisão manual/);
   assert.doesNotMatch(html, /<Sem preço>/);
   assert.doesNotMatch(html, /Antigo/);
-  assert.match(html, /Nenhum ponto desta tabela é ativado automaticamente/);
+  assert.match(html, /cálculo automático permanece desligado/);
 });
 
 test('sugestão no editor exige consulta prévia e salvamento explícito', async () => {
@@ -97,19 +104,46 @@ test('sugestão no editor exige consulta prévia e salvamento explícito', async
   bindBCParaVocePointRule(host, {
     async rpc(name, params) {
       calls.push({ name, params });
-      return { data: name.includes('_get_') ? 0 : 1390 };
+      return { data: name.includes('_get_') ? {
+        mode: 'automatic', points: 0, automatic_enabled: false, effective_at: null,
+      } : 1390 };
     },
   }, 'procedimento-ficticio');
   suggestButton.click();
   assert.equal(input.value, '');
   host.querySelector('[data-load-point-rule]').click();
   await nextTick();
-  assert.equal(input.value, '0');
+  assert.equal(input.value, '');
   suggestButton.click();
   assert.equal(input.value, '1390');
   assert.equal(calls.length, 1);
   input.valueAsNumber = 1390;
   host.querySelector('form').dispatchEvent(new Event('submit', { cancelable: true }));
   await nextTick();
-  assert.deepEqual(calls.map((call) => call.name), ['bc_para_voce_get_point_rule', 'bc_para_voce_set_point_rule']);
+  assert.deepEqual(calls.map((call) => call.name), ['bc_para_voce_get_point_policy', 'bc_para_voce_set_point_rule']);
+});
+
+test('remoção de exceção retorna ao modo misto sem ativar o programa global', async () => {
+  const { document } = parseHTML(renderBCParaVocePointRule({ base_price: 490 }));
+  const host = document.querySelector('[data-bc-point-rule]');
+  const calls = [];
+  bindBCParaVocePointRule(host, {
+    async rpc(name, params) {
+      calls.push({ name, params });
+      if (name === 'bc_para_voce_get_point_policy') return {
+        data: { mode: 'manual', points: 400, automatic_enabled: false, effective_at: null },
+      };
+      return { data: true };
+    },
+  }, 'procedimento-exemplo');
+  host.querySelector('[data-load-point-rule]').click();
+  await nextTick();
+  host.querySelector('[data-reset-point-rule]').click();
+  await nextTick();
+  assert.deepEqual(calls.map(({ name }) => name), [
+    'bc_para_voce_get_point_policy', 'bc_para_voce_reset_point_rule',
+  ]);
+  assert.equal(host.querySelector('[name=points]').value, '');
+  assert.match(host.querySelector('[data-point-policy-status]').textContent, /desligado para homologação/);
+  assert.match(host.querySelector('[role=status]').textContent, /Modo misto restaurado/);
 });

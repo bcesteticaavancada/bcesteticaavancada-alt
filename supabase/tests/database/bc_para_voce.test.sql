@@ -13,7 +13,7 @@ insert into fixture values ('second-client', public.bc_cliente_create_v2(
   '{"nome":"Segunda cliente fictícia CI","telefone":"31900000041"}'
 ));
 select is(public.bc_para_voce_staff_summary(pg_temp.f('second-client')),
-  '{"account_state":"ativacao_pendente","total_points":0,"level":"adesao"}'::jsonb,
+  '{"account_state":"ativacao_pendente","total_points":0,"level":"adesao","pending_count":0}'::jsonb,
   'Cadastro básico feito pela colaboradora prepara o espelho');
 select throws_ok(format('select public.bc_para_voce_set_point_rule(%L, 250)', pg_temp.f('procedure')),
   '42501', 'Acesso restrito à administração da clínica.', 'Colaboradora não altera Pontos BC');
@@ -46,7 +46,7 @@ update public.clinical_treatments set status = 'finalizado', finalized_at = now(
 where id = pg_temp.f('portal-treatment');
 set local role authenticated;
 select is(public.bc_para_voce_staff_summary(pg_temp.f('client')),
-  '{"account_state":"ativacao_pendente","total_points":1000,"level":"bronze"}'::jsonb,
+  '{"account_state":"ativacao_pendente","total_points":1000,"level":"bronze","pending_count":0}'::jsonb,
   'Conclusão concede pontos ao cadastro correto e libera o primeiro nível');
 select is(public.bc_para_voce_staff_summary(pg_temp.f('second-client'))->>'total_points', '0',
   'Um atendimento não pontua no segundo cadastro');
