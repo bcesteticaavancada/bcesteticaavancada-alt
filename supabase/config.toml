@@ -4,6 +4,10 @@ verify_jwt = false
 [functions.submit-pre-anamnese]
 verify_jwt = false
 
+# A função valida o link individual pelo token emitido pelo banco.
+[functions.client-portal]
+verify_jwt = false
+
 # O worker usa segredo privado do agendador validado por RPC service_role.
 [functions.return-reminders]
 verify_jwt = false

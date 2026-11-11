@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171310">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://tpqsmerlxquyrzrjbogj.supabase.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Área do cliente | BC Estética Avançada</title>
+  <link rel="stylesheet" href="./portal.css">
+  <script type="module" src="./portal.js"></script>
+</head>
+<body>
+  <header class="portal-header">
+    <a href="../" aria-label="BC Estética Avançada — início">
+      <img src="../assets/logo-oficial/bc-logo-estetica-avancada-flutuante.webp" width="90" height="84" alt="BC Estética Avançada">
+    </a>
+    <a class="portal-back" href="../">Voltar ao site</a>
+  </header>
+  <main class="portal-main">
+    <p class="portal-kicker">BC ESTÉTICA AVANÇADA</p>
+    <h1>Área do cliente</h1>
+    <section class="portal-card" aria-labelledby="appointments-title">
+      <h2 id="appointments-title">Meus horários</h2>
+      <p class="portal-message" data-portal-message role="status" aria-live="polite">Abra o link individual enviado pela equipe da BC para consultar seus próximos horários.</p>
+      <ul class="portal-appointments" data-portal-appointments aria-label="Próximos horários" hidden></ul>
+      <div class="portal-actions">
+        <a class="portal-button portal-button--primary" data-portal-contact href="https://wa.me/5531995184110" target="_blank" rel="noopener noreferrer">Pedir meu link pelo WhatsApp</a>
+        <button class="portal-button" data-portal-refresh type="button" hidden>Atualizar horários</button>
+        <button class="portal-button" data-portal-exit type="button" hidden>Encerrar acesso</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
