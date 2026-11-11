@@ -9,7 +9,7 @@ import {
 } from './procedure-api.js';
 import { listStaffDirectory } from './agenda-api.js';
 import { formatProcedurePrice } from './procedure-domain.js';
-import { bindBCParaVocePointRule, renderBCParaVocePointRule } from './bc-para-voce-panel.js';
+import { bindBCParaVocePointRule, renderBCParaVocePointRule, renderBCParaVocePointsScale } from './bc-para-voce-panel.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -71,6 +71,7 @@ export function renderProcedureLibraryShell(profile = {}) {
     <div data-procedure-editor-slot>${renderProcedureEditor(profile)}</div>
     ${profile.role === 'admin' ? `<section class="bcg-procedure-admin" data-procedure-admin-controls><p class="bcg-eyebrow">ADMINISTRAÇÃO</p><h3>Capacidades e execução clínica</h3><div class="bcg-subgrid"><form class="bcg-form" data-manager-form><label>Profissional<select class="bcg-input" name="user_id" data-staff-options></select></label><label>Gestão da biblioteca<select class="bcg-input" name="enabled"><option value="true">Pode gerenciar</option><option value="false">Não pode gerenciar</option></select></label><button class="bcg-small-button" type="submit">Salvar capacidade</button><span class="bcg-status"></span></form><form class="bcg-form" data-execution-form><label>Procedimento<select class="bcg-input" name="procedure_id" data-procedure-options></select></label><label>Profissional<select class="bcg-input" name="user_id" data-staff-options></select></label><label>Execução<select class="bcg-input" name="allowed"><option value="true">Pode executar</option><option value="false">Revogar execução</option></select></label><button class="bcg-small-button" type="submit">Salvar execução</button><span class="bcg-status"></span></form></div></section>` : ''}
     <div class="bcg-divider"></div><div data-procedure-list><div class="bcg-empty">Carregando biblioteca…</div></div>
+    ${profile.role === 'admin' ? '<div data-bc-points-scale-slot></div>' : ''}
   </div>`;
 }
 
@@ -178,6 +179,8 @@ export async function initProcedurePanel({ client, profile, root = document } = 
   async function refresh() {
     procedures = await listProcedures({ client, includeArchived: profile.role === 'admin' });
     listSlot.innerHTML = renderProcedureCards(procedures, profile);
+    const scaleSlot = library.querySelector('[data-bc-points-scale-slot]');
+    if (scaleSlot) scaleSlot.innerHTML = renderBCParaVocePointsScale(procedures);
     if (profile.role === 'admin') {
       staff = await listStaffDirectory({ client });
       const staffOptions = `<option value="">Selecione</option>${staff.map((s)=>`<option value="${escapeHtml(s.user_id)}">${escapeHtml(s.display_name || 'Profissional')}</option>`).join('')}`;
@@ -194,7 +197,7 @@ export async function initProcedurePanel({ client, profile, root = document } = 
     if (version !== editorVersion) return;
     selected = record;
     const showRule = profile.role === 'admin' && selected?.id && !selected.archived_at;
-    editorSlot.innerHTML = renderProcedureEditor(profile, selected) + (showRule ? renderBCParaVocePointRule() : '');
+    editorSlot.innerHTML = renderProcedureEditor(profile, selected) + (showRule ? renderBCParaVocePointRule(selected.current_version || selected.draft_version) : '');
     const pointRule = editorSlot.querySelector('[data-bc-point-rule]');
     if (pointRule) bindBCParaVocePointRule(pointRule, client, selected.id);
     editorSlot.scrollIntoView?.({ behavior:'smooth', block:'start' });

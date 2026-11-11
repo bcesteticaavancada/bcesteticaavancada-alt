@@ -30,15 +30,46 @@ As identidades de clientes e as permissões da equipe têm fronteiras distintas.
 
 Vincular o PDF pós aprovado à versão do procedimento registrada naquele atendimento. Se a ficha pós ainda aguarda aprovação, mostrar esse estado e permitir liberação posterior. Orientações individualizadas entram como conteúdo próprio para a cliente. As fotos de antes e depois ficam privadas e precisam de autorização de compartilhamento. Os termos aparecem após a liberação pela equipe. Manter os arquivos em armazenamento privado, com autorização por item e acesso de curta duração.
 
-## Pontos BC
+## Pontos BC — escala comercial proposta para homologação
 
-| Procedimento | Pontos de exemplo |
-|---|---:|
-| Limpeza de pele | 50 |
-| Peeling | 100 |
-| Botox | 250 |
+**Regra sugerida:** 1 Ponto BC para cada R$ 1 do valor-base positivo do procedimento, arredondado para o ponto inteiro mais próximo. A escala é proporcional e crescente: uma sessão de R$ 190 sugere 190 pontos; uma de R$ 990, 990; e uma de R$ 2.990, 2.990. O número de pontos não equivale a reais resgatáveis ou cashback.
 
-A clínica pode definir os pontos por procedimento levando em conta preço e margem. Uma alteração de tabela vale para as próximas conclusões. O preço do atendimento e o saldo de pontos são informações distintas.
+Os valores abaixo são os **valores-base do catálogo inicial do repositório**, não uma confirmação dos preços atuais praticados pela clínica. Na Biblioteca de Procedimentos, a tela administrativa recalcula as sugestões a partir do valor da versão publicada, organiza da mais barata à mais cara e permite que **somente a administradora** revise e salve cada regra. Nada é aplicado automaticamente; regras não aprovadas continuam com zero pontos. Para procedimentos com preço **“a partir de”**, a sugestão corresponde ao mínimo cadastrado, não a um preço final ou pagamento confirmado. Alterações comerciais e descontos não mudam retroativamente os lançamentos concluídos.
+
+| Procedimento | Valor-base do catálogo | Pontos sugeridos |
+|---|---:|---:|
+| Tratamento de Vasinhos | R$ 180 | 180 |
+| Limpeza de pele | R$ 190 | 190 |
+| Reset Glow™ | R$ 190 | 190 |
+| Jato de Plasma | a partir de R$ 190 | 190 |
+| Massagem (relaxante, drenagem ou redutora) | R$ 195 | 195 |
+| Peeling | a partir de R$ 195 | 195 |
+| Limpeza de pele com peeling | R$ 219 | 219 |
+| Despigmentação | a partir de R$ 250 | 250 |
+| Remoção a Laser | a partir de R$ 250 | 250 |
+| Black peel | R$ 390 | 390 |
+| Aplicação de enzimas | a partir de R$ 390 | 390 |
+| Fort Brow™ | R$ 390 | 390 |
+| Lipo de Papada | a partir de R$ 390 | 390 |
+| Tratamento para Estrias | a partir de R$ 390 | 390 |
+| Fort Hair™ | R$ 490 | 490 |
+| Microagulhamento | a partir de R$ 490 | 490 |
+| Radiofrequência / criofrequência fracionada | a partir de R$ 490 | 490 |
+| Skinbooster | a partir de R$ 490 | 490 |
+| Sculpt Cryo™ | R$ 590 | 590 |
+| Botox Nefertiti | R$ 690 | 690 |
+| Monaco Glow™ | R$ 890 | 890 |
+| Botox terço superior | R$ 990 | 990 |
+| Fort Hair Plus™ | R$ 990 | 990 |
+| Harmonização Facial / Preenchimento | a partir de R$ 990 | 990 |
+| Profhilo | R$ 990 | 990 |
+| Ultrassom microfocado | a partir de R$ 990 | 990 |
+| Bioestimulador | a partir de R$ 1.390 | 1.390 |
+| Botox full face | R$ 1.390 | 1.390 |
+| Skin Reset™ | a partir de R$ 1.990 | 1.990 |
+| Face Reset™ | a partir de R$ 2.990 | 2.990 |
+
+Quando o preço-base for gratuito ou não estiver definido, não sugerir pontos. A Mel poderá usar zero para impedir concessão ou aprovar uma regra específica. A atualização de uma regra vale somente para os próximos atendimentos finalizados, e a pontuação concedida em cada conclusão permanece registrada.
 
 | Nível | Pontos acumulados | Benefício de exemplo |
 |---|---:|---|
@@ -49,7 +80,9 @@ A clínica pode definir os pontos por procedimento levando em conta preço e mar
 | Pérola | 6.000 | Crédito em cuidado selecionado |
 | Diamante | 10.000 | Benefício exclusivo da linha Diamond |
 
-Proposta para homologação comercial. Cada nível libera um voucher individual uma vez e a equipe confirma o resgate. Os pontos acumulados continuam contando para o nível após o resgate. Definir serviços elegíveis, validade e política de estorno antes de emitir cupons reais.
+**Progressão pretendida:** Bronze equivale a aproximadamente seis limpezas de R$ 190 ou uma sessão acima de R$ 1.000; Prata exige mais 1.000 pontos após Bronze; Ouro mais 2.000; Pérola mais 2.000; Diamante mais 4.000. Assim, uma cliente de serviços menores avança por recorrência, enquanto uma cliente de serviços avançados progride proporcionalmente ao valor, sem receber benefícios monetários automaticamente. Os limiares são cumulativos, nunca reiniciam entre níveis. Esta é uma proposta a calibrar após conhecer frequência real de visitas, margem e orçamento de recompensas.
+
+Proposta para homologação comercial. Cada nível prevê um voucher individual uma vez e a equipe confirma o resgate. Os pontos acumulados continuam contando para o nível após o resgate. Definir serviços elegíveis, validade, política de estorno, elegibilidade por campanha e custo máximo dos benefícios antes de emitir cupons reais. A interface administrativa já pode sugerir as 30 pontuações, mas não há concessão automática de toda a tabela nem ativação de cupons.
 
 ## Aceite em homologação
 
