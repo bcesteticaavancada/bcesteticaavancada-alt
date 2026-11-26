@@ -14,3 +14,15 @@ test("não presume campos",()=>assert.equal((()=>{const x=parseExample('Hoje a A
 test("bloqueia duplicidade na sessão",()=>assert.equal((()=>{const a=commitPreview([],preview(sample),'a');try{commitPreview(a,preview(sample),'a');return false}catch{return a.length===1}})(),true));
 test("rejeita método inconsistente",()=>assert.equal((()=>{try{preview({...sample,method:'pendente'});return false}catch{return true}})(),true));
 test("rejeita base ausente",()=>assert.equal((()=>{try{preview({...sample,basis:''});return false}catch{return true}})(),true));
+
+import {commercialPeriod,cashScenario} from '../../docs/bc-gestao/maya-finance-preview/engine.mjs';
+const cohort={prospects:10,buyers:3,eligible:5,returned:2,active:4,repeat:1,responses:0,positive:0};
+test('indicadores comerciais respeitam denominadores e ausência de amostra',()=>{
+ assert.deepEqual(commercialPeriod(cohort),{conversion:30,retention:40,recurrence:25,satisfaction:null});
+ assert.throws(()=>commercialPeriod({...cohort,returned:6}));assert.throws(()=>commercialPeriod({...cohort,active:''}));
+});
+test('caixa separa liquidação, previsões e meta sem duplicar pendências',()=>{
+ const input={opening:'10',settled:'5,50',paid:'2',expected:'4',payable:'20',goal:'11'};
+ assert.deepEqual(cashScenario(input),{cash:1350,projected:-250,goalProgress:50});
+ assert.equal(cashScenario({...input,goal:'0'}).goalProgress,null);assert.throws(()=>cashScenario({...input,paid:''}));
+});

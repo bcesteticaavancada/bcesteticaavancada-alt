@@ -30,3 +30,27 @@ function commitPreview(state,draft,key){
  return [...state,Object.freeze({...draft,key})];
 }
 export {cents,rate,preview,parseExample,commitPreview};
+
+function whole(value){
+ const s=String(value??'').trim();
+ if(!/^\d{1,8}$/.test(s))throw Error('Preencha as contagens com números inteiros, inclusive zero.');
+ return Number(s);
+}
+function percent(part,total){
+ if(part>total)throw Error('O subconjunto informado supera o total elegível.');
+ return total===0?null:100*part/total;
+}
+export function commercialPeriod(input){
+ const prospects=whole(input.prospects),buyers=whole(input.buyers);
+ const eligible=whole(input.eligible),returned=whole(input.returned);
+ const active=whole(input.active),repeat=whole(input.repeat);
+ const responses=whole(input.responses),positive=whole(input.positive);
+ return {conversion:percent(buyers,prospects),retention:percent(returned,eligible),
+   recurrence:percent(repeat,active),satisfaction:percent(positive,responses)};
+}
+export function cashScenario(input){
+ const opening=cents(input.opening),settled=cents(input.settled),paid=cents(input.paid),
+   expected=cents(input.expected),payable=cents(input.payable),goal=cents(input.goal);
+ const cash=opening+settled-paid;
+ return {cash,projected:cash+expected-payable,goalProgress:goal?settled/goal*100:null};
+}

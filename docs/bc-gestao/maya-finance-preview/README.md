@@ -49,3 +49,6 @@ Interpretador aceita um modelo de frase apenas. Não resolve IDs, regras vigente
 - https://github.com/bcesteticaavancada/bcesteticaavancada-alt/pull/23
 - https://github.com/bcesteticaavancada/bcesteticaavancada-alt/pull/70
 - gestao/js/finance-simple-api.js; gestao/js/finance-receipts-api.js; docs/bc-gestao/maya-acesso-equipe-2026-10-28.md.
+
+### Extensão de homologação
+O simulador agora calcula caixa realizado, projeção e meta de recebimentos sobre valores agregados explicitamente informados. O painel comercial calcula conversão, retenção, recorrência e satisfação por coorte, rejeita contagens incoerentes e sinaliza denominador zero. O ditado depende de reconhecimento local em português pelo dispositivo; o texto volta para o campo de revisão. A prévia perde validade sempre que a frase ou os campos são editados. Os dados do cenário permanecem na memória da página. Pontos, Grupo Diamond e valor do relacionamento ao longo do tempo dependem de regras e base autorizadas. A integração transacional permanece em avaliação.
