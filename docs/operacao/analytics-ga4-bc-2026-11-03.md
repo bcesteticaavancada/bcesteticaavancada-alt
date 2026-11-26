@@ -36,3 +36,10 @@ O arquivo `analytics-public.js` está referenciado somente em dez páginas insti
 7. Reconfigurar TalkToData para a nova propriedade da BC; a conexão anterior apontava para outro negócio.
 
 **Dependência de domínio:** PR empilhado no PR #69. Se #69 for mesclado, reavaliar a base do PR do GA4 para main após os testes. Não mexer em DNS, Auth, Search Console ou Drive nesta rodada.
+
+## Atualização de homologação de 26/11/2026
+A implementação corrente usa uma única via GTM, bloqueada no código. Esta seção atualiza o desenho histórico acima. A home incorpora agendamento e foi retirada. Apenas clínica, equipe, ambiente e contato podem iniciar a escolha estatística. Query, fragmento, formulário, referência potencialmente sensível e carregador prévio impedem a inicialização. Eventos contêm códigos fixos de página e canal. O destino efetivo depende das configurações do contêiner.
+
+O responsável deve obter leitura do contêiner informado (versão publicada e workspace) e de GA4 Admin na conta correta. Confirmar a propriedade, o fluxo e o destino em ambos os painéis. A resposta do recurso público mostra um destino diferente do registrado nesta documentação e opções automáticas incompatíveis com o projeto. Não ativar na configuração atual. Preparar uma versão de homologação revisada com coleta de dados fornecidos pelo usuário, formulários, medições ampliadas, Google Signals, remarketing e personalização desativados. Sem gatilhos globais nem HTML personalizado. Usar somente os dois eventos autorizados, sobrescrever page_location com o caminho institucional limpo, page_referrer vazio e page_title fixo e desabilitar send_page_view automático. Revisar também as variáveis do contêiner, retenção e texto de consentimento.
+
+Em propriedade e contêiner de teste aprovados, conferir Tag Assistant, DebugView e a rede com dados fictícios: recusa inicial, aceite único, revogação, navegação sensível e ausência de cliques duplicados. Aceite antigo v1 não autoriza a nova política. Uma futura ativação exige revisão de código e autorização de publicação. Para reversão, desativar a flag e restaurar a versão do contêiner autorizada.

@@ -4,11 +4,11 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
 const publicPages = [
-  "index.html", "clinica/index.html", "equipe/index.html", "mel/index.html",
-  "procedimentos/index.html", "protocolos/index.html", "resultados/index.html",
-  "ambiente/index.html", "valores/index.html", "contato/index.html",
+  "clinica/index.html", "equipe/index.html",
+  "ambiente/index.html", "contato/index.html",
 ];
 const protectedPages = [
+  "index.html","mel/index.html","procedimentos/index.html","protocolos/index.html","resultados/index.html","valores/index.html",
   "gestao/index.html", "gestao/login/index.html", "gestao/anamnese-remota/index.html",
   "admin/index.html", "agenda/index.html", "agendamento/index.html",
 ];
@@ -25,14 +25,14 @@ function fakeElement(tagName) {
   };
 }
 
-function runScript(source, pathname, choice = null) {
+function runScript(source, pathname, choice = null, options={}) {
   const head = fakeElement("head");
   const body = fakeElement("body");
   const footer = fakeElement("footer");
   const values = new Map();
-  if (choice !== null) values.set("bc_analytics_consent_v1", choice);
+  if (choice !== null) values.set("bc_analytics_consent_v2", choice);
   const document = {
-    head, body, title: "BC Estética", referrer: "https://google.com/search?q=nome-paciente",
+    head, body, title: "BC Estética", referrer: options.referrer || "", cookie:"", addEventListener() {},
     readyState: "complete",
     createElement: fakeElement,
     querySelector: (selector) => selector === "footer" ? footer : null,
@@ -41,11 +41,11 @@ function runScript(source, pathname, choice = null) {
     hostname: "www.bcesteticaavancada.com.br",
     origin: "https://www.bcesteticaavancada.com.br",
     pathname,
-    search: "?email=paciente%40example.com&saude=teste",
-    hash: "#dados",
+    search: options.search || "",
+    hash: options.hash || "",
     reload() { this.reloaded = true; },
   };
-  const window = {};
+  const window = options.window || {};
   vm.runInNewContext(source, {
     window, document, location,
     localStorage: {
@@ -57,7 +57,7 @@ function runScript(source, pathname, choice = null) {
   return { head, body, footer, window, location, values };
 }
 
-test("tag da BC somente nas dez páginas institucionais", async () => {
+test("tag da BC somente nas quatro páginas institucionais elegíveis", async () => {
   for (const path of publicPages) {
     const html = await readFile(fromRoot(path), "utf8");
     const relative = path === "index.html" ? "analytics-public.js" : "../analytics-public.js";
@@ -70,37 +70,34 @@ test("tag da BC somente nas dez páginas institucionais", async () => {
   }
 });
 
-test("nenhuma tag de terceiros antes do aceite expresso", async () => {
-  const script = await readFile(fromRoot("analytics-public.js"), "utf8");
-  const ctx = runScript(script, "/");
-  assert.equal(ctx.head.children.filter((node) => node.tagName === "script").length, 0);
-  const banner = ctx.body.children.find((node) => node.tagName === "section");
-  assert.ok(banner);
-  assert.ok(ctx.footer.children.some((node) => node.textContent === "Preferências de privacidade"));
+const source=await readFile(fromRoot("analytics-public.js"),"utf8");
+// Apenas o fixture altera a política em memória. Nenhuma requisição externa é feita.
+const approved=source.replace("const policyApproved = false","const policyApproved = true");
+const scripts=ctx=>ctx.head.children.filter(el=>el.tagName==="script");
 
-  const buttons = banner.children[1].children;
-  buttons[1].listeners.click();
-  assert.equal(ctx.values.get("bc_analytics_consent_v1"), "accepted");
-  const tags = ctx.head.children.filter((node) => node.tagName === "script");
-  assert.equal(tags.length, 1);
-  assert.match(tags[0].src, /^https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-240XLK51VK$/);
-  const events = ctx.window.dataLayer.map((args) => Array.from(args));
-  const config = events.find((entry) => entry[0] === "config");
-  const pageview = events.find((entry) => entry[0] === "event" && entry[1] === "page_view");
-  assert.equal(config[2].send_page_view, false);
-  assert.equal(pageview[2].page_location, "https://www.bcesteticaavancada.com.br/");
-  assert.equal(pageview[2].page_referrer, "https://google.com");
-  assert.doesNotMatch(JSON.stringify(events), /paciente|saude=teste|nome-paciente|example\.com/);
-});
-
-test("recusa e rotas sensíveis nunca inicializam o GA4", async () => {
-  const script = await readFile(fromRoot("analytics-public.js"), "utf8");
-  const rejected = runScript(script, "/", "rejected");
-  assert.equal(rejected.head.children.filter((node) => node.tagName === "script").length, 0);
-  assert.equal(rejected.body.children.filter((node) => node.tagName === "section").length, 0);
-  for (const path of ["/gestao/", "/gestao/anamnese-remota/", "/agendamento/", "/agenda/", "/nfc/"]) {
-    const ctx = runScript(script, path, "accepted");
-    assert.equal(ctx.head.children.length, 0, path);
-    assert.equal(ctx.body.children.length, 0, path);
+test("a versão entregue fica inerte mesmo com consentimento gravado",()=>{
+  for (const page of ["/clinica/","/equipe/","/ambiente/","/contato/"]) {
+    const ctx=runScript(source,page,"accepted");
+    assert.equal(scripts(ctx).length,0);assert.equal(ctx.body.children.length,0);
   }
+});
+test("aceite, preferência e revogação usam um único contêiner e eventos fechados",()=>{
+  const ctx=runScript(approved,"/clinica/");
+  assert.equal(scripts(ctx).length,0);
+  const banner=ctx.body.children[0];
+  banner.children[1].children[1].listeners.click();
+  assert.equal(scripts(ctx).length,1);assert.equal(scripts(ctx)[0].referrerPolicy,"no-referrer");
+  assert.match(scripts(ctx)[0].src,/gtm\.js\?id=GTM-W8NFXSFW$/);
+  assert.equal(ctx.window.dataLayer.filter(x=>x.event==="bc_institutional_view").length,1);
+  assert.equal(ctx.window.dataLayer.at(-1).bc_page,"clinica");
+  ctx.footer.children[0].listeners.click();
+  ctx.body.children.at(-1).children[1].children[0].listeners.click();
+  assert.equal(ctx.values.get("bc_analytics_consent_v2"),"rejected");assert.equal(ctx.location.reloaded,true);
+});
+test("recusa, rotas excluídas, parâmetros, referências sensíveis e tags anteriores não carregam o GTM",()=>{
+  assert.equal(scripts(runScript(approved,"/equipe/","rejected")).length,0);
+  for(const page of ["/","/procedimentos/","/protocolos/","/gestao/","/agenda/","/agendamento/","/nfc/","/valores/","/diamond/","/futura/"])
+    assert.equal(scripts(runScript(approved,page,"accepted")).length,0,page);
+  for(const options of [{search:"?email=teste"},{hash:"#cliente"},{referrer:"https://www.bcesteticaavancada.com.br/agenda/"},{referrer:"https://site.test/paciente"},{window:{dataLayer:[]}}])
+    assert.equal(scripts(runScript(approved,"/clinica/","accepted",options)).length,0);
 });

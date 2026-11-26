@@ -2,15 +2,23 @@
 (() => {
   "use strict";
 
-  const measurementId = "G-240XLK51VK";
-  const choiceKey = "bc_analytics_consent_v1";
-  const hosts = new Set([
-    "bcesteticaavancada.com.br",
-    "www.bcesteticaavancada.com.br",
-    "bcesteticaavancada.github.io",
-  ]);
-  const excluded = /\/(?:gestao|admin|agenda|agendamento|backup|instalar|nfc)(?:\/|$)/i;
-  if (!hosts.has(location.hostname) || excluded.test(location.pathname)) return;
+  const policyApproved = false;
+  const containerId = "GTM-W8NFXSFW";
+  const choiceKey = "bc_analytics_consent_v2";
+  const official = "https://www.bcesteticaavancada.com.br";
+  const pages = new Map([["/clinica/", "clinica"], ["/equipe/", "equipe"], ["/ambiente/", "ambiente"], ["/contato/", "contato"]]);
+  if (!policyApproved || location.origin !== official || !pages.has(location.pathname) ||
+      location.search || location.hash || document.querySelector("form") || window.google_tag_manager || window.gtag || window.dataLayer ||
+      document.querySelector('script[src*="googletagmanager.com"],script[src*="google-analytics.com"]')) return;
+
+  // Um contêiner de terceiro pode ler document.referrer ao carregar.
+  // Recusar entradas com parâmetros, fragmentos, caminhos internos sensíveis ou origem externa com caminho.
+  if (document.referrer) {
+    let ref;
+    try { ref = new URL(document.referrer); } catch { return; }
+    if (!["https:", "http:"].includes(ref.protocol) || ref.search || ref.hash || ref.username || ref.password ||
+        (ref.pathname !== "/" && !(ref.origin === official && pages.has(ref.pathname)))) return;
+  }
 
   let active = false;
   let banner = null;
@@ -23,47 +31,39 @@
     try { localStorage.setItem(choiceKey, choice); } catch { /* Sem persistência: pedir novamente. */ }
   }
 
-  function safeReferrer() {
-    try { return document.referrer ? new URL(document.referrer).origin : ""; }
-    catch { return ""; }
-  }
-
   function startAnalytics() {
     if (active) return;
     active = true;
-
-    // Nada do conteúdo de formulários, fragmentos ou parâmetros de URL é enviado.
-    const cleanLocation = location.origin + location.pathname;
-    const referrerOrigin = safeReferrer();
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function () { window.dataLayer.push(arguments); };
-
-    window.gtag("consent", "default", {
-      analytics_storage: "denied",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-    });
-    window.gtag("consent", "update", { analytics_storage: "granted" });
-    window.gtag("js", new Date());
-    window.gtag("config", measurementId, {
-      send_page_view: false,
-      page_location: cleanLocation,
-      page_referrer: referrerOrigin,
-      allow_google_signals: false,
-      allow_ad_personalization_signals: false,
-    });
-    window.gtag("event", "page_view", {
-      send_to: measurementId,
-      page_location: cleanLocation,
-      page_referrer: referrerOrigin,
-      page_title: document.title,
-    });
-
+    const layer = window.dataLayer = [];
+    function consent() { layer.push(arguments); }
+    consent("consent", "default", {analytics_storage:"denied", ad_storage:"denied", ad_user_data:"denied", ad_personalization:"denied"});
+    consent("consent", "update", {analytics_storage:"granted"});
+    layer.push({"gtm.start":Date.now(),event:"gtm.js"});
     const tag = document.createElement("script");
     tag.async = true;
-    tag.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(measurementId);
+    tag.referrerPolicy = "no-referrer";
+    tag.src = "https://www.googletagmanager.com/gtm.js?id="+containerId;
     document.head.appendChild(tag);
+    const page = pages.get(location.pathname);
+    layer.push({event:"bc_institutional_view",bc_page:page});
+    document.addEventListener("click", event => {
+      const a = event.target.closest?.("a[href]");
+      if (!active || !a) return;
+      let channel;
+      if (a.protocol === "tel:") channel="telefone";
+      if (a.protocol === "https:" && a.hostname === "wa.me") channel="whatsapp";
+      if (channel) layer.push({event:"bc_public_contact",bc_page:page,bc_channel:channel});
+    });
+  }
+
+  function clearAnalyticsCookies() {
+    for (const entry of document.cookie.split(";")) {
+      const name=entry.trim().split("=")[0];
+      if (!/^_ga(?:_[A-Za-z0-9]+)?$/.test(name)) continue;
+      for (const domain of ["", "; Domain=www.bcesteticaavancada.com.br","; Domain=bcesteticaavancada.com.br"]) {
+        document.cookie=name+"=; Max-Age=0; Path=/; Secure; SameSite=Lax"+domain;
+      }
+    }
   }
 
   function hideBanner() {
@@ -75,10 +75,11 @@
     saveChoice(choice);
     hideBanner();
     if (choice === "accepted") startAnalytics();
-    else if (active) location.reload(); // Interrompe a tag já carregada após revogação.
+    else if (active) { active=false; clearAnalyticsCookies(); location.reload(); }
   }
 
   function showBanner() {
+    hideBanner();
     if (banner) return;
     banner = document.createElement("section");
     banner.className = "bc-analytics-consent";
@@ -86,7 +87,7 @@
     banner.setAttribute("aria-label", "Escolha sobre estatísticas do site");
 
     const message = document.createElement("p");
-    message.textContent = "Podemos usar cookies de estatísticas para entender as visitas ao site? Não enviamos dados dos formulários clínicos ao Analytics.";
+    message.textContent = "A BC pode usar cookies de estatísticas para contar visitas a esta página e cliques nos canais de contato? Você pode mudar sua escolha no rodapé.";
     const buttons = document.createElement("div");
     buttons.className = "bc-analytics-actions";
 
