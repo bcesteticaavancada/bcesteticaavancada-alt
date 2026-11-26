@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#201c18">
+  <title>Central de Inteligência e Integrações BC | BC Gestão</title>
+  <link rel="stylesheet" href="./central.css">
+</head>
+<body>
+  <header><div class="mast"><span class="sig" aria-hidden="true">BC</span><div><span class="brand">BC Estética Avançada</span><br>Gestão interna</div><a id="back" href="../">Voltar à gestão</a></div></header>
+  <main>
+    <div class="intro"><p class="eyebrow">BC Gestão · Homologação</p><h1>Central de Inteligência<br>e Integrações BC</h1></div>
+    <p id="gate" role="status">Conferindo o ambiente de homologação…</p>
+    <div id="panel" hidden>
+      <nav aria-label="Seções"><a href="#conexoes">Conexões</a><a href="#indicadores">Indicadores</a><a href="#roque">Roque IA</a><a href="#atividade">Atividade</a></nav>
+      <section id="conexoes"><div class="heading"><h2>Conexões</h2><button id="refresh" type="button">Atualizar estado</button></div><p id="observed"></p><div id="services" class="grid"></div></section>
+      <section id="indicadores"><h2>Indicadores</h2><div id="actions" class="actions"></div><p id="metricStatus" role="status"></p><div id="metrics" aria-live="polite"></div><button id="csv" type="button" hidden>Baixar indicadores em CSV</button></section>
+      <section id="roque" class="chat"><div class="heading"><h2>Roque IA</h2><button id="clear" type="button">Limpar conversa</button></div><p>Consulte guias internos e prepare ações para revisão. A conversa fica aberta apenas nesta sessão.</p>
+        <div id="messages" role="log" aria-live="polite"></div>
+        <form id="chat"><label for="prompt">Sua pergunta</label><div class="entry"><input id="prompt" maxlength="350" autocomplete="off" placeholder="Como conferir o backup?"><button>Consultar</button></div></form>
+        <button id="voice" type="button" hidden>Ditar no dispositivo</button>
+        <div class="actions"><button data-topic="seo" type="button">Nota de SEO</button><button data-topic="operacao" type="button">Nota operacional</button><button data-topic="comercial" type="button">Nota comercial</button><button id="workspace" type="button">Criar documento de homologação</button></div>
+        <div id="review" hidden><p id="reviewText"></p><button id="confirm" type="button">Confirmar ação</button> <button id="cancel" type="button">Cancelar</button></div><p id="chatStatus" role="status"></p><a id="doc" hidden target="_blank" rel="noopener noreferrer">Abrir documento criado</a>
+      </section>
+      <section id="atividade"><h2>Histórico de operações</h2><p id="usage"></p><ul id="history"></ul></section>
+    </div>
+  </main><script type="module" src="./central.js"></script>
+</body>
+</html>

@@ -22,6 +22,7 @@ on:
       - 'scripts/test-public-navigation-browser.mjs'
       - 'scripts/test-campaigns-browser.mjs'
       - 'scripts/test-maya-browser.mjs'
+      - 'scripts/test-central-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -44,6 +45,7 @@ on:
       - 'scripts/test-public-navigation-browser.mjs'
       - 'scripts/test-campaigns-browser.mjs'
       - 'scripts/test-maya-browser.mjs'
+      - 'scripts/test-central-browser.mjs'
       - 'tests/gestao/**'
       - 'package.json'
       - 'package-lock.json'
@@ -84,6 +86,10 @@ jobs:
         run: node scripts/test-public-navigation-browser.mjs
       - name: Maya internal browser tests with synthetic profiles
         run: node scripts/test-maya-browser.mjs
+      - name: Central de integrações em desktop, Android e WebKit
+        run: node scripts/test-central-browser.mjs
+      - name: Typecheck da Central
+        run: deno check supabase/functions/bc-central/index.ts
       - name: Upload Maya browser screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -7,3 +7,7 @@ verify_jwt = false
 # O worker usa segredo privado do agendador validado por RPC service_role.
 [functions.return-reminders]
 verify_jwt = false
+
+# A função valida o token de usuário em /auth/v1/user e confere o perfil ativo a cada operação.
+[functions.bc-central]
+verify_jwt = false
