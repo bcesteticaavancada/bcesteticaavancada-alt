@@ -78,3 +78,23 @@ test('IndexNow verification file exists at root and contains only the public key
   const key = '344fc1cd179648fe8495ce927331cad2';
   assert.equal(readFileSync(new URL('../../' + key + '.txt', import.meta.url), 'utf8').trim(), key);
 });
+
+test('todas as páginas do sitemap são alcançáveis da home por links HTML e têm metadados coerentes', async () => {
+  const {parseHTML}=await import('linkedom');
+  const xml=readFileSync(new URL('../../sitemap.xml', import.meta.url),'utf8');
+  const pages=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(hit=>hit[1]);
+  const edges=new Map(), titles=new Set(), descriptions=new Set();
+  for(const page of pages){
+    const file=new URL('../../'+new URL(page).pathname.slice(1)+'index.html',import.meta.url);
+    const {document}=parseHTML(readFileSync(file,'utf8'));
+    assert.equal(document.querySelector('meta[property="og:url"]').content,page);
+    assert.equal(document.querySelectorAll('h1').length,1,page);
+    assert.equal(document.querySelectorAll('img:not([alt])').length,0,page);
+    titles.add(document.title);descriptions.add(document.querySelector('meta[name="description"]').content);
+    edges.set(page,[...document.querySelectorAll('a[href]')].map(a=>new URL(a.getAttribute('href'),page).href.split(/[?#]/)[0]).filter(u=>pages.includes(u)));
+  }
+  assert.equal(titles.size,pages.length);assert.equal(descriptions.size,pages.length);
+  const seen=new Set([canonical]);
+  for(const page of seen)for(const target of edges.get(page))seen.add(target);
+  assert.deepEqual([...seen].sort(),pages.sort());
+});
