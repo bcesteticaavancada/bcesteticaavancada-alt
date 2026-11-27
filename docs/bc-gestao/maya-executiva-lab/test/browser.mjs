@@ -22,7 +22,7 @@ try{
   const payment=page.locator('[data-kind="recebimento"]').first();await payment.locator('[name=data]').fill('2026-03-10');await payment.locator('[name=conferencia]').selectOption('recebimento_conferido');
   await payment.getByRole('button',{name:'Revisar campos'}).click();await payment.getByRole('button',{name:'Confirmar no laboratório'}).click();await page.getByText('Registrado no laboratório',{exact:true}).nth(2).waitFor();
   const ret=page.locator('[data-kind="agendamento"]').first();await ret.getByRole('button',{name:'Cancelar'}).click();await ret.getByText('Cancelado',{exact:true}).waitFor();
-  await page.locator('#history').click();assert.match(await page.locator('#log').innerText(),/Recebimento/);
+  await page.locator('#history').click();await page.waitForFunction(()=>/Recebimento/.test(document.querySelector('#log')?.innerText||''));assert.match(await page.locator('#log').innerText(),/Recebimento/);
   // Native PDF, image-only PDF and synthetic photos use the real shipped browser engines.
   const metrics=await page.evaluate(async()=>{
    const {readMedia,makePdf,pcm16}=await import('/media.mjs'),{rectify,whole,surface}=await import('/scan.mjs'),{extract}=await import('/extract.mjs');
