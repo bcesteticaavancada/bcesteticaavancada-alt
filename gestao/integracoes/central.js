@@ -125,7 +125,7 @@ async function boot(){
   if(Recognition && 'processLocally' in Recognition.prototype){
     $('voice').hidden=false;$('voice').onclick=()=>{try{speech=new Recognition();speech.processLocally=true;speech.lang='pt-BR';speech.onresult=e=>{if(!panel.hidden)$('prompt').value=e.results[0][0].transcript.slice(0,350);};speech.onerror=()=>showError('chatStatus',Error('Ditado local indisponível. Digite a pergunta.'));speech.start();}catch{showError('chatStatus',Error('Ditado local indisponível.'));}};
   }
-  window.addEventListener('pagehide',()=>{panel.hidden=true;clearSensitive();});
+  window.addEventListener('pagehide',()=>{panel.hidden=true;if($('review'))clearSensitive();});
   window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)void authorized();});
   gate.hidden=true;panel.hidden=false;
