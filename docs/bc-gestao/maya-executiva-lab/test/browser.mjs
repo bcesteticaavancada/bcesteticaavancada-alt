@@ -16,7 +16,7 @@ try{
   const card=page.locator('[data-kind="cadastro"]').first();await card.getByRole('button',{name:'Revisar campos'}).click();await card.getByRole('button',{name:'Voltar e corrigir'}).click();
   const phone=profile==='Pixel 7'?'31900002222':'31900001111';await card.locator('[name="telefone"]').fill(phone);
   if(profile==='Pixel 7')await card.locator('input[type=checkbox]').check();
-  await card.getByRole('button',{name:'Revisar campos'}).click();await card.getByRole('button',{name:'Confirmar no laboratório'}).click();await card.getByRole('button',{name:'Abrir cadastro'}).click();assert.match(await page.locator('#client p').textContent(),/Íris Exemplo/);
+  await card.getByRole('button',{name:'Revisar campos'}).click();await card.getByRole('button',{name:'Confirmar no laboratório'}).click();await card.getByRole('button',{name:'Abrir cadastro'}).click();await page.waitForFunction(()=>/Íris Exemplo/.test(document.querySelector('#client p')?.textContent||''));assert.match(await page.locator('#client p').textContent(),/Íris Exemplo/);
   const att=page.locator('[data-kind="atendimento"]').first();for(const [name,val] of Object.entries({procedimento:'Exemplo',profissional:'Equipe Fictícia',data:'2026-03-10',hora:'11:00'}))await att.locator('[name='+name+']').fill(val);
   await att.getByRole('button',{name:'Revisar campos'}).click();await att.getByRole('button',{name:'Confirmar no laboratório'}).click();await page.getByText('Registrado no laboratório',{exact:true}).nth(1).waitFor();
   const payment=page.locator('[data-kind="recebimento"]').first();await payment.locator('[name=data]').fill('2026-03-10');await payment.locator('[name=conferencia]').selectOption('recebimento_conferido');
