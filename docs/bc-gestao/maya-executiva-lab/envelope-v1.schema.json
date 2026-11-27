@@ -1,0 +1,793 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Maya Executiva · envelope sintético v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "versao_contrato": {
+      "const": "1.0.0"
+    },
+    "intake_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "chave_idempotencia": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "criado_em": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "origem_captura": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "modalidade": {
+          "type": "string",
+          "enum": [
+            "texto",
+            "audio",
+            "fotografia",
+            "pdf_texto_nativo",
+            "pdf_digitalizado"
+          ]
+        },
+        "mime_type": {
+          "type": "string",
+          "enum": [
+            "text/plain",
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "application/pdf",
+            "audio/webm",
+            "audio/ogg",
+            "audio/mp4",
+            "audio/mpeg",
+            "audio/wav",
+            "audio/aac"
+          ]
+        },
+        "sha256_arquivo": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "motor_utilizado": {
+          "type": "string",
+          "enum": [
+            "parser_texto_local",
+            "vosk_wasm_local",
+            "transcricao_manual",
+            "tesseract_wasm_local",
+            "conferencia_manual",
+            "pdfjs_nativo_local",
+            "pdfjs_tesseract_local"
+          ]
+        },
+        "processado_100_local": {
+          "const": true
+        },
+        "confianca_global": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "modalidade",
+        "mime_type",
+        "sha256_arquivo",
+        "motor_utilizado",
+        "processado_100_local",
+        "confianca_global"
+      ]
+    },
+    "governanca": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ambiente": {
+          "const": "homologacao_sintetica"
+        },
+        "revisao_humana": {
+          "const": true
+        },
+        "provedor_externo": {
+          "const": false
+        }
+      },
+      "required": [
+        "ambiente",
+        "revisao_humana",
+        "provedor_externo"
+      ]
+    },
+    "entidades": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/operacao"
+          },
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "cadastro"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "nome": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "telefone": {
+                        "type": "string",
+                        "pattern": "^[0-9]{10,11}$"
+                      },
+                      "email": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 180,
+                        "format": "email"
+                      },
+                      "data_nascimento": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "cpf": {
+                        "type": "string",
+                        "pattern": "^[0-9]{11}$"
+                      },
+                      "logradouro": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "numero": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "complemento": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "bairro": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "cidade": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "uf": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                      },
+                      "cep": {
+                        "type": "string",
+                        "pattern": "^[0-9]{8}$"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "atualizacao_cadastral"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "nome": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "telefone": {
+                        "type": "string",
+                        "pattern": "^[0-9]{10,11}$"
+                      },
+                      "email": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 180,
+                        "format": "email"
+                      },
+                      "data_nascimento": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "cpf": {
+                        "type": "string",
+                        "pattern": "^[0-9]{11}$"
+                      },
+                      "logradouro": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "numero": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "complemento": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "bairro": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "cidade": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "uf": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                      },
+                      "cep": {
+                        "type": "string",
+                        "pattern": "^[0-9]{8}$"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "atendimento"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "procedimento": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "profissional": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "data": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "hora": {
+                        "type": "string",
+                        "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                      },
+                      "contratado_centavos": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000000000
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "recebimento"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "atendimento_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "valor_centavos": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000000000
+                      },
+                      "meio": {
+                        "type": "string",
+                        "enum": [
+                          "pix",
+                          "dinheiro",
+                          "credito",
+                          "debito",
+                          "transferencia"
+                        ]
+                      },
+                      "data": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "conferencia": {
+                        "type": "string",
+                        "enum": [
+                          "recebimento_conferido"
+                        ]
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "despesa"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "descricao": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "valor_centavos": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000000000
+                      },
+                      "competencia": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "situacao": {
+                        "type": "string",
+                        "enum": [
+                          "a_pagar",
+                          "paga"
+                        ]
+                      },
+                      "pago_em": {
+                        "type": "string",
+                        "format": "date"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "parcelamento"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "atendimento_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "saldo_centavos": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000000000
+                      },
+                      "parcelas": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 72
+                      },
+                      "vencimento": {
+                        "type": "string",
+                        "format": "date"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "agendamento"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "procedimento": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "profissional": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "data": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "hora": {
+                        "type": "string",
+                        "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "documento"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "titulo": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "categoria": {
+                        "type": "string",
+                        "enum": [
+                          "tcle_externo",
+                          "exame_documento_apresentado",
+                          "documento_digitalizado",
+                          "relatorio_externo",
+                          "outro_clinico"
+                        ]
+                      },
+                      "data": {
+                        "type": "string",
+                        "format": "date"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "const": "vinculo_documental"
+                  },
+                  "campos": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "cliente_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "documento_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "atendimento_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": []
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "campos"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "versao_contrato",
+    "intake_id",
+    "chave_idempotencia",
+    "criado_em",
+    "origem_captura",
+    "governanca",
+    "entidades"
+  ],
+  "$defs": {
+    "operacao": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "intake_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "cadastro",
+            "atualizacao_cadastral",
+            "atendimento",
+            "recebimento",
+            "despesa",
+            "parcelamento",
+            "agendamento",
+            "documento",
+            "vinculo_documental"
+          ]
+        },
+        "campos": {},
+        "campos_faltantes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "maxItems": 32
+        },
+        "evidencias": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campo": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "trecho": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "pagina": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 20
+              }
+            },
+            "required": [
+              "campo",
+              "trecho",
+              "pagina"
+            ]
+          },
+          "maxItems": 20
+        },
+        "dependencias": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 12
+        },
+        "estado_revisao": {
+          "type": "string",
+          "enum": [
+            "rascunho",
+            "em_conferencia",
+            "confirmada",
+            "cancelada"
+          ]
+        },
+        "identidade_autorizada": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "chave_idempotencia": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "expira_em": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "resultado": {
+          "type": "string",
+          "enum": [
+            "pendente",
+            "registrado_em_homologacao",
+            "cancelado"
+          ]
+        },
+        "referencia_oficial": {
+          "type": "null"
+        },
+        "referencia_homologacao": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "origem_captura": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "modalidade": {
+              "type": "string",
+              "enum": [
+                "texto",
+                "audio",
+                "fotografia",
+                "pdf_texto_nativo",
+                "pdf_digitalizado"
+              ]
+            },
+            "mime_type": {
+              "type": "string",
+              "enum": [
+                "text/plain",
+                "image/png",
+                "image/jpeg",
+                "image/webp",
+                "application/pdf",
+                "audio/webm",
+                "audio/ogg",
+                "audio/mp4",
+                "audio/mpeg",
+                "audio/wav",
+                "audio/aac"
+              ]
+            },
+            "sha256_arquivo": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "motor_utilizado": {
+              "type": "string",
+              "enum": [
+                "parser_texto_local",
+                "vosk_wasm_local",
+                "transcricao_manual",
+                "tesseract_wasm_local",
+                "conferencia_manual",
+                "pdfjs_nativo_local",
+                "pdfjs_tesseract_local"
+              ]
+            },
+            "processado_100_local": {
+              "const": true
+            },
+            "confianca_global": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "modalidade",
+            "mime_type",
+            "sha256_arquivo",
+            "motor_utilizado",
+            "processado_100_local",
+            "confianca_global"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "intake_id",
+        "tipo",
+        "campos",
+        "campos_faltantes",
+        "evidencias",
+        "dependencias",
+        "estado_revisao",
+        "identidade_autorizada",
+        "chave_idempotencia",
+        "expira_em",
+        "resultado",
+        "referencia_oficial",
+        "referencia_homologacao",
+        "origem_captura"
+      ]
+    }
+  }
+}

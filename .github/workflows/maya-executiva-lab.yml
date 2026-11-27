@@ -1,0 +1,39 @@
+name: Maya Executiva - homologacao isolada
+on:
+  push:
+    branches: [work/maya-executiva-multimodal-foundation]
+    paths:
+      - 'docs/bc-gestao/maya-executiva-lab/**'
+      - 'docs/bc-gestao/maya-finance-preview/engine.mjs'
+      - 'scripts/operations/maya-cloud-readonly.sh'
+      - '.github/workflows/maya-executiva-lab.yml'
+  pull_request:
+    branches: [work/central-integracoes-homologacao]
+    paths:
+      - 'docs/bc-gestao/maya-executiva-lab/**'
+      - '.github/workflows/maya-executiva-lab.yml'
+permissions:
+  contents: read
+concurrency:
+  group: maya-executiva-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: bash -n scripts/operations/maya-cloud-readonly.sh
+      - name: Ferramentas locais com hashes fixos
+        run: python3 docs/bc-gestao/maya-executiva-lab/prepare-assets.py --voice
+      - name: Contratos e autorização
+        run: node --test docs/bc-gestao/maya-executiva-lab/prepare.test.mjs docs/bc-gestao/maya-executiva-lab/test/*.test.mjs
+      - name: Navegadores com mídia fictícia
+        run: |
+          node docs/bc-gestao/maya-executiva-lab/test/browser.mjs chromium
+          node docs/bc-gestao/maya-executiva-lab/test/browser.mjs webkit

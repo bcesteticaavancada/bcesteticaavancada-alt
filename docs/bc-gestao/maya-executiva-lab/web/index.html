@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#1e2220">
+<title>Maya Executiva • BC Gestão</title><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header><div class="brand"><span class="monogram">BC</span><span>BC Estética Avançada<small>Gestão interna</small></span></div><span class="mode">Homologação</span></header>
+<main><div class="mast"><div><p class="kicker">Assistente da gestão</p><h1>Maya Executiva</h1></div><button id="history" hidden>Histórico</button></div>
+<p id="gate" role="status">Conferindo o acesso…</p>
+<div id="desk" hidden>
+<section class="compose"><label for="message">O que vamos registrar?</label>
+<textarea id="message" rows="3" maxlength="2400" placeholder="Ex.: Cadastre a cliente da foto e prepare o recebimento."></textarea>
+<div class="tools"><button id="mic" type="button">Gravar áudio</button><label class="tool">Câmera<input id="camera" type="file" accept="image/*" capture="environment"></label><label class="tool">Galeria<input id="gallery" type="file" accept="image/*" multiple></label><label class="tool">Anexar<input id="files" type="file" accept=".pdf,image/*,audio/*" multiple></label></div>
+<div id="attachments"></div><button id="pdf" hidden>Baixar digitalização em PDF</button>
+<div class="foot"><label>Preparar<select id="kind"><option value="auto">Interpretar pedido</option></select></label><button id="prepare" class="primary">Preparar conferência</button></div></section>
+<div class="after"><button id="example" class="link">Experimentar um exemplo fictício</button><span>Use somente dados fictícios.</span></div>
+<p id="status" role="status" aria-live="polite"></p><section id="cards" aria-label="Cartões de conferência"></section>
+<section id="log" hidden><h2>Histórico da sessão</h2><ul></ul></section><section id="client" hidden><h2>Cadastro de homologação</h2><p></p></section>
+</div></main><script type="module" src="/app.mjs"></script></body></html>
