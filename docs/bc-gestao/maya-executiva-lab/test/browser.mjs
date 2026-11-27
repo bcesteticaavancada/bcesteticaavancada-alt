@@ -13,8 +13,16 @@ try{
   await page.goto(lab.origin+'/#'+lab.issue());await page.locator('#desk').waitFor();
   await page.locator('#example').click();await page.locator('#prepare').click();await page.locator('.card').first().waitFor();
   assert.equal(await page.locator('.card').count(),5);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  const card=page.locator('[data-kind="cadastro"]').first();await card.getByRole('button',{name:'Revisar campos'}).click();await card.getByRole('button',{name:'Voltar e corrigir'}).click();
-  const phone=profile==='Pixel 7'?'31900002222':'31900001111';await card.locator('[name="telefone"]').fill(phone);
+  const card=page.locator('[data-kind="cadastro"]').first();
+  const phone=profile==='Pixel 7'?'31900002222':'31900001111';
+  if(profile==='Pixel 7'){
+   await card.getByRole('button',{name:'Revisar campos'}).click();
+   await page.waitForFunction(()=>/Já existe cadastro com esse telefone ou CPF/.test(document.querySelector('#status')?.textContent||''));
+   await card.locator('[name="telefone"]').fill(phone);
+   await card.locator('input[type=checkbox]').check();
+  }
+  await card.getByRole('button',{name:'Revisar campos'}).click();await card.getByRole('button',{name:'Voltar e corrigir'}).click();
+  await card.locator('[name="telefone"]').fill(phone);
   if(profile==='Pixel 7')await card.locator('input[type=checkbox]').check();
   await card.getByRole('button',{name:'Revisar campos'}).click();await card.getByRole('button',{name:'Confirmar no laboratório'}).click();await card.getByRole('button',{name:'Abrir cadastro'}).click();await page.waitForFunction(()=>/Íris Exemplo/.test(document.querySelector('#client p')?.textContent||''));assert.match(await page.locator('#client p').textContent(),/Íris Exemplo/);
   const att=page.locator('[data-kind="atendimento"]').first();for(const [name,val] of Object.entries({procedimento:'Exemplo',profissional:'Equipe Fictícia',data:'2026-03-10',hora:'11:00'}))await att.locator('[name='+name+']').fill(val);
