@@ -4,13 +4,16 @@ const costly=new Set(['brief','workspace']);
 const uuid=/^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i;
 const enc=new TextEncoder();
 const asHex=bytes=>Array.from(new Uint8Array(bytes),n=>n.toString(16).padStart(2,'0')).join('');
+export const reviewTtlMs = 300_000;
+export const activeCentralProfile = p => p?.active === true && ['admin','admin_criacao'].includes(p.role);
+export const canReadCash = p => activeCentralProfile(p) && p.role === 'admin';
 
 async function approval(secret,actor,body,now,token) {
   const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
-  const expires=token ? Number(token.split('.')[0]) : now+300000;
+  const expires=token ? Number(token.split('.')[0]) : now+reviewTtlMs;
   const message=enc.encode([actor,body.action,body.topic||'',body.key,expires].join('|'));
   if (!token) return expires+'.'+asHex(await crypto.subtle.sign('HMAC',key,message));
-  if (!/^\d{13}\.[a-f\d]{64}$/.test(token) || expires<=now || expires>now+300000) return false;
+  if (!/^\d{13}\.[a-f\d]{64}$/.test(token) || expires<=now || expires>now+reviewTtlMs) return false;
   const sig=Uint8Array.from(token.split('.')[1].match(/../g),b=>parseInt(b,16));
   return crypto.subtle.verify('HMAC',key,sig,message);
 }
@@ -30,7 +33,7 @@ async function readBody(req){
   } finally {reader.releaseLock();}
 }
 
-export function createHandler({origin,enabled,secret,identify,ledger,providers,cash,clock=()=>new Date()}) {
+export function createHandler({origin,enabled,secret,identify,ledger,providers,cash,cashWindow=dateWindow,clock=()=>new Date()}) {
   return async function handle(req){
     const allowed=Boolean(origin && req.headers.get('origin')===origin);
     const headers={'Cache-Control':'no-store','Vary':'Origin','Content-Type':'application/json','X-Content-Type-Options':'nosniff'};
@@ -46,7 +49,7 @@ export function createHandler({origin,enabled,secret,identify,ledger,providers,c
     let profile;
     try {profile=await identify(bearer);} catch {return reply(503,{error:'autenticacao_indisponivel'});}
     if(!profile)return reply(401,{error:'sessao'});
-    if(!profile.active || !['admin','admin_criacao'].includes(profile.role))return reply(403,{error:'perfil'});
+    if(!activeCentralProfile(profile))return reply(403,{error:'perfil'});
     let b;
     try {b=await readBody(req);}catch{return reply(400,{error:'pedido'});}
     if(!b || Array.isArray(b) || !actions.includes(b.action) || !uuid.test(b.key||'') ||
@@ -54,7 +57,7 @@ export function createHandler({origin,enabled,secret,identify,ledger,providers,c
        (b.action==='brief' ? !Object.hasOwn(subjects,b.topic) : 'topic' in b) ||
        ('prepare' in b && (b.prepare!==true || !costly.has(b.action))) ||
        ('approval' in b && (!costly.has(b.action) || b.prepare || typeof b.approval!=='string')))return reply(400,{error:'pedido'});
-    if(b.action==='cash' && profile.role!=='admin')return reply(403,{error:'perfil'});
+    if(b.action==='cash' && !canReadCash(profile))return reply(403,{error:'perfil'});
     if(b.action in providers.configured && !providers.configured[b.action])return reply(503,{error:'configuracao'});
     const now=clock();
     try {
@@ -77,7 +80,7 @@ export function createHandler({origin,enabled,secret,identify,ledger,providers,c
         return reply(409,{error:'pedido_ja_registrado',state:slot.state});
       }
       try {
-        const period=dateWindow(now);
+        const period=b.action==='cash'?cashWindow(now):dateWindow(now);
         let result;
         switch(b.action){
           case 'status': result={role:profile.role,environment:'homologacao',observed:now.toISOString(),

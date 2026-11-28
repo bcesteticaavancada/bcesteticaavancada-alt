@@ -1,0 +1,141 @@
+{
+  "packages": {
+    "pdfjs-dist": {
+      "version": "5.6.205",
+      "integrity": "sha512-tlUj+2IDa7G1SbvBNN74UHRLJybZDWYom+k6p5KIZl7huBvsA4APi6mKL+zCxd3tLjN5hOOEE9Tv7VdzO88pfg==",
+      "files": {
+        "legacy/build/pdf.min.mjs": {
+          "path": "pdf.mjs",
+          "sha256": "0d29c4871eff0b72f3896825f2673ddf7dfbccf815a7095a5d14f5aa68fab0e5"
+        },
+        "legacy/build/pdf.worker.min.mjs": {
+          "path": "pdf.worker.mjs",
+          "sha256": "7fc442c268d107d656755252cf38c422a88e825b7f0caaac6a5f58364dff4179"
+        },
+        "wasm/LICENSE_JBIG2": {
+          "path": "pdf-wasm/LICENSE_JBIG2",
+          "sha256": "9e66b7f1b934a28b37f3bc4dac97915de1674271e79a0a88182a18ed9731b4d1"
+        },
+        "wasm/LICENSE_OPENJPEG": {
+          "path": "pdf-wasm/LICENSE_OPENJPEG",
+          "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+        },
+        "wasm/LICENSE_PDFJS_JBIG2": {
+          "path": "pdf-wasm/LICENSE_PDFJS_JBIG2",
+          "sha256": "aad3cce09842e00e9e11ad5e8fef8cc02fbc3a3768fe2f007443b9cee37aaee5"
+        },
+        "wasm/LICENSE_PDFJS_OPENJPEG": {
+          "path": "pdf-wasm/LICENSE_PDFJS_OPENJPEG",
+          "sha256": "717fc62da03292dbb4dd0c8280bd4ce7bb8550dcf31d772bc93455fb50313425"
+        },
+        "wasm/LICENSE_PDFJS_QCMS": {
+          "path": "pdf-wasm/LICENSE_PDFJS_QCMS",
+          "sha256": "eb5104ca33552be007857a28351bc408f379ddd4bfacab1226b09c6d1e9fd7c4"
+        },
+        "wasm/LICENSE_QCMS": {
+          "path": "pdf-wasm/LICENSE_QCMS",
+          "sha256": "36d847ae882f6574ebc72f56a4f354e4f104fde4a584373496482e97d52d31bc"
+        },
+        "wasm/jbig2.wasm": {
+          "path": "pdf-wasm/jbig2.wasm",
+          "sha256": "e6bee67724a7b5436fe8162638e3708cfc8d52b6342db69a49715e30ff27cfdc"
+        },
+        "wasm/openjpeg.wasm": {
+          "path": "pdf-wasm/openjpeg.wasm",
+          "sha256": "67b8e2b162da472e98cb48d3d32e3e38fff481b9b32ff4818e78bb248af88ab2"
+        },
+        "wasm/openjpeg_nowasm_fallback.js": {
+          "path": "pdf-wasm/openjpeg_nowasm_fallback.js",
+          "sha256": "07c3c3361827308741bc31c561b59e705ebb4d1e8efb84e4d24884e230dbb894"
+        },
+        "wasm/qcms_bg.wasm": {
+          "path": "pdf-wasm/qcms_bg.wasm",
+          "sha256": "6017eca5939cde1836e88e6d8cd27ae039246f206515ea4487bdfd0e3fb16e26"
+        },
+        "LICENSE": {
+          "path": "licenses/pdfjs",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        }
+      }
+    },
+    "pdf-lib": {
+      "version": "1.17.1",
+      "integrity": "sha512-V/mpyJAoTsN4cnP31vc0wfNA1+p20evqqnap0KLoRUN0Yk/p3wN52DOEsL4oBFcLdb76hlpKPtzJIgo67j/XLw==",
+      "files": {
+        "dist/pdf-lib.min.js": {
+          "path": "pdf-lib.min.js",
+          "sha256": "0f9a5cad07941f0826586c94e089d89b918c46e5c17cf2d5a3c6f666e3bc694f"
+        },
+        "LICENSE.md": {
+          "path": "licenses/pdf-lib",
+          "sha256": "f2c9fc00fdb66eb99ac156ba52d734af66d8d309f65753ae809ad34ee2883bcb"
+        }
+      }
+    },
+    "tesseract.js": {
+      "version": "7.0.0",
+      "integrity": "sha512-exPBkd+z+wM1BuMkx/Bjv43OeLBxhL5kKWsz/9JY+DXcXdiBjiAch0V49QR3oAJqCaL5qURE0vx9Eo+G5YE7mA==",
+      "files": {
+        "dist/tesseract.min.js": {
+          "path": "ocr.js",
+          "sha256": "000c27d9cd0def655f77b36c72a389c0ab13793aa31cb4d7aab56d09c0afbc7e"
+        },
+        "dist/worker.min.js": {
+          "path": "ocr-worker.js",
+          "sha256": "576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d"
+        },
+        "LICENSE.md": {
+          "path": "licenses/tesseract",
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+        },
+        "dist/tesseract.min.js.LICENSE.txt": {
+          "path": "licenses/tesseract-dist",
+          "sha256": "cdf963ced7d25a0f98901a547647b4d6e2dbe0197fd78c87a059a87b0e542fe2"
+        },
+        "dist/worker.min.js.LICENSE.txt": {
+          "path": "licenses/tesseract-worker",
+          "sha256": "45f54171aeaa1d10c0c1a66f374b7bba1f02472b1487fbe892eec04f840002ac"
+        }
+      }
+    },
+    "tesseract.js-core": {
+      "version": "7.0.0",
+      "integrity": "sha512-WnNH518NzmbSq9zgTPeoF8c+xmilS8rFIl1YKbk/ptuuc7p6cLNELNuPAzcmsYw450ca6bLa8j3t0VAtq435Vw==",
+      "files": {
+        "tesseract-core-lstm.js": {
+          "path": "tesseract-core-lstm.js",
+          "sha256": "6510efc4e8b45c5465df30679b9911ffe0071cd2ee982fa064e6f5136ef2de85"
+        },
+        "tesseract-core-lstm.wasm": {
+          "path": "tesseract-core-lstm.wasm",
+          "sha256": "66b17df6e20c5329a17ffa9c202a47eaa3e32500b253d4c7f38e7f2bc01457c3"
+        },
+        "LICENSE": {
+          "path": "licenses/tesseract-core",
+          "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+        }
+      }
+    },
+    "vosk-browser": {
+      "version": "0.0.8",
+      "integrity": "sha512-df9MuChirUGKxP/+4k8tBV6hJOic8IRdJXv64+ET0Ue5CddOzLZINiHOWCka765gBzHJWNtQKgaYakS0FXZIJA==",
+      "optional": "voice",
+      "files": {
+        "dist/vosk.js": {
+          "path": "vosk.js"
+        }
+      }
+    }
+  },
+  "models": {
+    "por.traineddata.gz": {
+      "url": "https://raw.githubusercontent.com/naptha/tessdata/806cd9adc8c6e8abc11c782db1818c990576bebc/4.0.0_fast/por.traineddata.gz",
+      "sha256": "7b0f1749aa255a593b14160c75f74690be740edcae94c5a45efc24ab50235f4d"
+    },
+    "voz-pt.tar.gz": {
+      "url": "https://huggingface.co/Andesprit/vosk-small/resolve/main/vosk-model-small-pt-0.3.tar.gz",
+      "sha256": "d7c0e5abc0a0f7457d511fd4e12bc8e9be1fc1e21893beb77189c28e5adcca4e",
+      "optional": "voice"
+    }
+  }
+}
