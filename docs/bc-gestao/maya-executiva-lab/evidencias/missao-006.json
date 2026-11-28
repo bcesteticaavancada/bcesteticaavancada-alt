@@ -1,0 +1,238 @@
+{
+  "missao": "BC-PONTE-006",
+  "executado_em": "2026-11-28T00:35:27.364Z",
+  "data_ficticia": "2026-11-27",
+  "criterios": [
+    {
+      "id": 1,
+      "nome": "Cadastro fictício",
+      "resultado": "Pass",
+      "evidencia": {
+        "antes": 0,
+        "sem_revisao_http": 403,
+        "apos_negacao": 0,
+        "id": "3be5aeb4-9646-4e66-a92c-547c1c152674",
+        "nome": "Íris Exemplo",
+        "telefone_ficticio": "00900000006",
+        "encontrados": 1
+      }
+    },
+    {
+      "id": 2,
+      "nome": "Atendimento",
+      "resultado": "Pass",
+      "evidencia": {
+        "http": 200,
+        "cliente": "3be5aeb4-9646-4e66-a92c-547c1c152674",
+        "atendimento": "4086667c-c04c-44b6-ba5a-7e051ffc359d",
+        "data": "2026-11-26",
+        "documento": "964844b5-6b06-485c-af52-5fcc89827424"
+      }
+    },
+    {
+      "id": 3,
+      "nome": "Recebimento em centavos",
+      "resultado": "Pass",
+      "evidencia": {
+        "rascunho": 68000,
+        "payload": 68000,
+        "persistido": 68000,
+        "tipo_sqlite": "integer",
+        "fracao_http": 400,
+        "contratado": 90000,
+        "data_caixa": "2026-11-27",
+        "historico": 1
+      }
+    },
+    {
+      "id": 4,
+      "nome": "Saldo consolidado",
+      "resultado": "Pass",
+      "evidencia": {
+        "http": [
+          200,
+          200
+        ],
+        "antes_centavos": 0,
+        "depois_centavos": 68000,
+        "negativa_http": 403,
+        "interface": "Saldo realizado: R$ 680,00"
+      }
+    },
+    {
+      "id": 5,
+      "nome": "Retorno",
+      "resultado": "Pass",
+      "evidencia": {
+        "id": "b59074e2-984d-40dd-82a3-1e47b1badad8",
+        "atendimento": "4086667c-c04c-44b6-ba5a-7e051ffc359d",
+        "cliente": "3be5aeb4-9646-4e66-a92c-547c1c152674",
+        "data": "2026-12-11",
+        "visivel": true
+      }
+    },
+    {
+      "id": 6,
+      "nome": "Documento local",
+      "resultado": "Pass",
+      "evidencia": {
+        "motor": "pdfjs_nativo_local",
+        "classe": "tcle_externo",
+        "sha256": "ed9fa4db9405da945684dba048e7c745214c862a9848e52abb652886089e14c4",
+        "bytes": 592,
+        "arquivo_privado": "600",
+        "get_publico": 404,
+        "interfaces": [
+          "lo"
+        ],
+        "namespace_apenas_loopback": true,
+        "requisicoes_externas": 0,
+        "violacoes_csp": 0
+      }
+    },
+    {
+      "id": 7,
+      "nome": "RBAC",
+      "resultado": "Pass",
+      "evidencia": {
+        "criacao_sessao": 200,
+        "interface_oculta": true,
+        "caixa_http": 403,
+        "confirmar_recebimento_http": 403,
+        "anexar_http": 403,
+        "registros_apos_negacao": [
+          0,
+          0
+        ],
+        "mesma_sessao_ativa_revogada": [
+          200,
+          403
+        ],
+        "admin": 200
+      }
+    },
+    {
+      "id": 8,
+      "nome": "TTL 300 s",
+      "resultado": "Pass",
+      "evidencia": {
+        "ttl_ms": 300000,
+        "aprovada_aos_299s": 200,
+        "aos_300s": 409,
+        "aos_301s": 409,
+        "nova_revisao": 200,
+        "despesas_antes_depois": [
+          0,
+          0
+        ],
+        "saldo_final": 68000
+      }
+    },
+    {
+      "id": 9,
+      "nome": "Idempotência concorrente",
+      "resultado": "Pass",
+      "evidencia": {
+        "corridas": {
+          "cadastro": {
+            "http": [
+              200,
+              200
+            ],
+            "mesma_referencia": true
+          },
+          "recebimento": {
+            "http": [
+              200,
+              200
+            ],
+            "mesma_referencia": true
+          },
+          "agendamento": {
+            "http": [
+              200,
+              200
+            ],
+            "mesma_referencia": true
+          },
+          "documento": {
+            "http": [
+              200,
+              200
+            ],
+            "mesma_referencia": true
+          }
+        },
+        "registros": {
+          "cadastro": 1,
+          "recebimento": 1,
+          "agendamento": 1,
+          "documento": 1
+        },
+        "originais": 1,
+        "saldo_centavos": 68000,
+        "reenvio_apos_ttl": 409
+      }
+    },
+    {
+      "id": 10,
+      "nome": "Auditoria privada",
+      "resultado": "Pass",
+      "evidencia": {
+        "eventos": {
+          "confirmada": 6,
+          "negada_rbac": 5,
+          "expirada": 3,
+          "repeticao_idempotente": 4
+        },
+        "campos": [
+          "id",
+          "actor",
+          "role",
+          "event",
+          "op",
+          "kind",
+          "at"
+        ],
+        "historico_admin": 200,
+        "historico_criacao": 403,
+        "erros_de_pagina": 0
+      }
+    }
+  ],
+  "navegador": "Chromium 158.0.8127.0",
+  "pass": 10,
+  "fail": 0,
+  "nao_executados": 0,
+  "fontes": {
+    "pr91": "a495962881108ddf3631d883b39b8463d75172dc",
+    "pr93": "857de7de36e00d7171efa79eabf777622aeac9b3",
+    "pr94_antes_das_correcoes": "a5b25e8df53c25ce59fa225f11c02440bc58b511"
+  },
+  "ambiente": "SQLite descartável em arquivo privado, lido por segunda conexão somente leitura. Chromium, API e PDF.js em namespace Linux com apenas loopback. Sessões de homologação e confirmações pela interface automatizada. Relógio controlado para os limites do TTL.",
+  "diagnostico_anterior": {
+    "head": "a5b25e8",
+    "isolatedTests": 27,
+    "cash": 404,
+    "creationSession": 403,
+    "storedName": "Íris   Exemplo",
+    "returnDependsOnVisit": false,
+    "returnList": 403,
+    "replayAudit": [
+      "confirmada"
+    ],
+    "auditFields": [
+      "id",
+      "actor",
+      "event",
+      "op",
+      "kind",
+      "at"
+    ]
+  },
+  "regressoes": {
+    "pr91": 14,
+    "contratos_maya_e_central": 38,
+    "falhas": 0
+  }
+}

@@ -4,8 +4,8 @@ import {readMedia,redoScan,makePdf,recorderMime,textSource} from './media.mjs';
 import {cents} from '/maya-finance-preview/engine.mjs';
 const $=s=>document.getElementById(s),node=(tag,text)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;return e;};
 const items=[],cards=new Map(),tokens=new Map(),urls=new Set();let voice=false,rec=null,stream=null,audioTimer=null,busy=false;
-const labels={nome:'Nome completo',telefone:'Telefone com DDD',email:'E-mail',data_nascimento:'Nascimento',cpf:'CPF',logradouro:'Rua',numero:'Número',complemento:'Complemento',bairro:'Bairro',cidade:'Cidade',uf:'UF',cep:'CEP',cliente_id:'Cliente',atendimento_id:'Atendimento',documento_id:'Documento',descricao:'Descrição',competencia:'Data de competência',situacao:'Situação',pago_em:'Data de pagamento',procedimento:'Procedimento',profissional:'Profissional',data:'Data',hora:'Horário',meio:'Forma de pagamento',valor_centavos:'Valor (R$)',saldo_centavos:'Saldo a receber (R$)',contratado_centavos:'Valor contratado (R$)',parcelas:'Número de parcelas',vencimento:'Primeiro vencimento',titulo:'Título',categoria:'Categoria',conferencia:'Verificação do recebimento'};
-const optionText=s=>({recebimento_conferido:'Conferi o recebimento por outra fonte',a_pagar:'A pagar',paga:'Paga',pix:'Pix',credito:'Crédito',debito:'Débito',tcle_externo:'TCLE externo',exame_documento_apresentado:'Exame apresentado',documento_digitalizado:'Documento digitalizado',relatorio_externo:'Relatório externo',outro_clinico:'Outro documento clínico'})[s]||s;
+const labels={finalidade:'Tipo de agendamento',nome:'Nome completo',telefone:'Telefone com DDD',email:'E-mail',data_nascimento:'Nascimento',cpf:'CPF',logradouro:'Rua',numero:'Número',complemento:'Complemento',bairro:'Bairro',cidade:'Cidade',uf:'UF',cep:'CEP',cliente_id:'Cliente',atendimento_id:'Atendimento',documento_id:'Documento',descricao:'Descrição',competencia:'Data de competência',situacao:'Situação',pago_em:'Data de pagamento',procedimento:'Procedimento',profissional:'Profissional',data:'Data',hora:'Horário',meio:'Forma de pagamento',valor_centavos:'Valor (R$)',saldo_centavos:'Saldo a receber (R$)',contratado_centavos:'Valor contratado (R$)',parcelas:'Número de parcelas',vencimento:'Primeiro vencimento',titulo:'Título',categoria:'Categoria',conferencia:'Verificação do recebimento'};
+const optionText=s=>({agendamento:'Agendamento',retorno:'Retorno',recebimento_conferido:'Conferi o recebimento por outra fonte',a_pagar:'A pagar',paga:'Paga',pix:'Pix',credito:'Crédito',debito:'Débito',tcle_externo:'TCLE externo',exame_documento_apresentado:'Exame apresentado',documento_digitalizado:'Documento digitalizado',relatorio_externo:'Relatório externo',outro_clinico:'Outro documento clínico'})[s]||s;
 const format=v=>(v/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const status=s=>{$('status').textContent=s;};
 const objUrl=b=>{const url=URL.createObjectURL(b);urls.add(url);return url;};
@@ -14,8 +14,32 @@ window.addEventListener('pagehide',cleanup);
 async function api(path,data={},extra={}){
  const r=await fetch('/api/'+path,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),...extra});
  let result;try{result=await r.json();}catch{throw Error('Servidor local indisponível. As alterações ainda não foram confirmadas.');}
- if(!r.ok){if(r.status===401&&path!=='session'){cleanup();$('desk').hidden=true;$('gate').hidden=false;$('gate').textContent='Sessão encerrada. Abra um novo acesso de homologação.';}throw Error(result.error);}
+ if(!r.ok){
+  if(path!=='session'&&(r.status===401||result.error==='perfil'||result.error==='Acesso indisponível para este perfil.')){
+   cleanup();$('desk').hidden=true;$('history').hidden=true;$('gate').hidden=false;
+   $('gate').textContent='Acesso operacional indisponível para esta sessão.';
+   for(const id of ['balance','cards','client','log','attachments'])$(id).replaceChildren();
+  }
+  throw Error(result.error);
+ }
  return result;
+}
+async function refreshCash(){
+ const {saldo_centavos}=await api('cash');
+ $('balance').textContent='Saldo realizado: R$ '+format(saldo_centavos);$('balance').hidden=false;
+}
+$('cash').onclick=()=>refreshCash().catch(e=>status(e.message));
+async function openClient(id){
+ const client=await api('client',{id}),section=$('client'),list=section.querySelector('ul');
+ section.querySelector('p').textContent=client.nome+' · '+client.telefone;list.replaceChildren();
+ for(const visit of client.atendimentos){
+  const item=node('li',visit.data+' · '+visit.procedimento),details=node('ul');
+  for(const r of visit.retornos)details.append(node('li','Retorno em '+r.data+' às '+r.hora));
+  for(const d of visit.documentos)details.append(node('li','Documento vinculado · '+optionText(d.categoria)));
+  for(const r of visit.recebimentos)details.append(node('li','Recebimento em '+r.data+' · R$ '+format(r.valor_centavos)));
+  if(details.childElementCount)item.append(details);list.append(item);
+ }
+ section.hidden=false;section.scrollIntoView();
 }
 function button(label,fn,cls=''){const b=node('button',label);b.type='button';b.className=cls;b.onclick=async()=>{b.disabled=true;try{await fn(b);}catch(e){status(e.message);}finally{b.disabled=false;}};return b;}
 function opt(select,value,label){const o=node('option',label);o.value=value;select.append(o);}
@@ -61,7 +85,7 @@ async function showCard(op,original){
  const row=node('div');row.className='row';row.append(node('h3',types[op.tipo].label),node('span',({rascunho:'Para conferir',em_conferencia:'Aguardando confirmação',confirmada:'Registrado no laboratório',cancelada:'Cancelado'})[op.estado_revisao]));box.append(row);
  if(['cancelada','confirmada'].includes(op.estado_revisao)){
   const client=op.campos.cliente_id||(op.tipo==='cadastro'?op.referencia_homologacao:null);
-  if(client&&op.estado_revisao==='confirmada')box.append(button('Abrir cadastro',async()=>{const c=await api('client',{id:client});$('client').hidden=false;$('client').querySelector('p').textContent=c.nome+' · '+c.telefone;$('client').scrollIntoView();},'link'));return;
+  if(client&&op.estado_revisao==='confirmada')box.append(button('Abrir cadastro',()=>openClient(client),'link'));return;
  }
  if(op.dependencias.length)box.append(node('p','As etapas anteriores devem estar confirmadas. O cadastro e os vínculos serão preenchidos pela Maya.'));
  if(op.tipo==='recebimento')box.append(node('p','Confira o recebimento no extrato ou no caixa antes de registrar.'));
@@ -93,6 +117,7 @@ async function showCard(op,original){
    if(op.tipo==='documento'){if(!original)throw Error('Selecione o original desta revisão.');done=await api('original',{}, {headers:{'Content-Type':'application/octet-stream','X-Review-ID':op.id,'X-Review-Token':token},body:original});}
    else done=await api('confirm',{id:op.id,token});
    await showCard(done,original);status('Operação conferida e registrada na base fictícia.');
+   if(!$('balance').hidden&&['recebimento','despesa'].includes(done.tipo))await refreshCash();
   },'primary'),button('Voltar e corrigir',async()=>{await api('invalidate',{id:op.id});tokens.delete(op.id);await showCard({...op,estado_revisao:'rascunho'},original);}));
  }else buttons.append(button('Revisar campos',async()=>{
   const values={};for(const [k,i] of Object.entries(fields)){const value=i.value.trim();if(!value)continue;values[k]=k.endsWith('_centavos')?cents(value):spec.fields[k].type==='integer'?Number(value):value;}
@@ -116,9 +141,11 @@ $('prepare').onclick=async()=>{
   status(total+' cartão(ões) para conferir.');$('cards').scrollIntoView({block:'start'});
  }catch(e){status(e.message);}finally{b.disabled=false;}
 };
-$('history').onclick=async()=>{try{const ul=$('log').querySelector('ul');ul.replaceChildren();const events=await api('history');for(const e of events)ul.append(node('li',types[e.kind].label+' · '+e.event+' · '+new Date(e.at).toLocaleTimeString('pt-BR')));if(!events.length)ul.append(node('li','Nenhuma operação confirmada ou cancelada.'));$('log').hidden=false;$('log').scrollIntoView();}catch(e){status(e.message);}};
+$('history').onclick=async()=>{try{const ul=$('log').querySelector('ul');ul.replaceChildren();const events=await api('history');for(const e of events)ul.append(node('li',(types[e.kind]?.label||e.kind)+' · '+e.event+' · '+new Date(e.at).toLocaleTimeString('pt-BR')));if(!events.length)ul.append(node('li','Nenhuma operação registrada.'));$('log').hidden=false;$('log').scrollIntoView();}catch(e){status(e.message);}};
 try{
  const ticket=location.hash.slice(1);history.replaceState(null,'',location.pathname);
- await api('session',ticket?{ticket}:{});voice=(await api('features')).voice;
+ const session=await api('session',ticket?{ticket}:{});
+ if(!session.operacional)throw Error('Seu perfil não tem acesso ao caixa nem aos registros deste laboratório.');
+ voice=(await api('features')).voice;
  $('gate').hidden=true;$('desk').hidden=false;$('history').hidden=false;
 }catch(e){$('gate').textContent=e.message;}

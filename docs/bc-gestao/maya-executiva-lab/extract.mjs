@@ -43,7 +43,10 @@ export function extract({message='',text='',source,kind='auto',filename=''}){
     const balance=price&&paid&&price[0]>paid[0]?[price[0]-paid[0],price[1]+' menos '+paid[1]]:amount(/(?:saldo|restante)\s*(?:de|:)?\s*(?:R\$\s*)?([0-9][\d.,]*\d|\d)/iu);
     operation('parcelamento',{saldo_centavos:balance,parcelas:field(/\b(\d{1,2})\s*(?:parcelas?|x\b)/iu,Number),vencimento:field(/vencimento\s*:\s*(\d{4}-\d\d-\d\d)/iu)},visitParent);
   }
-  if(wanted('agendamento',/retorno|agend/))operation('agendamento',{procedimento:visit.procedimento,profissional:visit.profissional},parent);
+  if(wanted('agendamento',/retorno|agend/)){
+    const isReturn=/retorno/.test(intent);
+    operation('agendamento',{procedimento:visit.procedimento,profissional:visit.profissional,finalidade:[isReturn?'retorno':'agendamento']},isReturn?visitParent:parent);
+  }
   const file=source.modalidade==='fotografia'||source.modalidade.startsWith('pdf_');
   if(file&&(kind==='auto'||kind==='documento'||kind==='vinculo_documental'))operation('documento',{titulo:[filename.slice(0,120)||'Documento',''],categoria:[/\btcle\b/i.test(data)?'tcle_externo':'documento_digitalizado','']},parent);
   if(file&&(kind==='vinculo_documental'||(kind==='auto'&&out.some(x=>x.tipo==='atendimento'))))operation('vinculo_documental',{},[...visitParent,'documento']);

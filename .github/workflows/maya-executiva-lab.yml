@@ -33,6 +33,12 @@ jobs:
         run: python3 docs/bc-gestao/maya-executiva-lab/prepare-assets.py --voice
       - name: Contratos e autorização
         run: node --test docs/bc-gestao/maya-executiva-lab/prepare.test.mjs docs/bc-gestao/maya-executiva-lab/test/*.test.mjs
+      - name: Missão 006 em rede exclusiva de loopback
+        run: |
+          sudo unshare --net -- sh -ec '
+            ip link set lo up
+            exec sudo -H -u "$1" -- env BC_006_REQUIRE_LOOPBACK=1 "$2" docs/bc-gestao/maya-executiva-lab/test/missao-006.mjs
+          ' sh "$(id -un)" "$(command -v node)"
       - name: Navegadores com mídia fictícia
         run: |
           node docs/bc-gestao/maya-executiva-lab/test/browser.mjs chromium

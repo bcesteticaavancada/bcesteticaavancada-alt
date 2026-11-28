@@ -10,6 +10,7 @@
 <main><div class="mast"><div><p class="kicker">Assistente da gestão</p><h1>Maya Executiva</h1></div><button id="history" hidden>Histórico</button></div>
 <p id="gate" role="status">Conferindo o acesso…</p>
 <div id="desk" hidden>
+<button id="cash" type="button">Consultar saldo de caixa</button><output id="balance" hidden aria-live="polite"></output>
 <section class="compose"><label for="message">O que vamos registrar?</label>
 <textarea id="message" rows="3" maxlength="2400" placeholder="Ex.: Cadastre a cliente da foto e prepare o recebimento."></textarea>
 <div class="tools"><button id="mic" type="button">Gravar áudio</button><label class="tool">Câmera<input id="camera" type="file" accept="image/*" capture="environment"></label><label class="tool">Galeria<input id="gallery" type="file" accept="image/*" multiple></label><label class="tool">Anexar<input id="files" type="file" accept=".pdf,image/*,audio/*" multiple></label></div>
@@ -17,5 +18,5 @@
 <div class="foot"><label>Preparar<select id="kind"><option value="auto">Interpretar pedido</option></select></label><button id="prepare" class="primary">Preparar conferência</button></div></section>
 <div class="after"><button id="example" class="link">Experimentar um exemplo fictício</button><span>Use somente dados fictícios.</span></div>
 <p id="status" role="status" aria-live="polite"></p><section id="cards" aria-label="Cartões de conferência"></section>
-<section id="log" hidden><h2>Histórico da sessão</h2><ul></ul></section><section id="client" hidden><h2>Cadastro de homologação</h2><p></p></section>
+<section id="log" hidden><h2>Histórico da sessão</h2><ul></ul></section><section id="client" hidden><h2>Cadastro de homologação</h2><p></p><ul></ul></section>
 </div></main><script type="module" src="/app.mjs"></script></body></html>

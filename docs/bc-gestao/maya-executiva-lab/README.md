@@ -9,4 +9,12 @@ Branch derivada do PR #93. Sem integração produtiva. O módulo prepare é some
 - Testar exclusivamente fixtures fictícios, duplicidade, homônimos, documento ilegível, injeção em imagem, sessão revogada, falha parcial, acesso cruzado, Android e WebKit. Nenhuma chave ou dado real.
 ## Teste
 node --test docs/bc-gestao/maya-executiva-lab/prepare.test.mjs
-Nove verificações equivalentes executadas em isolado JS antes do commit; Node/CI e navegador ainda pendentes.
+O protótipo inicial passou em nove verificações isoladas em JavaScript.
+
+## Missão 006 — piloto integrado
+
+A Maya usa o parser de centavos do #91 e o handler de caixa do #93. A revisão, o perfil ativo, os movimentos confirmados e o arquivo original compartilham o SQLite privado do laboratório. O caixa soma recebimentos e desconta despesas liquidadas até a data da clínica. A competência do atendimento e a data do recebimento são independentes.
+
+O roteiro em `test/missao-006.mjs` gera um banco descartável e abre uma segunda conexão somente para leitura. O Chromium percorre a interface com um PDF fictício. O teste compara as respostas HTTP com os registros gravados, repete confirmações em paralelo e avança o relógio do laboratório para verificar o limite de 300 segundos. O job de homologação executa esse roteiro com loopback como única interface de rede.
+
+[Matriz executada e evidências sintéticas](evidencias/missao-006.json)

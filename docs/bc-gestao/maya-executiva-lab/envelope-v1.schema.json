@@ -485,6 +485,17 @@
                       "hora": {
                         "type": "string",
                         "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                      },
+                      "finalidade": {
+                        "type": "string",
+                        "enum": [
+                          "agendamento",
+                          "retorno"
+                        ]
+                      },
+                      "atendimento_id": {
+                        "type": "string",
+                        "format": "uuid"
                       }
                     },
                     "required": []

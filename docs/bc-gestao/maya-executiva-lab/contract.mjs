@@ -23,7 +23,7 @@ export const types={
   recebimento:define('Recebimento',{cliente_id:uuid,atendimento_id:uuid,valor_centavos:money,meio:choice(methods),data:date,conferencia:choice(['recebimento_conferido'])},['cliente_id','atendimento_id','valor_centavos','meio','data','conferencia']),
   despesa:define('Despesa',{descricao:text(),valor_centavos:money,competencia:date,situacao:choice(['a_pagar','paga']),pago_em:date},['descricao','valor_centavos','competencia','situacao']),
   parcelamento:define('Saldo e parcelas a receber',{cliente_id:uuid,atendimento_id:uuid,saldo_centavos:money,parcelas:integer(72),vencimento:date},['cliente_id','atendimento_id','saldo_centavos','parcelas','vencimento']),
-  agendamento:define('Agendamento ou retorno',visit,Object.keys(visit)),
+  agendamento:define('Agendamento ou retorno',{...visit,finalidade:choice(['agendamento','retorno']),atendimento_id:uuid},Object.keys(visit)),
   documento:define('Pasta privada da cliente',{cliente_id:uuid,titulo:text(),categoria:choice(categories),data:date},['cliente_id','titulo','categoria']),
   vinculo_documental:define('Vínculo ao atendimento',{cliente_id:uuid,documento_id:uuid,atendimento_id:uuid},['cliente_id','documento_id','atendimento_id'])
 };
@@ -57,8 +57,13 @@ export function matchValue(spec,value){
 }
 export function checkedFields(type,fields){
   if(!Object.hasOwn(types,type)||!fields||typeof fields!=='object'||Array.isArray(fields))throw Error('Operação inválida.');
-  for(const [k,v] of Object.entries(fields))if(!Object.hasOwn(types[type].fields,k)||!matchValue(types[type].fields[k],v))throw Error('Confira o campo '+k+'.');
-  return {...fields};
+  const clean={...fields};
+  if(typeof clean.nome==='string')clean.nome=clean.nome.trim().replace(/\s+/gu,' ');
+  if(typeof clean.telefone==='string' && /^\s*(?:\+55\s*)?[\d() -]+\s*$/.test(clean.telefone)){
+    clean.telefone=clean.telefone.trim().replace(/^\+55/,'').replace(/\D/g,'');
+  }
+  for(const [k,v] of Object.entries(clean))if(!Object.hasOwn(types[type].fields,k)||!matchValue(types[type].fields[k],v))throw Error('Confira o campo '+k+'.');
+  return clean;
 }
 export function missing(type,fields){
   const result=types[type].required.filter(k=>fields[k]==null);
@@ -67,6 +72,7 @@ export function missing(type,fields){
   if(type==='despesa'&&fields.situacao==='paga'&&!fields.pago_em)result.push('pago_em');
   if(type==='despesa'&&fields.situacao==='a_pagar'&&fields.pago_em)result.push('situacao');
   if(type==='parcelamento'&&fields.parcelas>fields.saldo_centavos)result.push('parcelas');
+  if(type==='agendamento'&&fields.finalidade==='retorno'&&!fields.atendimento_id)result.push('atendimento_id');
   if(fields.data_nascimento&&fields.data_nascimento>new Date().toISOString().slice(0,10))result.push('data_nascimento');
   if(fields.cpf){
     const n=fields.cpf; let valid=!/^(\d)\1{10}$/.test(n);
