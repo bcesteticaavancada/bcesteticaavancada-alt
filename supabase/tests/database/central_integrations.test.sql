@@ -1,0 +1,23 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select no_plan();
+\ir ../fixtures/agenda.psql
+update public.staff_profiles set role='admin_criacao',atende_clientes=false,pode_gerenciar_agendas=false,pode_gerenciar_procedimentos=false,procedure_scope='explicit' where user_id=pg_temp.f('ordinary');
+select ok(not has_table_privilege('authenticated','private.bc_central_operations','SELECT'),'Histórico bruto privado');
+select ok(not has_function_privilege('anon','public.bc_central_cash_period(date,date)','execute'),'Caixa indisponível a anônimos');
+select ok(not has_function_privilege('authenticated','public.bc_central_begin(uuid,uuid,text)','execute'),'Reserva de auditoria somente no backend');
+select is(public.bc_central_begin(pg_temp.f('ordinary'),'b0000000-0000-4000-8000-000000000001','search')->>'state','nova','Criação pode consultar SEO');
+select is(public.bc_central_begin(pg_temp.f('ordinary'),'b0000000-0000-4000-8000-000000000001','search')->>'state','iniciada','Mesma chave não reexecuta');
+select is(public.bc_central_begin(pg_temp.f('admin'),'b0000000-0000-4000-8000-000000000001','search')->>'state','conflito','Chave de outra identidade não revela resultado');
+select throws_ok(format('select public.bc_central_begin(%L,gen_random_uuid(),%L)',pg_temp.f('ordinary'),'cash'),'42501','profile','Criação não reserva leitura financeira');
+select throws_ok(format('select public.bc_central_begin(%L,gen_random_uuid(),%L)',pg_temp.f('worker'),'search'),'42501','profile','Colaboradora não reserva operação administrativa');
+select set_config('request.jwt.claim.sub',pg_temp.f('ordinary')::text,true);
+set local role authenticated;
+select throws_ok('select public.bc_central_cash_period(current_date,current_date)','42501','Acesso negado ao financeiro.','Criação não obtém caixa via RPC');
+reset role;
+select public.bc_central_finish(pg_temp.f('ordinary'),'b0000000-0000-4000-8000-000000000001','concluida',null,null);
+select is(public.bc_central_history(pg_temp.f('ordinary'))->'operations'->0->>'state','concluida','Sucesso auditado');
+select ok(not (public.bc_central_history(pg_temp.f('ordinary'))->'operations'->0 ? 'actor_id'),'Resposta não contém identidade');
+select is(jsonb_array_length(public.bc_central_history(pg_temp.f('admin'))->'operations'),0,'Histórico de outra identidade isolado');
+select * from finish();
+rollback;
